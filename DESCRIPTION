@@ -1,0 +1,27 @@
+Package: etwfe
+Type: Package
+Title: Convenience functions for extended two-way fixed effects a la Wooldridge
+  (2021)
+Version: 0.1
+Date: 2022-10-12
+Authors@R: 
+    person(given = "Grant",
+           family = "McDermott",
+           role = c("aut", "cre"),
+           email = "grantmcd@uoregon.edu",
+           comment = c(ORCID = "0000-0001-7883-8573"))
+Description: Convenience functions for implementing extended (Mundlak) two-way 
+  fixed effect regressions a la Wooldridge (2021).
+License: MIT + file LICENSE
+Remotes:
+    vincentarelbundock/marginaleffects
+Imports:
+  fixest (>= 0.9.0),
+  stats,
+  Formula,
+  marginaleffects (>= 0.7.1.9000),
+Suggests: tinytest
+Encoding: UTF-8
+RoxygenNote: 7.2.1
+URL: https://github.com/grantmcdermott/etwfe
+BugReports: https://github.com/grantmcdermott/etwfe/issues
