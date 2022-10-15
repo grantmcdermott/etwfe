@@ -20,7 +20,9 @@ Imports:
   stats,
   Formula,
   marginaleffects (>= 0.7.1.9000),
-Suggests: tinytest
+Suggests:
+  did,
+  tinytest
 Encoding: UTF-8
 RoxygenNote: 7.2.1
 URL: https://github.com/grantmcdermott/etwfe
