@@ -57,7 +57,8 @@ head(mpdta)
 
 Now let's see a simple example. Note that the `gref` argument will be
 unnecessary in most cases. But we invoke it here explicitly, since the
-never-treated group in our dataset take on an unusual value (here: 0).
+"never-treated" group in the `mpdta` dataset takes on an unusual value (here:
+0).
 
 ```{r ex_simple}
 library(etwfe)
@@ -73,8 +74,9 @@ etwfe(
 
 As you can see, the key `etwfe()` function is effectively a wrapper around
 `fixest::feols()`. The resulting object is thus fully compatible with other
-**fixest** methods and functions like `etable()`. Non-linear models (e.g.
-"poisson") are also supported via the family argument.
+**fixest** methods and functions like `etable()`. We'll show that in the next
+example. Note that non-linear models (e.g. "poisson") are also supported via the
+`family` argument.
 
 One of the advantages of ETWFE is that it provides clear theoretical support for
 additional control variables. On the downside, these can tricky to code up
@@ -91,7 +93,8 @@ mod =
     data = mpdta,
     vcov = ~countyreal
   )
-mod
+
+fixest::etable(mod)
 ```
 
 The coefficients from an `etwfe()` estimation are not necessarily meaningful in

@@ -56,7 +56,8 @@ head(mpdta)
 
 Now let’s see a simple example. Note that the `gref` argument will be
 unnecessary in most cases. But we invoke it here explicitly, since the
-never-treated group in our dataset take on an unusual value (here: 0).
+“never-treated” group in the `mpdta` dataset takes on an unusual value
+(here: 0).
 
 ``` r
 library(etwfe)
@@ -97,8 +98,9 @@ etwfe(
 
 As you can see, the key `etwfe()` function is effectively a wrapper
 around `fixest::feols()`. The resulting object is thus fully compatible
-with other **fixest** methods and functions like `etable()`. Non-linear
-models (e.g. “poisson”) are also supported via the family argument.
+with other **fixest** methods and functions like `etable()`. We’ll show
+that in the next example. Note that non-linear models (e.g. “poisson”)
+are also supported via the `family` argument.
 
 One of the advantages of ETWFE is that it provides clear theoretical
 support for additional control variables. On the downside, these can
@@ -116,36 +118,38 @@ mod =
     data = mpdta,
     vcov = ~countyreal
   )
-mod
-#> OLS estimation, Dep. Var.: lemp
-#> Observations: 2,500 
-#> Fixed-effects: first.treat: 4,  year: 5
-#> Varying slopes: lpop (first.treat: 4),  lpop (year: 5)
-#> Standard-errors: Clustered (countyreal) 
-#>                                               Estimate Std. Error   t value
-#> .Dtreat:first.treat::2004:year::2004         -0.021248   0.021728 -0.977890
-#> .Dtreat:first.treat::2004:year::2005         -0.081850   0.027375 -2.989963
-#> .Dtreat:first.treat::2004:year::2006         -0.137870   0.030795 -4.477097
-#> .Dtreat:first.treat::2004:year::2007         -0.109539   0.032322 -3.389024
-#> .Dtreat:first.treat::2006:year::2006          0.002537   0.018883  0.134344
-#> .Dtreat:first.treat::2006:year::2007         -0.045093   0.021987 -2.050907
-#> .Dtreat:first.treat::2007:year::2007         -0.045955   0.017975 -2.556568
-#> .Dtreat:first.treat::2004:year::2004:lpop_dm  0.004628   0.017584  0.263184
-#>                                                Pr(>|t|)    
-#> .Dtreat:first.treat::2004:year::2004         3.2860e-01    
-#> .Dtreat:first.treat::2004:year::2005         2.9279e-03 ** 
-#> .Dtreat:first.treat::2004:year::2006         9.3851e-06 ***
-#> .Dtreat:first.treat::2004:year::2007         7.5694e-04 ***
-#> .Dtreat:first.treat::2006:year::2006         8.9318e-01    
-#> .Dtreat:first.treat::2006:year::2007         4.0798e-02 *  
-#> .Dtreat:first.treat::2007:year::2007         1.0866e-02 *  
-#> .Dtreat:first.treat::2004:year::2004:lpop_dm 7.9252e-01    
-#> ... 6 coefficients remaining (display them with summary() or use argument n)
-#> ... 10 variables were removed because of collinearity (.Dtreat:first.treat::2006:year::2004, .Dtreat:first.treat::2006:year::2005 and 8 others [full set in $collin.var])
+
+fixest::etable(mod)
+#>                                                                      mod
+#> Dependent Var.:                                                     lemp
+#>                                                                         
+#> .Dtreat x first.treat = 2004 x year = 2004              -0.0213 (0.0217)
+#> .Dtreat x first.treat = 2004 x year = 2005            -0.0819** (0.0274)
+#> .Dtreat x first.treat = 2004 x year = 2006           -0.1379*** (0.0308)
+#> .Dtreat x first.treat = 2004 x year = 2007           -0.1095*** (0.0323)
+#> .Dtreat x first.treat = 2006 x year = 2006               0.0025 (0.0189)
+#> .Dtreat x first.treat = 2006 x year = 2007             -0.0451* (0.0220)
+#> .Dtreat x first.treat = 2007 x year = 2007             -0.0459* (0.0180)
+#> .Dtreat x lpop_dm x first.treat = 2004 x year = 2004     0.0046 (0.0176)
+#> .Dtreat x lpop_dm x first.treat = 2004 x year = 2005     0.0251 (0.0179)
+#> .Dtreat x lpop_dm x first.treat = 2004 x year = 2006    0.0507* (0.0211)
+#> .Dtreat x lpop_dm x first.treat = 2004 x year = 2007     0.0112 (0.0266)
+#> .Dtreat x lpop_dm x first.treat = 2006 x year = 2006    0.0389* (0.0165)
+#> .Dtreat x lpop_dm x first.treat = 2006 x year = 2007    0.0381. (0.0225)
+#> .Dtreat x lpop_dm x first.treat = 2007 x year = 2007    -0.0198 (0.0162)
+#> Fixed-Effects:                                       -------------------
+#> first.treat                                                          Yes
+#> year                                                                 Yes
+#> Varying Slopes:                                      -------------------
+#> lpop (first.treat)                                                   Yes
+#> lpop (year)                                                          Yes
+#> ________________________________________             ___________________
+#> S.E.: Clustered                                           by: countyreal
+#> Observations                                                       2,500
+#> R2                                                               0.87321
+#> Within R2                                                        0.00084
 #> ---
-#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-#> RMSE: 0.537131     Adj. R2: 0.87167 
-#>                  Within R2: 8.449e-4
+#> Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ```
 
 The coefficients from an `etwfe()` estimation are not necessarily
