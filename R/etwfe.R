@@ -3,18 +3,20 @@
 ##' @param fml A formula with the outcome (lhs) and any additional control 
 ##' variables (rhs), e.g. `y ~ x1`. If no additional controls are required, the 
 ##' rhs must take the value of zero, e.g. `y ~ 0`.
-##' @param gvar Character. Group variable. In staggered treatment settings this 
-##' would correspond to a variable that denotes treatment cohorts.
+##' @param gvar Group variable. Can be either a string (e.g., "first_treated") 
+##' or an expression (e.g., first_treated). In a staggered treatment setting, 
+##' the group variable typically denotes treatment cohort.
 ##' @param gref Optional reference value for `gvar`. You shouldn't need to 
 ##' provide this if your `gvar` variable is well specified (by default we will
 ##' look to reference against a value greater than `max(tvar)`). But providing 
 ##' an explicit reference value can be useful/necessary if the never treated 
 ##' group, for example, takes an unusual value.
-##' @param tvar Character. Time variable.
+##' @param tvar Time variable. Can be a string (e.g., "year") or an expression
+##' (e.g., year).
 ##' @param tref Optional reference value for `tvar`. Defaults to its minimum 
 ##' value (i.e., the first time period observed in the dataset).
 ##' @param data The data frame that you want to run ETWFE on.
-##' @param cgroup Character. What control group do you wish to use for 
+##' @param cgroup What control group do you wish to use for 
 ##' estimating treatment effects. Either "notyet" treated (the default) or
 ##' "never" treated.
 ##' @param family Family to be used for the estimation. Passed to 
@@ -31,8 +33,8 @@
 ##' # Run the estimation
 ##' mod = etwfe(
 ##'     fml  = y ~ x1, 
-##'     gvar = "year_treated", 
-##'     tvar = "year", 
+##'     gvar = year_treated, 
+##'     tvar = year, 
 ##'     data = base_stagg, 
 ##'     vcov = ~ id
 ##'     )
@@ -56,6 +58,20 @@ etwfe = function(
   
   cgroup = match.arg(cgroup)
   rhs = ctrls = vs = ref_string = ctrls_dm_df = NULL
+  
+  if (is.null(fml)) stop("A non-NULL `fml` argument is required.\n")
+  if (is.null(data)) stop("A non-NULL `data` argument is required.\n")
+  
+  ## NSE ----
+  nl = as.list(seq_along(data))
+  names(nl) = names(data)
+  tvar = eval(substitute(tvar), nl, parent.frame())
+  if (is.numeric(tvar)) tvar = names(data)[tvar]
+  gvar = eval(substitute(gvar), nl, parent.frame())
+  if (is.numeric(gvar)) gvar = names(data)[gvar]
+  
+  if (is.null(gvar)) stop("A non-NULL `gvar` argument is required.\n")
+  if (is.null(tvar)) stop("A non-NULL `tvar` argument is required.\n")
   
   fml_paste = paste(fml)
   lhs = fml_paste[2]
@@ -109,6 +125,8 @@ etwfe = function(
   rhs = paste0(".Dtreat : ", rhs)
   
   rhs = paste0(rhs, "i(", gvar, ", i.", tvar, ref_string, ")")
+  
+  ## Demean and interact controls ----
   
   if (!is.null(ctrls)) {
     dm_fml = stats::reformulate(c(gvar, tvar), response = ctrls)
