@@ -119,37 +119,35 @@ mod =
     vcov = ~countyreal
   )
 
-fixest::etable(mod)
-#>                                                                      mod
-#> Dependent Var.:                                                     lemp
-#>                                                                         
-#> .Dtreat x first.treat = 2004 x year = 2004              -0.0213 (0.0217)
-#> .Dtreat x first.treat = 2004 x year = 2005            -0.0819** (0.0274)
-#> .Dtreat x first.treat = 2004 x year = 2006           -0.1379*** (0.0308)
-#> .Dtreat x first.treat = 2004 x year = 2007           -0.1095*** (0.0323)
-#> .Dtreat x first.treat = 2006 x year = 2006               0.0025 (0.0189)
-#> .Dtreat x first.treat = 2006 x year = 2007             -0.0451* (0.0220)
-#> .Dtreat x first.treat = 2007 x year = 2007             -0.0459* (0.0180)
-#> .Dtreat x lpop_dm x first.treat = 2004 x year = 2004     0.0046 (0.0176)
-#> .Dtreat x lpop_dm x first.treat = 2004 x year = 2005     0.0251 (0.0179)
-#> .Dtreat x lpop_dm x first.treat = 2004 x year = 2006    0.0507* (0.0211)
-#> .Dtreat x lpop_dm x first.treat = 2004 x year = 2007     0.0112 (0.0266)
-#> .Dtreat x lpop_dm x first.treat = 2006 x year = 2006    0.0389* (0.0165)
-#> .Dtreat x lpop_dm x first.treat = 2006 x year = 2007    0.0381. (0.0225)
-#> .Dtreat x lpop_dm x first.treat = 2007 x year = 2007    -0.0198 (0.0162)
-#> Fixed-Effects:                                       -------------------
-#> first.treat                                                          Yes
-#> year                                                                 Yes
-#> Varying Slopes:                                      -------------------
-#> lpop (first.treat)                                                   Yes
-#> lpop (year)                                                          Yes
-#> ________________________________________             ___________________
-#> S.E.: Clustered                                           by: countyreal
-#> Observations                                                       2,500
-#> R2                                                               0.87321
-#> Within R2                                                        0.00084
-#> ---
-#> Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+fixest::etable(mod, signif.code = NA)
+#>                                                                   mod
+#> Dependent Var.:                                                  lemp
+#>                                                                      
+#> .Dtreat x first.treat = 2004 x year = 2004           -0.0213 (0.0217)
+#> .Dtreat x first.treat = 2004 x year = 2005           -0.0819 (0.0274)
+#> .Dtreat x first.treat = 2004 x year = 2006           -0.1379 (0.0308)
+#> .Dtreat x first.treat = 2004 x year = 2007           -0.1095 (0.0323)
+#> .Dtreat x first.treat = 2006 x year = 2006            0.0025 (0.0189)
+#> .Dtreat x first.treat = 2006 x year = 2007           -0.0451 (0.0220)
+#> .Dtreat x first.treat = 2007 x year = 2007           -0.0459 (0.0180)
+#> .Dtreat x lpop_dm x first.treat = 2004 x year = 2004  0.0046 (0.0176)
+#> .Dtreat x lpop_dm x first.treat = 2004 x year = 2005  0.0251 (0.0179)
+#> .Dtreat x lpop_dm x first.treat = 2004 x year = 2006  0.0507 (0.0211)
+#> .Dtreat x lpop_dm x first.treat = 2004 x year = 2007  0.0112 (0.0266)
+#> .Dtreat x lpop_dm x first.treat = 2006 x year = 2006  0.0389 (0.0165)
+#> .Dtreat x lpop_dm x first.treat = 2006 x year = 2007  0.0381 (0.0225)
+#> .Dtreat x lpop_dm x first.treat = 2007 x year = 2007 -0.0198 (0.0162)
+#> Fixed-Effects:                                       ----------------
+#> first.treat                                                       Yes
+#> year                                                              Yes
+#> Varying Slopes:                                      ----------------
+#> lpop (first.treat)                                                Yes
+#> lpop (year)                                                       Yes
+#> ________________________________________             ________________
+#> S.E.: Clustered                                        by: countyreal
+#> Observations                                                    2,500
+#> R2                                                            0.87321
+#> Within R2                                                     0.00084
 ```
 
 The coefficients from an `etwfe()` estimation are not necessarily
