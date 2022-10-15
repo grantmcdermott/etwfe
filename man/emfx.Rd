@@ -4,12 +4,19 @@
 \alias{emfx}
 \title{Post-estimation treatment effects for an ETWFE regressions.}
 \usage{
-emfx(object, type = c("simple", "group", "calendar", "event"), ...)
+emfx(
+  object,
+  type = c("simple", "group", "calendar", "event"),
+  summary = TRUE,
+  ...
+)
 }
 \arguments{
 \item{object}{An `etwfe` model object.}
 
 \item{type}{Character. The desired type of post-estimation aggregation.}
+
+\item{summary}{Logical. Should the resulting marginaleffects objects be passed to `summary` before being returned? Defaults to TRUE, but mostly for aesthetics reasons.}
 
 \item{...}{Additional arguments passed to 
 `marginaleffects::marginaleffects`.}
@@ -19,4 +26,24 @@ A marginaleffects object.
 }
 \description{
 Post-estimation treatment effects for an ETWFE regressions.
+}
+\examples{
+# We'll use the 'base_stagg' dataset from fixest to demonstrate ETWFE's
+# functionality in a staggered difference-in-differences setting.
+data("base_stagg", package = "fixest")
+
+# Run the estimation
+mod = etwfe(
+    fml  = y ~ x1, 
+    gvar = "year_treated", 
+    tvar = "year", 
+    data = base_stagg, 
+    vcov = ~ id
+    )
+mod
+
+# We can recover a variety of treatment effects of interest with the 
+# complementary emfx() function. For example:
+emfx(mod, type = "event")
+
 }

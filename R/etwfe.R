@@ -89,23 +89,24 @@ etwfe = function(
   
   ref_string = paste0(", ref = ", gref)
   
-  if (cgroup=="notyet" || !is.null(tref)) {
-    if (is.null(tref)) {
-      tref = min(data[[tvar]])
-    } else if (!(tref %in% unique(data[[tvar]]))) {
+  if (is.null(tref)) {
+      tref = min(data[[tvar]], na.rm = TRUE)
+  } else if (!(tref %in% unique(data[[tvar]]))) {
       stop("Proposed reference level ", tref, " not found in ", tvar, ".\n")
-    }
-    if (length(tref) > 1) {
-      tref = min(tref) ## placeholder. could do something a bit smarter here like bin post periods.
-      ## also: what about NA vals?
-    }
-    ref_string = paste0(ref_string, ", ref2 = ", tref)
   }
+  if (length(tref) > 1) {
+      tref = min(tref, na.rm = TRUE) ## placeholder. could do something a bit smarter here like bin post periods.
+      ## also: what about NA vals?
+  }
+  ref_string = paste0(ref_string, ", ref2 = ", tref)
   
   if (cgroup == "notyet") {
-    data[[".Dtreat"]] = data[[tvar]] >= data[[gvar]] & data[[gvar]]!=gref
-    rhs = paste0(".Dtreat : ", rhs)
+    data[[".Dtreat"]] = as.integer(data[[tvar]] >= data[[gvar]] & data[[gvar]]!=gref)
+  } else {
+    ## Placeholder .Dtreat for never treated group
+    data[[".Dtreat"]] = 1L
   }
+  rhs = paste0(".Dtreat : ", rhs)
   
   rhs = paste0(rhs, "i(", gvar, ", i.", tvar, ref_string, ")")
   
