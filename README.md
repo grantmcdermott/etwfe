@@ -4,6 +4,8 @@
 # Extended two-way fixed effects (ETWFE)
 
 <!-- badges: start -->
+
+[![R-CMD-check](https://github.com/grantmcdermott/etwfe/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/grantmcdermott/etwfe/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 The goal of **etwfe** is to estimate extended (Mundlak) two-way fixed
@@ -22,9 +24,9 @@ some different internal choices).
 
 *Note:* While I’ve tested **ewtfe** against common use cases, the
 package is still under early development and should be considered
-experimental. I plan (hope) to add some more features and a full test
-suite at some point, while the documentation could also be improved. You
-can help by identifying any bugs and filing issues.
+experimental. I plan (hope) to add some more features and the
+documentation could also be improved. You can help by identifying any
+bugs and filing issues.
 
 ## Installation
 
@@ -64,8 +66,8 @@ library(etwfe)
 
 etwfe(
   fml  = lemp ~ 0,
-  gvar = "first.treat", gref = 0,
-  tvar = "year",
+  gvar = first.treat, gref = 0,
+  tvar = year,
   data = mpdta,
   vcov = ~countyreal
   )
@@ -113,8 +115,8 @@ control in our regression.
 mod = 
   etwfe(
     fml  = lemp ~ lpop,
-    gvar = "first.treat", gref = 0,
-    tvar = "year",
+    gvar = first.treat, gref = 0,
+    tvar = year,
     data = mpdta,
     vcov = ~countyreal
   )
