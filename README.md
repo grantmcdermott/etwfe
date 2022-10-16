@@ -12,12 +12,12 @@ The goal of **etwfe** is to estimate extended (Mundlak) two-way fixed
 effects *a la* [Wooldridge
 (2021)](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3906345).
 Briefly, Wooldridge proposes a set of saturated interaction effects to
-overcome the potential bias problems that arise from using vanilla TWFE
-in difference-in-differences designs. The Wooldridge solution is
-intuitive and elegant, but is rather tedious and error prone to code up
-manually. This package aims to simplify the process by providing
-convenience functions that do the work for you. **etwfe** thus provides
-an R equivalent of the
+overcome the potential bias problems of vanilla TWFE in
+difference-in-differences designs. The Wooldridge solution is intuitive
+and elegant, but rather tedious and error prone to code up manually.
+This package aims to simplify the process by providing convenience
+functions that do the work for you. **etwfe** thus provides an R
+equivalent of the
 [`JWDID`](https://ideas.repec.org/c/boc/bocode/s459114.html) Stata
 module and, indeed, shares some of the core design elements (albeit with
 some internal differences).
@@ -40,8 +40,9 @@ remotes::install_github("grantmcdermott/etwfe")
 
 ## Examples
 
-To demonstrate the core functionality of **etwfe**, I’ll follow the lead
-of `JWDID` by using an example dataset from the **did** package.
+To demonstrate the core functionality of **etwfe**, we’ll use the
+`mpdta` dataset from the **did** package. (You’ll need to install the
+latter separately.)
 
 ``` r
 # install.packages("did")
@@ -56,10 +57,7 @@ head(mpdta)
 #> 937 2003       8019 2.232377 4.997212        2007     1
 ```
 
-Now let’s see a simple example. Note that the `gref` argument will be
-unnecessary in most cases. But we invoke it here explicitly, since the
-“never-treated” group in the `mpdta` dataset takes on an unusual value
-(here: 0).
+Now let’s see a simple example.[^1]
 
 ``` r
 library(etwfe)
@@ -167,12 +165,14 @@ emfx(mod, type = "event")
 #> Prediction type:  response
 ```
 
+One
+
 ## Acknowledgements
 
 - [Jeffrey Wooldridge](https://twitter.com/jmwooldridge) for the
   [underlying
   theory](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3906345)
-  that drives this package.
+  behind ETWFE.
 - [Laurent Bergé](https://twitter.com/lrberge)
   ([**fixest**](https://lrberge.github.io/fixest/)) and [Vincent
   Arel-Bundock](https://twitter.com/VincentAB)
@@ -184,3 +184,9 @@ emfx(mod, type = "event")
   module, which has provided a welcome foil for checking results and
   whose elegant design helped inform my own choices for this R
   equivalent.
+
+[^1]: Note that the `gref` argument will be unnecessary in most cases.
+    But we invoke it here explicitly, since the “never-treated” group in
+    the `mpdta` dataset takes on an unusual value (here: 0). See the
+    `?etwfe` helpfile for information about other function arguments
+    that can be used to further customize the underlying estimation.
