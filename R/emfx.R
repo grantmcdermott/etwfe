@@ -2,10 +2,11 @@
 ##'
 ##' @param object An `etwfe` model object.
 ##' @param type Character. The desired type of post-estimation aggregation.
-##' @param summary Logical. Should the resulting marginaleffects objects be passed to `summary` before being returned? Defaults to TRUE, but mostly for aesthetics reasons.
+##' @param summary Logical. Should the resulting marginaleffects objects be passed to [`summary`] before being returned? Defaults to TRUE, but mostly for aesthetics reasons.
 ##' @param ... Additional arguments passed to 
-##' `marginaleffects::marginaleffects`.
+##' [`marginaleffects::marginaleffects`].
 ##' @return A marginaleffects object.
+##' @seealso [marginaleffects::marginaleffects()]
 ##' @inherit etwfe return examples
 ##' @export
 emfx = function(

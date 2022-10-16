@@ -16,10 +16,10 @@ emfx(
 
 \item{type}{Character. The desired type of post-estimation aggregation.}
 
-\item{summary}{Logical. Should the resulting marginaleffects objects be passed to `summary` before being returned? Defaults to TRUE, but mostly for aesthetics reasons.}
+\item{summary}{Logical. Should the resulting marginaleffects objects be passed to [`summary`] before being returned? Defaults to TRUE, but mostly for aesthetics reasons.}
 
 \item{...}{Additional arguments passed to 
-`marginaleffects::marginaleffects`.}
+[`marginaleffects::marginaleffects`].}
 }
 \value{
 A marginaleffects object.
@@ -46,4 +46,7 @@ mod
 # complementary emfx() function. For example:
 emfx(mod, type = "event")
 
+}
+\seealso{
+[marginaleffects::marginaleffects()]
 }

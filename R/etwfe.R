@@ -6,7 +6,7 @@
 ##' @param ivar Index variable. Can be a string (e.g., "country") or an 
 ##' expression (e.g., country). Leaving as NULL (the default) will result in
 ##' group-level fixed effects being used, which is more efficient and necessary 
-##' for nonlinear models (see `family`).
+##' for nonlinear models (see `family` argument below).
 ##' @param tvar Time variable. Can be a string (e.g., "year") or an expression
 ##' (e.g., year).
 ##' @param gvar Group variable. Can be either a string (e.g., "first_treated") 
@@ -30,13 +30,18 @@
 ##' for additional information on other (nuisance) model parameters. Note that
 ##' the primary treatment parameters of interest should remain unchanged 
 ##' regardless of choice.
-##' @param family Family to be used for the estimation. Defaults to NULL, in 
-##' which case `fixest::feols` is used. Otherwise passed to `fixest::feglm`, so
+##' @param family Which [`family`] to use for the estimation. Defaults to NULL, in 
+##' which case [`fixest::feols`] is used. Otherwise passed to [`fixest::feglm`], so
 ##' that valid entries include "logit", "poisson", and "negbin". Note that if a
 ##' non-NULL family entry is detected, `ivar` will automatically be set to NULL. 
-##' @param ... Additional arguments passed to `fixest::feols` (or 
-##' `fixest::feglm`). The most common example would be a `vcov` argument. 
+##' @param ... Additional arguments passed to [`fixest::feols`] (or 
+##' [`fixest::feglm`]). The most common example would be a `vcov` argument.
 ##' @return A fixest object with fully saturated interaction effects.
+##' @references Wooldridge, Jeffrey M. (2021). \cite{Two-Way Fixed Effects, the 
+##' Two-Way Mundlak Regression, and Difference-in-Differences Estimators}.
+##' Working paper (version: August 16, 2021). Available: 
+##' http://dx.doi.org/10.2139/ssrn.3906345
+##' @seealso [fixest::feols()], [fixest::feglm()]
 ##' @examples
 ##' # We'll use the 'base_stagg' dataset from fixest to demonstrate ETWFE's
 ##' # functionality in a staggered difference-in-differences setting.
