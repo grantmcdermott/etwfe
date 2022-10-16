@@ -23,16 +23,13 @@
 ##' @param cgroup What control group do you wish to use for 
 ##' estimating treatment effects. Either "notyet" treated (the default) or
 ##' "never" treated.
-##' @param fes What level of fixed effects should be used? By default, `etwfe`
-##' takes an efficient and lean approach by delegating all "nuisance" parameters 
-##' to the fixed effect slot. For cases with control variables, this will invoke 
-##' `fixest`'s varying slope syntax. However, at some cost to efficiency, users 
-##' can retain additional information in the model by estimating these 
-##' parameters as part of the model rhs (i.e., not as varying slopes or even 
-##' regular fixed effects). The main treatment parameters of interested should 
-##' be unaffected, regardless of which approach option is used for this 
-##' argument: "vs" = varying slopes + fixed effects (the default and most 
-##' permissive), "fe" = fixed effects only, or "none" = no fixed effects.
+##' @param fe What level of fixed effects should be used? Defaults to "vs" 
+##' (varying slopes), which is the most efficient in terms of estimation and 
+##' terseness of the return model object. The other two options, "feo" (fixed 
+##' effects only) and "none" (no fixed effects whatsoever), trade off efficiency
+##' for additional information on other (nuisance) model parameters. Note that
+##' the primary treatment parameters of interest should remain unchanged 
+##' regardless of choice.
 ##' @param family Family to be used for the estimation. Defaults to NULL, in 
 ##' which case `fixest::feols` is used. Otherwise passed to `fixest::feglm`, so
 ##' that valid entries include "logit", "poisson", and "negbin". Note that if a
@@ -69,13 +66,13 @@ etwfe = function(
     tref = NULL,
     gref = NULL,
     cgroup = c("notyet", "never"),
-    fes = c("vs", "fe", "none"),
+    fe = c("vs", "feo", "none"),
     family = NULL,
     ...
 ) {
   
   cgroup = match.arg(cgroup)
-  fes = match.arg(fes)
+  fe = match.arg(fe)
   rhs = ctrls = vs = ref_string = ctrls_dm_df = NULL
   
   if (is.null(fml)) stop("A non-NULL `fml` argument is required.\n")
@@ -104,7 +101,7 @@ etwfe = function(
     ctrls = NULL
   } else {
     ctrls_dm = paste0(ctrls, "_dm")
-    if (fes == "vs") vs = paste0("[", ctrls, "]") ## For varying slopes later 
+    if (fe == "vs") vs = paste0("[", ctrls, "]") ## For varying slopes later 
   }
   
   if (is.null(gref)) {
@@ -158,7 +155,7 @@ etwfe = function(
     
     rhs = paste(rhs, "/", ctrls_dm)
     
-    if (fes != "vs") {
+    if (fe != "vs") {
       ictrls = strsplit(ctrls, split = " \\+ ")[[1]]
       ictrls = paste(
         c(
@@ -174,15 +171,15 @@ etwfe = function(
   
   ## Fixed effects ----
   
-  if (fes != "none") {
+  if (fe != "none") {
     if (is.null(ivar)) {
-      fe = stats::reformulate(paste0(c(gvar, tvar), vs))
+      fes = stats::reformulate(paste0(c(gvar, tvar), vs))
     } else {
-      fe = stats::reformulate(paste0(c(ivar, tvar), vs))
+      fes = stats::reformulate(paste0(c(ivar, tvar), vs))
     }
-    fe = paste(fe)[2]
+    fes = paste(fes)[2]
   } else {
-    fe = 0
+    fes = 0
     rhs = paste0(
       rhs, 
       "+ i(", gvar, ", ref = ", gref, ") + i(", tvar, ", ref = ", tref, ")"
@@ -192,8 +189,7 @@ etwfe = function(
   ## Estimation ----
   
   ## Full formula
-  # Fml = Formula::as.Formula(paste(lhs, " ~ ", rhs, "|", fe[2])) 
-  Fml = Formula::as.Formula(paste(lhs, " ~ ", rhs, "|", fe)) 
+  Fml = Formula::as.Formula(paste(lhs, " ~ ", rhs, "|", fes)) 
   
   ## Estimate
   if (is.null(family)) {
