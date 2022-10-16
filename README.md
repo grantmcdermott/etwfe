@@ -76,24 +76,15 @@ mod
 #> Fixed-effects: first.treat: 4,  year: 5
 #> Varying slopes: lpop (first.treat: 4),  lpop (year: 5)
 #> Standard-errors: Clustered (countyreal) 
-#>                                               Estimate Std. Error   t value
-#> .Dtreat:first.treat::2004:year::2004         -0.021248   0.021728 -0.977890
-#> .Dtreat:first.treat::2004:year::2005         -0.081850   0.027375 -2.989963
-#> .Dtreat:first.treat::2004:year::2006         -0.137870   0.030795 -4.477097
-#> .Dtreat:first.treat::2004:year::2007         -0.109539   0.032322 -3.389024
-#> .Dtreat:first.treat::2006:year::2006          0.002537   0.018883  0.134344
-#> .Dtreat:first.treat::2006:year::2007         -0.045093   0.021987 -2.050907
-#> .Dtreat:first.treat::2007:year::2007         -0.045955   0.017975 -2.556568
-#> .Dtreat:first.treat::2004:year::2004:lpop_dm  0.004628   0.017584  0.263184
-#>                                                Pr(>|t|)    
-#> .Dtreat:first.treat::2004:year::2004         3.2860e-01    
-#> .Dtreat:first.treat::2004:year::2005         2.9279e-03 ** 
-#> .Dtreat:first.treat::2004:year::2006         9.3851e-06 ***
-#> .Dtreat:first.treat::2004:year::2007         7.5694e-04 ***
-#> .Dtreat:first.treat::2006:year::2006         8.9318e-01    
-#> .Dtreat:first.treat::2006:year::2007         4.0798e-02 *  
-#> .Dtreat:first.treat::2007:year::2007         1.0866e-02 *  
-#> .Dtreat:first.treat::2004:year::2004:lpop_dm 7.9252e-01    
+#>                                               Estimate Std. Error   t value   Pr(>|t|)    
+#> .Dtreat:first.treat::2004:year::2004         -0.021248   0.021728 -0.977890 3.2860e-01    
+#> .Dtreat:first.treat::2004:year::2005         -0.081850   0.027375 -2.989963 2.9279e-03 ** 
+#> .Dtreat:first.treat::2004:year::2006         -0.137870   0.030795 -4.477097 9.3851e-06 ***
+#> .Dtreat:first.treat::2004:year::2007         -0.109539   0.032322 -3.389024 7.5694e-04 ***
+#> .Dtreat:first.treat::2006:year::2006          0.002537   0.018883  0.134344 8.9318e-01    
+#> .Dtreat:first.treat::2006:year::2007         -0.045093   0.021987 -2.050907 4.0798e-02 *  
+#> .Dtreat:first.treat::2007:year::2007         -0.045955   0.017975 -2.556568 1.0866e-02 *  
+#> .Dtreat:first.treat::2004:year::2004:lpop_dm  0.004628   0.017584  0.263184 7.9252e-01    
 #> ... 6 coefficients remaining (display them with summary() or use argument n)
 #> ... 10 variables were removed because of collinearity (.Dtreat:first.treat::2006:year::2004, .Dtreat:first.treat::2006:year::2005 and 8 others [full set in $collin.var])
 #> ---
@@ -150,22 +141,15 @@ itself a thin(ish) wrapper around `marginaleffects::marginaleffects()`
 ``` r
 # Other type options incl. "simple" (default), "calendar", and "group"
 emfx(mod, type = "event")
-#>      Term    Contrast event   Effect Std. Error z value   Pr(>|z|)    2.5 %
-#> 1 .Dtreat mean(dY/dX)     0 -0.03321    0.01337  -2.484 0.01297951 -0.05941
-#> 2 .Dtreat mean(dY/dX)     1 -0.05735    0.01715  -3.343 0.00082830 -0.09097
-#> 3 .Dtreat mean(dY/dX)     2 -0.13787    0.03079  -4.477 7.5665e-06 -0.19823
-#> 4 .Dtreat mean(dY/dX)     3 -0.10954    0.03232  -3.389 0.00070142 -0.17289
-#>     97.5 %
-#> 1 -0.00701
-#> 2 -0.02373
-#> 3 -0.07751
-#> 4 -0.04619
+#>      Term    Contrast event   Effect Std. Error z value   Pr(>|z|)    2.5 %   97.5 %
+#> 1 .Dtreat mean(dY/dX)     0 -0.03321    0.01337  -2.484 0.01297951 -0.05941 -0.00701
+#> 2 .Dtreat mean(dY/dX)     1 -0.05735    0.01715  -3.343 0.00082830 -0.09097 -0.02373
+#> 3 .Dtreat mean(dY/dX)     2 -0.13787    0.03079  -4.477 7.5665e-06 -0.19823 -0.07751
+#> 4 .Dtreat mean(dY/dX)     3 -0.10954    0.03232  -3.389 0.00070142 -0.17289 -0.04619
 #> 
 #> Model type:  etwfe 
 #> Prediction type:  response
 ```
-
-One
 
 ## Acknowledgements
 
