@@ -136,7 +136,7 @@ Instead, we probably want to aggregate them along some dimension of
 interest (e.g., an event study). A natural way to perform these
 aggregations is by calculating marginal effects. The **etwfe** package
 provides another convenience function for doing this, `emfx()`, which is
-itself a thin(ish) wrapper around `marginaleffects::marginaleffects()`
+itself a thin(ish) wrapper around `marginaleffects::marginaleffects()`.
 
 ``` r
 # Other type options incl. "simple" (default), "calendar", and "group"
