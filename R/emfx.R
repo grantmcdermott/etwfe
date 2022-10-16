@@ -37,8 +37,6 @@ emfx = function(
     by_var = "event"
   }
   
-  by_vars = c(".Dtreat", by_var)
-  
   mfx = marginaleffects::marginaleffects(
     object, 
     newdata = dat,
