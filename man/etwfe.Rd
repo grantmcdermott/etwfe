@@ -13,6 +13,7 @@ etwfe(
   tref = NULL,
   gref = NULL,
   cgroup = c("notyet", "never"),
+  fes = c("vs", "fe", "none"),
   family = NULL,
   ...
 )
@@ -48,6 +49,17 @@ group, for example, takes an unusual value.}
 \item{cgroup}{What control group do you wish to use for 
 estimating treatment effects. Either "notyet" treated (the default) or
 "never" treated.}
+
+\item{fes}{What level of fixed effects should be used? By default, `etwfe`
+takes an efficient and lean approach by delegating all "nuisance" parameters 
+to the fixed effect slot. For cases with control variables, this will invoke 
+`fixest`'s varying slope syntax. However, at some cost to efficiency, users 
+can retain additional information in the model by estimating these 
+parameters as part of the model rhs (i.e., not as varying slopes or even 
+regular fixed effects). The main treatment parameters of interested should 
+be unaffected, regardless of which approach option is used for this 
+argument: "vs" = varying slopes + fixed effects (the default and most 
+permissive), "fe" = fixed effects only, or "none" = no fixed effects.}
 
 \item{family}{Family to be used for the estimation. Defaults to NULL, in 
 which case `fixest::feols` is used. Otherwise passed to `fixest::feglm`, so
