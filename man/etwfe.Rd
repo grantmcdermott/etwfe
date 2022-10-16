@@ -6,11 +6,11 @@
 \usage{
 etwfe(
   fml = NULL,
-  gvar = NULL,
-  gref = NULL,
   tvar = NULL,
-  tref = NULL,
+  gvar = NULL,
   data = NULL,
+  tref = NULL,
+  gref = NULL,
   cgroup = c("notyet", "never"),
   family = NULL,
   ...
@@ -21,8 +21,17 @@ etwfe(
 variables (rhs), e.g. `y ~ x1`. If no additional controls are required, the 
 rhs must take the value of zero, e.g. `y ~ 0`.}
 
-\item{gvar}{Character. Group variable. In staggered treatment settings this 
-would correspond to a variable that denotes treatment cohorts.}
+\item{tvar}{Time variable. Can be a string (e.g., "year") or an expression
+(e.g., year).}
+
+\item{gvar}{Group variable. Can be either a string (e.g., "first_treated") 
+or an expression (e.g., first_treated). In a staggered treatment setting, 
+the group variable typically denotes treatment cohort.}
+
+\item{data}{The data frame that you want to run ETWFE on.}
+
+\item{tref}{Optional reference value for `tvar`. Defaults to its minimum 
+value (i.e., the first time period observed in the dataset).}
 
 \item{gref}{Optional reference value for `gvar`. You shouldn't need to 
 provide this if your `gvar` variable is well specified (by default we will
@@ -30,14 +39,7 @@ look to reference against a value greater than `max(tvar)`). But providing
 an explicit reference value can be useful/necessary if the never treated 
 group, for example, takes an unusual value.}
 
-\item{tvar}{Character. Time variable.}
-
-\item{tref}{Optional reference value for `tvar`. Defaults to its minimum 
-value (i.e., the first time period observed in the dataset).}
-
-\item{data}{The data frame that you want to run ETWFE on.}
-
-\item{cgroup}{Character. What control group do you wish to use for 
+\item{cgroup}{What control group do you wish to use for 
 estimating treatment effects. Either "notyet" treated (the default) or
 "never" treated.}
 
@@ -62,8 +64,8 @@ data("base_stagg", package = "fixest")
 # Run the estimation
 mod = etwfe(
     fml  = y ~ x1, 
-    gvar = "year_treated", 
-    tvar = "year", 
+    tvar = year, 
+    gvar = year_treated, 
     data = base_stagg, 
     vcov = ~ id
     )

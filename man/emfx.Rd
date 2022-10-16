@@ -35,8 +35,8 @@ data("base_stagg", package = "fixest")
 # Run the estimation
 mod = etwfe(
     fml  = y ~ x1, 
-    gvar = "year_treated", 
-    tvar = "year", 
+    tvar = year, 
+    gvar = year_treated, 
     data = base_stagg, 
     vcov = ~ id
     )
