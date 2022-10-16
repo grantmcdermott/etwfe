@@ -3,6 +3,10 @@
 ##' @param fml A formula with the outcome (lhs) and any additional control 
 ##' variables (rhs), e.g. `y ~ x1`. If no additional controls are required, the 
 ##' rhs must take the value of zero, e.g. `y ~ 0`.
+##' @param ivar Index variable. Can be a string (e.g., "country") or an 
+##' expression (e.g., country). Leaving as NULL (the default) will result in
+##' group-level fixed effects being used, which is more efficient and necessary 
+##' for nonlinear models (see `family`).
 ##' @param tvar Time variable. Can be a string (e.g., "year") or an expression
 ##' (e.g., year).
 ##' @param gvar Group variable. Can be either a string (e.g., "first_treated") 
@@ -19,9 +23,10 @@
 ##' @param cgroup What control group do you wish to use for 
 ##' estimating treatment effects. Either "notyet" treated (the default) or
 ##' "never" treated.
-##' @param family Family to be used for the estimation. Passed to 
-##' `fixest::feglm`. Defaults to NULL, in which case `fixest::feols` is used
-##' instead.
+##' @param family Family to be used for the estimation. Defaults to NULL, in 
+##' which case `fixest::feols` is used. Otherwise passed to `fixest::feglm`, so
+##' that valid entries include "logit", "poisson", and "negbin". Note that if a
+##' non-NULL family entry is detected, `ivar` will automatically be set to NULL. 
 ##' @param ... Additional arguments passed to `fixest::feols` (or 
 ##' `fixest::feglm`). The most common example would be a `vcov` argument. 
 ##' @return A fixest object with fully saturated interaction effects.
@@ -47,7 +52,7 @@
 ##' @export
 etwfe = function(
     fml = NULL,
-    # ivar = NULL,
+    ivar = NULL,
     tvar = NULL, 
     gvar = NULL,
     data = NULL,
@@ -67,6 +72,8 @@ etwfe = function(
   ## NSE ----
   nl = as.list(seq_along(data))
   names(nl) = names(data)
+  ivar = eval(substitute(ivar), nl, parent.frame())
+  if (is.numeric(ivar)) ivar = names(data)[ivar]
   tvar = eval(substitute(tvar), nl, parent.frame())
   if (is.numeric(tvar)) tvar = names(data)[tvar]
   gvar = eval(substitute(gvar), nl, parent.frame())
@@ -74,6 +81,7 @@ etwfe = function(
   
   if (is.null(gvar)) stop("A non-NULL `gvar` argument is required.\n")
   if (is.null(tvar)) stop("A non-NULL `tvar` argument is required.\n")
+  if (!is.null(family)) ivar = NULL
   
   fml_paste = paste(fml)
   lhs = fml_paste[2]
@@ -141,7 +149,11 @@ etwfe = function(
   
   ## Fixed effects ----
   
-  fes = stats::reformulate(paste0(c(gvar, tvar), vs))
+  if (is.null(ivar)) {
+    fes = stats::reformulate(paste0(c(gvar, tvar), vs))
+  } else {
+    fes = stats::reformulate(paste0(c(ivar, tvar), vs))
+  }
   
   ## Estimation ----
   
