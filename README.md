@@ -19,8 +19,8 @@ manually. This package aims to simplify the process by providing
 convenience functions that do the work for you. **etwfe** thus provides
 an R equivalent of the
 [`JWDID`](https://ideas.repec.org/c/boc/bocode/s459114.html) Stata
-module and, indeed, shares the same core design elements (albeit with
-some different internal choices).
+module and, indeed, shares some of the core design elements (albeit with
+some internal differences).
 
 *Note:* While I’ve tested **ewtfe** against common use cases, the
 package is still under early development and should be considered
@@ -41,7 +41,7 @@ remotes::install_github("grantmcdermott/etwfe")
 ## Examples
 
 To demonstrate the core functionality of **etwfe**, I’ll follow the lead
-of `JWDID` in using an example dataset from the **did** package.
+of `JWDID` by using an example dataset from the **did** package.
 
 ``` r
 # install.packages("did")
@@ -64,63 +64,52 @@ unnecessary in most cases. But we invoke it here explicitly, since the
 ``` r
 library(etwfe)
 
-etwfe(
-  fml  = lemp ~ 0,
-  gvar = first.treat, gref = 0,
-  tvar = year,
-  data = mpdta,
-  vcov = ~countyreal
-  )
+mod = 
+  etwfe(
+    fml  = lemp ~ lpop,           # outcome ~ controls
+    tvar = year,                  # time variable
+    gvar = first.treat, gref = 0, # group variable (with bespoke ref. level)
+    data = mpdta,                 # dataset
+    vcov = ~countyreal            # vcov adjustment (here: clustered)
+    )
+mod
 #> OLS estimation, Dep. Var.: lemp
 #> Observations: 2,500 
 #> Fixed-effects: first.treat: 4,  year: 5
+#> Varying slopes: lpop (first.treat: 4),  lpop (year: 5)
 #> Standard-errors: Clustered (countyreal) 
-#>                                       Estimate Std. Error   t value   Pr(>|t|)
-#> .Dtreat:first.treat::2004:year::2004 -0.019372   0.022395 -0.865020 0.38744343
-#> .Dtreat:first.treat::2004:year::2005 -0.078319   0.030506 -2.567314 0.01053922
-#> .Dtreat:first.treat::2004:year::2006 -0.136078   0.035477 -3.835684 0.00014126
-#> .Dtreat:first.treat::2004:year::2007 -0.104707   0.033895 -3.089195 0.00211891
-#> .Dtreat:first.treat::2006:year::2006  0.002514   0.019945  0.126041 0.89975049
-#> .Dtreat:first.treat::2006:year::2007 -0.039193   0.024023 -1.631451 0.10342608
-#> .Dtreat:first.treat::2007:year::2007 -0.043106   0.018442 -2.337350 0.01981549
-#>                                         
-#> .Dtreat:first.treat::2004:year::2004    
-#> .Dtreat:first.treat::2004:year::2005 *  
-#> .Dtreat:first.treat::2004:year::2006 ***
-#> .Dtreat:first.treat::2004:year::2007 ** 
-#> .Dtreat:first.treat::2006:year::2006    
-#> .Dtreat:first.treat::2006:year::2007    
-#> .Dtreat:first.treat::2007:year::2007 *  
-#> ... 5 variables were removed because of collinearity (.Dtreat:first.treat::2006:year::2004, .Dtreat:first.treat::2006:year::2005 and 3 others [full set in $collin.var])
+#>                                               Estimate Std. Error   t value
+#> .Dtreat:first.treat::2004:year::2004         -0.021248   0.021728 -0.977890
+#> .Dtreat:first.treat::2004:year::2005         -0.081850   0.027375 -2.989963
+#> .Dtreat:first.treat::2004:year::2006         -0.137870   0.030795 -4.477097
+#> .Dtreat:first.treat::2004:year::2007         -0.109539   0.032322 -3.389024
+#> .Dtreat:first.treat::2006:year::2006          0.002537   0.018883  0.134344
+#> .Dtreat:first.treat::2006:year::2007         -0.045093   0.021987 -2.050907
+#> .Dtreat:first.treat::2007:year::2007         -0.045955   0.017975 -2.556568
+#> .Dtreat:first.treat::2004:year::2004:lpop_dm  0.004628   0.017584  0.263184
+#>                                                Pr(>|t|)    
+#> .Dtreat:first.treat::2004:year::2004         3.2860e-01    
+#> .Dtreat:first.treat::2004:year::2005         2.9279e-03 ** 
+#> .Dtreat:first.treat::2004:year::2006         9.3851e-06 ***
+#> .Dtreat:first.treat::2004:year::2007         7.5694e-04 ***
+#> .Dtreat:first.treat::2006:year::2006         8.9318e-01    
+#> .Dtreat:first.treat::2006:year::2007         4.0798e-02 *  
+#> .Dtreat:first.treat::2007:year::2007         1.0866e-02 *  
+#> .Dtreat:first.treat::2004:year::2004:lpop_dm 7.9252e-01    
+#> ... 6 coefficients remaining (display them with summary() or use argument n)
+#> ... 10 variables were removed because of collinearity (.Dtreat:first.treat::2006:year::2004, .Dtreat:first.treat::2006:year::2005 and 8 others [full set in $collin.var])
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-#> RMSE: 1.48662     Adj. R2: 0.023302
-#>                 Within R2: 7.095e-5
+#> RMSE: 0.537131     Adj. R2: 0.87167 
+#>                  Within R2: 8.449e-4
 ```
 
 As you can see, the key `etwfe()` function is effectively a wrapper
-around `fixest::feols()`. The resulting object is thus fully compatible
-with other **fixest** methods and functions like `etable()`. We’ll show
-that in the next example. Note that non-linear models (e.g. “poisson”)
-are also supported via the `family` argument.
-
-One of the advantages of ETWFE is that it provides clear theoretical
-support for additional control variables. On the downside, these can
-tricky to code up because they must be demeaned and then correctly
-interacted with all of our main variables of interest. **etwfe** does
-all of this for you automatically. Here we add `lpop` as an additional
-control in our regression.
+around `fixest::feols()`. (Although, non-linear models are also
+supported via the `family` argument.) The resulting object is thus fully
+compatible with other **fixest** methods and functions like `etable()`.
 
 ``` r
-mod = 
-  etwfe(
-    fml  = lemp ~ lpop,
-    gvar = first.treat, gref = 0,
-    tvar = year,
-    data = mpdta,
-    vcov = ~countyreal
-  )
-
 fixest::etable(mod, signif.code = NA)
 #>                                                                   mod
 #> Dependent Var.:                                                  lemp
@@ -152,13 +141,13 @@ fixest::etable(mod, signif.code = NA)
 #> Within R2                                                     0.00084
 ```
 
-The coefficients from an `etwfe()` estimation are not necessarily
-meaningful in of themselves. Instead, we probably wish to aggregate them
-along some dimension of interest (e.g., an event study). A natural way
-to perform these aggregations is by calculating marginal effects. The
-**etwfe** package provides another convenience function for doing this,
-`emfx()`, which is itself a thin(ish) wrapper around
-`marginaleffects::marginaleffects()`
+While everyone likes a nice regression table, the raw coefficients from
+an `etwfe()` estimation are not necessarily meaningful in of themselves.
+Instead, we probably want to aggregate them along some dimension of
+interest (e.g., an event study). A natural way to perform these
+aggregations is by calculating marginal effects. The **etwfe** package
+provides another convenience function for doing this, `emfx()`, which is
+itself a thin(ish) wrapper around `marginaleffects::marginaleffects()`
 
 ``` r
 # Other type options incl. "simple" (default), "calendar", and "group"
@@ -192,6 +181,6 @@ emfx(mod, type = "event")
   lifting under the hood here.
 - [Fernando Rios-Avila](https://twitter.com/friosavila) for the
   [`JWDID`](https://ideas.repec.org/c/boc/bocode/s459114.html) Stata
-  module, which has provided a much-appreciated ground truth for
-  checking results and whose elegant design helped inform my own choices
-  for this R equivalent.
+  module, which has provided a welcome foil for checking results and
+  whose elegant design helped inform my own choices for this R
+  equivalent.

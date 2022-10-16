@@ -20,15 +20,16 @@ knitr::opts_chunk$set(
 <!-- badges: end -->
 
 The goal of **etwfe** is to estimate extended (Mundlak) two-way fixed effects _a
-la_ [Wooldridge
-(2021)](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3906345). Briefly, Wooldridge proposes a set of saturated interaction effects to overcome
+la_ [Wooldridge (2021)](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3906345). 
+Briefly, Wooldridge proposes a set of saturated interaction effects to overcome
 the potential bias problems that arise from using vanilla TWFE in
 difference-in-differences designs. The Wooldridge solution is intuitive and
 elegant, but is rather tedious and error prone to code up manually. This package
 aims to simplify the process by providing convenience functions that do the
 work for you. **etwfe** thus provides an R equivalent of the 
-[`JWDID`](https://ideas.repec.org/c/boc/bocode/s459114.html) Stata module and, indeed, shares the same core design elements (albeit with some
-different internal choices).
+[`JWDID`](https://ideas.repec.org/c/boc/bocode/s459114.html) Stata module and, 
+indeed, shares some of the core design elements (albeit with some internal 
+differences).
 
 _Note:_ While I've tested **ewtfe** against common use cases, the package is
 still under early development and should be considered experimental. I plan
@@ -37,7 +38,8 @@ You can help by identifying any bugs and filing issues.
 
 ## Installation
 
-You can install the development version of **etwfe** from [GitHub](https://github.com/):
+You can install the development version of **etwfe** from 
+[GitHub](https://github.com/):
 
 ``` r
 # install.packages("remotes")
@@ -47,7 +49,7 @@ remotes::install_github("grantmcdermott/etwfe")
 ## Examples
 
 To demonstrate the core functionality of **etwfe**, I'll follow the lead of
-`JWDID` in using an example dataset from the **did** package.
+`JWDID` by using an example dataset from the **did** package.
 
 ```{r mpdta}
 # install.packages("did")
@@ -60,49 +62,36 @@ unnecessary in most cases. But we invoke it here explicitly, since the
 "never-treated" group in the `mpdta` dataset takes on an unusual value (here:
 0).
 
-```{r ex_simple}
+```{r mod}
 library(etwfe)
 
-etwfe(
-  fml  = lemp ~ 0,
-  gvar = first.treat, gref = 0,
-  tvar = year,
-  data = mpdta,
-  vcov = ~countyreal
-  )
+mod = 
+  etwfe(
+    fml  = lemp ~ lpop,           # outcome ~ controls
+    tvar = year,                  # time variable
+    gvar = first.treat, gref = 0, # group variable (with bespoke ref. level)
+    data = mpdta,                 # dataset
+    vcov = ~countyreal            # vcov adjustment (here: clustered)
+    )
+mod
 ```
 
 As you can see, the key `etwfe()` function is effectively a wrapper around
-`fixest::feols()`. The resulting object is thus fully compatible with other
-**fixest** methods and functions like `etable()`. We'll show that in the next
-example. Note that non-linear models (e.g. "poisson") are also supported via the
-`family` argument.
+`fixest::feols()`. (Although, non-linear models are also supported via the
+`family` argument.) The resulting object is thus fully compatible with other
+**fixest** methods and functions like `etable()`.
 
-One of the advantages of ETWFE is that it provides clear theoretical support for
-additional control variables. On the downside, these can tricky to code up
-because they must be demeaned and then correctly interacted with all of our main
-variables of interest. **etwfe** does all of this for you automatically. Here we
-add `lpop` as an additional control in our regression.
-
-```{r mod}
-mod = 
-  etwfe(
-    fml  = lemp ~ lpop,
-    gvar = first.treat, gref = 0,
-    tvar = year,
-    data = mpdta,
-    vcov = ~countyreal
-  )
-
+```{r etab}
 fixest::etable(mod, signif.code = NA)
 ```
 
-The coefficients from an `etwfe()` estimation are not necessarily meaningful in
-of themselves. Instead, we probably wish to aggregate them along some dimension
-of interest (e.g., an event study). A natural way to perform these aggregations
-is by calculating marginal effects. The **etwfe** package provides another
-convenience function for doing this, `emfx()`, which is itself a thin(ish)
-wrapper around `marginaleffects::marginaleffects()`
+While everyone likes a nice regression table, the raw coefficients from an
+`etwfe()` estimation are not necessarily meaningful in of themselves. Instead,
+we probably want to aggregate them along some dimension of interest (e.g., an
+event study). A natural way to perform these aggregations is by calculating
+marginal effects. The **etwfe** package provides another convenience function
+for doing this, `emfx()`, which is itself a thin(ish) wrapper around
+`marginaleffects::marginaleffects()`
 
 ```{r mod_emfx}
 # Other type options incl. "simple" (default), "calendar", and "group"
@@ -113,4 +102,4 @@ emfx(mod, type = "event")
 
 - [Jeffrey Wooldridge](https://twitter.com/jmwooldridge) for the [underlying theory](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3906345) that drives this package.
 - [Laurent Bergé](https://twitter.com/lrberge) ([**fixest**](https://lrberge.github.io/fixest/)) and [Vincent Arel-Bundock](https://twitter.com/VincentAB) ([**marginaleffects**](https://vincentarelbundock.github.io/marginaleffects)) for maintaining the two wonderful R packages that do most of the heavy lifting under the hood here.
-- [Fernando Rios-Avila](https://twitter.com/friosavila) for the [`JWDID`](https://ideas.repec.org/c/boc/bocode/s459114.html) Stata module, which has provided a much-appreciated ground truth for checking results and whose elegant design helped inform my own choices for this R equivalent. 
+- [Fernando Rios-Avila](https://twitter.com/friosavila) for the [`JWDID`](https://ideas.repec.org/c/boc/bocode/s459114.html) Stata module, which has provided a welcome foil for checking results and whose elegant design helped inform my own choices for this R equivalent. 
