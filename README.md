@@ -39,13 +39,10 @@ remotes::install_github("grantmcdermott/etwfe")
 ```
 
 *Note:* **etwfe** relies on the current development versions of
-**fixest** and **marginaleffects**. Your system will need to compile
-**fixest**’s C++ source code for installation to work. (Windows users:
-install [Rtools](https://cran.r-project.org/bin/windows/Rtools). Mac
-users: install [Xcode](https://mac.r-project.org/tools/). Linux users:
-you should be good to go.) Once these dependencies get submitted to
-CRAN, I’ll submit this package to CRAN too so that binaries are
-available for easy install.
+**fixest** and **marginaleffects**. So you’ll have to compile
+**fixest**’s C++ source code on on your system during installation.[^1]
+Once these dependencies make their way to CRAN, I’ll submit **etwfe** to
+CRAN as well so that binaries are available for easy install.
 
 ## Examples
 
@@ -66,7 +63,7 @@ head(mpdta)
 #> 937 2003       8019 2.232377 4.997212        2007     1
 ```
 
-Now let’s see a simple example.[^1]
+Now let’s see a simple example.[^2]
 
 ``` r
 library(etwfe)
@@ -103,9 +100,9 @@ mod
 ```
 
 As you can see, the key `etwfe()` function is effectively a wrapper
-around `fixest::feols()`. (Although, nonlinear models are also supported
-via the `family` argument.) The resulting object is thus fully
-compatible with other **fixest** methods and functions like `etable()`.
+around `fixest::feols()`. (Nonlinear models are also supported via the
+`family` argument.) The resulting object is thus fully compatible with
+other **fixest** methods and functions like `etable()`.
 
 ``` r
 fixest::etable(mod, signif.code = NA)
@@ -174,12 +171,18 @@ emfx(mod, type = "event")
   lifting under the hood here.
 - [Fernando Rios-Avila](https://twitter.com/friosavila) for the
   [`JWDID`](https://ideas.repec.org/c/boc/bocode/s459114.html) Stata
-  module, which has provided a welcome foil for checking results and
-  whose elegant design helped inform my own choices for this R
-  equivalent.
+  module, which has provided a welcome foil for unit testing and whose
+  elegant design helped inform my own choices for this R equivalent.
 
-[^1]: Note that the `gref` argument will be unnecessary in most cases.
-    But we invoke it here explicitly, since the “never-treated” group in
-    the `mpdta` dataset takes on an unusual value (here: 0). See the
-    `?etwfe` helpfile for information about other function arguments
-    that can be used to further customize the underlying estimation.
+[^1]: This means you need
+    [Rtools](https://cran.r-project.org/bin/windows/Rtools) if you’re on
+    Windows, and [Xcode](https://mac.r-project.org/tools/) if you’re on
+    a Mac. Linux users should be good to go without any other
+    requirements.
+
+[^2]: Note that the `gref` argument will be unnecessary in most cases.
+    But we invoke it explicitly for this example, since the “never
+    treated” group in the `mpdta` dataset takes on an unusual value
+    (here: 0). See the `?etwfe` helpfile for information about other
+    function arguments that can be used to further customize the
+    underlying estimation.
