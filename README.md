@@ -40,7 +40,7 @@ remotes::install_github("grantmcdermott/etwfe")
 
 *Note:* **etwfe** relies on the current development versions of
 **fixest** and **marginaleffects**. So you’ll have to compile
-**fixest**’s C++ source code on on your system during installation.[^1]
+**fixest**’s C++ source code on your system during installation.[^1]
 Once these dependencies make their way to CRAN, I’ll submit **etwfe** to
 CRAN as well so that binaries are available for easy install.
 
