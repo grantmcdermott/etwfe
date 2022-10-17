@@ -22,8 +22,8 @@ equivalent of the
 module and, indeed, shares some of the core design elements (albeit with
 some internal differences).
 
-*Note:* While I’ve tested **ewtfe** against common use cases, the
-package is still under early development and should be considered
+While I’ve tested **ewtfe** against common use cases, please note that
+the package is still under early development and should be considered
 experimental. I plan (hope) to add some more features and the
 documentation could also be improved. You can help by identifying any
 bugs and filing issues.
@@ -37,6 +37,15 @@ You can install the development version of **etwfe** from
 # install.packages("remotes")
 remotes::install_github("grantmcdermott/etwfe")
 ```
+
+*Note:* **etwfe** relies on the current development versions of
+**fixest** and **marginaleffects**. Your system will need to compile
+**fixest**’s C++ source code for installation to work. (Windows users:
+install [Rtools](https://cran.r-project.org/bin/windows/Rtools). Mac
+users: install [Xcode](https://mac.r-project.org/tools/). Linux users:
+you should be good to go.) Once these dependencies get submitted to
+CRAN, I’ll submit this package to CRAN too so that binaries are
+available for easy install.
 
 ## Examples
 
@@ -94,8 +103,8 @@ mod
 ```
 
 As you can see, the key `etwfe()` function is effectively a wrapper
-around `fixest::feols()`. (Although, non-linear models are also
-supported via the `family` argument.) The resulting object is thus fully
+around `fixest::feols()`. (Although, nonlinear models are also supported
+via the `family` argument.) The resulting object is thus fully
 compatible with other **fixest** methods and functions like `etable()`.
 
 ``` r
