@@ -28,12 +28,7 @@ emfx = function(
   if (type=="group") by_var = gvar
   if (type=="calendar") by_var = tvar
   if (type=="event") {
-    dat = within(
-      dat,
-      event <-
-        eval(as.name(tvar)) -
-        eval(as.name(gvar))
-    )
+    dat[["event"]] = dat[[tvar]] - dat[[gvar]]
     by_var = "event"
   }
   
