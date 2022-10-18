@@ -70,11 +70,11 @@ library(etwfe)
 
 mod = 
   etwfe(
-    fml  = lemp ~ lpop,           # outcome ~ controls
-    tvar = year,                  # time variable
-    gvar = first.treat, gref = 0, # group variable (with bespoke ref. level)
-    data = mpdta,                 # dataset
-    vcov = ~countyreal            # vcov adjustment (here: clustered)
+    fml  = lemp ~ lpop, # outcome ~ controls
+    tvar = year,        # time variable
+    gvar = first.treat, # group variable (with bespoke ref. level)
+    data = mpdta,       # dataset
+    vcov = ~countyreal  # vcov adjustment (here: clustered)
     )
 mod
 #> OLS estimation, Dep. Var.: lemp
@@ -180,9 +180,5 @@ emfx(mod, type = "event")
     a Mac. Linux users should be good to go without any other
     requirements.
 
-[^2]: Note that the `gref` argument will be unnecessary in most cases.
-    But we invoke it explicitly for this example, since the “never
-    treated” group in the `mpdta` dataset takes on an unusual value
-    (here: 0). See the `?etwfe` helpfile for information about other
-    function arguments that can be used to further customize the
-    underlying estimation.
+[^2]: See the `?etwfe` helpfile for information about other function
+    arguments that can be used to customize the underlying estimation.
