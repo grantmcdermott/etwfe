@@ -89,4 +89,4 @@ bmod = emfx(
   "event"
   )
 
-expect_equal(bmod, bmod_known)
+expect_equal(bmod, bmod_known, tolerance = 1e-6)
