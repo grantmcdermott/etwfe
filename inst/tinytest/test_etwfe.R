@@ -85,21 +85,22 @@ m3_known =
 
 # Tests ----
 
-m1  = etwfe(lemp ~ 0, tvar=year  , gvar=first.treat  , gref=0, data=mpdta, vcov=~countyreal)
-m1a = etwfe(lemp ~ 0, tvar="year", gvar="first.treat", gref=0, data=mpdta, vcov=~countyreal)
+m1  = etwfe(lemp ~ 0, tvar=year  , gvar=first.treat  , data=mpdta, vcov=~countyreal)
+m1a = etwfe(lemp ~ 0, tvar="year", gvar="first.treat", data=mpdta, vcov=~countyreal)
+m1r = etwfe(lemp ~ 0, tvar="year", gvar="first.treat", data=mpdta, vcov=~countyreal, gref=0)
 
 expect_equal(fixest::coeftable(m1), m1_known)
 expect_equal(fixest::coeftable(m1a), m1_known)
+expect_equal(fixest::coeftable(m1r), m1_known)
 
-
-m2 = etwfe(lemp ~ 0, tvar=year, gvar=first.treat, gref=0, data=mpdta, vcov=~countyreal, 
+m2 = etwfe(lemp ~ 0, tvar=year, gvar=first.treat, data=mpdta, vcov=~countyreal, 
              cgroup="never")
 
 expect_equal(fixest::coeftable(m2), m2_known)
 
-m3 = etwfe(lemp ~ lpop, tvar=year, gvar=first.treat, gref=0, data=mpdta, vcov=~countyreal)
+m3 = etwfe(lemp ~ lpop, tvar=year, gvar=first.treat, data=mpdta, vcov=~countyreal)
 expect_equal(fixest::coeftable(m3), m3_known)
 
 expect_error(
-  etwfe(lemp ~ 0, tvar=NULL, gvar=first.treat  , gref=0, data=mpdta)
+  etwfe(lemp ~ 0, tvar=NULL, gvar=first.treat, data=mpdta)
 )

@@ -16,10 +16,9 @@
 ##' @param tref Optional reference value for `tvar`. Defaults to its minimum 
 ##' value (i.e., the first time period observed in the dataset).
 ##' @param gref Optional reference value for `gvar`. You shouldn't need to 
-##' provide this if your `gvar` variable is well specified (by default we will
-##' look to reference against a value greater than `max(tvar)`). But providing 
-##' an explicit reference value can be useful/necessary if the never treated 
-##' group, for example, takes an unusual value.
+##' provide this if your `gvar` variable is well specified. But providing an 
+##' explicit reference value can be useful/necessary if the desired control 
+##' group takes an unusual value.
 ##' @param cgroup What control group do you wish to use for 
 ##' estimating treatment effects. Either "notyet" treated (the default) or
 ##' "never" treated.
@@ -79,6 +78,7 @@ etwfe = function(
   cgroup = match.arg(cgroup)
   fe = match.arg(fe)
   rhs = ctrls = vs = ref_string = ctrls_dm_df = NULL
+  gref_min_flag = FALSE
   
   if (is.null(fml)) stop("A non-NULL `fml` argument is required.\n")
   if (is.null(data)) stop("A non-NULL `data` argument is required.\n")
@@ -113,6 +113,8 @@ etwfe = function(
     ug = unique(data[[gvar]])
     ut = unique(data[[tvar]])
     gref = ug[ug > max(ut)]
+    if (length(gref)==0) gref = ug[ug < min(ut)]
+    if (length(gref)==0 && cgroup=="notyet") gref = max(ug)
     if (length(gref)==0) {
       stop("The '", cgroup,"' control group for ", gvar, " could not be identified. You can provide a bespoke group reference level via the `gref` argument.\n")
     }
@@ -120,11 +122,13 @@ etwfe = function(
       gref = min(gref) ## placeholder. could do something a bit smarter here like bin post periods.
       ## also: what about NA vals?
     }
+    if (gref < min(ut)) gref_min_flag = TRUE
   } else {
     # Sanity check proposed gref level
     if (!(gref %in% unique(data[[gvar]]))) {
       stop("Proposed reference level ", gref, " not found in ", gvar, ".\n")
     }
+    if (gref < min(unique(data[[tvar]]))) gref_min_flag = TRUE
   }
   
   ref_string = paste0(", ref = ", gref)
@@ -141,7 +145,12 @@ etwfe = function(
   ref_string = paste0(ref_string, ", ref2 = ", tref)
   
   if (cgroup == "notyet") {
-    data[[".Dtreat"]] = as.integer(data[[tvar]] >= data[[gvar]] & data[[gvar]]!=gref)
+    data[[".Dtreat"]] = as.integer(data[[tvar]] >= data[[gvar]] & data[[gvar]] != gref)
+    if (!gref_min_flag) {
+      data[[".Dtreat"]] = ifelse(data[[tvar]] < gref, data[[".Dtreat"]], NA_integer_)
+    } else {
+      data[[".Dtreat"]] = ifelse(data[[tvar]] > gref, data[[".Dtreat"]], NA_integer_)
+    }
   } else {
     ## Placeholder .Dtreat for never treated group
     data[[".Dtreat"]] = 1L

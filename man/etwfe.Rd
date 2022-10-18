@@ -41,10 +41,9 @@ the group variable typically denotes treatment cohort.}
 value (i.e., the first time period observed in the dataset).}
 
 \item{gref}{Optional reference value for `gvar`. You shouldn't need to 
-provide this if your `gvar` variable is well specified (by default we will
-look to reference against a value greater than `max(tvar)`). But providing 
-an explicit reference value can be useful/necessary if the never treated 
-group, for example, takes an unusual value.}
+provide this if your `gvar` variable is well specified. But providing an 
+explicit reference value can be useful/necessary if the desired control 
+group takes an unusual value.}
 
 \item{cgroup}{What control group do you wish to use for 
 estimating treatment effects. Either "notyet" treated (the default) or

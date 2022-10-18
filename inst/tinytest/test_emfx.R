@@ -1,7 +1,7 @@
 data("mpdta", package = "did")
 
 # We'll continue with model 3 from the etwfe tests...
-m3 = etwfe(lemp ~ lpop, tvar=year, gvar=first.treat, gref=0, data=mpdta, vcov=~countyreal)
+m3 = etwfe(lemp ~ lpop, tvar=year, gvar=first.treat, data=mpdta, vcov=~countyreal)
 
 # Known outputs ----
 
