@@ -47,8 +47,8 @@ CRAN as well so that binaries are available for easy install.
 ## Examples
 
 To demonstrate the core functionality of **etwfe**, we’ll use the
-`mpdta` dataset from the **did** package. (You’ll need to install the
-latter separately.)
+`mpdta` dataset from the **did** package (which you’ll need to install
+separately).
 
 ``` r
 # install.packages("did")
@@ -72,7 +72,7 @@ mod =
   etwfe(
     fml  = lemp ~ lpop, # outcome ~ controls
     tvar = year,        # time variable
-    gvar = first.treat, # group variable (with bespoke ref. level)
+    gvar = first.treat, # group variable
     data = mpdta,       # dataset
     vcov = ~countyreal  # vcov adjustment (here: clustered)
     )
@@ -100,9 +100,9 @@ mod
 ```
 
 As you can see, the key `etwfe()` function is effectively a wrapper
-around `fixest::feols()`. (Nonlinear models are also supported via the
-`family` argument.) The resulting object is thus fully compatible with
-other **fixest** methods and functions like `etable()`.
+around `fixest::feols()`. (Though, nonlinear models are also supported
+via the `family` argument.) The resulting object is thus fully
+compatible with other **fixest** methods and functions like `etable()`.
 
 ``` r
 fixest::etable(mod, signif.code = NA)
