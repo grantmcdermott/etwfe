@@ -38,12 +38,6 @@ You can install the development version of **etwfe** from
 remotes::install_github("grantmcdermott/etwfe")
 ```
 
-*Note:* **etwfe** relies on the current development versions of
-**fixest** and **marginaleffects**. So you’ll have to compile
-**fixest**’s C++ source code on your system during installation.[^1]
-Once these dependencies make their way to CRAN, I’ll submit **etwfe** to
-CRAN as well so that binaries are available for easy install.
-
 ## Examples
 
 To demonstrate the core functionality of **etwfe**, we’ll use the
@@ -63,7 +57,7 @@ head(mpdta)
 #> 937 2003       8019 2.232377 4.997212        2007     1
 ```
 
-Now let’s see a simple example.[^2]
+Now let’s see a simple example.
 
 ``` r
 library(etwfe)
@@ -76,6 +70,7 @@ mod =
     data = mpdta,       # dataset
     vcov = ~countyreal  # vcov adjustment (here: clustered)
     )
+
 mod
 #> OLS estimation, Dep. Var.: lemp
 #> Observations: 2,500 
@@ -91,7 +86,12 @@ mod
 #> .Dtreat:first.treat::2006:year::2007         -0.045093   0.021987 -2.050907 4.0798e-02 *  
 #> .Dtreat:first.treat::2007:year::2007         -0.045955   0.017975 -2.556568 1.0866e-02 *  
 #> .Dtreat:first.treat::2004:year::2004:lpop_dm  0.004628   0.017584  0.263184 7.9252e-01    
-#> ... 6 coefficients remaining (display them with summary() or use argument n)
+#> .Dtreat:first.treat::2004:year::2005:lpop_dm  0.025113   0.017904  1.402661 1.6134e-01    
+#> .Dtreat:first.treat::2004:year::2006:lpop_dm  0.050735   0.021070  2.407884 1.6407e-02 *  
+#> .Dtreat:first.treat::2004:year::2007:lpop_dm  0.011250   0.026617  0.422648 6.7273e-01    
+#> .Dtreat:first.treat::2006:year::2006:lpop_dm  0.038935   0.016472  2.363731 1.8474e-02 *  
+#> .Dtreat:first.treat::2006:year::2007:lpop_dm  0.038060   0.022477  1.693276 9.1027e-02 .  
+#> .Dtreat:first.treat::2007:year::2007:lpop_dm -0.019835   0.016198 -1.224528 2.2133e-01    
 #> ... 10 variables were removed because of collinearity (.Dtreat:first.treat::2006:year::2004, .Dtreat:first.treat::2006:year::2005 and 8 others [full set in $collin.var])
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
@@ -99,9 +99,8 @@ mod
 #>                  Within R2: 8.449e-4
 ```
 
-As you can see, the key `etwfe()` function is effectively a wrapper
-around `fixest::feols()`. (Though, nonlinear models are also supported
-via the `family` argument.) The resulting object is thus fully
+As you can perhaps tell, `etwfe()` is effectively a wrapper around
+`fixest::feols()` here.[^1] The resulting object is thus fully
 compatible with other **fixest** methods and functions like `etable()`.
 
 ``` r
@@ -174,11 +173,7 @@ emfx(mod, type = "event")
   module, which has provided a welcome foil for unit testing and whose
   elegant design helped inform my own choices for this R equivalent.
 
-[^1]: This means you need
-    [Rtools](https://cran.r-project.org/bin/windows/Rtools) if you’re on
-    Windows, and [Xcode](https://mac.r-project.org/tools/) if you’re on
-    a Mac. Linux users should be good to go without any other
-    requirements.
-
-[^2]: See the `?etwfe` helpfile for information about other function
+[^1]: See the `?etwfe` helpfile for information about other function
     arguments that can be used to customize the underlying estimation.
+    There are many options, from defining bespoke reference groups to
+    support for nonlinear models (e.g., logit and Poisson).

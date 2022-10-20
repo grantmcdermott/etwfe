@@ -14,10 +14,9 @@ Description: Convenience functions for implementing extended (Mundlak) two-way
   fixed effect regressions a la Wooldridge (2021).
 License: MIT + file LICENSE
 Remotes:
-    lrberge/fixest,
     vincentarelbundock/marginaleffects
 Imports:
-  fixest (>= 0.10.5),
+  fixest (>= 0.11.0),
   stats,
   Formula,
   marginaleffects (>= 0.7.1.9001),
