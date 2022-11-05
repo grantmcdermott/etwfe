@@ -20,7 +20,7 @@ etwfe(
 }
 \arguments{
 \item{fml}{A formula with the outcome (lhs) and any additional control 
-variables (rhs), e.g. `y ~ x1`. If no additional controls are required, the 
+variables (rhs), e.g. `y ~ x1 + x2`. If no additional controls are required, the 
 rhs must take the value of zero, e.g. `y ~ 0`.}
 
 \item{ivar}{Index variable. Can be a string (e.g., "country") or an 

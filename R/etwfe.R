@@ -1,7 +1,7 @@
 ##' Extended two-way fixed effects
 ##'
 ##' @param fml A formula with the outcome (lhs) and any additional control 
-##' variables (rhs), e.g. `y ~ x1`. If no additional controls are required, the 
+##' variables (rhs), e.g. `y ~ x1 + x2`. If no additional controls are required, the 
 ##' rhs must take the value of zero, e.g. `y ~ 0`.
 ##' @param ivar Index variable. Can be a string (e.g., "country") or an 
 ##' expression (e.g., country). Leaving as NULL (the default) will result in
@@ -105,8 +105,10 @@ etwfe = function(
   } else if (ctrls == "0") {
     ctrls = NULL
   } else {
-    ctrls_dm = paste0(ctrls, "_dm")
-    if (fe == "vs") vs = paste0("[", ctrls, "]") ## For varying slopes later 
+    ctrls_dm = paste0(strsplit(ctrls, " \\+ ")[[1]], "_dm")
+    if (fe == "vs") {
+      vs = paste0("[", gsub(" \\+", ",", ctrls), "]") ## For varying slopes later 
+    }
   }
   
   if (is.null(gref)) {
@@ -167,7 +169,11 @@ etwfe = function(
     ctrls_dm_df = stats::setNames(ctrls_dm_df, ctrls_dm)
     data = cbind(data, ctrls_dm_df)
     
-    rhs = paste(rhs, "/", ctrls_dm)
+    if (length(ctrls_dm) > 1) {
+      rhs = paste(rhs, "/", "(", paste(ctrls_dm, collapse = " + "), ")")
+    } else {
+      rhs = paste(rhs, "/", ctrls_dm)
+    }
     
     if (fe != "vs") {
       ictrls = strsplit(ctrls, split = " \\+ ")[[1]]
