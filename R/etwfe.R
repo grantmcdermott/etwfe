@@ -1,7 +1,8 @@
 ##' Extended two-way fixed effects
 ##'
-##' @param fml A formula with the outcome (lhs) and any additional control 
-##' variables (rhs), e.g. `y ~ x1`. If no additional controls are required, the 
+##' @param fml A formula with the outcome (lhs) and any time-constant controls 
+##' variables (rhs), e.g. `y ~ x1 + x2`. Please note that time-varying controls
+##' are not supported. Similarly, if no additional controls are required, the 
 ##' rhs must take the value of zero, e.g. `y ~ 0`.
 ##' @param ivar Index variable. Can be a string (e.g., "country") or an 
 ##' expression (e.g., country). Leaving as NULL (the default) will result in
@@ -42,17 +43,19 @@
 ##' http://dx.doi.org/10.2139/ssrn.3906345
 ##' @seealso [fixest::feols()], [fixest::feglm()]
 ##' @examples
-##' # We'll use the 'base_stagg' dataset from fixest to demonstrate ETWFE's
-##' # functionality in a staggered difference-in-differences setting.
-##' data("base_stagg", package = "fixest")
+##' # We’ll use the mpdta dataset from the did package (which you’ll need to 
+##' # install separately).
+##'
+##' # install.packages("did")
+##' data("mpdta", package = "did")
 ##' 
 ##' # Run the estimation
 ##' mod = etwfe(
-##'     fml  = y ~ x1, 
-##'     tvar = year, 
-##'     gvar = year_treated, 
-##'     data = base_stagg, 
-##'     vcov = ~ id
+##'     fml  = lemp ~ lpop, # outcome ~ controls
+##'     tvar = year,        # time variable
+##'     gvar = first.treat, # group variable
+##'     data = mpdta,       # dataset
+##'     vcov = ~countyreal  # vcov adjustment (here: clustered)
 ##'     )
 ##' mod
 ##' 
