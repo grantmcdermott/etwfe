@@ -19,7 +19,7 @@ Imports:
   fixest (>= 0.11.0),
   stats,
   Formula,
-  marginaleffects (>= 0.7.1.9001),
+  marginaleffects (>= 0.8.0),
 Suggests:
   did,
   tinytest
