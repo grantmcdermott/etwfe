@@ -108,8 +108,10 @@ etwfe = function(
   } else if (ctrls == "0") {
     ctrls = NULL
   } else {
-    ctrls_dm = paste0(ctrls, "_dm")
-    if (fe == "vs") vs = paste0("[", ctrls, "]") ## For varying slopes later 
+    ctrls_dm = paste0(strsplit(ctrls, " \\+ ")[[1]], "_dm")
+    if (fe == "vs") {
+      vs = paste0("[", gsub(" \\+", ",", ctrls), "]") ## For varying slopes later 
+    }
   }
   
   if (is.null(gref)) {
@@ -170,7 +172,11 @@ etwfe = function(
     ctrls_dm_df = stats::setNames(ctrls_dm_df, ctrls_dm)
     data = cbind(data, ctrls_dm_df)
     
-    rhs = paste(rhs, "/", ctrls_dm)
+    if (length(ctrls_dm) > 1) {
+      rhs = paste(rhs, "/", "(", paste(ctrls_dm, collapse = " + "), ")")
+    } else {
+      rhs = paste(rhs, "/", ctrls_dm)
+    }
     
     if (fe != "vs") {
       ictrls = strsplit(ctrls, split = " \\+ ")[[1]]
