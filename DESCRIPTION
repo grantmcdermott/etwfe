@@ -25,6 +25,7 @@ Suggests:
     tinytest
 Encoding: UTF-8
 RoxygenNote: 7.2.1
-URL: https://github.com/grantmcdermott/etwfe
+URL: https://github.com/grantmcdermott/etwfe,
+    http://grantmcdermott.com/etwfe/
 BugReports: https://github.com/grantmcdermott/etwfe/issues
 VignetteBuilder: knitr

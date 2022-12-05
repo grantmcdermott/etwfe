@@ -36,3 +36,5 @@ vignettes/*.pdf
 *.knit.md
 
 *.Rproj
+inst/doc
+docs
