@@ -14,19 +14,9 @@ effects *a la* [Wooldridge
 Briefly, Wooldridge proposes a set of saturated interaction effects to
 overcome the potential bias problems of vanilla TWFE in
 difference-in-differences designs. The Wooldridge solution is intuitive
-and elegant, but rather tedious and error prone to code up manually.
-This package aims to simplify the process by providing convenience
-functions that do the work for you. **etwfe** thus provides an R
-equivalent of the
-[`JWDID`](https://ideas.repec.org/c/boc/bocode/s459114.html) Stata
-module and, indeed, shares some of the core design elements (albeit with
-some internal differences).
-
-While I’ve tested **ewtfe** against common use cases, please note that
-the package is still under early development and should be considered
-experimental. I plan (hope) to add some more features and the
-documentation could also be improved. You can help by identifying any
-bugs and filing issues.
+and elegant, but rather tedious and error prone to code up manually. The
+**etwfe** package aims to simplify the process by providing convenience
+functions that do the work for you.
 
 ## Installation
 
@@ -38,13 +28,15 @@ You can install the development version of **etwfe** from
 remotes::install_github("grantmcdermott/etwfe")
 ```
 
-## Examples
+## Quickstart example
 
-To demonstrate the core functionality of **etwfe**, we’ll use the
-`mpdta` dataset from the **did** package (which you’ll need to install
-separately).
+A detailed walkthrough of the package is provided in the introductory
+vignette. See `vignette("etwfe")`. Here’s a quickstart example to
+demonstrate the basic syntax.
 
 ``` r
+library(etwfe)
+
 # install.packages("did")
 data("mpdta", package = "did")
 head(mpdta)
@@ -55,14 +47,9 @@ head(mpdta)
 #> 819 2006       8001 5.896761 8.378161        2007     1
 #> 827 2007       8001 5.896761 8.487352        2007     1
 #> 937 2003       8019 2.232377 4.997212        2007     1
-```
 
-Now let’s see a simple example.
-
-``` r
-library(etwfe)
-
-mod = 
+# Estimate the model
+mod =
   etwfe(
     fml  = lemp ~ lpop, # outcome ~ controls
     tvar = year,        # time variable
@@ -70,7 +57,6 @@ mod =
     data = mpdta,       # dataset
     vcov = ~countyreal  # vcov adjustment (here: clustered)
     )
-
 mod
 #> OLS estimation, Dep. Var.: lemp
 #> Observations: 2,500 
@@ -97,54 +83,8 @@ mod
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> RMSE: 0.537131     Adj. R2: 0.87167 
 #>                  Within R2: 8.449e-4
-```
 
-As you can perhaps tell, `etwfe()` is effectively a wrapper around
-`fixest::feols()` here.[^1] The resulting object is thus fully
-compatible with other **fixest** methods and functions like `etable()`.
-
-``` r
-fixest::etable(mod, signif.code = NA)
-#>                                                                   mod
-#> Dependent Var.:                                                  lemp
-#>                                                                      
-#> .Dtreat x first.treat = 2004 x year = 2004           -0.0213 (0.0217)
-#> .Dtreat x first.treat = 2004 x year = 2005           -0.0819 (0.0274)
-#> .Dtreat x first.treat = 2004 x year = 2006           -0.1379 (0.0308)
-#> .Dtreat x first.treat = 2004 x year = 2007           -0.1095 (0.0323)
-#> .Dtreat x first.treat = 2006 x year = 2006            0.0025 (0.0189)
-#> .Dtreat x first.treat = 2006 x year = 2007           -0.0451 (0.0220)
-#> .Dtreat x first.treat = 2007 x year = 2007           -0.0459 (0.0180)
-#> .Dtreat x lpop_dm x first.treat = 2004 x year = 2004  0.0046 (0.0176)
-#> .Dtreat x lpop_dm x first.treat = 2004 x year = 2005  0.0251 (0.0179)
-#> .Dtreat x lpop_dm x first.treat = 2004 x year = 2006  0.0507 (0.0211)
-#> .Dtreat x lpop_dm x first.treat = 2004 x year = 2007  0.0112 (0.0266)
-#> .Dtreat x lpop_dm x first.treat = 2006 x year = 2006  0.0389 (0.0165)
-#> .Dtreat x lpop_dm x first.treat = 2006 x year = 2007  0.0381 (0.0225)
-#> .Dtreat x lpop_dm x first.treat = 2007 x year = 2007 -0.0198 (0.0162)
-#> Fixed-Effects:                                       ----------------
-#> first.treat                                                       Yes
-#> year                                                              Yes
-#> Varying Slopes:                                      ----------------
-#> lpop (first.treat)                                                Yes
-#> lpop (year)                                                       Yes
-#> ________________________________________             ________________
-#> S.E.: Clustered                                        by: countyreal
-#> Observations                                                    2,500
-#> R2                                                            0.87321
-#> Within R2                                                     0.00084
-```
-
-While everyone likes a nice regression table, the raw coefficients from
-an `etwfe()` estimation are not necessarily meaningful in of themselves.
-Instead, we probably want to aggregate them along some dimension of
-interest (e.g., an event study). A natural way to perform these
-aggregations is by calculating marginal effects. The **etwfe** package
-provides another convenience function for doing this, `emfx()`, which is
-itself a thin(ish) wrapper around `marginaleffects::marginaleffects()`.
-
-``` r
-# Other type options incl. "simple" (default), "calendar", and "group"
+# Event-study treatment effects
 emfx(mod, type = "event")
 #>      Term    Contrast event   Effect Std. Error z value   Pr(>|z|)    2.5 %   97.5 %
 #> 1 .Dtreat mean(dY/dX)     0 -0.03321    0.01337  -2.484 0.01297951 -0.05941 -0.00701
@@ -172,8 +112,3 @@ emfx(mod, type = "event")
   [`JWDID`](https://ideas.repec.org/c/boc/bocode/s459114.html) Stata
   module, which has provided a welcome foil for unit testing and whose
   elegant design helped inform my own choices for this R equivalent.
-
-[^1]: See the `?etwfe` helpfile for information about other function
-    arguments that can be used to customize the underlying estimation.
-    There are many options, from defining bespoke reference groups to
-    support for nonlinear models (e.g., logit and Poisson).
