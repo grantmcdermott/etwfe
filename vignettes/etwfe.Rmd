@@ -1,0 +1,261 @@
+---
+title: "Introduction to etwfe"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{etwfe}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+options(rmarkdown.html_vignette.check_title = FALSE)
+```
+
+## Background
+
+One of the canonical research designs for social scientists is the so-called
+"differences-in-differences" (DiD) design.^[Good textbook introductions to DiD
+are available [here](https://theeffectbook.net/ch-DifferenceinDifference.html)
+and [here](https://mixtape.scunning.com/09-difference_in_differences), among
+many other places.] Historically, the way that applied researchers estimated
+DiD was in the form of a two-way fixed effects (TWFE) regression. TWFE is 
+basically just an interaction effect between treatment and time, and might look
+something like the following in R:
+
+```r
+lm(y ~ treat * time, data)
+```
+
+This type of regression is easy to run and interpret, and for a long time
+everyone was happy. But it was too good to last. A slew of smart studies
+began appearing in the early 2020s, demonstrating that things weren't quite so
+simple. Among other things, the core interaction term in a standard TWFE can
+provide a biased estimate of the true treatment effect if the rollout of 
+treatment was staggered over time (a very common occurence).
+
+Fortunately, just as econometricians were taking away one of our
+favourite tools, they were kind enough to replace it with some new ones. 
+Among these, the proposed approach by 
+[Wooldridge (2021)](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3906345)
+is noteworthy. His idea might be paraphrased as stating that the problem 
+with TWFE is not that we were doing it in the first place, but that we weren't
+doing it _enough_. Which is to say that instead of only including a single
+treatment × time interaction, we should saturate our model with all possible
+interactions between treatment and time variables, including treament
+cohorts, as well as other covariates. Wooldridge (2021) refers to this idea as
+_extended_ TWFE---or, ETWFE---which is where this package takes its name.
+
+The Wooldridge ETWFE solution is intuitive and elegant. But it is also rather
+tedious and error prone to code up manually. The **etwfe** package aims to
+simplify the process by providing convenience functions that do the work for
+you. **etwfe** thus provides an R equivalent of the 
+[`JWDID`](https://ideas.repec.org/c/boc/bocode/s459114.html) Stata module and, 
+indeed, shares some of the core design elements.
+
+## Dataset
+
+To demonstrate the core functionality of
+**etwfe**, we’ll use the
+[`mpdta`](https://bcallaway11.github.io/did/reference/mpdta.html) dataset on 
+US teen employment from *the **did** package (which you’ll need to install
+separately).
+
+```{r}
+# install.packages("did")
+data("mpdta", package = "did")
+head(mpdta)
+```
+
+In the examples that follow, our goal is to estimate the effect of treatment
+`treat` on (log) employment `lemp`. Notice that the panel ID is at the county
+level `countyreal`, but treatment was staggered across cohorts `first.treat`
+so that a group of counties were treated at the same time. In addition to these
+staggered treatment effects, we also observe (log) population `lpop` as a 
+potential, time-invariant control.^[The time-invariance property is important;
+time-varying controls are not allowed in the ETWFE framework. But you can also
+omit controls if you don't have any.]
+
+## Basic useage
+
+Okay, let's load **etwfe** and work through its basic functionality.
+Given the package name, it won't surprise you to know that the key estimating
+function is `etwfe()`. Here's how it would look for our example dataset.
+
+```{r}
+library(etwfe)
+
+mod =
+  etwfe(
+    fml  = lemp ~ lpop, # outcome ~ (time-invariant) controls
+    tvar = year,        # time variable
+    gvar = first.treat, # group variable
+    data = mpdta,       # dataset
+    vcov = ~countyreal  # vcov adjustment (here: clustered)
+    )
+```
+
+There are a few things to say about our `etwfe()` argument choices and other
+function options, but we'll leave those details aside until a bit later. Right
+now, just know that all of the above arguments are required except `vcov`
+(though I generally recommend it too, since we probably want to cluster our
+standard errors at the individual unit level). 
+
+Let's take a look at our model object.
+```{r}
+mod
+```
+
+What `etwfe()` has done underneath the hood is construct a treatment dummy
+variable `.Dtreat` and saturated it together with the other variables of
+interest as a set of multiway interaction terms.^[It has also demeaned the 
+`lpop` control variable, but that again is something we'll
+get back too later. It's not particularly important for interpreting the final
+results.] 
+
+You may also have noticed that our `etwfe()` call returns a standard 
+[**fixest**](https://lrberge.github.io/fixest/) object, since this is what it
+uses to perform the underlying estimation. All of the associated methods and
+functions from the
+**fixest** package are thus compatible with our model object. For example, we
+*could plot the raw regression coefficients with 
+`fixest::coefplot()`, or print them to a nice regression table with
+`fixest::etable()`.  However, the raw coefficients from an `etwfe()` estimation
+are not particularly meaningful in of themselves. Remember that these are complex
+multiway interaction terms that are probably hard to to interpret on their own.
+So, we probably want to aggregate them along some dimension of interest instead
+(e.g., by groups or time, or as an event study). A natural way to perform these
+aggregations is by recovering the appropriate marginal effects. The **etwfe**
+package provides another convenience function for doing so: `emfx()`, which is a
+thin(ish) wrapper around `marginaleffects::marginaleffects()`.
+
+For example, we can recover the average treatment effect as follows.
+
+```{r}
+emfx(mod)
+```
+
+Or, we can recover the dynamic treatment effects _a la_ an event study by invoking
+the type argument.
+
+```{r}
+emfx(mod, type = "event")
+```
+
+Other types of aggregations include "calendar" (here: treatment by year effects) 
+and "group" (here: treatment by cohort).
+
+## Other families
+
+A key feature of the ETWFE method proposed by Wooldridge (2021) is that it supports
+nonlinear model (distribution / link) families. Here's a brief example, where we
+recast our earlier event-study as a Poisson regression.
+
+```{r, warning=FALSE, message=FALSE}
+mpdta$emp = exp(mpdta$lemp)
+
+etwfe(
+  emp ~ lpop, tvar = year, gvar = first.treat, data = mpdta, vcov = ~countyreal,
+  family = "poisson"
+  ) |>
+  emfx("event")
+```
+
+## What is etwfe doing under the hood?
+
+Now that you've seen **etwfe** in action, let's circle back to what the package
+is doing under the hood. This section isn't necessary for you to use any of the 
+functions. Feel free to skip it. But a review of the internal details should help
+you to optimize for different scenarios and also give you an understanding of
+**etwfe's** default choices. 
+
+As I've stated several times, the Wooldridge ETWFE approach basically involves
+saturataing the regression with interaction effects. You can easily grab the
+formula of an estimated model to see for yourself.
+
+```{r}
+mod$fml_all
+```
+
+At this point, however, you may notice a few things. The first is that our
+formula references several variables that aren't in the original dataset. An
+obvious one is the `.Dtreat` treatment dummy. A more subtle one is `lpop_dm`,
+which is the _demeaned_ (i.e., group-centered) version of our `lpop` control
+variable.  All (time-invariant) control variables have to be demeaned before
+they are interacted in the ETWFE setting. Here's how you could have constructed
+the dataset ahead of time and estimated the ETWFE regression manually:
+
+```{r}
+# First construct the dataset
+mpdta2 = mpdta |>
+  transform(
+    .Dtreat = as.integer(year >= first.treat & first.treat != 0),
+    lpop_dm = ave(lpop, first.treat, year, FUN = \(x) x - mean(x, na.rm = TRUE))
+  )
+
+# Then estimate the manual version of etwfe
+mod2 = fixest::feols(
+  lemp ~ .Dtreat:i(first.treat, i.year, ref = 0, ref2 = 2003) / lpop_dm |
+    first.treat[lpop] + year[lpop],
+  data = mpdta2,
+  vcov = ~countyreal
+)
+
+# Confirm that they are the same
+fixest::etable('etwfe' = mod, 'manual' = mod2, signif.code = NA)
+```
+
+If you are a regular **fixest** user, you may have noticed that we've been
+invoking its [varying
+slopes](https://lrberge.github.io/fixest/articles/fixest_walkthrough.html#varying-slopes-fex)
+syntax in the fixed-effect slot (i.e., `first.treat[lpop]` and `year[lpop]`).
+The reason for this is part practical, part philosophical. From a practical
+perspective, `factor_var[numeric_var]` is equivalent to base R's 
+`factor_var/numeric_var` "nesting" syntax but is much faster for high-dimensional 
+factors.^[We won't see a speed-up for this small dataset, but it can make a
+signficant difference for large datasets.] From a philosphical perspective,
+**etwfe** tries to limit the amount of extraneous information that it reports
+to users. Most of the interaction effects in the ETWFE framework are just acting
+as controls. By relegating them to the fixed-effects slot, we can avoid polluting
+the user's console with a load of extra coefficients. Nonetheless, we can control 
+this behaviour with the `fe` ("fixed effects") argument. Consider the following
+options and their manual equivalents.
+
+```{r, message=FALSE, warning=FALSE}
+# fe = "feo" (fixed effects only)
+mod_feo = etwfe(
+  lemp ~ lpop, tvar = year, gvar = first.treat, data = mpdta, vcov = ~countyreal,
+  fe = "feo"
+)
+# ... which is equivalent to the manual regression
+mod_feo2 = fixest::feols(
+  lemp ~ .Dtreat:i(first.treat, i.year, ref = 0, ref2 = 2003) / lpop_dm +
+    lpop + i(first.treat, lpop, ref = 0) + i(year, lpop, ref = 2003) |
+    first.treat + year,
+  data = mpdta2, vcov = ~countyreal
+)
+
+# fe = "none"
+mod_none = etwfe(
+  lemp ~ lpop, tvar = year, gvar = first.treat, data = mpdta, vcov = ~countyreal,
+  fe = "none"
+)
+# ... which is equivalent to the manual regression
+mod_none2 = fixest::feols(
+  lemp ~ .Dtreat:i(first.treat, i.year, ref = 0, ref2 = 2003) / lpop_dm +
+    lpop + i(first.treat, lpop, ref = 0) + i(year, lpop, ref = 2003) +
+    i(first.treat, ref = 0) + i(year, ref = 2003),
+  data = mpdta2, vcov = ~countyreal
+)
+```
+
+I'll leave it up to you to pass any of these to models `emfx` to confirm that
+they give correct aggregated treatment effects. But we can quickly demonstrate
+in a regression table that they all return the same raw coefficients.
+
+```{r}
+fixest::etable(mod, mod2, mod_feo, mod_feo2, mod_none, mod_none2, signif.code = NA)
+```
