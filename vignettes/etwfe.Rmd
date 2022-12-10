@@ -27,10 +27,10 @@ basically just an interaction effect between treatment and time, and might look
 something like the following in R:
 
 ```r
-lm(y ~ treat * time, data)
+lm(y ~ treatment * time, data)
 ```
 
-This type of regression is easy to run and interpret, and for a long time
+This type of regression is easy to and intuitive, and for a long time
 everyone was happy. But it was too good to last. A slew of smart studies
 began appearing in the early 2020s, demonstrating that things weren't quite so
 simple. Among other things, the core interaction term in a standard TWFE can
@@ -42,12 +42,15 @@ favourite tools, they were kind enough to replace it with some new ones.
 Among these, the proposed approach by 
 [Wooldridge (2021)](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3906345)
 is noteworthy. His idea might be paraphrased as stating that the problem 
-with TWFE is not that we were doing it in the first place, but that we weren't
-doing it _enough_. Which is to say that instead of only including a single
-treatment × time interaction, we should saturate our model with all possible
-interactions between treatment and time variables, including treament
-cohorts, as well as other covariates. Wooldridge (2021) refers to this idea as
-_extended_ TWFE---or, ETWFE---which is where this package takes its name.
+with TWFE is not that we were doing it in the first place. Rather, it's that we
+weren't doing it enough. Instead of only including a single treatment × time
+interaction, Wooldridge recommends that we saturate our model with all possible
+interactions between treatment and time variables, including treament cohorts,
+as well as other covariates. He goes on to show that this approach actually
+draws an equivalence between different types of estimators (pooled OLS, twoway
+Mundlak regression, etc.) So it's not entirely clear what to call it.  But
+Wooldridge refers to the general idea as as _extended_ TWFE---or, ETWFE---which
+I rather like and is where this package takes its name.
 
 The Wooldridge ETWFE solution is intuitive and elegant. But it is also rather
 tedious and error prone to code up manually. The **etwfe** package aims to
