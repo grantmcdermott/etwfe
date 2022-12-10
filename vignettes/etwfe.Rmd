@@ -13,6 +13,7 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 options(rmarkdown.html_vignette.check_title = FALSE)
+fixest::setFixest_etable(markdown = TRUE, style.tex = fixest::style.tex("aer"))
 ```
 
 ## Background
@@ -61,8 +62,7 @@ indeed, shares some of the core design elements.
 
 ## Dataset
 
-To demonstrate the core functionality of
-**etwfe**, we’ll use the
+To demonstrate the core functionality of **etwfe**, we’ll use the
 [`mpdta`](https://bcallaway11.github.io/did/reference/mpdta.html) dataset on 
 US teen employment from the **did** package (which you’ll need to install
 separately).
@@ -74,10 +74,10 @@ head(mpdta)
 ```
 
 In the examples that follow, our goal is to estimate the effect of treatment
-`treat` on (log) employment `lemp`. Notice that the panel ID is at the county
-level `countyreal`, but treatment was staggered across cohorts `first.treat`
+(`treat`) on log employment (`lemp`). Notice that the panel ID is at the county
+level (`countyreal`), but treatment was staggered across cohorts (`first.treat`)
 so that a group of counties were treated at the same time. In addition to these
-staggered treatment effects, we also observe (log) population `lpop` as a 
+staggered treatment effects, we also observe log population (`lpop`) as a 
 potential, time-invariant control.^[The time-invariance property is important;
 time-varying controls are not allowed in the ETWFE framework. But you can also
 omit controls if you don't have any.]
