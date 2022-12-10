@@ -61,7 +61,7 @@ indeed, shares some of the core design elements.
 To demonstrate the core functionality of
 **etwfe**, we’ll use the
 [`mpdta`](https://bcallaway11.github.io/did/reference/mpdta.html) dataset on 
-US teen employment from *the **did** package (which you’ll need to install
+US teen employment from the **did** package (which you’ll need to install
 separately).
 
 ```{r}
@@ -121,7 +121,7 @@ You may also have noticed that our `etwfe()` call returns a standard
 uses to perform the underlying estimation. All of the associated methods and
 functions from the
 **fixest** package are thus compatible with our model object. For example, we
-*could plot the raw regression coefficients with 
+could plot the raw regression coefficients with 
 `fixest::coefplot()`, or print them to a nice regression table with
 `fixest::etable()`.  However, the raw coefficients from an `etwfe()` estimation
 are not particularly meaningful in of themselves. Remember that these are complex
