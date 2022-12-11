@@ -85,15 +85,22 @@ mod
 #>                  Within R2: 8.449e-4
 
 # Event-study treatment effects
-emfx(mod, type = "event")
-#>      Term    Contrast event   Effect Std. Error z value   Pr(>|z|)    2.5 %   97.5 %
-#> 1 .Dtreat mean(dY/dX)     0 -0.03321    0.01337  -2.484 0.01297951 -0.05941 -0.00701
-#> 2 .Dtreat mean(dY/dX)     1 -0.05735    0.01715  -3.343 0.00082830 -0.09097 -0.02373
-#> 3 .Dtreat mean(dY/dX)     2 -0.13787    0.03079  -4.477 7.5665e-06 -0.19823 -0.07751
-#> 4 .Dtreat mean(dY/dX)     3 -0.10954    0.03232  -3.389 0.00070142 -0.17289 -0.04619
-#> 
-#> Model type:  etwfe 
-#> Prediction type:  response
+emfx(mod, type = "event") |>
+  summary()
+#>      type               term             contrast             event         estimate       
+#>  Length:4           Length:4           Length:4           Min.   :0.00   Min.   :-0.13787  
+#>  Class :character   Class :character   Class :character   1st Qu.:0.75   1st Qu.:-0.11662  
+#>  Mode  :character   Mode  :character   Mode  :character   Median :1.50   Median :-0.08344  
+#>                                                           Mean   :1.50   Mean   :-0.08449  
+#>                                                           3rd Qu.:2.25   3rd Qu.:-0.05131  
+#>                                                           Max.   :3.00   Max.   :-0.03321  
+#>    std.error         statistic         p.value             conf.low          conf.high       
+#>  Min.   :0.01337   Min.   :-4.477   Min.   :7.566e-06   Min.   :-0.19823   Min.   :-0.07751  
+#>  1st Qu.:0.01621   1st Qu.:-3.661   1st Qu.:5.280e-04   1st Qu.:-0.17922   1st Qu.:-0.05402  
+#>  Median :0.02397   Median :-3.366   Median :7.649e-04   Median :-0.13193   Median :-0.03496  
+#>  Mean   :0.02341   Mean   :-3.423   Mean   :3.629e-03   Mean   :-0.13037   Mean   :-0.03861  
+#>  3rd Qu.:0.03118   3rd Qu.:-3.128   3rd Qu.:3.866e-03   3rd Qu.:-0.08308   3rd Qu.:-0.01955  
+#>  Max.   :0.03232   Max.   :-2.484   Max.   :1.298e-02   Max.   :-0.05941   Max.   :-0.00701
 ```
 
 ## Acknowledgements

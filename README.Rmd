@@ -64,7 +64,8 @@ mod =
 mod
 
 # Event-study treatment effects
-emfx(mod, type = "event")
+emfx(mod, type = "event") |>
+  summary()
 ```
 
 ## Acknowledgements

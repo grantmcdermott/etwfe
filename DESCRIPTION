@@ -20,6 +20,8 @@ Imports:
   marginaleffects (>= 0.8.1)
 Suggests:
     did,
+    modelsummary,
+    ggplot2,
     knitr,
     rmarkdown,
     tinytest

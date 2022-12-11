@@ -13,7 +13,6 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 options(rmarkdown.html_vignette.check_title = FALSE)
-fixest::setFixest_etable(markdown = TRUE, style.tex = fixest::style.tex("aer"), page.width = "a4")
 fixest::setFixest_notes(FALSE)
 ```
 
@@ -143,14 +142,54 @@ emfx(mod)
 ```
 
 Or, we can recover the dynamic treatment effects _a la_ an event study by invoking
-the type argument.
+the type argument. This time I'll save the resulting object since I plan to reuse it
+in a moment.
 
 ```{r}
-emfx(mod, type = "event")
+mod_es = emfx(mod, type = "event")
+# mod_es
+summary(mod_es) # Summary print looks a bit nicer
 ```
 
-Other types of aggregations include "calendar" (here: treatment by year effects) 
-and "group" (here: treatment by cohort).
+(Other types of aggregations include `"calendar"` (here: treatment by year effects) 
+and `"group"` (here: treatment by cohort).)
+
+Since `emfx` produces a standard `marginaleffects` object, we can pass it on to
+other supported methods and packages. For example, we can get get pass it on to
+[**modelsummary**](https://vincentarelbundock.github.io/modelsummary/index.html)
+to get a nice regression table of the event study coefficients. Note the use of
+the `shape` and `coef_rename` arguments below; these are optional but help to
+make the output look a bit nicer.
+
+```{r}
+library(modelsummary)
+
+rename_fn = function(old_names) {
+  new_names = gsub(".Dtreat", "Years post treatment =", old_names)
+  setNames(new_names, old_names)
+}
+
+modelsummary(
+  mod_es,
+  shape = term:event:statistic ~ model,
+  coef_rename =  rename_fn,
+  gof_omit = "Adj|Within|RMSE",
+  title = "Event study",
+  notes = "Std. errors are clustered at the county level"
+)
+```
+
+For vizualization, you can pass in on to your prefered plotting method. For example:
+
+```{r}
+library(ggplot2)
+
+ggplot(mod_es, aes(x = event, y = dydx, ymin = conf.low, ymax = conf.high)) +
+  geom_hline(yintercept = 0, col = "grey50") +
+  geom_pointrange() +
+  labs(x = "Years post treatment", y = "Effect on log employment") +
+  theme_minimal()
+```
 
 ## Other families
 
@@ -165,7 +204,8 @@ etwfe(
   emp ~ lpop, tvar = year, gvar = first.treat, data = mpdta, vcov = ~countyreal,
   family = "poisson"
   ) |>
-  emfx("event")
+  emfx("event") |>
+  summary()
 ```
 
 ## What is etwfe doing under the hood?
@@ -210,20 +250,19 @@ mod2 = fixest::feols(
 ```
 
 We can confirm that the manual approach yields the same output as our original
-etwfe regression.
+etwfe regression. I'll use `modelsummary` to do that here, since I've already
+loaded it above.^[Another option would be to use `fixest::etable()`].
 
-```{r, eval=FALSE}
-fixest::etable('etwfe' = mod, 'manual' = mod2)
-```
-```{r, results="asis", echo=FALSE}
-fixest::etable(
-  mod, mod2,
-  headers = c("etwfe", "manual")
-  )
+```{r}
+modelsummary(
+  list("etwfe" = mod, "manual" = mod2),
+  gof_map = NA # drop all goodness-of-fit info for brevity
+)
 ```
 
-If you are a regular **fixest** user, you may have noticed that we've been
-invoking its [varying
+Let's switch gears and talk about fixed-effects quickly. If you are a regular 
+**fixest** user, you may have noticed that we've been invoking its 
+[varying
 slopes](https://lrberge.github.io/fixest/articles/fixest_walkthrough.html#varying-slopes-fex)
 syntax in the fixed-effect slot (i.e., `first.treat[lpop]` and `year[lpop]`).
 The reason for this is part practical, part philosophical. From a practical
@@ -270,12 +309,15 @@ I'll leave it up to you to pass any of these to models `emfx` to confirm that
 they give correct aggregated treatment effects. But we can quickly demonstrate
 in a regression table that they all return the same raw coefficients.
 
-```{r, eval=FALSE}
-fixest::etable(mod, mod2, mod_feo, mod_feo2, mod_none, mod_none2)
-```
-```{r, results="asis", echo=FALSE}
-fixest::etable(
-  mod, mod2, mod_feo, mod_feo2, mod_none, mod_none2,
-  headers = c("etwfe", "manual", "etwfe (feo)", "manual (feo)", "etwfe (none)", "manual (none")
-  )
+```{r}
+mods = list(
+  "etwfe"         = mod,
+  "manual"        = mod2,
+  "etwfe (feo)"   = mod_feo,
+  "manual (feo)"  = mod_feo2,
+  "etwfe (none)"  = mod_none,
+  "manual (none)" = mod_none2
+)
+
+modelsummary(mods, gof_map = NA)
 ```
