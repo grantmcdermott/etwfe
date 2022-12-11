@@ -78,15 +78,15 @@ bmod_known =
     model_type = "etwfe"
     )
 
-bmod = emfx(
+bmod = summary(emfx(
   etwfe(
-  fml  = y ~ 0,
-  tvar = year, 
-  gvar = treat_date,
-  data = baker,
-  vcov = ~id
-  ), 
+    fml  = y ~ 0,
+    tvar = year,
+    gvar = treat_date,
+    data = baker,
+    vcov = ~id
+  ),
   "event"
-  )
+))
 
 expect_equal(bmod, bmod_known, tolerance = 1e-6)

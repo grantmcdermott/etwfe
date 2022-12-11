@@ -7,7 +7,7 @@
 emfx(
   object,
   type = c("simple", "group", "calendar", "event"),
-  summary = TRUE,
+  summary = FALSE,
   ...
 )
 }
@@ -15,8 +15,6 @@ emfx(
 \item{object}{An `etwfe` model object.}
 
 \item{type}{Character. The desired type of post-estimation aggregation.}
-
-\item{summary}{Logical. Should the resulting marginaleffects objects be passed to [`summary`] before being returned? Defaults to TRUE, but mostly for aesthetics reasons.}
 
 \item{...}{Additional arguments passed to 
 [`marginaleffects::marginaleffects`].}

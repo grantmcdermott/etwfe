@@ -91,8 +91,8 @@ event_known =
 
 # Tests ----
 
-expect_equal(emfx(m3), simple_known)
-expect_equal(emfx(m3, type = "simple"), simple_known)
-expect_equal(emfx(m3, type = "calendar"), calendar_known)
-expect_equal(emfx(m3, type = "group"), group_known)
-expect_equal(emfx(m3, type = "event"), event_known)
+expect_equal(summary(emfx(m3)), simple_known)
+expect_equal(summary(emfx(m3, type = "simple")), simple_known)
+expect_equal(summary(emfx(m3, type = "calendar")), calendar_known)
+expect_equal(summary(emfx(m3, type = "group")), group_known)
+expect_equal(summary(emfx(m3, type = "event")), event_known)

@@ -86,7 +86,7 @@ mod
 
 # Event-study treatment effects
 emfx(mod, type = "event") |>
-  summary() 
+  summary()
 #>      Term    Contrast event   Effect Std. Error z value   Pr(>|z|)    2.5 %   97.5 %
 #> 1 .Dtreat mean(dY/dX)     0 -0.03321    0.01337  -2.484 0.01297951 -0.05941 -0.00701
 #> 2 .Dtreat mean(dY/dX)     1 -0.05735    0.01715  -3.343 0.00082830 -0.09097 -0.02373
