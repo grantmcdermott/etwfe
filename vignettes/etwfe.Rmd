@@ -36,7 +36,7 @@ everyone was happy. But it was too good to last. A slew of smart studies
 began appearing in the early 2020s, demonstrating that things weren't quite so
 simple. Among other things, the core interaction term in a standard TWFE can
 provide a biased estimate of the true treatment effect if the rollout of 
-treatment was staggered over time (a very common occurence).
+treatment was staggered over time (a very common occurrence).
 
 Fortunately, just as econometricians were taking away one of our
 favourite tools, they were kind enough to replace it with some new ones. 
@@ -46,7 +46,7 @@ is noteworthy. His idea might be paraphrased as stating that the problem
 with TWFE is not that we were doing it in the first place. Rather, it's that we
 weren't doing it enough. Instead of only including a single treatment × time
 interaction, Wooldridge recommends that we saturate our model with all possible
-interactions between treatment and time variables, including treament cohorts,
+interactions between treatment and time variables, including treatment cohorts,
 as well as other covariates. He goes on to show that this approach actually
 draws an equivalence between different types of estimators (pooled OLS, twoway
 Mundlak regression, etc.) So it's not entirely clear what to call it.  But
@@ -82,7 +82,7 @@ potential, time-invariant control.^[The time-invariance property is important;
 time-varying controls are not allowed in the ETWFE framework. But you can also
 omit controls if you don't have any.]
 
-## Basic useage
+## Basic usage
 
 Okay, let's load **etwfe** and work through its basic functionality.
 Given the package name, it won't surprise you to know that the key estimating
@@ -179,7 +179,7 @@ modelsummary(
 )
 ```
 
-For vizualization, you can pass in on to your prefered plotting method. For example:
+For vizualization, you can pass in on to your preferred plotting method. For example:
 
 ```{r}
 library(ggplot2)
@@ -217,7 +217,7 @@ you to optimize for different scenarios and also give you an understanding of
 **etwfe's** default choices. 
 
 As I've stated several times, the Wooldridge ETWFE approach basically involves
-saturataing the regression with interaction effects. You can easily grab the
+saturating the regression with interaction effects. You can easily grab the
 formula of an estimated model to see for yourself.
 
 ```{r}
@@ -269,7 +269,7 @@ The reason for this is part practical, part philosophical. From a practical
 perspective, `factor_var[numeric_var]` is equivalent to base R's 
 `factor_var/numeric_var` "nesting" syntax but is much faster for high-dimensional 
 factors.^[We won't see a speed-up for this small dataset, but it can make a
-signficant difference for large datasets.] From a philosphical perspective,
+significant difference for large datasets.] From a philosphical perspective,
 **etwfe** tries to limit the amount of extraneous information that it reports
 to users. Most of the interaction effects in the ETWFE framework are just acting
 as controls. By relegating them to the fixed-effects slot, we can avoid polluting
