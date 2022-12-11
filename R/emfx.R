@@ -2,7 +2,6 @@
 ##'
 ##' @param object An `etwfe` model object.
 ##' @param type Character. The desired type of post-estimation aggregation.
-##' @param summary Logical. Should the resulting marginaleffects objects be passed to [`summary`] before being returned? Defaults to TRUE, but mostly for aesthetics reasons.
 ##' @param ... Additional arguments passed to 
 ##' [`marginaleffects::marginaleffects`].
 ##' @return A marginaleffects object.
@@ -12,7 +11,7 @@
 emfx = function(
     object,
     type = c("simple", "group", "calendar", "event"),
-    summary = TRUE,
+    summary = FALSE,
     ...
 ) {
   
@@ -33,15 +32,13 @@ emfx = function(
   }
   
   mfx = marginaleffects::marginaleffects(
-    object, 
+    object,
     newdata = dat,
     variables = ".Dtreat",
     by = by_var
   )
   
   if (type!="simple") mfx = mfx[order(mfx[[by_var]]), ]
-  
-  if (summary) mfx = summary(mfx)
-  
+   
   return(mfx)
 }
