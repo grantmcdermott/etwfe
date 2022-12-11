@@ -11,7 +11,6 @@
 emfx = function(
     object,
     type = c("simple", "group", "calendar", "event"),
-    summary = FALSE,
     ...
 ) {
   

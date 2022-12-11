@@ -4,12 +4,7 @@
 \alias{emfx}
 \title{Post-estimation treatment effects for an ETWFE regressions.}
 \usage{
-emfx(
-  object,
-  type = c("simple", "group", "calendar", "event"),
-  summary = FALSE,
-  ...
-)
+emfx(object, type = c("simple", "group", "calendar", "event"), ...)
 }
 \arguments{
 \item{object}{An `etwfe` model object.}
