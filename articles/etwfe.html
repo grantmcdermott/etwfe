@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">etwfe</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,7 +62,7 @@
 
 
 
-
+<script src="etwfe_files/kePrint-0.0.1/kePrint.js"></script><link href="etwfe_files/lightable-0.0.1/lightable.css" rel="stylesheet">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="" class="logo" alt=""><h1>Introduction to etwfe</h1>
@@ -86,26 +86,28 @@ fixed effects (TWFE) regression. TWFE is basically just an interaction
 effect between treatment and time, and might look something like the
 following in R:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">treat</span> <span class="op">*</span> <span class="va">time</span>, <span class="va">data</span><span class="op">)</span></span></code></pre></div>
-<p>This type of regression is easy to run and interpret, and for a long
-time everyone was happy. But it was too good to last. A slew of smart
-studies began appearing in the early 2020s, demonstrating that things
-weren’t quite so simple. Among other things, the core interaction term
-in a standard TWFE can provide a biased estimate of the true treatment
-effect if the rollout of treatment was staggered over time (a very
-common occurence).</p>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">treatment</span> <span class="op">*</span> <span class="va">time</span>, <span class="va">data</span><span class="op">)</span></span></code></pre></div>
+<p>This type of regression is easy to and intuitive, and for a long time
+everyone was happy. But it was too good to last. A slew of smart studies
+began appearing in the early 2020s, demonstrating that things weren’t
+quite so simple. Among other things, the core interaction term in a
+standard TWFE can provide a biased estimate of the true treatment effect
+if the rollout of treatment was staggered over time (a very common
+occurence).</p>
 <p>Fortunately, just as econometricians were taking away one of our
 favourite tools, they were kind enough to replace it with some new ones.
 Among these, the proposed approach by <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3906345" class="external-link">Wooldridge
 (2021)</a> is noteworthy. His idea might be paraphrased as stating that
-the problem with TWFE is not that we were doing it in the first place,
-but that we weren’t doing it <em>enough</em>. Which is to say that
-instead of only including a single treatment × time interaction, we
-should saturate our model with all possible interactions between
-treatment and time variables, including treament cohorts, as well as
-other covariates. Wooldridge (2021) refers to this idea as
-<em>extended</em> TWFE—or, ETWFE—which is where this package takes its
-name.</p>
+the problem with TWFE is not that we were doing it in the first place.
+Rather, it’s that we weren’t doing it enough. Instead of only including
+a single treatment × time interaction, Wooldridge recommends that we
+saturate our model with all possible interactions between treatment and
+time variables, including treament cohorts, as well as other covariates.
+He goes on to show that this approach actually draws an equivalence
+between different types of estimators (pooled OLS, twoway Mundlak
+regression, etc.) So it’s not entirely clear what to call it. But
+Wooldridge refers to the general idea as as <em>extended</em> TWFE—or,
+ETWFE—which I rather like and is where this package takes its name.</p>
 <p>The Wooldridge ETWFE solution is intuitive and elegant. But it is
 also rather tedious and error prone to code up manually. The
 <strong>etwfe</strong> package aims to simplify the process by providing
@@ -118,7 +120,7 @@ Stata module and, indeed, shares some of the core design elements.</p>
 </h2>
 <p>To demonstrate the core functionality of <strong>etwfe</strong>,
 we’ll use the <a href="https://bcallaway11.github.io/did/reference/mpdta.html" class="external-link"><code>mpdta</code></a>
-dataset on US teen employment from *the <strong>did</strong> package
+dataset on US teen employment from the <strong>did</strong> package
 (which you’ll need to install separately).</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("did")</span></span>
@@ -132,12 +134,13 @@ dataset on US teen employment from *the <strong>did</strong> package
 <span><span class="co">#&gt; 827 2007       8001 5.896761 8.487352        2007     1</span></span>
 <span><span class="co">#&gt; 937 2003       8019 2.232377 4.997212        2007     1</span></span></code></pre></div>
 <p>In the examples that follow, our goal is to estimate the effect of
-treatment <code>treat</code> on (log) employment <code>lemp</code>.
-Notice that the panel ID is at the county level <code>countyreal</code>,
-but treatment was staggered across cohorts <code>first.treat</code> so
-that a group of counties were treated at the same time. In addition to
-these staggered treatment effects, we also observe (log) population
-<code>lpop</code> as a potential, time-invariant control.<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;The time-invariance property is important; time-varying
+treatment (<code>treat</code>) on log employment (<code>lemp</code>).
+Notice that the panel ID is at the county level
+(<code>countyreal</code>), but treatment was staggered across cohorts
+(<code>first.treat</code>) so that a group of counties were treated at
+the same time. In addition to these staggered treatment effects, we also
+observe log population (<code>lpop</code>) as a potential,
+time-invariant control.<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;The time-invariance property is important; time-varying
 controls are not allowed in the ETWFE framework. But you can also omit
 controls if you don’t have any.&lt;/p&gt;"><sup>2</sup></a></p>
 </div>
@@ -219,7 +222,7 @@ a standard <a href="https://lrberge.github.io/fixest/" class="external-link"><st
 object, since this is what it uses to perform the underlying estimation.
 All of the associated methods and functions from the
 <strong>fixest</strong> package are thus compatible with our model
-object. For example, we *could plot the raw regression coefficients with
+object. For example, we could plot the raw regression coefficients with
 <code><a href="https://lrberge.github.io/fixest/reference/coefplot.html" class="external-link">fixest::coefplot()</a></code>, or print them to a nice regression
 table with <code><a href="https://lrberge.github.io/fixest/reference/etable.html" class="external-link">fixest::etable()</a></code>. However, the raw coefficients
 from an <code><a href="../reference/etwfe.html">etwfe()</a></code> estimation are not particularly meaningful
@@ -235,17 +238,17 @@ around <code><a href="https://vincentarelbundock.github.io/marginaleffects/refer
 follows.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="va">mod</span><span class="op">)</span></span>
-<span><span class="co">#&gt;      Term    Contrast .Dtreat   Effect Std. Error z value   Pr(&gt;|z|)    2.5 %</span></span>
-<span><span class="co">#&gt; 1 .Dtreat mean(dY/dX)       1 -0.05063     0.0125   -4.05 5.1167e-05 -0.07513</span></span>
-<span><span class="co">#&gt;     97.5 %</span></span>
-<span><span class="co">#&gt; 1 -0.02613</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Model type:  etwfe </span></span>
-<span><span class="co">#&gt; Prediction type:  response</span></span></code></pre></div>
+<span><span class="co">#&gt;       type    term    contrast        dydx  std.error statistic      p.value</span></span>
+<span><span class="co">#&gt; 1 response .Dtreat mean(dY/dX) -0.05062703 0.01249979 -4.050232 5.116687e-05</span></span>
+<span><span class="co">#&gt;      conf.low  conf.high predicted predicted_hi predicted_lo .Dtreat</span></span>
+<span><span class="co">#&gt; 1 -0.07512616 -0.0261279  8.555778     8.555769     8.555778       1</span></span></code></pre></div>
 <p>Or, we can recover the dynamic treatment effects <em>a la</em> an
-event study by invoking the type argument.</p>
+event study by invoking the type argument. This time I’ll save the
+resulting object since I plan to reuse it in a moment.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="va">mod</span>, type <span class="op">=</span> <span class="st">"event"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">mod_es</span> <span class="op">=</span> <span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="va">mod</span>, type <span class="op">=</span> <span class="st">"event"</span><span class="op">)</span></span>
+<span><span class="co"># mod_es</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">mod_es</span><span class="op">)</span> <span class="co"># Summary print looks a bit nicer</span></span>
 <span><span class="co">#&gt;      Term    Contrast event   Effect Std. Error z value   Pr(&gt;|z|)    2.5 %</span></span>
 <span><span class="co">#&gt; 1 .Dtreat mean(dY/dX)     0 -0.03321    0.01337  -2.484 0.01297951 -0.05941</span></span>
 <span><span class="co">#&gt; 2 .Dtreat mean(dY/dX)     1 -0.05735    0.01715  -3.343 0.00082830 -0.09097</span></span>
@@ -259,8 +262,171 @@ event study by invoking the type argument.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Model type:  etwfe </span></span>
 <span><span class="co">#&gt; Prediction type:  response</span></span></code></pre></div>
-<p>Other types of aggregations include “calendar” (here: treatment by
-year effects) and “group” (here: treatment by cohort).</p>
+<p>(Other types of aggregations include <code>"calendar"</code> (here:
+treatment by year effects) and <code>"group"</code> (here: treatment by
+cohort).)</p>
+<p>Since <code>emfx</code> produces a standard
+<code>marginaleffects</code> object, we can pass it on to other
+supported methods and packages. For example, we can get get pass it on
+to <a href="https://vincentarelbundock.github.io/modelsummary/index.html" class="external-link"><strong>modelsummary</strong></a>
+to get a nice regression table of the event study coefficients. Note the
+use of the <code>shape</code> and <code>coef_rename</code> arguments
+below; these are optional but help to make the output look a bit
+nicer.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://vincentarelbundock.github.io/modelsummary/" class="external-link">modelsummary</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">rename_fn</span> <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">old_names</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">new_names</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">gsub</a></span><span class="op">(</span><span class="st">".Dtreat"</span>, <span class="st">"Years post treatment ="</span>, <span class="va">old_names</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/setNames.html" class="external-link">setNames</a></span><span class="op">(</span><span class="va">new_names</span>, <span class="va">old_names</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="fu"><a href="https://vincentarelbundock.github.io/modelsummary/reference/modelsummary.html" class="external-link">modelsummary</a></span><span class="op">(</span></span>
+<span>  <span class="va">mod_es</span>,</span>
+<span>  shape <span class="op">=</span> <span class="va">term</span><span class="op">:</span><span class="va">event</span><span class="op">:</span><span class="va">statistic</span> <span class="op">~</span> <span class="va">model</span>,</span>
+<span>  coef_rename <span class="op">=</span>  <span class="va">rename_fn</span>,</span>
+<span>  gof_omit <span class="op">=</span> <span class="st">"Adj|Within|RMSE"</span>,</span>
+<span>  title <span class="op">=</span> <span class="st">"Event study"</span>,</span>
+<span>  notes <span class="op">=</span> <span class="st">"Std. errors are clustered at the county level"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<table style="NAborder-bottom: 0; width: auto !important; margin-left: auto; margin-right: auto;" class="table table">
+<caption>
+Event study
+</caption>
+<thead><tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:center;">
+Model 1
+</th>
+</tr></thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Years post treatment = 0
+</td>
+<td style="text-align:center;">
+−0.033
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.013)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Years post treatment = 1
+</td>
+<td style="text-align:center;">
+−0.057
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.017)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Years post treatment = 2
+</td>
+<td style="text-align:center;">
+−0.138
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.031)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Years post treatment = 3
+</td>
+<td style="text-align:center;">
+−0.110
+</td>
+</tr>
+<tr>
+<td style="text-align:left;box-shadow: 0px 1px">
+</td>
+<td style="text-align:center;box-shadow: 0px 1px">
+(0.032)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Num.Obs.
+</td>
+<td style="text-align:center;">
+2500
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+R2
+</td>
+<td style="text-align:center;">
+0.873
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+AIC
+</td>
+<td style="text-align:center;">
+4049.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BIC
+</td>
+<td style="text-align:center;">
+4229.7
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FE..first.treat
+</td>
+<td style="text-align:center;">
+X
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FE..year
+</td>
+<td style="text-align:center;">
+X
+</td>
+</tr>
+</tbody>
+<tfoot><tr>
+<td style="padding: 0; " colspan="100%">
+<sup></sup> Std. errors are clustered at the county level
+</td>
+</tr></tfoot>
+</table>
+<p>For vizualization, you can pass in on to your prefered plotting
+method. For example:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">mod_es</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">event</span>, y <span class="op">=</span> <span class="va">dydx</span>, ymin <span class="op">=</span> <span class="va">conf.low</span>, ymax <span class="op">=</span> <span class="va">conf.high</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_hline</a></span><span class="op">(</span>yintercept <span class="op">=</span> <span class="fl">0</span>, col <span class="op">=</span> <span class="st">"grey50"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_linerange.html" class="external-link">geom_pointrange</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Years post treatment"</span>, y <span class="op">=</span> <span class="st">"Effect on log employment"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><img src="etwfe_files/figure-html/unnamed-chunk-8-1.png" width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="other-families">Other families<a class="anchor" aria-label="anchor" href="#other-families"></a>
@@ -269,17 +435,18 @@ year effects) and “group” (here: treatment by cohort).</p>
 that it supports nonlinear model (distribution / link) families. Here’s
 a brief example, where we recast our earlier event-study as a Poisson
 regression.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mpdta</span><span class="op">$</span><span class="va">emp</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">mpdta</span><span class="op">$</span><span class="va">lemp</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/etwfe.html">etwfe</a></span><span class="op">(</span></span>
 <span>  <span class="va">emp</span> <span class="op">~</span> <span class="va">lpop</span>, tvar <span class="op">=</span> <span class="va">year</span>, gvar <span class="op">=</span> <span class="va">first.treat</span>, data <span class="op">=</span> <span class="va">mpdta</span>, vcov <span class="op">=</span> <span class="op">~</span><span class="va">countyreal</span>,</span>
 <span>  family <span class="op">=</span> <span class="st">"poisson"</span></span>
 <span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="st">"event"</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="st">"event"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt;      Term    Contrast event  Effect Std. Error  z value   Pr(&gt;|z|)   2.5 %</span></span>
 <span><span class="co">#&gt; 1 .Dtreat mean(dY/dX)     0 -22.849      16.24 -1.40674 0.15950581  -54.68</span></span>
-<span><span class="co">#&gt; 2 .Dtreat mean(dY/dX)     1   3.654      43.48  0.08405 0.93301382  -81.56</span></span>
+<span><span class="co">#&gt; 2 .Dtreat mean(dY/dX)     1   3.654      43.48  0.08405 0.93301383  -81.56</span></span>
 <span><span class="co">#&gt; 3 .Dtreat mean(dY/dX)     2 -71.521      21.28 -3.36144 0.00077537 -113.22</span></span>
 <span><span class="co">#&gt; 4 .Dtreat mean(dY/dX)     3 -97.798      26.50 -3.69045 0.00022386 -149.74</span></span>
 <span><span class="co">#&gt;    97.5 %</span></span>
@@ -303,11 +470,11 @@ different scenarios and also give you an understanding of
 <p>As I’ve stated several times, the Wooldridge ETWFE approach basically
 involves saturataing the regression with interaction effects. You can
 easily grab the formula of an estimated model to see for yourself.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mod</span><span class="op">$</span><span class="va">fml_all</span></span>
 <span><span class="co">#&gt; $linear</span></span>
 <span><span class="co">#&gt; lemp ~ .Dtreat:i(first.treat, i.year, ref = 0, ref2 = 2003)/lpop_dm</span></span>
-<span><span class="co">#&gt; &lt;environment: 0x55d390de5c18&gt;</span></span>
+<span><span class="co">#&gt; &lt;environment: 0x5650eb1742b0&gt;</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $fixef</span></span>
 <span><span class="co">#&gt; ~first.treat + first.treat[[lpop]] + year + year[[lpop]]</span></span></code></pre></div>
@@ -320,7 +487,7 @@ dummy. A more subtle one is <code>lpop_dm</code>, which is the
 variables have to be demeaned before they are interacted in the ETWFE
 setting. Here’s how you could have constructed the dataset ahead of time
 and estimated the ETWFE regression manually:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># First construct the dataset</span></span>
 <span><span class="va">mpdta2</span> <span class="op">=</span> <span class="va">mpdta</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform</a></span><span class="op">(</span></span>
@@ -334,77 +501,334 @@ and estimated the ETWFE regression manually:</p>
 <span>    <span class="va">first.treat</span><span class="op">[</span><span class="va">lpop</span><span class="op">]</span> <span class="op">+</span> <span class="va">year</span><span class="op">[</span><span class="va">lpop</span><span class="op">]</span>,</span>
 <span>  data <span class="op">=</span> <span class="va">mpdta2</span>,</span>
 <span>  vcov <span class="op">=</span> <span class="op">~</span><span class="va">countyreal</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt; The variables '.Dtreat:first.treat::2006:year::2004', '.Dtreat:first.treat::2006:year::2005' and eight others have been removed because of collinearity (see $collin.var).</span></span>
-<span></span>
-<span><span class="co"># Confirm that they are the same</span></span>
-<span><span class="fu">fixest</span><span class="fu">::</span><span class="fu"><a href="https://lrberge.github.io/fixest/reference/etable.html" class="external-link">etable</a></span><span class="op">(</span><span class="st">'etwfe'</span> <span class="op">=</span> <span class="va">mod</span>, <span class="st">'manual'</span> <span class="op">=</span> <span class="va">mod2</span>, signif.code <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span></span>
-<span><span class="co">#&gt;                                                                 etwfe</span></span>
-<span><span class="co">#&gt; Dependent Var.:                                                  lemp</span></span>
-<span><span class="co">#&gt;                                                                      </span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2004 x year = 2004           -0.0213 (0.0217)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2004 x year = 2005           -0.0819 (0.0274)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2004 x year = 2006           -0.1379 (0.0308)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2004 x year = 2007           -0.1095 (0.0323)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2006 x year = 2006            0.0025 (0.0189)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2006 x year = 2007           -0.0451 (0.0220)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2007 x year = 2007           -0.0459 (0.0180)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2004 x year = 2004  0.0046 (0.0176)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2004 x year = 2005  0.0251 (0.0179)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2004 x year = 2006  0.0507 (0.0211)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2004 x year = 2007  0.0112 (0.0266)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2006 x year = 2006  0.0389 (0.0165)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2006 x year = 2007  0.0381 (0.0225)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2007 x year = 2007 -0.0198 (0.0162)</span></span>
-<span><span class="co">#&gt; Fixed-Effects:                                       ----------------</span></span>
-<span><span class="co">#&gt; first.treat                                                       Yes</span></span>
-<span><span class="co">#&gt; year                                                              Yes</span></span>
-<span><span class="co">#&gt; Varying Slopes:                                      ----------------</span></span>
-<span><span class="co">#&gt; lpop (first.treat)                                                Yes</span></span>
-<span><span class="co">#&gt; lpop (year)                                                       Yes</span></span>
-<span><span class="co">#&gt; ________________________________________             ________________</span></span>
-<span><span class="co">#&gt; S.E.: Clustered                                        by: countyreal</span></span>
-<span><span class="co">#&gt; Observations                                                    2,500</span></span>
-<span><span class="co">#&gt; R2                                                            0.87321</span></span>
-<span><span class="co">#&gt; Within R2                                                     0.00084</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;                                                                manual</span></span>
-<span><span class="co">#&gt; Dependent Var.:                                                  lemp</span></span>
-<span><span class="co">#&gt;                                                                      </span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2004 x year = 2004           -0.0213 (0.0217)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2004 x year = 2005           -0.0819 (0.0274)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2004 x year = 2006           -0.1379 (0.0308)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2004 x year = 2007           -0.1095 (0.0323)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2006 x year = 2006            0.0025 (0.0189)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2006 x year = 2007           -0.0451 (0.0220)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2007 x year = 2007           -0.0459 (0.0180)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2004 x year = 2004  0.0046 (0.0176)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2004 x year = 2005  0.0251 (0.0179)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2004 x year = 2006  0.0507 (0.0211)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2004 x year = 2007  0.0112 (0.0266)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2006 x year = 2006  0.0389 (0.0165)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2006 x year = 2007  0.0381 (0.0225)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2007 x year = 2007 -0.0198 (0.0162)</span></span>
-<span><span class="co">#&gt; Fixed-Effects:                                       ----------------</span></span>
-<span><span class="co">#&gt; first.treat                                                       Yes</span></span>
-<span><span class="co">#&gt; year                                                              Yes</span></span>
-<span><span class="co">#&gt; Varying Slopes:                                      ----------------</span></span>
-<span><span class="co">#&gt; lpop (first.treat)                                                Yes</span></span>
-<span><span class="co">#&gt; lpop (year)                                                       Yes</span></span>
-<span><span class="co">#&gt; ________________________________________             ________________</span></span>
-<span><span class="co">#&gt; S.E.: Clustered                                        by: countyreal</span></span>
-<span><span class="co">#&gt; Observations                                                    2,500</span></span>
-<span><span class="co">#&gt; R2                                                            0.87321</span></span>
-<span><span class="co">#&gt; Within R2                                                     0.00084</span></span></code></pre></div>
-<p>If you are a regular <strong>fixest</strong> user, you may have
-noticed that we’ve been invoking its <a href="https://lrberge.github.io/fixest/articles/fixest_walkthrough.html#varying-slopes-fex" class="external-link">varying
+<span><span class="op">)</span></span></code></pre></div>
+<p>We can confirm that the manual approach yields the same output as our
+original etwfe regression. I’ll use <code>modelsummary</code> to do that
+here, since I’ve already loaded it above.<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content='&lt;p&gt;Another option would be to use
+&lt;code&gt;&lt;a href="https://lrberge.github.io/fixest/reference/etable.html" class="external-link"&gt;fixest::etable()&lt;/a&gt;&lt;/code&gt;&lt;/p&gt;'><sup>4</sup></a>.</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://vincentarelbundock.github.io/modelsummary/reference/modelsummary.html" class="external-link">modelsummary</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"etwfe"</span> <span class="op">=</span> <span class="va">mod</span>, <span class="st">"manual"</span> <span class="op">=</span> <span class="va">mod2</span><span class="op">)</span>,</span>
+<span>  gof_map <span class="op">=</span> <span class="cn">NA</span> <span class="co"># drop all goodness-of-fit info for brevity</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<table class="table table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<thead><tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:center;">
+etwfe
+</th>
+<th style="text-align:center;">
+manual
+</th>
+</tr></thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+.Dtreat × first.treat = 2004 × year = 2004
+</td>
+<td style="text-align:center;">
+−0.021
+</td>
+<td style="text-align:center;">
+−0.021
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.022)
+</td>
+<td style="text-align:center;">
+(0.022)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+.Dtreat × first.treat = 2004 × year = 2005
+</td>
+<td style="text-align:center;">
+−0.082
+</td>
+<td style="text-align:center;">
+−0.082
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.027)
+</td>
+<td style="text-align:center;">
+(0.027)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+.Dtreat × first.treat = 2004 × year = 2006
+</td>
+<td style="text-align:center;">
+−0.138
+</td>
+<td style="text-align:center;">
+−0.138
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.031)
+</td>
+<td style="text-align:center;">
+(0.031)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+.Dtreat × first.treat = 2004 × year = 2007
+</td>
+<td style="text-align:center;">
+−0.110
+</td>
+<td style="text-align:center;">
+−0.110
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.032)
+</td>
+<td style="text-align:center;">
+(0.032)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+.Dtreat × first.treat = 2006 × year = 2006
+</td>
+<td style="text-align:center;">
+0.003
+</td>
+<td style="text-align:center;">
+0.003
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.019)
+</td>
+<td style="text-align:center;">
+(0.019)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+.Dtreat × first.treat = 2006 × year = 2007
+</td>
+<td style="text-align:center;">
+−0.045
+</td>
+<td style="text-align:center;">
+−0.045
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.022)
+</td>
+<td style="text-align:center;">
+(0.022)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+.Dtreat × first.treat = 2007 × year = 2007
+</td>
+<td style="text-align:center;">
+−0.046
+</td>
+<td style="text-align:center;">
+−0.046
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.018)
+</td>
+<td style="text-align:center;">
+(0.018)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+.Dtreat × first.treat = 2004 × year = 2004 × lpop_dm
+</td>
+<td style="text-align:center;">
+0.005
+</td>
+<td style="text-align:center;">
+0.005
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.018)
+</td>
+<td style="text-align:center;">
+(0.018)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+.Dtreat × first.treat = 2004 × year = 2005 × lpop_dm
+</td>
+<td style="text-align:center;">
+0.025
+</td>
+<td style="text-align:center;">
+0.025
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.018)
+</td>
+<td style="text-align:center;">
+(0.018)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+.Dtreat × first.treat = 2004 × year = 2006 × lpop_dm
+</td>
+<td style="text-align:center;">
+0.051
+</td>
+<td style="text-align:center;">
+0.051
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.021)
+</td>
+<td style="text-align:center;">
+(0.021)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+.Dtreat × first.treat = 2004 × year = 2007 × lpop_dm
+</td>
+<td style="text-align:center;">
+0.011
+</td>
+<td style="text-align:center;">
+0.011
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.027)
+</td>
+<td style="text-align:center;">
+(0.027)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+.Dtreat × first.treat = 2006 × year = 2006 × lpop_dm
+</td>
+<td style="text-align:center;">
+0.039
+</td>
+<td style="text-align:center;">
+0.039
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.016)
+</td>
+<td style="text-align:center;">
+(0.016)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+.Dtreat × first.treat = 2006 × year = 2007 × lpop_dm
+</td>
+<td style="text-align:center;">
+0.038
+</td>
+<td style="text-align:center;">
+0.038
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.022)
+</td>
+<td style="text-align:center;">
+(0.022)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+.Dtreat × first.treat = 2007 × year = 2007 × lpop_dm
+</td>
+<td style="text-align:center;">
+−0.020
+</td>
+<td style="text-align:center;">
+−0.020
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.016)
+</td>
+<td style="text-align:center;">
+(0.016)
+</td>
+</tr>
+</tbody>
+</table>
+<p>Let’s switch gears and talk about fixed-effects quickly. If you are a
+regular <strong>fixest</strong> user, you may have noticed that we’ve
+been invoking its <a href="https://lrberge.github.io/fixest/articles/fixest_walkthrough.html#varying-slopes-fex" class="external-link">varying
 slopes</a> syntax in the fixed-effect slot (i.e.,
 <code>first.treat[lpop]</code> and <code>year[lpop]</code>). The reason
 for this is part practical, part philosophical. From a practical
 perspective, <code>factor_var[numeric_var]</code> is equivalent to base
 R’s <code>factor_var/numeric_var</code> “nesting” syntax but is much
 faster for high-dimensional factors.<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;We won’t see a speed-up for this small dataset, but it
-can make a signficant difference for large datasets.&lt;/p&gt;"><sup>4</sup></a> From a philosphical perspective,
+can make a signficant difference for large datasets.&lt;/p&gt;"><sup>5</sup></a> From a philosphical perspective,
 <strong>etwfe</strong> tries to limit the amount of extraneous
 information that it reports to users. Most of the interaction effects in
 the ETWFE framework are just acting as controls. By relegating them to
@@ -412,7 +836,7 @@ the fixed-effects slot, we can avoid polluting the user’s console with a
 load of extra coefficients. Nonetheless, we can control this behaviour
 with the <code>fe</code> (“fixed effects”) argument. Consider the
 following options and their manual equivalents.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># fe = "feo" (fixed effects only)</span></span>
 <span><span class="va">mod_feo</span> <span class="op">=</span> <span class="fu"><a href="../reference/etwfe.html">etwfe</a></span><span class="op">(</span></span>
 <span>  <span class="va">lemp</span> <span class="op">~</span> <span class="va">lpop</span>, tvar <span class="op">=</span> <span class="va">year</span>, gvar <span class="op">=</span> <span class="va">first.treat</span>, data <span class="op">=</span> <span class="va">mpdta</span>, vcov <span class="op">=</span> <span class="op">~</span><span class="va">countyreal</span>,</span>
@@ -442,277 +866,1297 @@ following options and their manual equivalents.</p>
 <code>emfx</code> to confirm that they give correct aggregated treatment
 effects. But we can quickly demonstrate in a regression table that they
 all return the same raw coefficients.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">fixest</span><span class="fu">::</span><span class="fu"><a href="https://lrberge.github.io/fixest/reference/etable.html" class="external-link">etable</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">mod2</span>, <span class="va">mod_feo</span>, <span class="va">mod_feo2</span>, <span class="va">mod_none</span>, <span class="va">mod_none2</span>, signif.code <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span></span>
-<span><span class="co">#&gt;                                                                   mod</span></span>
-<span><span class="co">#&gt; Dependent Var.:                                                  lemp</span></span>
-<span><span class="co">#&gt;                                                                      </span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2004 x year = 2004           -0.0213 (0.0217)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2004 x year = 2005           -0.0819 (0.0274)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2004 x year = 2006           -0.1379 (0.0308)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2004 x year = 2007           -0.1095 (0.0323)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2006 x year = 2006            0.0025 (0.0189)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2006 x year = 2007           -0.0451 (0.0220)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2007 x year = 2007           -0.0459 (0.0180)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2004 x year = 2004  0.0046 (0.0176)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2004 x year = 2005  0.0251 (0.0179)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2004 x year = 2006  0.0507 (0.0211)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2004 x year = 2007  0.0112 (0.0266)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2006 x year = 2006  0.0389 (0.0165)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2006 x year = 2007  0.0381 (0.0225)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2007 x year = 2007 -0.0198 (0.0162)</span></span>
-<span><span class="co">#&gt; lpop                                                                 </span></span>
-<span><span class="co">#&gt; lpop x first.treat = 2004                                            </span></span>
-<span><span class="co">#&gt; lpop x first.treat = 2006                                            </span></span>
-<span><span class="co">#&gt; lpop x first.treat = 2007                                            </span></span>
-<span><span class="co">#&gt; lpop x year = 2004                                                   </span></span>
-<span><span class="co">#&gt; lpop x year = 2005                                                   </span></span>
-<span><span class="co">#&gt; lpop x year = 2006                                                   </span></span>
-<span><span class="co">#&gt; lpop x year = 2007                                                   </span></span>
-<span><span class="co">#&gt; Constant                                                             </span></span>
-<span><span class="co">#&gt; first.treat = 2004                                                   </span></span>
-<span><span class="co">#&gt; first.treat = 2006                                                   </span></span>
-<span><span class="co">#&gt; first.treat = 2007                                                   </span></span>
-<span><span class="co">#&gt; year = 2004                                                          </span></span>
-<span><span class="co">#&gt; year = 2005                                                          </span></span>
-<span><span class="co">#&gt; year = 2006                                                          </span></span>
-<span><span class="co">#&gt; year = 2007                                                          </span></span>
-<span><span class="co">#&gt; Fixed-Effects:                                       ----------------</span></span>
-<span><span class="co">#&gt; first.treat                                                       Yes</span></span>
-<span><span class="co">#&gt; year                                                              Yes</span></span>
-<span><span class="co">#&gt; Varying Slopes:                                      ----------------</span></span>
-<span><span class="co">#&gt; lpop (first.treat)                                                Yes</span></span>
-<span><span class="co">#&gt; lpop (year)                                                       Yes</span></span>
-<span><span class="co">#&gt; ________________________________________             ________________</span></span>
-<span><span class="co">#&gt; S.E.: Clustered                                        by: countyreal</span></span>
-<span><span class="co">#&gt; Observations                                                    2,500</span></span>
-<span><span class="co">#&gt; R2                                                            0.87321</span></span>
-<span><span class="co">#&gt; Within R2                                                     0.00084</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;                                                                  mod2</span></span>
-<span><span class="co">#&gt; Dependent Var.:                                                  lemp</span></span>
-<span><span class="co">#&gt;                                                                      </span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2004 x year = 2004           -0.0213 (0.0217)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2004 x year = 2005           -0.0819 (0.0274)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2004 x year = 2006           -0.1379 (0.0308)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2004 x year = 2007           -0.1095 (0.0323)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2006 x year = 2006            0.0025 (0.0189)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2006 x year = 2007           -0.0451 (0.0220)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2007 x year = 2007           -0.0459 (0.0180)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2004 x year = 2004  0.0046 (0.0176)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2004 x year = 2005  0.0251 (0.0179)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2004 x year = 2006  0.0507 (0.0211)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2004 x year = 2007  0.0112 (0.0266)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2006 x year = 2006  0.0389 (0.0165)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2006 x year = 2007  0.0381 (0.0225)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2007 x year = 2007 -0.0198 (0.0162)</span></span>
-<span><span class="co">#&gt; lpop                                                                 </span></span>
-<span><span class="co">#&gt; lpop x first.treat = 2004                                            </span></span>
-<span><span class="co">#&gt; lpop x first.treat = 2006                                            </span></span>
-<span><span class="co">#&gt; lpop x first.treat = 2007                                            </span></span>
-<span><span class="co">#&gt; lpop x year = 2004                                                   </span></span>
-<span><span class="co">#&gt; lpop x year = 2005                                                   </span></span>
-<span><span class="co">#&gt; lpop x year = 2006                                                   </span></span>
-<span><span class="co">#&gt; lpop x year = 2007                                                   </span></span>
-<span><span class="co">#&gt; Constant                                                             </span></span>
-<span><span class="co">#&gt; first.treat = 2004                                                   </span></span>
-<span><span class="co">#&gt; first.treat = 2006                                                   </span></span>
-<span><span class="co">#&gt; first.treat = 2007                                                   </span></span>
-<span><span class="co">#&gt; year = 2004                                                          </span></span>
-<span><span class="co">#&gt; year = 2005                                                          </span></span>
-<span><span class="co">#&gt; year = 2006                                                          </span></span>
-<span><span class="co">#&gt; year = 2007                                                          </span></span>
-<span><span class="co">#&gt; Fixed-Effects:                                       ----------------</span></span>
-<span><span class="co">#&gt; first.treat                                                       Yes</span></span>
-<span><span class="co">#&gt; year                                                              Yes</span></span>
-<span><span class="co">#&gt; Varying Slopes:                                      ----------------</span></span>
-<span><span class="co">#&gt; lpop (first.treat)                                                Yes</span></span>
-<span><span class="co">#&gt; lpop (year)                                                       Yes</span></span>
-<span><span class="co">#&gt; ________________________________________             ________________</span></span>
-<span><span class="co">#&gt; S.E.: Clustered                                        by: countyreal</span></span>
-<span><span class="co">#&gt; Observations                                                    2,500</span></span>
-<span><span class="co">#&gt; R2                                                            0.87321</span></span>
-<span><span class="co">#&gt; Within R2                                                     0.00084</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;                                                               mod_feo</span></span>
-<span><span class="co">#&gt; Dependent Var.:                                                  lemp</span></span>
-<span><span class="co">#&gt;                                                                      </span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2004 x year = 2004           -0.0213 (0.0217)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2004 x year = 2005           -0.0819 (0.0274)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2004 x year = 2006           -0.1379 (0.0308)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2004 x year = 2007           -0.1095 (0.0323)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2006 x year = 2006            0.0025 (0.0189)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2006 x year = 2007           -0.0451 (0.0220)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2007 x year = 2007           -0.0459 (0.0180)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2004 x year = 2004  0.0046 (0.0176)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2004 x year = 2005  0.0251 (0.0179)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2004 x year = 2006  0.0507 (0.0211)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2004 x year = 2007  0.0112 (0.0266)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2006 x year = 2006  0.0389 (0.0165)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2006 x year = 2007  0.0381 (0.0225)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2007 x year = 2007 -0.0198 (0.0162)</span></span>
-<span><span class="co">#&gt; lpop                                                   1.065 (0.0218)</span></span>
-<span><span class="co">#&gt; lpop x first.treat = 2004                             0.0510 (0.0378)</span></span>
-<span><span class="co">#&gt; lpop x first.treat = 2006                            -0.0411 (0.0474)</span></span>
-<span><span class="co">#&gt; lpop x first.treat = 2007                             0.0555 (0.0392)</span></span>
-<span><span class="co">#&gt; lpop x year = 2004                                    0.0110 (0.0076)</span></span>
-<span><span class="co">#&gt; lpop x year = 2005                                    0.0207 (0.0081)</span></span>
-<span><span class="co">#&gt; lpop x year = 2006                                    0.0105 (0.0108)</span></span>
-<span><span class="co">#&gt; lpop x year = 2007                                    0.0209 (0.0118)</span></span>
-<span><span class="co">#&gt; Constant                                                             </span></span>
-<span><span class="co">#&gt; first.treat = 2004                                                   </span></span>
-<span><span class="co">#&gt; first.treat = 2006                                                   </span></span>
-<span><span class="co">#&gt; first.treat = 2007                                                   </span></span>
-<span><span class="co">#&gt; year = 2004                                                          </span></span>
-<span><span class="co">#&gt; year = 2005                                                          </span></span>
-<span><span class="co">#&gt; year = 2006                                                          </span></span>
-<span><span class="co">#&gt; year = 2007                                                          </span></span>
-<span><span class="co">#&gt; Fixed-Effects:                                       ----------------</span></span>
-<span><span class="co">#&gt; first.treat                                                       Yes</span></span>
-<span><span class="co">#&gt; year                                                              Yes</span></span>
-<span><span class="co">#&gt; Varying Slopes:                                      ----------------</span></span>
-<span><span class="co">#&gt; lpop (first.treat)                                                 No</span></span>
-<span><span class="co">#&gt; lpop (year)                                                        No</span></span>
-<span><span class="co">#&gt; ________________________________________             ________________</span></span>
-<span><span class="co">#&gt; S.E.: Clustered                                        by: countyreal</span></span>
-<span><span class="co">#&gt; Observations                                                    2,500</span></span>
-<span><span class="co">#&gt; R2                                                            0.87321</span></span>
-<span><span class="co">#&gt; Within R2                                                     0.86946</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;                                                              mod_feo2</span></span>
-<span><span class="co">#&gt; Dependent Var.:                                                  lemp</span></span>
-<span><span class="co">#&gt;                                                                      </span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2004 x year = 2004           -0.0213 (0.0217)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2004 x year = 2005           -0.0819 (0.0274)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2004 x year = 2006           -0.1379 (0.0308)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2004 x year = 2007           -0.1095 (0.0323)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2006 x year = 2006            0.0025 (0.0189)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2006 x year = 2007           -0.0451 (0.0220)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2007 x year = 2007           -0.0459 (0.0180)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2004 x year = 2004  0.0046 (0.0176)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2004 x year = 2005  0.0251 (0.0179)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2004 x year = 2006  0.0507 (0.0211)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2004 x year = 2007  0.0112 (0.0266)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2006 x year = 2006  0.0389 (0.0165)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2006 x year = 2007  0.0381 (0.0225)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2007 x year = 2007 -0.0198 (0.0162)</span></span>
-<span><span class="co">#&gt; lpop                                                   1.065 (0.0218)</span></span>
-<span><span class="co">#&gt; lpop x first.treat = 2004                             0.0510 (0.0378)</span></span>
-<span><span class="co">#&gt; lpop x first.treat = 2006                            -0.0411 (0.0474)</span></span>
-<span><span class="co">#&gt; lpop x first.treat = 2007                             0.0555 (0.0392)</span></span>
-<span><span class="co">#&gt; lpop x year = 2004                                    0.0110 (0.0076)</span></span>
-<span><span class="co">#&gt; lpop x year = 2005                                    0.0207 (0.0081)</span></span>
-<span><span class="co">#&gt; lpop x year = 2006                                    0.0105 (0.0108)</span></span>
-<span><span class="co">#&gt; lpop x year = 2007                                    0.0209 (0.0118)</span></span>
-<span><span class="co">#&gt; Constant                                                             </span></span>
-<span><span class="co">#&gt; first.treat = 2004                                                   </span></span>
-<span><span class="co">#&gt; first.treat = 2006                                                   </span></span>
-<span><span class="co">#&gt; first.treat = 2007                                                   </span></span>
-<span><span class="co">#&gt; year = 2004                                                          </span></span>
-<span><span class="co">#&gt; year = 2005                                                          </span></span>
-<span><span class="co">#&gt; year = 2006                                                          </span></span>
-<span><span class="co">#&gt; year = 2007                                                          </span></span>
-<span><span class="co">#&gt; Fixed-Effects:                                       ----------------</span></span>
-<span><span class="co">#&gt; first.treat                                                       Yes</span></span>
-<span><span class="co">#&gt; year                                                              Yes</span></span>
-<span><span class="co">#&gt; Varying Slopes:                                      ----------------</span></span>
-<span><span class="co">#&gt; lpop (first.treat)                                                 No</span></span>
-<span><span class="co">#&gt; lpop (year)                                                        No</span></span>
-<span><span class="co">#&gt; ________________________________________             ________________</span></span>
-<span><span class="co">#&gt; S.E.: Clustered                                        by: countyreal</span></span>
-<span><span class="co">#&gt; Observations                                                    2,500</span></span>
-<span><span class="co">#&gt; R2                                                            0.87321</span></span>
-<span><span class="co">#&gt; Within R2                                                     0.86946</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;                                                              mod_none</span></span>
-<span><span class="co">#&gt; Dependent Var.:                                                  lemp</span></span>
-<span><span class="co">#&gt;                                                                      </span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2004 x year = 2004           -0.0213 (0.0217)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2004 x year = 2005           -0.0819 (0.0274)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2004 x year = 2006           -0.1379 (0.0308)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2004 x year = 2007           -0.1095 (0.0323)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2006 x year = 2006            0.0025 (0.0189)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2006 x year = 2007           -0.0451 (0.0220)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2007 x year = 2007           -0.0459 (0.0180)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2004 x year = 2004  0.0046 (0.0176)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2004 x year = 2005  0.0251 (0.0179)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2004 x year = 2006  0.0507 (0.0211)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2004 x year = 2007  0.0112 (0.0266)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2006 x year = 2006  0.0389 (0.0165)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2006 x year = 2007  0.0381 (0.0225)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2007 x year = 2007 -0.0198 (0.0162)</span></span>
-<span><span class="co">#&gt; lpop                                                   1.065 (0.0218)</span></span>
-<span><span class="co">#&gt; lpop x first.treat = 2004                             0.0510 (0.0378)</span></span>
-<span><span class="co">#&gt; lpop x first.treat = 2006                            -0.0411 (0.0474)</span></span>
-<span><span class="co">#&gt; lpop x first.treat = 2007                             0.0555 (0.0392)</span></span>
-<span><span class="co">#&gt; lpop x year = 2004                                    0.0110 (0.0076)</span></span>
-<span><span class="co">#&gt; lpop x year = 2005                                    0.0207 (0.0081)</span></span>
-<span><span class="co">#&gt; lpop x year = 2006                                    0.0105 (0.0108)</span></span>
-<span><span class="co">#&gt; lpop x year = 2007                                    0.0209 (0.0118)</span></span>
-<span><span class="co">#&gt; Constant                                               2.260 (0.0881)</span></span>
-<span><span class="co">#&gt; first.treat = 2004                                    0.0383 (0.1538)</span></span>
-<span><span class="co">#&gt; first.treat = 2006                                    0.4613 (0.2130)</span></span>
-<span><span class="co">#&gt; first.treat = 2007                                   -0.2861 (0.1672)</span></span>
-<span><span class="co">#&gt; year = 2004                                          -0.0902 (0.0307)</span></span>
-<span><span class="co">#&gt; year = 2005                                          -0.1105 (0.0326)</span></span>
-<span><span class="co">#&gt; year = 2006                                          -0.0517 (0.0402)</span></span>
-<span><span class="co">#&gt; year = 2007                                          -0.0575 (0.0453)</span></span>
-<span><span class="co">#&gt; Fixed-Effects:                                       ----------------</span></span>
-<span><span class="co">#&gt; first.treat                                                        No</span></span>
-<span><span class="co">#&gt; year                                                               No</span></span>
-<span><span class="co">#&gt; Varying Slopes:                                      ----------------</span></span>
-<span><span class="co">#&gt; lpop (first.treat)                                                 No</span></span>
-<span><span class="co">#&gt; lpop (year)                                                        No</span></span>
-<span><span class="co">#&gt; ________________________________________             ________________</span></span>
-<span><span class="co">#&gt; S.E.: Clustered                                        by: countyreal</span></span>
-<span><span class="co">#&gt; Observations                                                    2,500</span></span>
-<span><span class="co">#&gt; R2                                                            0.87321</span></span>
-<span><span class="co">#&gt; Within R2                                                          --</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;                                                             mod_none2</span></span>
-<span><span class="co">#&gt; Dependent Var.:                                                  lemp</span></span>
-<span><span class="co">#&gt;                                                                      </span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2004 x year = 2004           -0.0213 (0.0217)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2004 x year = 2005           -0.0819 (0.0274)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2004 x year = 2006           -0.1379 (0.0308)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2004 x year = 2007           -0.1095 (0.0323)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2006 x year = 2006            0.0025 (0.0189)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2006 x year = 2007           -0.0451 (0.0220)</span></span>
-<span><span class="co">#&gt; .Dtreat x first.treat = 2007 x year = 2007           -0.0459 (0.0180)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2004 x year = 2004  0.0046 (0.0176)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2004 x year = 2005  0.0251 (0.0179)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2004 x year = 2006  0.0507 (0.0211)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2004 x year = 2007  0.0112 (0.0266)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2006 x year = 2006  0.0389 (0.0165)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2006 x year = 2007  0.0381 (0.0225)</span></span>
-<span><span class="co">#&gt; .Dtreat x lpop_dm x first.treat = 2007 x year = 2007 -0.0198 (0.0162)</span></span>
-<span><span class="co">#&gt; lpop                                                   1.065 (0.0218)</span></span>
-<span><span class="co">#&gt; lpop x first.treat = 2004                             0.0510 (0.0378)</span></span>
-<span><span class="co">#&gt; lpop x first.treat = 2006                            -0.0411 (0.0474)</span></span>
-<span><span class="co">#&gt; lpop x first.treat = 2007                             0.0555 (0.0392)</span></span>
-<span><span class="co">#&gt; lpop x year = 2004                                    0.0110 (0.0076)</span></span>
-<span><span class="co">#&gt; lpop x year = 2005                                    0.0207 (0.0081)</span></span>
-<span><span class="co">#&gt; lpop x year = 2006                                    0.0105 (0.0108)</span></span>
-<span><span class="co">#&gt; lpop x year = 2007                                    0.0209 (0.0118)</span></span>
-<span><span class="co">#&gt; Constant                                               2.260 (0.0881)</span></span>
-<span><span class="co">#&gt; first.treat = 2004                                    0.0383 (0.1538)</span></span>
-<span><span class="co">#&gt; first.treat = 2006                                    0.4613 (0.2130)</span></span>
-<span><span class="co">#&gt; first.treat = 2007                                   -0.2861 (0.1672)</span></span>
-<span><span class="co">#&gt; year = 2004                                          -0.0902 (0.0307)</span></span>
-<span><span class="co">#&gt; year = 2005                                          -0.1105 (0.0326)</span></span>
-<span><span class="co">#&gt; year = 2006                                          -0.0517 (0.0402)</span></span>
-<span><span class="co">#&gt; year = 2007                                          -0.0575 (0.0453)</span></span>
-<span><span class="co">#&gt; Fixed-Effects:                                       ----------------</span></span>
-<span><span class="co">#&gt; first.treat                                                        No</span></span>
-<span><span class="co">#&gt; year                                                               No</span></span>
-<span><span class="co">#&gt; Varying Slopes:                                      ----------------</span></span>
-<span><span class="co">#&gt; lpop (first.treat)                                                 No</span></span>
-<span><span class="co">#&gt; lpop (year)                                                        No</span></span>
-<span><span class="co">#&gt; ________________________________________             ________________</span></span>
-<span><span class="co">#&gt; S.E.: Clustered                                        by: countyreal</span></span>
-<span><span class="co">#&gt; Observations                                                    2,500</span></span>
-<span><span class="co">#&gt; R2                                                            0.87321</span></span>
-<span><span class="co">#&gt; Within R2                                                          --</span></span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mods</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  <span class="st">"etwfe"</span>         <span class="op">=</span> <span class="va">mod</span>,</span>
+<span>  <span class="st">"manual"</span>        <span class="op">=</span> <span class="va">mod2</span>,</span>
+<span>  <span class="st">"etwfe (feo)"</span>   <span class="op">=</span> <span class="va">mod_feo</span>,</span>
+<span>  <span class="st">"manual (feo)"</span>  <span class="op">=</span> <span class="va">mod_feo2</span>,</span>
+<span>  <span class="st">"etwfe (none)"</span>  <span class="op">=</span> <span class="va">mod_none</span>,</span>
+<span>  <span class="st">"manual (none)"</span> <span class="op">=</span> <span class="va">mod_none2</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://vincentarelbundock.github.io/modelsummary/reference/modelsummary.html" class="external-link">modelsummary</a></span><span class="op">(</span><span class="va">mods</span>, gof_map <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span></span></code></pre></div>
+<table class="table table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<thead><tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:center;">
+etwfe
+</th>
+<th style="text-align:center;">
+manual
+</th>
+<th style="text-align:center;">
+etwfe (feo)
+</th>
+<th style="text-align:center;">
+manual (feo)
+</th>
+<th style="text-align:center;">
+etwfe (none)
+</th>
+<th style="text-align:center;">
+manual (none)
+</th>
+</tr></thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+.Dtreat × first.treat = 2004 × year = 2004
+</td>
+<td style="text-align:center;">
+−0.021
+</td>
+<td style="text-align:center;">
+−0.021
+</td>
+<td style="text-align:center;">
+−0.021
+</td>
+<td style="text-align:center;">
+−0.021
+</td>
+<td style="text-align:center;">
+−0.021
+</td>
+<td style="text-align:center;">
+−0.021
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.022)
+</td>
+<td style="text-align:center;">
+(0.022)
+</td>
+<td style="text-align:center;">
+(0.022)
+</td>
+<td style="text-align:center;">
+(0.022)
+</td>
+<td style="text-align:center;">
+(0.022)
+</td>
+<td style="text-align:center;">
+(0.022)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+.Dtreat × first.treat = 2004 × year = 2005
+</td>
+<td style="text-align:center;">
+−0.082
+</td>
+<td style="text-align:center;">
+−0.082
+</td>
+<td style="text-align:center;">
+−0.082
+</td>
+<td style="text-align:center;">
+−0.082
+</td>
+<td style="text-align:center;">
+−0.082
+</td>
+<td style="text-align:center;">
+−0.082
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.027)
+</td>
+<td style="text-align:center;">
+(0.027)
+</td>
+<td style="text-align:center;">
+(0.027)
+</td>
+<td style="text-align:center;">
+(0.027)
+</td>
+<td style="text-align:center;">
+(0.027)
+</td>
+<td style="text-align:center;">
+(0.027)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+.Dtreat × first.treat = 2004 × year = 2006
+</td>
+<td style="text-align:center;">
+−0.138
+</td>
+<td style="text-align:center;">
+−0.138
+</td>
+<td style="text-align:center;">
+−0.138
+</td>
+<td style="text-align:center;">
+−0.138
+</td>
+<td style="text-align:center;">
+−0.138
+</td>
+<td style="text-align:center;">
+−0.138
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.031)
+</td>
+<td style="text-align:center;">
+(0.031)
+</td>
+<td style="text-align:center;">
+(0.031)
+</td>
+<td style="text-align:center;">
+(0.031)
+</td>
+<td style="text-align:center;">
+(0.031)
+</td>
+<td style="text-align:center;">
+(0.031)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+.Dtreat × first.treat = 2004 × year = 2007
+</td>
+<td style="text-align:center;">
+−0.110
+</td>
+<td style="text-align:center;">
+−0.110
+</td>
+<td style="text-align:center;">
+−0.110
+</td>
+<td style="text-align:center;">
+−0.110
+</td>
+<td style="text-align:center;">
+−0.110
+</td>
+<td style="text-align:center;">
+−0.110
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.032)
+</td>
+<td style="text-align:center;">
+(0.032)
+</td>
+<td style="text-align:center;">
+(0.032)
+</td>
+<td style="text-align:center;">
+(0.032)
+</td>
+<td style="text-align:center;">
+(0.032)
+</td>
+<td style="text-align:center;">
+(0.032)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+.Dtreat × first.treat = 2006 × year = 2006
+</td>
+<td style="text-align:center;">
+0.003
+</td>
+<td style="text-align:center;">
+0.003
+</td>
+<td style="text-align:center;">
+0.003
+</td>
+<td style="text-align:center;">
+0.003
+</td>
+<td style="text-align:center;">
+0.003
+</td>
+<td style="text-align:center;">
+0.003
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.019)
+</td>
+<td style="text-align:center;">
+(0.019)
+</td>
+<td style="text-align:center;">
+(0.019)
+</td>
+<td style="text-align:center;">
+(0.019)
+</td>
+<td style="text-align:center;">
+(0.019)
+</td>
+<td style="text-align:center;">
+(0.019)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+.Dtreat × first.treat = 2006 × year = 2007
+</td>
+<td style="text-align:center;">
+−0.045
+</td>
+<td style="text-align:center;">
+−0.045
+</td>
+<td style="text-align:center;">
+−0.045
+</td>
+<td style="text-align:center;">
+−0.045
+</td>
+<td style="text-align:center;">
+−0.045
+</td>
+<td style="text-align:center;">
+−0.045
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.022)
+</td>
+<td style="text-align:center;">
+(0.022)
+</td>
+<td style="text-align:center;">
+(0.022)
+</td>
+<td style="text-align:center;">
+(0.022)
+</td>
+<td style="text-align:center;">
+(0.022)
+</td>
+<td style="text-align:center;">
+(0.022)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+.Dtreat × first.treat = 2007 × year = 2007
+</td>
+<td style="text-align:center;">
+−0.046
+</td>
+<td style="text-align:center;">
+−0.046
+</td>
+<td style="text-align:center;">
+−0.046
+</td>
+<td style="text-align:center;">
+−0.046
+</td>
+<td style="text-align:center;">
+−0.046
+</td>
+<td style="text-align:center;">
+−0.046
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.018)
+</td>
+<td style="text-align:center;">
+(0.018)
+</td>
+<td style="text-align:center;">
+(0.018)
+</td>
+<td style="text-align:center;">
+(0.018)
+</td>
+<td style="text-align:center;">
+(0.018)
+</td>
+<td style="text-align:center;">
+(0.018)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+.Dtreat × first.treat = 2004 × year = 2004 × lpop_dm
+</td>
+<td style="text-align:center;">
+0.005
+</td>
+<td style="text-align:center;">
+0.005
+</td>
+<td style="text-align:center;">
+0.005
+</td>
+<td style="text-align:center;">
+0.005
+</td>
+<td style="text-align:center;">
+0.005
+</td>
+<td style="text-align:center;">
+0.005
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.018)
+</td>
+<td style="text-align:center;">
+(0.018)
+</td>
+<td style="text-align:center;">
+(0.018)
+</td>
+<td style="text-align:center;">
+(0.018)
+</td>
+<td style="text-align:center;">
+(0.018)
+</td>
+<td style="text-align:center;">
+(0.018)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+.Dtreat × first.treat = 2004 × year = 2005 × lpop_dm
+</td>
+<td style="text-align:center;">
+0.025
+</td>
+<td style="text-align:center;">
+0.025
+</td>
+<td style="text-align:center;">
+0.025
+</td>
+<td style="text-align:center;">
+0.025
+</td>
+<td style="text-align:center;">
+0.025
+</td>
+<td style="text-align:center;">
+0.025
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.018)
+</td>
+<td style="text-align:center;">
+(0.018)
+</td>
+<td style="text-align:center;">
+(0.018)
+</td>
+<td style="text-align:center;">
+(0.018)
+</td>
+<td style="text-align:center;">
+(0.018)
+</td>
+<td style="text-align:center;">
+(0.018)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+.Dtreat × first.treat = 2004 × year = 2006 × lpop_dm
+</td>
+<td style="text-align:center;">
+0.051
+</td>
+<td style="text-align:center;">
+0.051
+</td>
+<td style="text-align:center;">
+0.051
+</td>
+<td style="text-align:center;">
+0.051
+</td>
+<td style="text-align:center;">
+0.051
+</td>
+<td style="text-align:center;">
+0.051
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.021)
+</td>
+<td style="text-align:center;">
+(0.021)
+</td>
+<td style="text-align:center;">
+(0.021)
+</td>
+<td style="text-align:center;">
+(0.021)
+</td>
+<td style="text-align:center;">
+(0.021)
+</td>
+<td style="text-align:center;">
+(0.021)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+.Dtreat × first.treat = 2004 × year = 2007 × lpop_dm
+</td>
+<td style="text-align:center;">
+0.011
+</td>
+<td style="text-align:center;">
+0.011
+</td>
+<td style="text-align:center;">
+0.011
+</td>
+<td style="text-align:center;">
+0.011
+</td>
+<td style="text-align:center;">
+0.011
+</td>
+<td style="text-align:center;">
+0.011
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.027)
+</td>
+<td style="text-align:center;">
+(0.027)
+</td>
+<td style="text-align:center;">
+(0.027)
+</td>
+<td style="text-align:center;">
+(0.027)
+</td>
+<td style="text-align:center;">
+(0.027)
+</td>
+<td style="text-align:center;">
+(0.027)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+.Dtreat × first.treat = 2006 × year = 2006 × lpop_dm
+</td>
+<td style="text-align:center;">
+0.039
+</td>
+<td style="text-align:center;">
+0.039
+</td>
+<td style="text-align:center;">
+0.039
+</td>
+<td style="text-align:center;">
+0.039
+</td>
+<td style="text-align:center;">
+0.039
+</td>
+<td style="text-align:center;">
+0.039
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.016)
+</td>
+<td style="text-align:center;">
+(0.016)
+</td>
+<td style="text-align:center;">
+(0.016)
+</td>
+<td style="text-align:center;">
+(0.016)
+</td>
+<td style="text-align:center;">
+(0.016)
+</td>
+<td style="text-align:center;">
+(0.016)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+.Dtreat × first.treat = 2006 × year = 2007 × lpop_dm
+</td>
+<td style="text-align:center;">
+0.038
+</td>
+<td style="text-align:center;">
+0.038
+</td>
+<td style="text-align:center;">
+0.038
+</td>
+<td style="text-align:center;">
+0.038
+</td>
+<td style="text-align:center;">
+0.038
+</td>
+<td style="text-align:center;">
+0.038
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.022)
+</td>
+<td style="text-align:center;">
+(0.022)
+</td>
+<td style="text-align:center;">
+(0.022)
+</td>
+<td style="text-align:center;">
+(0.022)
+</td>
+<td style="text-align:center;">
+(0.022)
+</td>
+<td style="text-align:center;">
+(0.022)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+.Dtreat × first.treat = 2007 × year = 2007 × lpop_dm
+</td>
+<td style="text-align:center;">
+−0.020
+</td>
+<td style="text-align:center;">
+−0.020
+</td>
+<td style="text-align:center;">
+−0.020
+</td>
+<td style="text-align:center;">
+−0.020
+</td>
+<td style="text-align:center;">
+−0.020
+</td>
+<td style="text-align:center;">
+−0.020
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.016)
+</td>
+<td style="text-align:center;">
+(0.016)
+</td>
+<td style="text-align:center;">
+(0.016)
+</td>
+<td style="text-align:center;">
+(0.016)
+</td>
+<td style="text-align:center;">
+(0.016)
+</td>
+<td style="text-align:center;">
+(0.016)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+lpop
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+1.065
+</td>
+<td style="text-align:center;">
+1.065
+</td>
+<td style="text-align:center;">
+1.065
+</td>
+<td style="text-align:center;">
+1.065
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+(0.022)
+</td>
+<td style="text-align:center;">
+(0.022)
+</td>
+<td style="text-align:center;">
+(0.022)
+</td>
+<td style="text-align:center;">
+(0.022)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+first.treat = 2004 × lpop
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+0.051
+</td>
+<td style="text-align:center;">
+0.051
+</td>
+<td style="text-align:center;">
+0.051
+</td>
+<td style="text-align:center;">
+0.051
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+(0.038)
+</td>
+<td style="text-align:center;">
+(0.038)
+</td>
+<td style="text-align:center;">
+(0.038)
+</td>
+<td style="text-align:center;">
+(0.038)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+first.treat = 2006 × lpop
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+−0.041
+</td>
+<td style="text-align:center;">
+−0.041
+</td>
+<td style="text-align:center;">
+−0.041
+</td>
+<td style="text-align:center;">
+−0.041
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+(0.047)
+</td>
+<td style="text-align:center;">
+(0.047)
+</td>
+<td style="text-align:center;">
+(0.047)
+</td>
+<td style="text-align:center;">
+(0.047)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+first.treat = 2007 × lpop
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+0.056
+</td>
+<td style="text-align:center;">
+0.056
+</td>
+<td style="text-align:center;">
+0.056
+</td>
+<td style="text-align:center;">
+0.056
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+(0.039)
+</td>
+<td style="text-align:center;">
+(0.039)
+</td>
+<td style="text-align:center;">
+(0.039)
+</td>
+<td style="text-align:center;">
+(0.039)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+year = 2004 × lpop
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+0.011
+</td>
+<td style="text-align:center;">
+0.011
+</td>
+<td style="text-align:center;">
+0.011
+</td>
+<td style="text-align:center;">
+0.011
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+(0.008)
+</td>
+<td style="text-align:center;">
+(0.008)
+</td>
+<td style="text-align:center;">
+(0.008)
+</td>
+<td style="text-align:center;">
+(0.008)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+year = 2005 × lpop
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+0.021
+</td>
+<td style="text-align:center;">
+0.021
+</td>
+<td style="text-align:center;">
+0.021
+</td>
+<td style="text-align:center;">
+0.021
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+(0.008)
+</td>
+<td style="text-align:center;">
+(0.008)
+</td>
+<td style="text-align:center;">
+(0.008)
+</td>
+<td style="text-align:center;">
+(0.008)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+year = 2006 × lpop
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+0.011
+</td>
+<td style="text-align:center;">
+0.011
+</td>
+<td style="text-align:center;">
+0.011
+</td>
+<td style="text-align:center;">
+0.011
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+(0.011)
+</td>
+<td style="text-align:center;">
+(0.011)
+</td>
+<td style="text-align:center;">
+(0.011)
+</td>
+<td style="text-align:center;">
+(0.011)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+year = 2007 × lpop
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+0.021
+</td>
+<td style="text-align:center;">
+0.021
+</td>
+<td style="text-align:center;">
+0.021
+</td>
+<td style="text-align:center;">
+0.021
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+(0.012)
+</td>
+<td style="text-align:center;">
+(0.012)
+</td>
+<td style="text-align:center;">
+(0.012)
+</td>
+<td style="text-align:center;">
+(0.012)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+(Intercept)
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+2.260
+</td>
+<td style="text-align:center;">
+2.260
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+(0.088)
+</td>
+<td style="text-align:center;">
+(0.088)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+first.treat = 2004
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+0.038
+</td>
+<td style="text-align:center;">
+0.038
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+(0.154)
+</td>
+<td style="text-align:center;">
+(0.154)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+first.treat = 2006
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+0.461
+</td>
+<td style="text-align:center;">
+0.461
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+(0.213)
+</td>
+<td style="text-align:center;">
+(0.213)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+first.treat = 2007
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+−0.286
+</td>
+<td style="text-align:center;">
+−0.286
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+(0.167)
+</td>
+<td style="text-align:center;">
+(0.167)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+year = 2004
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+−0.090
+</td>
+<td style="text-align:center;">
+−0.090
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+(0.031)
+</td>
+<td style="text-align:center;">
+(0.031)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+year = 2005
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+−0.110
+</td>
+<td style="text-align:center;">
+−0.110
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+(0.033)
+</td>
+<td style="text-align:center;">
+(0.033)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+year = 2006
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+−0.052
+</td>
+<td style="text-align:center;">
+−0.052
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+(0.040)
+</td>
+<td style="text-align:center;">
+(0.040)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+year = 2007
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+−0.057
+</td>
+<td style="text-align:center;">
+−0.057
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+(0.045)
+</td>
+<td style="text-align:center;">
+(0.045)
+</td>
+</tr>
+</tbody>
+</table>
 </div>
 
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

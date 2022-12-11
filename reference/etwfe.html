@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">etwfe</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -216,19 +216,16 @@ http://dx.doi.org/10.2139/ssrn.3906345</p>
 <span class="r-in"><span><span class="co"># We can recover a variety of treatment effects of interest with the </span></span></span>
 <span class="r-in"><span><span class="co"># complementary emfx() function. For example:</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="emfx.html">emfx</a></span><span class="op">(</span><span class="va">mod</span>, type <span class="op">=</span> <span class="st">"event"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      Term    Contrast event   Effect Std. Error z value   Pr(&gt;|z|)    2.5 %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 .Dtreat mean(dY/dX)     0 -0.03321    0.01337  -2.484 0.01297951 -0.05941</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 .Dtreat mean(dY/dX)     1 -0.05735    0.01715  -3.343 0.00082830 -0.09097</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 .Dtreat mean(dY/dX)     2 -0.13787    0.03079  -4.477 7.5665e-06 -0.19823</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 .Dtreat mean(dY/dX)     3 -0.10954    0.03232  -3.389 0.00070142 -0.17289</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     97.5 %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 -0.00701</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 -0.02373</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 -0.07751</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 -0.04619</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Model type:  etwfe </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Prediction type:  response </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       type    term    contrast        dydx  std.error statistic      p.value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 response .Dtreat mean(dY/dX) -0.03321220 0.01336867 -2.484331 1.297951e-02</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 response .Dtreat mean(dY/dX) -0.05734565 0.01715312 -3.343162 8.282953e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 response .Dtreat mean(dY/dX) -0.13787039 0.03079459 -4.477097 7.566488e-06</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 response .Dtreat mean(dY/dX) -0.10953946 0.03232182 -3.389024 7.014175e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      conf.low   conf.high predicted predicted_hi predicted_lo event</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 -0.05941432 -0.00701009  8.555778     8.555769     8.555778     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 -0.09096514 -0.02372616  6.009372     6.009365     6.009372     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 -0.19822668 -0.07751409  5.312274     5.312257     5.312274     2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 -0.17288907 -0.04618984  5.388610     5.388598     5.388610     3</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
