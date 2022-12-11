@@ -10,8 +10,8 @@ to other packages; specifically `fixest` and `marginaleffects`.
 I have added a variety of tests. All results are benchmarked against equivalent
 packages in other software.
 
-Many thanks for considering and for the work that the CRAN team does in service
-to the wider R community.
+Many thanks for considering `etwfe` and for the work that the CRAN team does in
+service to the wider R community.
 
 ## Test environments
 
