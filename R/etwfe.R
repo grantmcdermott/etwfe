@@ -67,7 +67,7 @@
 etwfe = function(
     fml = NULL,
     ivar = NULL,
-    tvar = NULL, 
+    tvar = NULL,
     gvar = NULL,
     data = NULL,
     tref = NULL,

@@ -2,7 +2,7 @@ Package: etwfe
 Type: Package
 Title: Convenience functions for extended two-way fixed effects a la Wooldridge
   (2021)
-Version: 0.1
+Version: 0.1.0
 Date: 2022-10-12
 Authors@R: 
     person(given = "Grant",
