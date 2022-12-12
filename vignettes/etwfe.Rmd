@@ -18,7 +18,7 @@ fixest::setFixest_notes(FALSE)
 
 ## Background
 
-One of the canonical research designs for social scientists is the so-called
+A canonical research designs for social scientists is the so-called
 "differences-in-differences" (DiD) design.^[Good textbook introductions to DiD
 are available [here](https://theeffectbook.net/ch-DifferenceinDifference.html)
 and [here](https://mixtape.scunning.com/09-difference_in_differences), among
@@ -31,7 +31,7 @@ something like the following in R:
 lm(y ~ treatment * time, data)
 ```
 
-This type of regression is easy to and intuitive, and for a long time
+This type of regression is intuitive and easy to run, and for a long time
 everyone was happy. But it was too good to last. A slew of smart studies
 began appearing in the early 2020s, demonstrating that things weren't quite so
 simple. Among other things, the core interaction term in a standard TWFE can
