@@ -193,9 +193,11 @@ ggplot(mod_es, aes(x = event, y = dydx, ymin = conf.low, ymax = conf.high)) +
 
 ## Other families
 
-A key feature of the ETWFE method proposed by Wooldridge (2021) is that it supports
-nonlinear model (distribution / link) families. Here's a brief example, where we
-recast our earlier event-study as a Poisson regression.
+A key feature of the ETWFE approach---one that sets it apart from other advanced
+DiD implementations and extensions---is that it supports nonlinear model
+(distribution / link) families. Users need simply invoke the `family` argument.
+Here's a brief example, where we recast our earlier event-study as a Poisson
+regression.
 
 ```{r, warning=FALSE, message=FALSE}
 mpdta$emp = exp(mpdta$lemp)
