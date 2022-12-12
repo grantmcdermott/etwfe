@@ -80,8 +80,8 @@
 <div class="section level2">
 <h2 id="background">Background<a class="anchor" aria-label="anchor" href="#background"></a>
 </h2>
-<p>One of the canonical research designs for social scientists is the
-so-called “differences-in-differences” (DiD) design.<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content='&lt;p&gt;Good textbook introductions to DiD are available &lt;a href="https://theeffectbook.net/ch-DifferenceinDifference.html" class="external-link"&gt;here&lt;/a&gt;
+<p>A canonical research designs for social scientists is the so-called
+“differences-in-differences” (DiD) design.<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content='&lt;p&gt;Good textbook introductions to DiD are available &lt;a href="https://theeffectbook.net/ch-DifferenceinDifference.html" class="external-link"&gt;here&lt;/a&gt;
 and &lt;a href="https://mixtape.scunning.com/09-difference_in_differences" class="external-link"&gt;here&lt;/a&gt;,
 among many other places.&lt;/p&gt;'><sup>1</sup></a> Historically, the way
 that applied researchers estimated DiD was in the form of a two-way
@@ -90,13 +90,13 @@ effect between treatment and time, and might look something like the
 following in R:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">treatment</span> <span class="op">*</span> <span class="va">time</span>, <span class="va">data</span><span class="op">)</span></span></code></pre></div>
-<p>This type of regression is easy to and intuitive, and for a long time
-everyone was happy. But it was too good to last. A slew of smart studies
-began appearing in the early 2020s, demonstrating that things weren’t
-quite so simple. Among other things, the core interaction term in a
-standard TWFE can provide a biased estimate of the true treatment effect
-if the rollout of treatment was staggered over time (a very common
-occurrence).</p>
+<p>This type of regression is intuitive and easy to run, and for a long
+time everyone was happy. But it was too good to last. A slew of smart
+studies began appearing in the early 2020s, demonstrating that things
+weren’t quite so simple. Among other things, the core interaction term
+in a standard TWFE can provide a biased estimate of the true treatment
+effect if the rollout of treatment was staggered over time (a very
+common occurrence).</p>
 <p>Fortunately, just as econometricians were taking away one of our
 favourite tools, they were kind enough to replace it with some new ones.
 Among these, the proposed approach by <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3906345" class="external-link">Wooldridge
@@ -478,7 +478,7 @@ easily grab the formula of an estimated model to see for yourself.</p>
 <code class="sourceCode R"><span><span class="va">mod</span><span class="op">$</span><span class="va">fml_all</span></span>
 <span><span class="co">#&gt; $linear</span></span>
 <span><span class="co">#&gt; lemp ~ .Dtreat:i(first.treat, i.year, ref = 0, ref2 = 2003)/lpop_dm</span></span>
-<span><span class="co">#&gt; &lt;environment: 0x55fbc90c53e0&gt;</span></span>
+<span><span class="co">#&gt; &lt;environment: 0x559f62c04018&gt;</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $fixef</span></span>
 <span><span class="co">#&gt; ~first.treat + first.treat[[lpop]] + year + year[[lpop]]</span></span></code></pre></div>
