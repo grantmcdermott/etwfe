@@ -179,7 +179,7 @@ modelsummary(
 )
 ```
 
-For vizualization, you can pass in on to your preferred plotting method. For example:
+For vizualization, you can pass it on to your preferred plotting method. For example:
 
 ```{r}
 library(ggplot2)
