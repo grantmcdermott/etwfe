@@ -107,7 +107,7 @@ emfx(mod, type = "event") |>
 - [Laurent Bergé](https://twitter.com/lrberge)
   ([**fixest**](https://lrberge.github.io/fixest/)) and [Vincent
   Arel-Bundock](https://twitter.com/VincentAB)
-  ([**marginaleffects**](https://vincentarelbundock.github.io/marginaleffects))
+  ([**marginaleffects**](https://vincentarelbundock.github.io/marginaleffects/))
   for maintaining the two wonderful R packages that do most of the heavy
   lifting under the hood here.
 - [Fernando Rios-Avila](https://twitter.com/friosavila) for the
