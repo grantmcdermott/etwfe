@@ -80,44 +80,51 @@
 <div class="section level2">
 <h2 id="background">Background<a class="anchor" aria-label="anchor" href="#background"></a>
 </h2>
-<p>A canonical research designs for social scientists is the so-called
+<p>A canonical research design for social scientists is the so-called
 “differences-in-differences” (DiD) design.<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content='&lt;p&gt;Good textbook introductions to DiD are available &lt;a href="https://theeffectbook.net/ch-DifferenceinDifference.html" class="external-link"&gt;here&lt;/a&gt;
 and &lt;a href="https://mixtape.scunning.com/09-difference_in_differences" class="external-link"&gt;here&lt;/a&gt;,
-among many other places.&lt;/p&gt;'><sup>1</sup></a> Historically, the way
-that applied researchers estimated DiD was in the form of a two-way
-fixed effects (TWFE) regression. TWFE is basically just an interaction
-effect between treatment and time, and might look something like the
-following in R:</p>
+among many other places.&lt;/p&gt;'><sup>1</sup></a> In the classic 2x2 DiD
+case (two units, two periods), a simple interaction effect between two
+dummy variables suffices to recover the treatment effect. In base R this
+might look something like:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">treatment</span> <span class="op">*</span> <span class="va">time</span>, <span class="va">data</span><span class="op">)</span></span></code></pre></div>
-<p>This type of regression is intuitive and easy to run, and for a long
-time everyone was happy. But it was too good to last. A slew of smart
-studies began appearing in the early 2020s, demonstrating that things
-weren’t quite so simple. Among other things, the core interaction term
-in a standard TWFE can provide a biased estimate of the true treatment
-effect if the rollout of treatment was staggered over time (a very
-common occurrence).</p>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">Dtreated_unit</span> <span class="op">*</span> <span class="va">Dpost_treatment</span>, data <span class="op">=</span> <span class="va">somedata</span><span class="op">)</span></span></code></pre></div>
+<p>In practice, rather than specify the interaction directly,
+researchers often use an equivalent formulation known as <em>two-way
+fixed effects</em> (TWFE). The core idea of TWFE is that we can subsume
+our dummy variables above (<code>Dtreated_unit</code> and
+<code>Dpost_treatment</code>) by adding unit and time fixed effects to
+the regression. A single treatment dummy can then be used to capture the
+effect of treatment directly. This shortcut is especially nice for more
+complicated panel data settings with multiple units and multiple times
+periods. A TWFE in base R might look as follows:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">Dtreat</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">id</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">period</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">somedata</span><span class="op">)</span></span></code></pre></div>
+<p>This type of regression is easy to run and intuitive, and for a long
+time everyone was happy. But it was too good to last. A cottage industry
+of smart research now demonstrates that things aren’t quite so simple.
+Among other things, the core TWFE result is very likely to be biased if
+the rollout of treatment was staggered over time (a common
+occurrence).</p>
 <p>Fortunately, just as econometricians were taking away one of our
 favourite tools, they were kind enough to replace it with some new ones.
-Among these, the proposed approach by <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3906345" class="external-link">Wooldridge
-(2021)</a> is noteworthy. His idea might be paraphrased as stating that
-the problem with TWFE is not that we were doing it in the first place.
-Rather, it’s that we weren’t doing it enough. Instead of only including
-a single treatment × time interaction, Wooldridge recommends that we
-saturate our model with all possible interactions between treatment and
-time variables, including treatment cohorts, as well as other
-covariates. He goes on to show that this approach actually draws an
-equivalence between different types of estimators (pooled OLS, twoway
-Mundlak regression, etc.) So it’s not entirely clear what to call it.
-But Wooldridge refers to the general idea as as <em>extended</em>
-TWFE—or, ETWFE—which I rather like and is where this package takes its
-name.</p>
+Among these, the proposed approach by Wooldridge (<a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3906345" class="external-link">2021</a>,
+<a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4183726" class="external-link">2022</a>)
+is noteworthy. His idea might be paraphrased as stating that the problem
+with TWFE is not that we were doing it in the first place. Rather, it’s
+that we weren’t doing it enough. Instead of only including a single
+treatment × time interaction, Wooldridge recommends that we saturate our
+model with all possible interactions between treatment and time
+variables, including treatment cohorts, as well as other covariates. He
+goes on to show that this approach actually draws an equivalence between
+different types of estimators (pooled OLS, twoway Mundlak regression,
+etc.) So it’s not entirely clear what to call it. But Wooldridge refers
+to the general idea as as <em>extended</em> TWFE—or, ETWFE—which I
+rather like and is where this package takes its name.</p>
 <p>The Wooldridge ETWFE solution is intuitive and elegant. But it is
 also rather tedious and error prone to code up manually. The
 <strong>etwfe</strong> package aims to simplify the process by providing
-convenience functions that do the work for you. <strong>etwfe</strong>
-thus provides an R equivalent of the <a href="https://ideas.repec.org/c/boc/bocode/s459114.html" class="external-link"><code>JWDID</code></a>
-Stata module and, indeed, shares some of the core design elements.</p>
+convenience functions that do the work for you.</p>
 </div>
 <div class="section level2">
 <h2 id="dataset">Dataset<a class="anchor" aria-label="anchor" href="#dataset"></a>
@@ -126,7 +133,7 @@ Stata module and, indeed, shares some of the core design elements.</p>
 we’ll use the <a href="https://bcallaway11.github.io/did/reference/mpdta.html" class="external-link"><code>mpdta</code></a>
 dataset on US teen employment from the <strong>did</strong> package
 (which you’ll need to install separately).</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("did")</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"mpdta"</span>, package <span class="op">=</span> <span class="st">"did"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">mpdta</span><span class="op">)</span></span>
@@ -155,8 +162,8 @@ controls if you don’t have any.&lt;/p&gt;"><sup>2</sup></a></p>
 functionality. Given the package name, it won’t surprise you to know
 that the key estimating function is <code><a href="../reference/etwfe.html">etwfe()</a></code>. Here’s how it
 would look for our example dataset.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/grantmcdermott/etwfe" class="external-link">etwfe</a></span><span class="op">)</span></span>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://grantmcdermott.com/etwfe/" class="external-link">etwfe</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">mod</span> <span class="op">=</span></span>
 <span>  <span class="fu"><a href="../reference/etwfe.html">etwfe</a></span><span class="op">(</span></span>
@@ -173,7 +180,7 @@ are required except <code>vcov</code> (though I generally recommend it
 too, since we probably want to cluster our standard errors at the
 individual unit level).</p>
 <p>Let’s take a look at our model object.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mod</span></span>
 <span><span class="co">#&gt; OLS estimation, Dep. Var.: lemp</span></span>
 <span><span class="co">#&gt; Observations: 2,500 </span></span>
@@ -240,7 +247,7 @@ function for doing so: <code><a href="../reference/emfx.html">emfx()</a></code>,
 around <code><a href="https://vincentarelbundock.github.io/marginaleffects/reference/marginaleffects.html" class="external-link">marginaleffects::marginaleffects()</a></code>.</p>
 <p>For example, we can recover the average treatment effect as
 follows.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="va">mod</span><span class="op">)</span></span>
 <span><span class="co">#&gt;       type    term    contrast        dydx  std.error statistic      p.value</span></span>
 <span><span class="co">#&gt; 1 response .Dtreat mean(dY/dX) -0.05062703 0.01249979 -4.050232 5.116687e-05</span></span>
@@ -249,7 +256,7 @@ follows.</p>
 <p>Or, we can recover the dynamic treatment effects <em>a la</em> an
 event study by invoking the type argument. This time I’ll save the
 resulting object since I plan to reuse it in a moment.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mod_es</span> <span class="op">=</span> <span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="va">mod</span>, type <span class="op">=</span> <span class="st">"event"</span><span class="op">)</span></span>
 <span><span class="co"># mod_es</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">mod_es</span><span class="op">)</span> <span class="co"># Summary print looks a bit nicer</span></span>
@@ -277,7 +284,7 @@ to get a nice regression table of the event study coefficients. Note the
 use of the <code>shape</code> and <code>coef_rename</code> arguments
 below; these are optional but help to make the output look a bit
 nicer.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://vincentarelbundock.github.io/modelsummary/" class="external-link">modelsummary</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">rename_fn</span> <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">old_names</span><span class="op">)</span> <span class="op">{</span></span>
@@ -422,7 +429,7 @@ X
 </table>
 <p>For vizualization, you can pass it on to your preferred plotting
 method. For example:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">mod_es</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">event</span>, y <span class="op">=</span> <span class="va">dydx</span>, ymin <span class="op">=</span> <span class="va">conf.low</span>, ymax <span class="op">=</span> <span class="va">conf.high</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
@@ -440,7 +447,7 @@ advanced DiD implementations and extensions—is that it supports
 nonlinear model (distribution / link) families. Users need simply invoke
 the <code>family</code> argument. Here’s a brief example, where we
 recast our earlier event-study as a Poisson regression.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mpdta</span><span class="op">$</span><span class="va">emp</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">mpdta</span><span class="op">$</span><span class="va">lemp</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/etwfe.html">etwfe</a></span><span class="op">(</span></span>
@@ -475,11 +482,11 @@ different scenarios and also give you an understanding of
 <p>As I’ve stated several times, the Wooldridge ETWFE approach basically
 involves saturating the regression with interaction effects. You can
 easily grab the formula of an estimated model to see for yourself.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mod</span><span class="op">$</span><span class="va">fml_all</span></span>
 <span><span class="co">#&gt; $linear</span></span>
 <span><span class="co">#&gt; lemp ~ .Dtreat:i(first.treat, i.year, ref = 0, ref2 = 2003)/lpop_dm</span></span>
-<span><span class="co">#&gt; &lt;environment: 0x55bf0b80a2b0&gt;</span></span>
+<span><span class="co">#&gt; &lt;environment: 0x55629c5fc968&gt;</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $fixef</span></span>
 <span><span class="co">#&gt; ~first.treat + first.treat[[lpop]] + year + year[[lpop]]</span></span></code></pre></div>
@@ -492,7 +499,7 @@ dummy. A more subtle one is <code>lpop_dm</code>, which is the
 variables have to be demeaned before they are interacted in the ETWFE
 setting. Here’s how you could have constructed the dataset ahead of time
 and estimated the ETWFE regression manually:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># First construct the dataset</span></span>
 <span><span class="va">mpdta2</span> <span class="op">=</span> <span class="va">mpdta</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform</a></span><span class="op">(</span></span>
@@ -511,7 +518,7 @@ and estimated the ETWFE regression manually:</p>
 original etwfe regression. I’ll use <code>modelsummary</code> to do that
 here, since I’ve already loaded it above.<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content='&lt;p&gt;Another option would be to use
 &lt;code&gt;&lt;a href="https://lrberge.github.io/fixest/reference/etable.html" class="external-link"&gt;fixest::etable()&lt;/a&gt;&lt;/code&gt;&lt;/p&gt;'><sup>4</sup></a>.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://vincentarelbundock.github.io/modelsummary/reference/modelsummary.html" class="external-link">modelsummary</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"etwfe"</span> <span class="op">=</span> <span class="va">mod</span>, <span class="st">"manual"</span> <span class="op">=</span> <span class="va">mod2</span><span class="op">)</span>,</span>
 <span>  gof_map <span class="op">=</span> <span class="cn">NA</span> <span class="co"># drop all goodness-of-fit info for brevity</span></span>
@@ -841,7 +848,7 @@ the fixed-effects slot, we can avoid polluting the user’s console with a
 load of extra coefficients. Nonetheless, we can control this behaviour
 with the <code>fe</code> (“fixed effects”) argument. Consider the
 following options and their manual equivalents.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># fe = "feo" (fixed effects only)</span></span>
 <span><span class="va">mod_feo</span> <span class="op">=</span> <span class="fu"><a href="../reference/etwfe.html">etwfe</a></span><span class="op">(</span></span>
 <span>  <span class="va">lemp</span> <span class="op">~</span> <span class="va">lpop</span>, tvar <span class="op">=</span> <span class="va">year</span>, gvar <span class="op">=</span> <span class="va">first.treat</span>, data <span class="op">=</span> <span class="va">mpdta</span>, vcov <span class="op">=</span> <span class="op">~</span><span class="va">countyreal</span>,</span>
@@ -871,7 +878,7 @@ following options and their manual equivalents.</p>
 <code>emfx</code> to confirm that they give correct aggregated treatment
 effects. But we can quickly demonstrate in a regression table that they
 all return the same raw coefficients.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mods</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  <span class="st">"etwfe"</span>         <span class="op">=</span> <span class="va">mod</span>,</span>
 <span>  <span class="st">"manual"</span>        <span class="op">=</span> <span class="va">mod2</span>,</span>
