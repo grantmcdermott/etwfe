@@ -1,3 +1,14 @@
+## Resubmission
+
+This is a resubmission. In this version I have:
+
+* Converted the DESCRIPTION title to title case, as well as shortened it.
+* Updated the Date field in the DESCRIPTION file.
+* Used the CRAN MIT LICENSE file template, with appropriate reference from the DESCRIPTION file.
+* Converted any "http" prefixes to "https" and included trailing URL slashes where necessary.
+* Fixed some typos and minor cosmetic changes in the vignette and reference manual.
+* All core estimation code and tests remain unchanged.
+
 ## Overview
 
 `etwfe` is a new package implementing the extended two-way fixed effects (ETWFE)
