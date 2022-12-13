@@ -2,7 +2,7 @@ Package: etwfe
 Type: Package
 Title: Extended Two-way Fixed Effects
 Version: 0.1.0
-Date: 2022-10-12
+Date: 2022-12-12
 Authors@R: 
     person(given = "Grant",
            family = "McDermott",
