@@ -18,30 +18,42 @@ fixest::setFixest_notes(FALSE)
 
 ## Background
 
-A canonical research designs for social scientists is the so-called
+A canonical research design for social scientists is the so-called
 "differences-in-differences" (DiD) design.^[Good textbook introductions to DiD
 are available [here](https://theeffectbook.net/ch-DifferenceinDifference.html)
 and [here](https://mixtape.scunning.com/09-difference_in_differences), among
-many other places.] Historically, the way that applied researchers estimated
-DiD was in the form of a two-way fixed effects (TWFE) regression. TWFE is 
-basically just an interaction effect between treatment and time, and might look
-something like the following in R:
+many other places.] In the classic 2x2 DiD case (two units, two periods), a
+simple interaction effect between two dummy variables suffices to recover the 
+treatment effect. In base R this might look something like:
 
 ```r
-lm(y ~ treatment * time, data)
+lm(y ~ Dtreated_unit * Dpost_treatment, data = somedata)
 ```
 
-This type of regression is intuitive and easy to run, and for a long time
-everyone was happy. But it was too good to last. A slew of smart studies
-began appearing in the early 2020s, demonstrating that things weren't quite so
-simple. Among other things, the core interaction term in a standard TWFE can
-provide a biased estimate of the true treatment effect if the rollout of 
-treatment was staggered over time (a very common occurrence).
+In practice, rather than specify the interaction directly, researchers often use
+an equivalent formulation known as _two-way fixed effects_ (TWFE). The core idea
+of TWFE is that we can subsume our dummy variables above (`Dtreated_unit` and
+`Dpost_treatment`) by adding unit and time fixed effects to the regression. A
+single treatment dummy can then be used to capture the effect of treatment
+directly. This shortcut is especially nice for more complicated panel data
+settings with multiple units and multiple times periods. A TWFE in base R might
+look as follows:
+
+```r
+lm(y ~ Dtreat + factor(id) + factor(period), data = somedata)
+```
+
+This type of regression is easy to run and intuitive, and for a long time
+everyone was happy. But it was too good to last. A cottage industry of smart
+research now demonstrates that things aren't quite so simple. Among other
+things, the core TWFE result is very likely to be biased if the rollout of
+treatment was staggered over time (a common occurrence).
 
 Fortunately, just as econometricians were taking away one of our
 favourite tools, they were kind enough to replace it with some new ones. 
 Among these, the proposed approach by 
-[Wooldridge (2021)](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3906345)
+Wooldridge ([2021](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3906345),
+[2022](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4183726))
 is noteworthy. His idea might be paraphrased as stating that the problem 
 with TWFE is not that we were doing it in the first place. Rather, it's that we
 weren't doing it enough. Instead of only including a single treatment × time
@@ -56,9 +68,7 @@ I rather like and is where this package takes its name.
 The Wooldridge ETWFE solution is intuitive and elegant. But it is also rather
 tedious and error prone to code up manually. The **etwfe** package aims to
 simplify the process by providing convenience functions that do the work for
-you. **etwfe** thus provides an R equivalent of the 
-[`JWDID`](https://ideas.repec.org/c/boc/bocode/s459114.html) Stata module and, 
-indeed, shares some of the core design elements.
+you.
 
 ## Dataset
 

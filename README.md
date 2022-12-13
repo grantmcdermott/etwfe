@@ -1,16 +1,17 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# Extended two-way fixed effects (ETWFE)
+# Extended Two-way Fixed Effects (ETWFE)
 
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/grantmcdermott/etwfe/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/grantmcdermott/etwfe/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-The goal of **etwfe** is to estimate extended (Mundlak) two-way fixed
-effects *a la* [Wooldridge
-(2021)](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3906345).
+The goal of **etwfe** is to estimate extended two-way fixed effects *a
+la* Wooldridge
+([2021](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3906345),
+[2022](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4183726)).
 Briefly, Wooldridge proposes a set of saturated interaction effects to
 overcome the potential bias problems of vanilla TWFE in
 difference-in-differences designs. The Wooldridge solution is intuitive
@@ -100,9 +101,9 @@ emfx(mod, type = "event") |>
 ## Acknowledgements
 
 - [Jeffrey Wooldridge](https://twitter.com/jmwooldridge) for the
-  [underlying
-  theory](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3906345)
-  behind ETWFE.
+  [theory](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3906345)
+  [underlying](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4183726)
+  ETWFE.
 - [Laurent Bergé](https://twitter.com/lrberge)
   ([**fixest**](https://lrberge.github.io/fixest/)) and [Vincent
   Arel-Bundock](https://twitter.com/VincentAB)

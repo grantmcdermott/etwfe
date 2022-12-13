@@ -37,10 +37,15 @@
 ##' @param ... Additional arguments passed to [`fixest::feols`] (or 
 ##' [`fixest::feglm`]). The most common example would be a `vcov` argument.
 ##' @return A fixest object with fully saturated interaction effects.
-##' @references Wooldridge, Jeffrey M. (2021). \cite{Two-Way Fixed Effects, the 
+##' @references 
+##' Wooldridge, Jeffrey M. (2021). \cite{Two-Way Fixed Effects, the 
 ##' Two-Way Mundlak Regression, and Difference-in-Differences Estimators}.
 ##' Working paper (version: August 16, 2021). Available: 
 ##' http://dx.doi.org/10.2139/ssrn.3906345
+##'
+##' Wooldridge, Jeffrey M. (2022). \cite{Simple Approaches to Nonlinear Difference-in-Differences with Panel Data}.
+##' Working paper (version: August 7, 2022). Available: 
+##' http://dx.doi.org/10.2139/ssrn.4183726
 ##' @seealso [fixest::feols()], [fixest::feglm()]
 ##' @examples
 ##' # We’ll use the mpdta dataset from the did package (which you’ll need to 
