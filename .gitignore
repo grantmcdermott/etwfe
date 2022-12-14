@@ -38,3 +38,5 @@ vignettes/*.pdf
 *.Rproj
 inst/doc
 docs
+
+README.html

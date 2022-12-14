@@ -6,6 +6,8 @@
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/grantmcdermott/etwfe/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/grantmcdermott/etwfe/actions/workflows/R-CMD-check.yaml)
+[![CRAN
+status](https://www.r-pkg.org/badges/version/etwfe)](https://CRAN.R-project.org/package=etwfe)
 <!-- badges: end -->
 
 The goal of **etwfe** is to estimate extended two-way fixed effects *a
@@ -19,10 +21,18 @@ and elegant, but rather tedious and error prone to code up manually. The
 **etwfe** package aims to simplify the process by providing convenience
 functions that do the work for you.
 
+Documentation is available on the package
+[homepage](https://grantmcdermott.com/etwfe/).
+
 ## Installation
 
-You can install the development version of **etwfe** from
-[GitHub](https://github.com/):
+You can install **etwfe** from CRAN.
+
+``` r
+install.packages("etwfe")
+```
+
+Or, you can grab the development version from GitHub.
 
 ``` r
 # install.packages("remotes")
@@ -31,9 +41,11 @@ remotes::install_github("grantmcdermott/etwfe")
 
 ## Quickstart example
 
-A detailed walkthrough of the package is provided in the introductory
-vignette. See `vignette("etwfe")`. Here’s a quickstart example to
-demonstrate the basic syntax.
+A detailed walkthrough of **etwfe** is provided in the introductory
+vignette (available
+[online](https://grantmcdermott.com/etwfe/articles/etwfe.html), or type
+`vignette("etwfe")` in your R console). But here’s a quickstart example
+to demonstrate the basic syntax.
 
 ``` r
 library(etwfe)
