@@ -1,6 +1,6 @@
 Package: etwfe
 Type: Package
-Title: Extended Two-way Fixed Effects
+Title: Extended Two-Way Fixed Effects
 Version: 0.1.0
 Date: 2022-12-12
 Authors@R: 
@@ -10,7 +10,8 @@ Authors@R:
            email = "grantmcd@uoregon.edu",
            comment = c(ORCID = "0000-0001-7883-8573"))
 Description: Convenience functions for implementing extended two-way 
-  fixed effect regressions a la Wooldridge (2021, 2022).
+  fixed effect regressions a la Wooldridge (2021, 2022)
+  <doi:10.2139/ssrn.3906345>, <doi:10.2139/ssrn.4183726>.
 License: MIT + file LICENSE
 Imports:
   fixest (>= 0.11.0),

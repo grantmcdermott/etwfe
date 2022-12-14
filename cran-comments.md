@@ -2,6 +2,11 @@
 
 This is a resubmission. In this version I have:
 
+* Converted the DESCRIPTION title field to title case.
+* Added <doi:...> citation links to the DESCRIPTION description field.
+
+## Previous submission(s)
+
 * Converted the DESCRIPTION title to title case, as well as shortened it.
 * Updated the Date field in the DESCRIPTION file.
 * Used the CRAN MIT LICENSE file template, with appropriate reference from the DESCRIPTION file.
