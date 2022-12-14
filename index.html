@@ -73,19 +73,23 @@
 <!-- badges: start -->
 
 <p>The goal of <strong>etwfe</strong> is to estimate extended two-way fixed effects <em>a la</em> Wooldridge (<a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3906345" class="external-link">2021</a>, <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4183726" class="external-link">2022</a>). Briefly, Wooldridge proposes a set of saturated interaction effects to overcome the potential bias problems of vanilla TWFE in difference-in-differences designs. The Wooldridge solution is intuitive and elegant, but rather tedious and error prone to code up manually. The <strong>etwfe</strong> package aims to simplify the process by providing convenience functions that do the work for you.</p>
+<p>Documentation is available on the package <a href="https://grantmcdermott.com/etwfe/" class="external-link">homepage</a>.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>You can install the development version of <strong>etwfe</strong> from <a href="https://github.com/" class="external-link">GitHub</a>:</p>
+<p>You can install <strong>etwfe</strong> from CRAN.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"etwfe"</span><span class="op">)</span></span></code></pre></div>
+<p>Or, you can grab the development version from GitHub.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("remotes")</span></span>
 <span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"grantmcdermott/etwfe"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="quickstart-example">Quickstart example<a class="anchor" aria-label="anchor" href="#quickstart-example"></a>
 </h2>
-<p>A detailed walkthrough of the package is provided in the introductory vignette. See <code><a href="articles/etwfe.html">vignette("etwfe")</a></code>. Here’s a quickstart example to demonstrate the basic syntax.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<p>A detailed walkthrough of <strong>etwfe</strong> is provided in the introductory vignette (available <a href="https://grantmcdermott.com/etwfe/articles/etwfe.html" class="external-link">online</a>, or type <code><a href="articles/etwfe.html">vignette("etwfe")</a></code> in your R console). But here’s a quickstart example to demonstrate the basic syntax.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://grantmcdermott.com/etwfe/" class="external-link">etwfe</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># install.packages("did")</span></span>
@@ -197,6 +201,7 @@
 <h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
 <li><a href="https://github.com/grantmcdermott/etwfe/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/grantmcdermott/etwfe/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
+<li><a href="https://CRAN.R-project.org/package=etwfe" class="external-link"><img src="https://www.r-pkg.org/badges/version/etwfe" alt="CRAN status"></a></li>
 </ul>
 </div>
 
