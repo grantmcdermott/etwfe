@@ -316,7 +316,7 @@ mod_none2 = fixest::feols(
 )
 ```
 
-I'll leave it up to you to pass any of these to models `emfx` to confirm that
+I'll leave it up to you to pass any of these models to `emfx` to confirm that
 they give correct aggregated treatment effects. But we can quickly demonstrate
 in a regression table that they all return the same raw coefficients.
 
