@@ -165,7 +165,7 @@ summary(mod_es) # Summary print looks a bit nicer
 and `"group"` (here: treatment by cohort).)
 
 Since `emfx` produces a standard `marginaleffects` object, we can pass it on to
-other supported methods and packages. For example, we can get get pass it on to
+other supported methods and packages. For example, we can pass it on to
 [**modelsummary**](https://vincentarelbundock.github.io/modelsummary/index.html)
 to get a nice regression table of the event study coefficients. Note the use of
 the `shape` and `coef_rename` arguments below; these are optional but help to
@@ -188,8 +188,7 @@ modelsummary(
   notes = "Std. errors are clustered at the county level"
 )
 ```
-
-For vizualization, you can pass it on to your preferred plotting method. For example:
+For visualization, you can pass it on to your preferred plotting method. For example:
 
 ```{r}
 library(ggplot2)
@@ -224,7 +223,7 @@ etwfe(
 
 Now that you've seen **etwfe** in action, let's circle back to what the package
 is doing under the hood. This section isn't necessary for you to use any of the 
-functions. Feel free to skip it. But a review of the internal details should help
+functions; feel free to skip it. But a review of the internal details should help
 you to optimize for different scenarios and also give you an understanding of
 **etwfe's** default choices. 
 
@@ -285,7 +284,7 @@ significant difference for large datasets.] From a philosphical perspective,
 **etwfe** tries to limit the amount of extraneous information that it reports
 to users. Most of the interaction effects in the ETWFE framework are just acting
 as controls. By relegating them to the fixed-effects slot, we can avoid polluting
-the user's console with a load of extra coefficients. Nonetheless, we can control 
+the user's console with a host of extra coefficients. Nonetheless, we can control 
 this behaviour with the `fe` ("fixed effects") argument. Consider the following
 options and their manual equivalents.
 
