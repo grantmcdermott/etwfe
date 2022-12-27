@@ -1,7 +1,11 @@
 data("mpdta", package = "did")
+# Add exponeniated employment outcome (for Poisson)
+mpdta$emp = exp(mpdta$lemp)
 
 # We'll continue with model 3 from the etwfe tests...
 m3 = etwfe(lemp ~ lpop, tvar=year, gvar=first.treat, data=mpdta, vcov=~countyreal)
+# Poisson version
+m3p = etwfe(emp ~ lpop, tvar=year, gvar=first.treat, data=mpdta, vcov=~countyreal, family = "poisson")
 
 # Known outputs ----
 
@@ -88,6 +92,27 @@ event_known =
     model_type = "etwfe"
     )
 
+event_p_known =
+  structure(
+    list(
+      type = c("response", "response", "response", "response"),
+      term = c(".Dtreat", ".Dtreat", ".Dtreat", ".Dtreat"),
+      contrast = c("mean(TRUE) - mean(FALSE)", "mean(TRUE) - mean(FALSE)", "mean(TRUE) - mean(FALSE)", "mean(TRUE) - mean(FALSE)"),
+      event = c(0, 1, 2, 3),
+      estimate = c(-25.3497484355617, 1.09175116987649, -75.1246321555113, -101.823979345012),
+      std.error = c(15.9023512157895, 41.8416889332186, 22.2960121026089, 28.1041995554813),
+      statistic = c(-1.59408807487485, 0.0260924259443489, -3.36942013709802, -3.62308768637932),
+      p.value = c(0.110916309493442, 0.979183618228332, 0.000753265162517243, 0.000291107080688969),
+      conf.low = c(-56.5177840880158, -80.91645219156, -118.824012875494, -156.907198288082),
+      conf.high = c(5.81828721689249, 83.099954531313, -31.4252514355288, -46.7407604019416)
+    ),
+    row.names = c(NA, -4L),
+    class = c("marginaleffects.summary", "data.frame"),
+    conf_level = 0.95,
+    FUN = "mean",
+    type = structure("response", names = NA_character_),
+    model_type = "etwfe"
+  )
 
 # Tests ----
 
@@ -96,3 +121,4 @@ expect_equal(summary(emfx(m3, type = "simple")), simple_known)
 expect_equal(summary(emfx(m3, type = "calendar")), calendar_known)
 expect_equal(summary(emfx(m3, type = "group")), group_known)
 expect_equal(summary(emfx(m3, type = "event")), event_known)
+expect_equal(summary(emfx(m3p, type = "event")), event_p_known)
