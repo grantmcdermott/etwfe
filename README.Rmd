@@ -51,8 +51,8 @@ remotes::install_github("grantmcdermott/etwfe")
 
 A detailed walkthrough of **etwfe** is provided in the introductory vignette 
 (available [online](https://grantmcdermott.com/etwfe/articles/etwfe.html), or
-type `vignette("etwfe")` in your R console). But here's a quickstart example to
-demonstrate the basic syntax.
+by typing `vignette("etwfe")` in your R console). But here's a quickstart
+example to demonstrate the basic syntax.
 
 ```{r mpdta}
 library(etwfe)

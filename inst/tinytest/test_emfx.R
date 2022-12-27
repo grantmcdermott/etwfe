@@ -10,9 +10,9 @@ m3 = etwfe(lemp ~ lpop, tvar=year, gvar=first.treat, data=mpdta, vcov=~countyrea
 simple_known =
   structure(
     list(
-      type = "response", term = ".Dtreat", contrast = "mean(dY/dX)", 
-      .Dtreat = 1L, estimate = -0.0506270331230485, std.error = 0.0124997858367792, 
-      statistic = -4.05023204270301, p.value = 5.11668700625867e-05,
+      type = "response", term = ".Dtreat", contrast = "mean(TRUE) - mean(FALSE)", 
+      .Dtreat = TRUE, estimate = -0.0506270331230485, std.error = 0.0124997858367792, 
+      statistic = -4.05023204270301, p.value = 5.11668721668786e-05,
       conf.low = -0.0751261631775997, conf.high = -0.0261279030684973
       ), 
     row.names = c(NA, -1L), 
@@ -28,7 +28,7 @@ calendar_known =
     list(
       type = c("response", "response", "response", "response"), 
       term = c(".Dtreat", ".Dtreat", ".Dtreat", ".Dtreat"), 
-      contrast = c("mean(dY/dX)", "mean(dY/dX)", "mean(dY/dX)", "mean(dY/dX)"), 
+      contrast = c("mean(TRUE) - mean(FALSE)", "mean(TRUE) - mean(FALSE)", "mean(TRUE) - mean(FALSE)", "mean(TRUE) - mean(FALSE)"), 
       year = 2004:2007,
       estimate = c(-0.0212480022221406, -0.0818499992694122, -0.0442655912992566, -0.0524323095864956), 
       std.error = c(0.0217284164985588, 0.0273749205550772, 0.0173768795442279, 0.0150188665423779), 
@@ -49,7 +49,7 @@ group_known =
     list(
       type = c("response", "response", "response"), 
       term = c(".Dtreat", ".Dtreat", ".Dtreat"), 
-      contrast = c("mean(dY/dX)", "mean(dY/dX)", "mean(dY/dX)"), 
+      contrast = c("mean(TRUE) - mean(FALSE)", "mean(TRUE) - mean(FALSE)", "mean(TRUE) - mean(FALSE)"), 
       first.treat = c(2004, 2006, 2007), 
       estimate = c(-0.0876269608794944, -0.0212783329360811, -0.0459545277371075), 
       std.error = c(0.0230520757698713, 0.0185949856745256, 0.0179750856581946), 
@@ -71,12 +71,12 @@ event_known =
     list(
       type = c("response", "response", "response", "response"), 
       term = c(".Dtreat", ".Dtreat", ".Dtreat", ".Dtreat"), 
-      contrast = c("mean(dY/dX)", "mean(dY/dX)", "mean(dY/dX)", "mean(dY/dX)"), 
+      contrast = c("mean(TRUE) - mean(FALSE)", "mean(TRUE) - mean(FALSE)", "mean(TRUE) - mean(FALSE)", "mean(TRUE) - mean(FALSE)"),
       event = c(0, 1, 2, 3), 
       estimate = c(-0.0332122037840197, -0.0573456479255145, -0.137870386660577, -0.109539455365848), 
       std.error = c(0.013368671117722, 0.0171531166703277, 0.030794594509294, 0.0323218247068719),
       statistic = c(-2.48433097736935, -3.34316200534645, -4.4770969989219, -3.38902448606371), 
-      p.value = c(0.012979510843322, 0.000828295282633567, 7.56648766688037e-06, 0.00070141746747878),
+      p.value = c(0.0129795111476838, 0.000828295236610263, 7.56648975457471e-06, 0.000701417491255723),
       conf.low = c(-0.0594143176959156, -0.0909651388219705, -0.198226682817308, -0.172889067705934),
       conf.high = c(-0.00701008987212372, -0.0237261570290585, -0.0775140905038458, -0.046189843025762)
       ), 

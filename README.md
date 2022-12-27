@@ -43,9 +43,9 @@ remotes::install_github("grantmcdermott/etwfe")
 
 A detailed walkthrough of **etwfe** is provided in the introductory
 vignette (available
-[online](https://grantmcdermott.com/etwfe/articles/etwfe.html), or type
-`vignette("etwfe")` in your R console). But here’s a quickstart example
-to demonstrate the basic syntax.
+[online](https://grantmcdermott.com/etwfe/articles/etwfe.html), or by
+typing `vignette("etwfe")` in your R console). But here’s a quickstart
+example to demonstrate the basic syntax.
 
 ``` r
 library(etwfe)
@@ -100,11 +100,11 @@ mod
 # Event-study treatment effects
 emfx(mod, type = "event") |>
   summary()
-#>      Term    Contrast event   Effect Std. Error z value   Pr(>|z|)    2.5 %   97.5 %
-#> 1 .Dtreat mean(dY/dX)     0 -0.03321    0.01337  -2.484 0.01297951 -0.05941 -0.00701
-#> 2 .Dtreat mean(dY/dX)     1 -0.05735    0.01715  -3.343 0.00082830 -0.09097 -0.02373
-#> 3 .Dtreat mean(dY/dX)     2 -0.13787    0.03079  -4.477 7.5665e-06 -0.19823 -0.07751
-#> 4 .Dtreat mean(dY/dX)     3 -0.10954    0.03232  -3.389 0.00070142 -0.17289 -0.04619
+#>      Term                 Contrast event   Effect Std. Error z value   Pr(>|z|)    2.5 %   97.5 %
+#> 1 .Dtreat mean(TRUE) - mean(FALSE)     0 -0.03321    0.01337  -2.484 0.01297951 -0.05941 -0.00701
+#> 2 .Dtreat mean(TRUE) - mean(FALSE)     1 -0.05735    0.01715  -3.343 0.00082830 -0.09097 -0.02373
+#> 3 .Dtreat mean(TRUE) - mean(FALSE)     2 -0.13787    0.03079  -4.477 7.5665e-06 -0.19823 -0.07751
+#> 4 .Dtreat mean(TRUE) - mean(FALSE)     3 -0.10954    0.03232  -3.389 0.00070142 -0.17289 -0.04619
 #> 
 #> Model type:  etwfe 
 #> Prediction type:  response
