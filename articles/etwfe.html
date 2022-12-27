@@ -8,8 +8,8 @@
 <meta name="description" content="etwfe">
 <title>Introduction to etwfe • etwfe</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.1.3/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.1.3/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<link href="../deps/bootstrap-5.2.2/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Introduction to etwfe">
 <meta property="og:description" content="etwfe">
@@ -249,10 +249,12 @@ around <code><a href="https://vincentarelbundock.github.io/marginaleffects/refer
 follows.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="va">mod</span><span class="op">)</span></span>
-<span><span class="co">#&gt;       type    term    contrast        dydx  std.error statistic      p.value</span></span>
-<span><span class="co">#&gt; 1 response .Dtreat mean(dY/dX) -0.05062703 0.01249979 -4.050232 5.116687e-05</span></span>
-<span><span class="co">#&gt;      conf.low  conf.high predicted predicted_hi predicted_lo .Dtreat</span></span>
-<span><span class="co">#&gt; 1 -0.07512616 -0.0261279  8.555778     8.555769     8.555778       1</span></span></code></pre></div>
+<span><span class="co">#&gt;       type    term                 contrast        dydx  std.error statistic</span></span>
+<span><span class="co">#&gt; 1 response .Dtreat mean(TRUE) - mean(FALSE) -0.05062703 0.01249979 -4.050232</span></span>
+<span><span class="co">#&gt;        p.value    conf.low  conf.high predicted predicted_hi predicted_lo</span></span>
+<span><span class="co">#&gt; 1 5.116687e-05 -0.07512616 -0.0261279  8.555778     8.555778     8.650093</span></span>
+<span><span class="co">#&gt;   .Dtreat</span></span>
+<span><span class="co">#&gt; 1    TRUE</span></span></code></pre></div>
 <p>Or, we can recover the dynamic treatment effects <em>a la</em> an
 event study by invoking the type argument. This time I’ll save the
 resulting object since I plan to reuse it in a moment.</p>
@@ -260,16 +262,16 @@ resulting object since I plan to reuse it in a moment.</p>
 <code class="sourceCode R"><span><span class="va">mod_es</span> <span class="op">=</span> <span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="va">mod</span>, type <span class="op">=</span> <span class="st">"event"</span><span class="op">)</span></span>
 <span><span class="co"># mod_es</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">mod_es</span><span class="op">)</span> <span class="co"># Summary print looks a bit nicer</span></span>
-<span><span class="co">#&gt;      Term    Contrast event   Effect Std. Error z value   Pr(&gt;|z|)    2.5 %</span></span>
-<span><span class="co">#&gt; 1 .Dtreat mean(dY/dX)     0 -0.03321    0.01337  -2.484 0.01297951 -0.05941</span></span>
-<span><span class="co">#&gt; 2 .Dtreat mean(dY/dX)     1 -0.05735    0.01715  -3.343 0.00082830 -0.09097</span></span>
-<span><span class="co">#&gt; 3 .Dtreat mean(dY/dX)     2 -0.13787    0.03079  -4.477 7.5665e-06 -0.19823</span></span>
-<span><span class="co">#&gt; 4 .Dtreat mean(dY/dX)     3 -0.10954    0.03232  -3.389 0.00070142 -0.17289</span></span>
-<span><span class="co">#&gt;     97.5 %</span></span>
-<span><span class="co">#&gt; 1 -0.00701</span></span>
-<span><span class="co">#&gt; 2 -0.02373</span></span>
-<span><span class="co">#&gt; 3 -0.07751</span></span>
-<span><span class="co">#&gt; 4 -0.04619</span></span>
+<span><span class="co">#&gt;      Term                 Contrast event   Effect Std. Error z value   Pr(&gt;|z|)</span></span>
+<span><span class="co">#&gt; 1 .Dtreat mean(TRUE) - mean(FALSE)     0 -0.03321    0.01337  -2.484 0.01297951</span></span>
+<span><span class="co">#&gt; 2 .Dtreat mean(TRUE) - mean(FALSE)     1 -0.05735    0.01715  -3.343 0.00082830</span></span>
+<span><span class="co">#&gt; 3 .Dtreat mean(TRUE) - mean(FALSE)     2 -0.13787    0.03079  -4.477 7.5665e-06</span></span>
+<span><span class="co">#&gt; 4 .Dtreat mean(TRUE) - mean(FALSE)     3 -0.10954    0.03232  -3.389 0.00070142</span></span>
+<span><span class="co">#&gt;      2.5 %   97.5 %</span></span>
+<span><span class="co">#&gt; 1 -0.05941 -0.00701</span></span>
+<span><span class="co">#&gt; 2 -0.09097 -0.02373</span></span>
+<span><span class="co">#&gt; 3 -0.19823 -0.07751</span></span>
+<span><span class="co">#&gt; 4 -0.17289 -0.04619</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Model type:  etwfe </span></span>
 <span><span class="co">#&gt; Prediction type:  response</span></span></code></pre></div>
@@ -295,7 +297,7 @@ nicer.</p>
 <span>  <span class="va">mod_es</span>,</span>
 <span>  shape <span class="op">=</span> <span class="va">term</span><span class="op">:</span><span class="va">event</span><span class="op">:</span><span class="va">statistic</span> <span class="op">~</span> <span class="va">model</span>,</span>
 <span>  coef_rename <span class="op">=</span>  <span class="va">rename_fn</span>,</span>
-<span>  gof_omit <span class="op">=</span> <span class="st">"Adj|Within|RMSE"</span>,</span>
+<span>  gof_omit <span class="op">=</span> <span class="st">"Adj|Within|IC|RMSE"</span>,</span>
 <span>  title <span class="op">=</span> <span class="st">"Event study"</span>,</span>
 <span>  notes <span class="op">=</span> <span class="st">"Std. errors are clustered at the county level"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -389,22 +391,6 @@ R2
 </tr>
 <tr>
 <td style="text-align:left;">
-AIC
-</td>
-<td style="text-align:center;">
-4049.1
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-BIC
-</td>
-<td style="text-align:center;">
-4229.7
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
 FE..first.treat
 </td>
 <td style="text-align:center;">
@@ -455,16 +441,16 @@ recast our earlier event-study as a Poisson regression.</p>
 <span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="st">"event"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt;      Term    Contrast event  Effect Std. Error  z value   Pr(&gt;|z|)   2.5 %</span></span>
-<span><span class="co">#&gt; 1 .Dtreat mean(dY/dX)     0 -22.849      16.24 -1.40674 0.15950581  -54.68</span></span>
-<span><span class="co">#&gt; 2 .Dtreat mean(dY/dX)     1   3.654      43.48  0.08405 0.93301383  -81.56</span></span>
-<span><span class="co">#&gt; 3 .Dtreat mean(dY/dX)     2 -71.521      21.28 -3.36144 0.00077537 -113.22</span></span>
-<span><span class="co">#&gt; 4 .Dtreat mean(dY/dX)     3 -97.798      26.50 -3.69045 0.00022386 -149.74</span></span>
-<span><span class="co">#&gt;    97.5 %</span></span>
-<span><span class="co">#&gt; 1   8.986</span></span>
-<span><span class="co">#&gt; 2  88.865</span></span>
-<span><span class="co">#&gt; 3 -29.819</span></span>
-<span><span class="co">#&gt; 4 -45.858</span></span>
+<span><span class="co">#&gt;      Term                 Contrast event   Effect Std. Error  z value</span></span>
+<span><span class="co">#&gt; 1 .Dtreat mean(TRUE) - mean(FALSE)     0  -25.350      15.90 -1.59409</span></span>
+<span><span class="co">#&gt; 2 .Dtreat mean(TRUE) - mean(FALSE)     1    1.092      41.84  0.02609</span></span>
+<span><span class="co">#&gt; 3 .Dtreat mean(TRUE) - mean(FALSE)     2  -75.125      22.30 -3.36942</span></span>
+<span><span class="co">#&gt; 4 .Dtreat mean(TRUE) - mean(FALSE)     3 -101.824      28.10 -3.62309</span></span>
+<span><span class="co">#&gt;     Pr(&gt;|z|)   2.5 %  97.5 %</span></span>
+<span><span class="co">#&gt; 1 0.11091631  -56.52   5.818</span></span>
+<span><span class="co">#&gt; 2 0.97918362  -80.92  83.100</span></span>
+<span><span class="co">#&gt; 3 0.00075327 -118.82 -31.425</span></span>
+<span><span class="co">#&gt; 4 0.00029111 -156.91 -46.741</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Model type:  etwfe </span></span>
 <span><span class="co">#&gt; Prediction type:  response</span></span></code></pre></div>
@@ -485,7 +471,7 @@ easily grab the formula of an estimated model to see for yourself.</p>
 <code class="sourceCode R"><span><span class="va">mod</span><span class="op">$</span><span class="va">fml_all</span></span>
 <span><span class="co">#&gt; $linear</span></span>
 <span><span class="co">#&gt; lemp ~ .Dtreat:i(first.treat, i.year, ref = 0, ref2 = 2003)/lpop_dm</span></span>
-<span><span class="co">#&gt; &lt;environment: 0x561380a8f8d0&gt;</span></span>
+<span><span class="co">#&gt; &lt;environment: 0x55b310664958&gt;</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $fixef</span></span>
 <span><span class="co">#&gt; ~first.treat + first.treat[[lpop]] + year + year[[lpop]]</span></span></code></pre></div>
@@ -502,7 +488,7 @@ and estimated the ETWFE regression manually:</p>
 <code class="sourceCode R"><span><span class="co"># First construct the dataset</span></span>
 <span><span class="va">mpdta2</span> <span class="op">=</span> <span class="va">mpdta</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform</a></span><span class="op">(</span></span>
-<span>    .Dtreat <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="va">year</span> <span class="op">&gt;=</span> <span class="va">first.treat</span> <span class="op">&amp;</span> <span class="va">first.treat</span> <span class="op">!=</span> <span class="fl">0</span><span class="op">)</span>,</span>
+<span>    .Dtreat <span class="op">=</span> <span class="va">year</span> <span class="op">&gt;=</span> <span class="va">first.treat</span> <span class="op">&amp;</span> <span class="va">first.treat</span> <span class="op">!=</span> <span class="fl">0</span>,</span>
 <span>    lpop_dm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/ave.html" class="external-link">ave</a></span><span class="op">(</span><span class="va">lpop</span>, <span class="va">first.treat</span>, <span class="va">year</span>, FUN <span class="op">=</span> \<span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="va">x</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">x</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
 <span></span>
@@ -873,7 +859,7 @@ following options and their manual equivalents.</p>
 <span>    <span class="fu">i</span><span class="op">(</span><span class="va">first.treat</span>, ref <span class="op">=</span> <span class="fl">0</span><span class="op">)</span> <span class="op">+</span> <span class="fu">i</span><span class="op">(</span><span class="va">year</span>, ref <span class="op">=</span> <span class="fl">2003</span><span class="op">)</span>,</span>
 <span>  data <span class="op">=</span> <span class="va">mpdta2</span>, vcov <span class="op">=</span> <span class="op">~</span><span class="va">countyreal</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p>I’ll leave it up to you to pass any of these to models
+<p>I’ll leave it up to you to pass any of these models to
 <code>emfx</code> to confirm that they give correct aggregated treatment
 effects. But we can quickly demonstrate in a regression table that they
 all return the same raw coefficients.</p>
