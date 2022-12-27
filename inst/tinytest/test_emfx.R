@@ -1,7 +1,11 @@
 data("mpdta", package = "did")
+# Add exponeniated employment outcome (for Poisson)
+mpdta$emp = exp(mpdta$lemp)
 
 # We'll continue with model 3 from the etwfe tests...
 m3 = etwfe(lemp ~ lpop, tvar=year, gvar=first.treat, data=mpdta, vcov=~countyreal)
+# Poisson version
+m3p = etwfe(emp ~ lpop, tvar=year, gvar=first.treat, data=mpdta, vcov=~countyreal, family = "poisson")
 
 # Known outputs ----
 
@@ -10,9 +14,9 @@ m3 = etwfe(lemp ~ lpop, tvar=year, gvar=first.treat, data=mpdta, vcov=~countyrea
 simple_known =
   structure(
     list(
-      type = "response", term = ".Dtreat", contrast = "mean(dY/dX)", 
-      .Dtreat = 1L, estimate = -0.0506270331230485, std.error = 0.0124997858367792, 
-      statistic = -4.05023204270301, p.value = 5.11668700625867e-05,
+      type = "response", term = ".Dtreat", contrast = "mean(TRUE) - mean(FALSE)", 
+      .Dtreat = TRUE, estimate = -0.0506270331230485, std.error = 0.0124997858367792, 
+      statistic = -4.05023204270301, p.value = 5.11668721668786e-05,
       conf.low = -0.0751261631775997, conf.high = -0.0261279030684973
       ), 
     row.names = c(NA, -1L), 
@@ -28,7 +32,7 @@ calendar_known =
     list(
       type = c("response", "response", "response", "response"), 
       term = c(".Dtreat", ".Dtreat", ".Dtreat", ".Dtreat"), 
-      contrast = c("mean(dY/dX)", "mean(dY/dX)", "mean(dY/dX)", "mean(dY/dX)"), 
+      contrast = c("mean(TRUE) - mean(FALSE)", "mean(TRUE) - mean(FALSE)", "mean(TRUE) - mean(FALSE)", "mean(TRUE) - mean(FALSE)"), 
       year = 2004:2007,
       estimate = c(-0.0212480022221406, -0.0818499992694122, -0.0442655912992566, -0.0524323095864956), 
       std.error = c(0.0217284164985588, 0.0273749205550772, 0.0173768795442279, 0.0150188665423779), 
@@ -49,7 +53,7 @@ group_known =
     list(
       type = c("response", "response", "response"), 
       term = c(".Dtreat", ".Dtreat", ".Dtreat"), 
-      contrast = c("mean(dY/dX)", "mean(dY/dX)", "mean(dY/dX)"), 
+      contrast = c("mean(TRUE) - mean(FALSE)", "mean(TRUE) - mean(FALSE)", "mean(TRUE) - mean(FALSE)"), 
       first.treat = c(2004, 2006, 2007), 
       estimate = c(-0.0876269608794944, -0.0212783329360811, -0.0459545277371075), 
       std.error = c(0.0230520757698713, 0.0185949856745256, 0.0179750856581946), 
@@ -71,12 +75,12 @@ event_known =
     list(
       type = c("response", "response", "response", "response"), 
       term = c(".Dtreat", ".Dtreat", ".Dtreat", ".Dtreat"), 
-      contrast = c("mean(dY/dX)", "mean(dY/dX)", "mean(dY/dX)", "mean(dY/dX)"), 
+      contrast = c("mean(TRUE) - mean(FALSE)", "mean(TRUE) - mean(FALSE)", "mean(TRUE) - mean(FALSE)", "mean(TRUE) - mean(FALSE)"),
       event = c(0, 1, 2, 3), 
       estimate = c(-0.0332122037840197, -0.0573456479255145, -0.137870386660577, -0.109539455365848), 
       std.error = c(0.013368671117722, 0.0171531166703277, 0.030794594509294, 0.0323218247068719),
       statistic = c(-2.48433097736935, -3.34316200534645, -4.4770969989219, -3.38902448606371), 
-      p.value = c(0.012979510843322, 0.000828295282633567, 7.56648766688037e-06, 0.00070141746747878),
+      p.value = c(0.0129795111476838, 0.000828295236610263, 7.56648975457471e-06, 0.000701417491255723),
       conf.low = c(-0.0594143176959156, -0.0909651388219705, -0.198226682817308, -0.172889067705934),
       conf.high = c(-0.00701008987212372, -0.0237261570290585, -0.0775140905038458, -0.046189843025762)
       ), 
@@ -88,6 +92,27 @@ event_known =
     model_type = "etwfe"
     )
 
+event_p_known =
+  structure(
+    list(
+      type = c("response", "response", "response", "response"),
+      term = c(".Dtreat", ".Dtreat", ".Dtreat", ".Dtreat"),
+      contrast = c("mean(TRUE) - mean(FALSE)", "mean(TRUE) - mean(FALSE)", "mean(TRUE) - mean(FALSE)", "mean(TRUE) - mean(FALSE)"),
+      event = c(0, 1, 2, 3),
+      estimate = c(-25.3497484355617, 1.09175116987649, -75.1246321555113, -101.823979345012),
+      std.error = c(15.9023512157895, 41.8416889332186, 22.2960121026089, 28.1041995554813),
+      statistic = c(-1.59408807487485, 0.0260924259443489, -3.36942013709802, -3.62308768637932),
+      p.value = c(0.110916309493442, 0.979183618228332, 0.000753265162517243, 0.000291107080688969),
+      conf.low = c(-56.5177840880158, -80.91645219156, -118.824012875494, -156.907198288082),
+      conf.high = c(5.81828721689249, 83.099954531313, -31.4252514355288, -46.7407604019416)
+    ),
+    row.names = c(NA, -4L),
+    class = c("marginaleffects.summary", "data.frame"),
+    conf_level = 0.95,
+    FUN = "mean",
+    type = structure("response", names = NA_character_),
+    model_type = "etwfe"
+  )
 
 # Tests ----
 
@@ -96,3 +121,4 @@ expect_equal(summary(emfx(m3, type = "simple")), simple_known)
 expect_equal(summary(emfx(m3, type = "calendar")), calendar_known)
 expect_equal(summary(emfx(m3, type = "group")), group_known)
 expect_equal(summary(emfx(m3, type = "event")), event_known)
+expect_equal(summary(emfx(m3p, type = "event")), event_p_known)

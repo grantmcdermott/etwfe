@@ -155,15 +155,15 @@ etwfe = function(
   ref_string = paste0(ref_string, ", ref2 = ", tref)
   
   if (cgroup == "notyet") {
-    data[[".Dtreat"]] = as.integer(data[[tvar]] >= data[[gvar]] & data[[gvar]] != gref)
+    data[[".Dtreat"]] = data[[tvar]] >= data[[gvar]] & data[[gvar]] != gref
     if (!gref_min_flag) {
-      data[[".Dtreat"]] = ifelse(data[[tvar]] < gref, data[[".Dtreat"]], NA_integer_)
+      data[[".Dtreat"]] = ifelse(data[[tvar]] < gref, data[[".Dtreat"]], NA)
     } else {
-      data[[".Dtreat"]] = ifelse(data[[tvar]] > gref, data[[".Dtreat"]], NA_integer_)
+      data[[".Dtreat"]] = ifelse(data[[tvar]] > gref, data[[".Dtreat"]], NA)
     }
   } else {
     ## Placeholder .Dtreat for never treated group
-    data[[".Dtreat"]] = 1L
+    data[[".Dtreat"]] = TRUE
   }
   rhs = paste0(".Dtreat : ", rhs)
   

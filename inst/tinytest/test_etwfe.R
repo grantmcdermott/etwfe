@@ -1,4 +1,6 @@
 data("mpdta", package = "did")
+# Add exponeniated employment outcome (for Poisson)
+mpdta$emp = exp(mpdta$lemp)
 
 # Known outputs ----
 
@@ -83,24 +85,69 @@ m3_known =
     type = "Clustered (countyreal)"
     )
 
+m3p_known =
+  structure(
+    c(
+      -0.0309556552922347, -0.066224038695174, -0.13297134493384,
+      -0.11702277921655, -0.00904940559845884, -0.068148637702423,
+      -0.0399915656291698, 0.011879798018537, 0.0209935307380962, 0.0409103313958613,
+      0.0250348138421319, 0.0375837523433764, 0.0453804253079838, -0.0109675422749757,
+      0.0176243272329323, 0.025588515668558, 0.0237301210935417, 0.0225051241893553,
+      0.0244262550699582, 0.0251164210108884, 0.0168283375820888, 0.0071299812847054,
+      0.0119274550952194, 0.00957331401532464, 0.0112896079763864,
+      0.0136210418697861, 0.0164548820527518, 0.00722709675882192,
+      -1.75641628092288, -2.58803752249479, -5.60348362360566, -5.19982819165694,
+      -0.370478633443433, -2.71331005611347, -2.3764418460285, 1.66617520357599,
+      1.76010142737913, 4.27337193059513, 2.2175095800045, 2.75924211251005,
+      2.75786998426978, -1.5175585219041, 0.079017354894062, 0.00965244655611395,
+      2.10085974119339e-08, 1.99472822770963e-07, 0.711025893819209,
+      0.00666147454550643, 0.0174805166119171, 0.0956785232823045,
+      0.0783906108215875, 1.92538892714901e-05, 0.0265882891378619,
+      0.00579355941970147, 0.00581793329083424, 0.129125729929418
+    ),
+    dim = c(14L, 4L),
+    dimnames = list(
+      c(
+        ".Dtreat:first.treat::2004:year::2004",
+        ".Dtreat:first.treat::2004:year::2005", ".Dtreat:first.treat::2004:year::2006",
+        ".Dtreat:first.treat::2004:year::2007", ".Dtreat:first.treat::2006:year::2006",
+        ".Dtreat:first.treat::2006:year::2007", ".Dtreat:first.treat::2007:year::2007",
+        ".Dtreat:first.treat::2004:year::2004:lpop_dm", ".Dtreat:first.treat::2004:year::2005:lpop_dm",
+        ".Dtreat:first.treat::2004:year::2006:lpop_dm", ".Dtreat:first.treat::2004:year::2007:lpop_dm",
+        ".Dtreat:first.treat::2006:year::2006:lpop_dm", ".Dtreat:first.treat::2006:year::2007:lpop_dm",
+        ".Dtreat:first.treat::2007:year::2007:lpop_dm"
+      ),
+      c("Estimate", "Std. Error", "t value", "Pr(>|t|)")
+    ), 
+    type = "Clustered (countyreal)"
+  )
+
+
 # Tests ----
 
+# No controls
 m1  = etwfe(lemp ~ 0, tvar=year  , gvar=first.treat  , data=mpdta, vcov=~countyreal)
-m1a = etwfe(lemp ~ 0, tvar="year", gvar="first.treat", data=mpdta, vcov=~countyreal)
-m1r = etwfe(lemp ~ 0, tvar="year", gvar="first.treat", data=mpdta, vcov=~countyreal, gref=0)
+m1a = etwfe(lemp ~ 0, tvar="year", gvar="first.treat", data=mpdta, vcov=~countyreal)         # chars instead of nse
+m1r = etwfe(lemp ~ 0, tvar="year", gvar="first.treat", data=mpdta, vcov=~countyreal, gref=0) # with explicit ref
 
 expect_equal(fixest::coeftable(m1), m1_known)
 expect_equal(fixest::coeftable(m1a), m1_known)
 expect_equal(fixest::coeftable(m1r), m1_known)
 
+# With never-treated control group
 m2 = etwfe(lemp ~ 0, tvar=year, gvar=first.treat, data=mpdta, vcov=~countyreal, 
              cgroup="never")
 
 expect_equal(fixest::coeftable(m2), m2_known)
 
+# With control
 m3 = etwfe(lemp ~ lpop, tvar=year, gvar=first.treat, data=mpdta, vcov=~countyreal)
 expect_equal(fixest::coeftable(m3), m3_known)
 
 expect_error(
   etwfe(lemp ~ 0, tvar=NULL, gvar=first.treat, data=mpdta)
 )
+
+# Poisson version
+m3p = etwfe(emp ~ lpop, tvar=year, gvar=first.treat, data=mpdta, vcov=~countyreal, family = "poisson")
+expect_equal(fixest::coeftable(m3p), m3p_known)

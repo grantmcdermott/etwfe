@@ -183,7 +183,7 @@ modelsummary(
   mod_es,
   shape = term:event:statistic ~ model,
   coef_rename =  rename_fn,
-  gof_omit = "Adj|Within|RMSE",
+  gof_omit = "Adj|Within|IC|RMSE",
   title = "Event study",
   notes = "Std. errors are clustered at the county level"
 )
@@ -247,7 +247,7 @@ the dataset ahead of time and estimated the ETWFE regression manually:
 # First construct the dataset
 mpdta2 = mpdta |>
   transform(
-    .Dtreat = as.integer(year >= first.treat & first.treat != 0),
+    .Dtreat = year >= first.treat & first.treat != 0,
     lpop_dm = ave(lpop, first.treat, year, FUN = \(x) x - mean(x, na.rm = TRUE))
   )
 

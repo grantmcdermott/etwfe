@@ -20,7 +20,7 @@ emfx = function(
   tvar = attributes(object)[["etwfe"]][["tvar"]]
   
   dat = eval(object$call$data, object$call_env)
-  if (".Dtreat" %in% names(dat)) dat = dat[dat[[".Dtreat"]]==1L, , drop = FALSE]
+  if (".Dtreat" %in% names(dat)) dat = dat[dat[[".Dtreat"]], , drop = FALSE]
   
   if (type=="simple") by_var = ".Dtreat"
   if (type=="group") by_var = gvar
