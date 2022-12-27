@@ -2,7 +2,7 @@
 title: "Introduction to etwfe"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{etwfe}
+  %\VignetteIndexEntry{Introduction to etwfe}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -94,7 +94,10 @@ omit controls if you don't have any.]
 
 ## Basic usage
 
-Okay, let's load **etwfe** and work through its basic functionality.
+Let's load **etwfe** and work through its basic functionality.
+
+### `etwfe`
+
 Given the package name, it won't surprise you to know that the key estimating
 function is `etwfe()`. Here's how it would look for our example dataset.
 
@@ -129,7 +132,7 @@ interest as a set of multiway interaction terms.^[It has also demeaned the
 get back too later. It's not particularly important for interpreting the final
 results.] 
 
-You may also have noticed that our `etwfe()` call returns a standard 
+You may have noticed that our `etwfe()` call returns a standard 
 [**fixest**](https://lrberge.github.io/fixest/) object, since this is what it
 uses to perform the underlying estimation. All of the associated methods and
 functions from the
@@ -137,9 +140,15 @@ functions from the
 could plot the raw regression coefficients with 
 `fixest::coefplot()`, or print them to a nice regression table with
 `fixest::etable()`.  However, the raw coefficients from an `etwfe()` estimation
-are not particularly meaningful in of themselves. Remember that these are complex
+are not particularly meaningful in of themselves; recall that these are complex
 multiway interaction terms that are probably hard to to interpret on their own.
-So, we probably want to aggregate them along some dimension of interest instead
+This insight leads us to our next key function...
+
+### `emfx`
+
+If the raw `etwfe` coefficients aren't particularly useful by themselves, what 
+can we do with them instead? Well, we probably want to aggregate them along some 
+dimension of interest
 (e.g., by groups or time, or as an event study). A natural way to perform these
 aggregations is by recovering the appropriate marginal effects. The **etwfe**
 package provides another convenience function for doing so: `emfx()`, which is a
@@ -152,17 +161,20 @@ emfx(mod)
 ```
 
 Or, we can recover the dynamic treatment effects _a la_ an event study by invoking
-the type argument. This time I'll save the resulting object since I plan to reuse it
-in a moment.
+the `type` argument. This time I'll save the resulting object since I plan to
+reuse it in a moment.
 
 ```{r}
 mod_es = emfx(mod, type = "event")
-# mod_es
-summary(mod_es) # Summary print looks a bit nicer
+
+# Summary print looks a bit nicer, so let's use that here.
+summary(mod_es) 
 ```
 
-(Other types of aggregations include `"calendar"` (here: treatment by year effects) 
-and `"group"` (here: treatment by cohort).)
+Other types of aggregations include `"calendar"` (i.e., treatment effect by period) 
+and `"group"` (i.e., treatment effect by cohort).
+
+### Presentation
 
 Since `emfx` produces a standard `marginaleffects` object, we can pass it on to
 other supported methods and packages. For example, we can pass it on to
@@ -174,6 +186,7 @@ make the output look a bit nicer.
 ```{r}
 library(modelsummary)
 
+# Quick renaming function to replace ".Dtreat" with something more meaningful
 rename_fn = function(old_names) {
   new_names = gsub(".Dtreat", "Years post treatment =", old_names)
   setNames(new_names, old_names)
@@ -181,23 +194,25 @@ rename_fn = function(old_names) {
 
 modelsummary(
   mod_es,
-  shape = term:event:statistic ~ model,
+  shape       = term:event:statistic ~ model,
   coef_rename =  rename_fn,
-  gof_omit = "Adj|Within|IC|RMSE",
-  title = "Event study",
-  notes = "Std. errors are clustered at the county level"
+  gof_omit    = "Adj|Within|IC|RMSE",
+  title       = "Event study",
+  notes       = "Std. errors are clustered at the county level"
 )
 ```
 For visualization, you can pass it on to your preferred plotting method. For example:
 
 ```{r}
 library(ggplot2)
+theme_set(
+  theme_minimal() + theme(panel.grid.minor = element_blank())
+)
 
 ggplot(mod_es, aes(x = event, y = dydx, ymin = conf.low, ymax = conf.high)) +
-  geom_hline(yintercept = 0, col = "grey50") +
+  geom_hline(yintercept = 0, col = "darkcyan") +
   geom_pointrange() +
-  labs(x = "Years post treatment", y = "Effect on log employment") +
-  theme_minimal()
+  labs(x = "Years post treatment", y = "Effect on log employment")
 ```
 
 ## Other families
@@ -219,7 +234,7 @@ etwfe(
   summary()
 ```
 
-## What is etwfe doing under the hood?
+## Under the hood
 
 Now that you've seen **etwfe** in action, let's circle back to what the package
 is doing under the hood. This section isn't necessary for you to use any of the 
