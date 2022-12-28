@@ -14,6 +14,7 @@ checks](https://badges.cranchecks.info/worst/etwfe.svg)](https://cran.r-project.
 [![CRAN
 downloads](https://cranlogs.r-pkg.org/badges/etwfe)](https://cran.rstudio.com/web/packages/etwfe/index.html)
 [![Dependencies](https://tinyverse.netlify.com/badge/etwfe)](https://CRAN.R-project.org/package=etwfe)
+[![Docs](https://img.shields.io/badge/docs-homepage-blue.svg)](https://grantmcdermott.com/etwfe/index.html)
 <!-- badges: end -->
 
 The goal of **etwfe** is to estimate extended two-way fixed effects *a
