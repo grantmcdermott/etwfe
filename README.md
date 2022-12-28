@@ -5,9 +5,15 @@
 
 <!-- badges: start -->
 
-[![R-CMD-check](https://github.com/grantmcdermott/etwfe/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/grantmcdermott/etwfe/actions/workflows/R-CMD-check.yaml)
+[![Dev
+R-CMD-check](https://github.com/grantmcdermott/etwfe/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/grantmcdermott/etwfe/actions/workflows/R-CMD-check.yaml)
 [![CRAN
-status](https://www.r-pkg.org/badges/version/etwfe)](https://CRAN.R-project.org/package=etwfe)
+version](https://www.r-pkg.org/badges/version/etwfe)](https://CRAN.R-project.org/package=etwfe)
+[![CRAN
+checks](https://badges.cranchecks.info/worst/etwfe.svg)](https://cran.r-project.org/web/checks/check_results_etwfe.html)
+[![CRAN
+downloads](https://cranlogs.r-pkg.org/badges/etwfe)](https://cran.rstudio.com/web/packages/etwfe/index.html)
+[![Dependencies](https://tinyverse.netlify.com/badge/etwfe)](https://CRAN.R-project.org/package=etwfe)
 <!-- badges: end -->
 
 The goal of **etwfe** is to estimate extended two-way fixed effects *a
