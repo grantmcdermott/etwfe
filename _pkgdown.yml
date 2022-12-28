@@ -1,4 +1,12 @@
 url: http://grantmcdermott.com/etwfe/
 template:
   bootstrap: 5
-
+reference:
+- title: "Estimation"
+  # desc: "Estimating functions"
+  contents: 
+  - etwfe
+- title: "Post-estimation"
+  # desc: "Post-estimation functions"
+  contents: 
+  - emfx

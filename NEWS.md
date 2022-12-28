@@ -1,6 +1,6 @@
 # etwfe 0.1.9999 (dev version)
 
-Bug fixes
+## Bug fixes
 
 - The `.Dtreat` indicator variable created during the `etwfe` call is now
 logical instead of integer (#14). This fix yields slightly different effect
@@ -11,9 +11,11 @@ calling `marginaleffects::comparisons` under the hood rather than
 any family) are unaffected, and the same is also true for `emfx` when applied to
 a linear model (i.e., the default).
 
-Improvements
+## Improvements
 
-- Updated docs and fixed various typos.
+- `emfx` now has a `post_only` logical argument, which may be useful for plotting
+aesthetics (but not inference). See the example in the introductory vignette.
+- Various improvements to the documentation (restructuring, fixed typos, etc.)
 
 # etwfe 0.1.0
 
