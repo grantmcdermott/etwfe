@@ -230,7 +230,9 @@ etwfe = function(
   class(est) = c("etwfe", class(est))
   attr(est, "etwfe") = list(
     gvar = gvar,
-    tvar = tvar
+    tvar = tvar,
+    gref = gref,
+    tref = tref
   )
   
   ## Return ----

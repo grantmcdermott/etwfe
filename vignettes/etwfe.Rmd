@@ -195,7 +195,7 @@ rename_fn = function(old_names) {
 modelsummary(
   mod_es,
   shape       = term:event:statistic ~ model,
-  coef_rename =  rename_fn,
+  coef_rename = rename_fn,
   gof_omit    = "Adj|Within|IC|RMSE",
   title       = "Event study",
   notes       = "Std. errors are clustered at the county level"
@@ -210,9 +210,33 @@ theme_set(
 )
 
 ggplot(mod_es, aes(x = event, y = dydx, ymin = conf.low, ymax = conf.high)) +
-  geom_hline(yintercept = 0, col = "darkcyan") +
-  geom_pointrange() +
+  geom_hline(yintercept = 0) +
+  geom_pointrange(col = "darkcyan") +
   labs(x = "Years post treatment", y = "Effect on log employment")
+```
+
+Note that `emfx` only reports post-treatment effects. All pre-treatment effects
+are swept out of the estimation because of the way that ETWFE is set up. In
+fact, all pre-treatment effects are mechanistically set to zero. This means that
+ETWFE cannot be used for interogating pre-treatment fit (say, a visual
+inspection for parallel pre-trends). Still, you can get these zero
+pre-treatment effects by changing the `post_only` argument.  I emphasize that
+doing so is strictly performative---again, pre-treatment effects are zero by
+estimation design---but it might make your event study plot more aesthetically
+pleasing.
+
+```{r}
+# Use post_only = FALSE to get the "zero" pre-treatment effects
+mod_es2 = emfx(mod, type = "event", post_only = FALSE)
+
+ggplot(mod_es2, aes(x = event, y = dydx, ymin = conf.low, ymax = conf.high)) +
+  geom_hline(yintercept = 0) +
+  geom_vline(xintercept = -1, lty = 2) +
+  geom_pointrange(col = "darkcyan") +
+  labs(
+    x = "Years post treatment", y = "Effect on log employment",
+    caption = "Note: Zero pre-treatment effects for illustrative purposes only."
+  )
 ```
 
 ## Other families

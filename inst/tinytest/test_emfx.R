@@ -92,7 +92,40 @@ event_known =
     model_type = "etwfe"
     )
 
-event_p_known =
+event_pre_known =
+  structure(
+    list(
+      type = c("response", "response", "response", "response",
+              "response", "response", "response", "response"), 
+      term = c(".Dtreat", ".Dtreat", ".Dtreat", ".Dtreat",
+               ".Dtreat", ".Dtreat", ".Dtreat", ".Dtreat"),
+      contrast = c("mean(TRUE) - mean(FALSE)", "mean(TRUE) - mean(FALSE)", "mean(TRUE) - mean(FALSE)", "mean(TRUE) - mean(FALSE)",
+                   "mean(TRUE) - mean(FALSE)", "mean(TRUE) - mean(FALSE)", "mean(TRUE) - mean(FALSE)", "mean(TRUE) - mean(FALSE)"),
+      dydx = c(0, 0, 0, 0,
+               -0.0332122037837577, -0.057345647925759, -0.137870386660868, -0.109539455365126),
+      std.error = c(0, 0, 0, 0,
+                    0.0133686711625469, 0.017153116591293, 0.0307945949146719, 0.0323218247953089),
+      statistic = c(NaN, NaN, NaN, NaN,
+                    -2.48433096901983, -3.34316202076467, -4.47709693999516, -3.38902447676853),
+      p.value = c(NaN, NaN, NaN, NaN,
+                  0.0129795111476838, 0.000828295236610263, 7.56648975457471e-06, 0.000701417491255723),
+      conf.low = c(0, 0, 0, 0, 
+                   -0.0594143177835088, -0.0909651386673097, -0.198226683612125, -0.172889067878545),
+      conf.high = c(0, 0, 0, 0,
+                    -0.00701008978400652, -0.0237261571842083, -0.0775140897096109, -0.0461898428517068),
+      predicted = c(8.58422618817666, 8.55899805002257, 8.59601363947542, 8.59460357323378,
+                    8.55577814211513, 6.00937159256964, 5.31227368284963, 5.38860968779881),
+      predicted_hi = c(8.58422618817666,8.55899805002257, 8.59601363947542, 8.59460357323378,
+                       8.55577814211513, 6.00937159256964, 5.31227368284963, 5.38860968779881), 
+      predicted_lo = c(8.58422618817666, 8.55899805002257, 8.59601363947542, 8.59460357323378,
+                       8.65009313385245, 6.07321374319202, 5.48092092928689, 5.50497348262897),
+      event = c(-4, -3, -2, -1,
+                0, 1, 2, 3)
+    ),
+    class = "data.frame", row.names = c(NA,8L)
+)
+
+event_pois_known =
   structure(
     list(
       type = c("response", "response", "response", "response"),
@@ -121,4 +154,5 @@ expect_equal(summary(emfx(m3, type = "simple")), simple_known)
 expect_equal(summary(emfx(m3, type = "calendar")), calendar_known)
 expect_equal(summary(emfx(m3, type = "group")), group_known)
 expect_equal(summary(emfx(m3, type = "event")), event_known)
-expect_equal(summary(emfx(m3p, type = "event")), event_p_known)
+expect_equal(data.frame(emfx(m3, type = "event", post_only = FALSE)), event_pre_known)
+expect_equal(summary(emfx(m3p, type = "event")), event_pois_known)

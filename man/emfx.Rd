@@ -4,12 +4,25 @@
 \alias{emfx}
 \title{Post-estimation treatment effects for an ETWFE regressions.}
 \usage{
-emfx(object, type = c("simple", "group", "calendar", "event"), ...)
+emfx(
+  object,
+  type = c("simple", "group", "calendar", "event"),
+  post_only = TRUE,
+  ...
+)
 }
 \arguments{
 \item{object}{An `etwfe` model object.}
 
 \item{type}{Character. The desired type of post-estimation aggregation.}
+
+\item{post_only}{Logical. Only keep post-treatment effects. All
+pre-treatment effects will be zero as a mechanical result of ETWFE's 
+estimation setup, so the default is to drop these nuisance rows from
+the dataset. But you may want to keep them for presentation reasons
+(e.g., plotting an event-study); though be warned that this is 
+strictly performative. This argument will only be evaluated if
+`type = "event"`.}
 
 \item{...}{Additional arguments passed to 
 [`marginaleffects::marginaleffects`].}
