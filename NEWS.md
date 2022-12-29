@@ -13,6 +13,8 @@ a linear model (i.e., the default).
 
 ## Improvements
 
+- `emfx` now allows (time-invariant) interacted control variables on the fml RHS.
+
 - `emfx` now has a `post_only` logical argument, which may be useful for plotting
 aesthetics (but not inference). See the example in the introductory vignette.
 - Various improvements to the documentation (restructuring, fixed typos, etc.)

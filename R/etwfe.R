@@ -90,6 +90,7 @@ etwfe = function(
   
   if (is.null(fml)) stop("A non-NULL `fml` argument is required.\n")
   if (is.null(data)) stop("A non-NULL `data` argument is required.\n")
+  data = as.data.frame(data)
   
   ## NSE ----
   nl = as.list(seq_along(data))
@@ -113,7 +114,7 @@ etwfe = function(
   } else if (ctrls == "0") {
     ctrls = NULL
   } else {
-    ctrls_dm = paste0(strsplit(ctrls, " \\+ ")[[1]], "_dm")
+    ctrls_dm = unique(paste0(strsplit(ctrls, " \\+ | \\* | \\: ")[[1]], "_dm"))
     if (fe == "vs") {
       vs = paste0("[", gsub(" \\+", ",", ctrls), "]") ## For varying slopes later 
     }
