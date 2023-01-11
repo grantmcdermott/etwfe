@@ -12,7 +12,7 @@ version](https://www.r-pkg.org/badges/version/etwfe)](https://CRAN.R-project.org
 [![CRAN
 checks](https://badges.cranchecks.info/worst/etwfe.svg)](https://cran.r-project.org/web/checks/check_results_etwfe.html)
 [![CRAN
-downloads](https://cranlogs.r-pkg.org/badges/etwfe)](https://cran.rstudio.com/web/packages/etwfe/index.html)
+downloads](https://cranlogs.r-pkg.org/badges/etwfe)](https://cran.r-project.org/package=etwfe)
 [![Dependencies](https://tinyverse.netlify.com/badge/etwfe)](https://CRAN.R-project.org/package=etwfe)
 [![Docs](https://img.shields.io/badge/docs-homepage-blue.svg)](https://grantmcdermott.com/etwfe/index.html)
 <!-- badges: end -->
