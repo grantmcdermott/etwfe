@@ -380,12 +380,12 @@ A final point to note about fixed effects is that **etwfe** defaults to using
 group-level (i.e., cohort-level) fixed effects like `first.treat`, rather than
 unit-level fixed effects like `countyreal`. This design decision reflects a neat
 ancillary result in Wooldridge (2021), which proves the equivalence between the
-two types of fixed-effects for linear cases. Group-level effects have the virtue
+two types of fixed effects for linear cases. Group-level effects have the virtue
 of being faster to estimate, since there are fewer factor levels. Moreover, they
-are _required_ per the underlying ETWFE theory for nonlinear model families like
-Poisson. Still, you can specify unit-level fixed effects for the linear case
-through the `ivar` argument. Again, we can easily confirm that this yields the
-same estimated treatment effects as the group-level default (although the
+are _required_ for nonlinear model families like Poisson per the underlying
+ETWFE theory. Still, you can specify unit-level fixed effects for the linear
+case through the `ivar` argument. Again, we can easily confirm that this yields
+the same estimated treatment effects as the group-level default (although the
 standard errors will be slightly different).
 
 ```{r}
