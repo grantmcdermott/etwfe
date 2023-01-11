@@ -218,7 +218,7 @@ ggplot(mod_es, aes(x = event, y = dydx, ymin = conf.low, ymax = conf.high)) +
 Note that `emfx` only reports post-treatment effects. All pre-treatment effects
 are swept out of the estimation because of the way that ETWFE is set up. In
 fact, all pre-treatment effects are mechanistically set to zero. This means that
-ETWFE cannot be used for interogating pre-treatment fit (say, a visual
+ETWFE cannot be used for interrogating pre-treatment fit (say, a visual
 inspection for parallel pre-trends). Still, you can get these zero
 pre-treatment effects by changing the `post_only` argument.  I emphasize that
 doing so is strictly performative---again, pre-treatment effects are zero by
@@ -266,7 +266,9 @@ functions; feel free to skip it. But a review of the internal details should hel
 you to optimize for different scenarios and also give you an understanding of
 **etwfe's** default choices. 
 
-As I've stated several times, the Wooldridge ETWFE approach basically involves
+### Manual implementation
+
+As I keep reiterating, the Wooldridge ETWFE approach basically involves
 saturating the regression with interaction effects. You can easily grab the
 formula of an estimated model to see for yourself.
 
@@ -310,19 +312,21 @@ modelsummary(
 )
 ```
 
-Let's switch gears and talk about fixed-effects quickly. If you are a regular 
+### Regarding fixed effects
+
+Let's switch gears and talk about fixed effects quickly. If you are a regular 
 **fixest** user, you may have noticed that we've been invoking its 
 [varying
 slopes](https://lrberge.github.io/fixest/articles/fixest_walkthrough.html#varying-slopes-fex)
-syntax in the fixed-effect slot (i.e., `first.treat[lpop]` and `year[lpop]`).
+syntax in the fixed effect slot (i.e., `first.treat[lpop]` and `year[lpop]`).
 The reason for this is part practical, part philosophical. From a practical
 perspective, `factor_var[numeric_var]` is equivalent to base R's 
 `factor_var/numeric_var` "nesting" syntax but is much faster for high-dimensional 
 factors.^[We won't see a speed-up for this small dataset, but it can make a
-significant difference for large datasets.] From a philosphical perspective,
+significant difference for large datasets.] From a philosophical perspective,
 **etwfe** tries to limit the amount of extraneous information that it reports
 to users. Most of the interaction effects in the ETWFE framework are just acting
-as controls. By relegating them to the fixed-effects slot, we can avoid polluting
+as controls. By relegating them to the fixed effects slot, we can avoid polluting
 the user's console with a host of extra coefficients. Nonetheless, we can control 
 this behaviour with the `fe` ("fixed effects") argument. Consider the following
 options and their manual equivalents.
@@ -370,4 +374,31 @@ mods = list(
 )
 
 modelsummary(mods, gof_map = NA)
+```
+
+A final point to note about fixed effects is that **etwfe** defaults to using
+group-level (i.e., cohort-level) fixed effects like `first.treat`, rather than
+unit-level fixed effects like `countyreal`. This design decision reflects a neat
+ancillary result in Wooldridge (2021), which proves the equivalence between the
+two types of fixed-effects for linear cases. Group-level effects have the virtue
+of being faster to estimate, since there are fewer factor levels. Moreover, they
+are _required_ per the underlying ETWFE theory for nonlinear model families like
+Poisson. Still, you can specify unit-level fixed effects for the linear case
+through the `ivar` argument. Again, we can easily confirm that this yields the
+same estimated treatment effects as the group-level default (although the
+standard errors will be slightly different).
+
+```{r}
+mod_es_i = etwfe(
+  lemp ~ lpop, tvar = year, gvar = first.treat, data = mpdta,
+  ivar = countyreal  # NEW: Use unit-level (county) FEs
+  ) |>
+  emfx("event")
+
+modelsummary(
+  list("Group-level FEs (default)" = mod_es, "Unit-level FEs" = mod_es_i),
+  shape       = term:event:statistic ~ model,
+  coef_rename = rename_fn,
+  gof_omit    = "Adj|Within|IC|RMSE"
+)
 ```
