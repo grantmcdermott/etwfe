@@ -1,4 +1,4 @@
-# etwfe 0.1.9001 (dev version)
+# etwfe 0.2.0
 
 ## Bug fixes and breaking changes
 
