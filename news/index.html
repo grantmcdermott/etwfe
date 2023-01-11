@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">etwfe</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9001</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,13 +48,14 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.1.9000" id="etwfe-019000-dev-version">etwfe 0.1.9000 (dev version)<a class="anchor" aria-label="anchor" href="#etwfe-019000-dev-version"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.1.9001" id="etwfe-019001-dev-version">etwfe 0.1.9001 (dev version)<a class="anchor" aria-label="anchor" href="#etwfe-019001-dev-version"></a></h2>
 <div class="section level3">
-<h3 id="bug-fixes-0-1-9000">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-1-9000"></a></h3>
-<ul><li>The <code>.Dtreat</code> indicator variable created during the <code>etwfe</code> call is now logical instead of integer (<a href="https://github.com/grantmcdermott/etwfe/issues/14" class="external-link">#14</a>). This fix yields slightly different effect sizes for <code>emfx</code> output when applied to non-linear model families (e.g., <code>etwfe(..., family = "poisson")</code>. The reason is that we are now implicitly calling <code><a href="https://vincentarelbundock.github.io/marginaleffects/reference/comparisons.html" class="external-link">marginaleffects::comparisons</a></code> under the hood rather than <code><a href="https://vincentarelbundock.github.io/marginaleffects/reference/marginaleffects.html" class="external-link">marginaleffects::marginaleffects</a></code>. Note that the main <code>etwfe</code> coefficients (for any family) are unaffected, and the same is also true for <code>emfx</code> when applied to a linear model (i.e., the default).</li>
+<h3 id="bug-fixes-and-breaking-changes-0-1-9001">Bug fixes and breaking changes<a class="anchor" aria-label="anchor" href="#bug-fixes-and-breaking-changes-0-1-9001"></a></h3>
+<ul><li><p>The <code>.Dtreat</code> indicator variable created during the <code>etwfe</code> call is now logical instead of integer (<a href="https://github.com/grantmcdermott/etwfe/issues/14" class="external-link">#14</a>). This fix yields slightly different effect sizes for <code>emfx</code> output when applied to non-linear model families (e.g., <code>etwfe(..., family = "poisson")</code>. The reason is that we are now implicitly calling <code><a href="https://vincentarelbundock.github.io/marginaleffects/reference/comparisons.html" class="external-link">marginaleffects::comparisons</a></code> under the hood rather than <code><a href="https://vincentarelbundock.github.io/marginaleffects/reference/marginaleffects.html" class="external-link">marginaleffects::marginaleffects</a></code>. Note that the main <code>etwfe</code> coefficients (for any family) are unaffected, and the same is also true for <code>emfx</code> when applied to a linear model (i.e., the default).</p></li>
+<li><p>The (optional) <code>ivar</code> argument of <code><a href="../reference/etwfe.html">etwfe()</a></code> has been moved down the argument order list from second position to fifth (i.e., after the <code>data</code> argument). This means that the four required arguments of function now occupy the top positions, which could enable shorter, unnamed notation like <code>etwfe(y ~ x, year, cohort, dat)</code>.</p></li>
 </ul></div>
 <div class="section level3">
-<h3 id="improvements-0-1-9000">Improvements<a class="anchor" aria-label="anchor" href="#improvements-0-1-9000"></a></h3>
+<h3 id="improvements-0-1-9001">Improvements<a class="anchor" aria-label="anchor" href="#improvements-0-1-9001"></a></h3>
 <ul><li><p><code>emfx</code> now allows (time-invariant) interacted control variables on the fml RHS.</p></li>
 <li><p><code>emfx</code> now has a <code>post_only</code> logical argument, which may be useful for plotting aesthetics (but not inference). See the example in the introductory vignette.</p></li>
 <li><p>Various improvements to the documentation (restructuring, fixed typos, etc.)</p></li>
