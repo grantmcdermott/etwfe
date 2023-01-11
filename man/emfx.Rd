@@ -46,7 +46,7 @@ mod = etwfe(
     tvar = year,        # time variable
     gvar = first.treat, # group variable
     data = mpdta,       # dataset
-    vcov = ~countyreal  # vcov adjustment (here: clustered)
+    vcov = ~countyreal  # vcov adjustment (here: clustered by county)
     )
 mod
 

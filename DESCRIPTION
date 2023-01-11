@@ -1,7 +1,7 @@
 Package: etwfe
 Type: Package
 Title: Extended Two-Way Fixed Effects
-Version: 0.1.0.9000
+Version: 0.1.0.9001
 Date: 2022-12-12
 Authors@R: 
     person(given = "Grant",
@@ -26,7 +26,7 @@ Suggests:
     rmarkdown,
     tinytest
 Encoding: UTF-8
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 URL: https://grantmcdermott.com/etwfe/
 BugReports: https://github.com/grantmcdermott/etwfe/issues
 VignetteBuilder: knitr

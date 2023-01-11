@@ -6,10 +6,10 @@
 \usage{
 etwfe(
   fml = NULL,
-  ivar = NULL,
   tvar = NULL,
   gvar = NULL,
   data = NULL,
+  ivar = NULL,
   tref = NULL,
   gref = NULL,
   cgroup = c("notyet", "never"),
@@ -24,11 +24,6 @@ variables (rhs), e.g. `y ~ x1 + x2`. Please note that time-varying controls
 are not supported. Similarly, if no additional controls are required, the 
 rhs must take the value of zero, e.g. `y ~ 0`.}
 
-\item{ivar}{Index variable. Can be a string (e.g., "country") or an 
-expression (e.g., country). Leaving as NULL (the default) will result in
-group-level fixed effects being used, which is more efficient and necessary 
-for nonlinear models (see `family` argument below).}
-
 \item{tvar}{Time variable. Can be a string (e.g., "year") or an expression
 (e.g., year).}
 
@@ -37,6 +32,13 @@ or an expression (e.g., first_treated). In a staggered treatment setting,
 the group variable typically denotes treatment cohort.}
 
 \item{data}{The data frame that you want to run ETWFE on.}
+
+\item{ivar}{Optional index variable. Can be a string (e.g., "country") or an 
+expression (e.g., country). Leaving as NULL (the default) will result in
+group-level fixed effects being used, which is more efficient and necessary 
+for nonlinear models (see `family` argument below). However, you may still
+want to cluster your standard errors by your index variable through the
+`vcov` argument. See examples below.}
 
 \item{tref}{Optional reference value for `tvar`. Defaults to its minimum 
 value (i.e., the first time period observed in the dataset).}
@@ -85,7 +87,7 @@ mod = etwfe(
     tvar = year,        # time variable
     gvar = first.treat, # group variable
     data = mpdta,       # dataset
-    vcov = ~countyreal  # vcov adjustment (here: clustered)
+    vcov = ~countyreal  # vcov adjustment (here: clustered by county)
     )
 mod
 

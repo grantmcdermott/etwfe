@@ -1,6 +1,6 @@
-# etwfe 0.1.9000 (dev version)
+# etwfe 0.1.9001 (dev version)
 
-## Bug fixes
+## Bug fixes and breaking changes
 
 - The `.Dtreat` indicator variable created during the `etwfe` call is now
 logical instead of integer (#14). This fix yields slightly different effect
@@ -10,6 +10,12 @@ calling `marginaleffects::comparisons` under the hood rather than
 `marginaleffects::marginaleffects`. Note that the main `etwfe` coefficients (for
 any family) are unaffected, and the same is also true for `emfx` when applied to
 a linear model (i.e., the default).
+
+- The (optional) `ivar` argument of `etwfe()` has been moved down the argument 
+order list from second position to fifth (i.e., after the `data` argument). This
+means that the four required arguments of function now occupy the top positions,
+which could enable shorter, unnamed notation like
+`etwfe(y ~ x, year, cohort, dat)`.
 
 ## Improvements
 
