@@ -55,7 +55,7 @@ emfx = function(
     by = by_var
   )
   
-  if (type!="simple") mfx = mfx[order(mfx[[by_var]]), ]
+  if (type!="simple") mfx = mfx[order(mfx[[by_var[1]]]), ]
    
   return(mfx)
 }
