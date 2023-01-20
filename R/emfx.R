@@ -19,6 +19,7 @@ emfx = function(
     object,
     type = c("simple", "group", "calendar", "event"),
     post_only = TRUE,
+    intvar = NULL,
     ...
 ) {
   
@@ -28,6 +29,7 @@ emfx = function(
   tvar = attributes(object)[["etwfe"]][["tvar"]]
   gref = attributes(object)[["etwfe"]][["gref"]]
   tref = attributes(object)[["etwfe"]][["tref"]]
+  if(!is.null(intvar)) intvar = attributes(object)[["etwfe"]][["intvar"]]
   
   dat = eval(object$call$data, object$call_env)
   if (type=="event" & !post_only) {
@@ -40,9 +42,11 @@ emfx = function(
   if (type=="group") by_var = gvar
   if (type=="calendar") by_var = tvar
   if (type=="event") {
-    dat[["event"]] = dat[[tvar]] - dat[[gvar]]
+    dat[["event"]] = as.numeric(as.character(dat[[tvar]])) - as.numeric(as.character(dat[[gvar]]))
     by_var = "event"
   }
+  
+  if(!is.null(intvar)) by_var <- c(by_var, intvar)
   
   mfx = marginaleffects::marginaleffects(
     object,

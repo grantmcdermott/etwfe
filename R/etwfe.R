@@ -77,6 +77,8 @@ etwfe = function(
     gvar = NULL,
     data = NULL,
     ivar = NULL,
+    intvar = NULL,
+    id   = NULL,
     tref = NULL,
     gref = NULL,
     cgroup = c("notyet", "never"),
@@ -92,6 +94,7 @@ etwfe = function(
   
   if (is.null(fml)) stop("A non-NULL `fml` argument is required.\n")
   if (is.null(data)) stop("A non-NULL `data` argument is required.\n")
+  if (is.null(id)) stop("The individual-ID is required with an interaction term.\n")
   data = as.data.frame(data)
   
   ## NSE ----
@@ -103,6 +106,10 @@ etwfe = function(
   if (is.numeric(gvar)) gvar = names(data)[gvar]
   ivar = eval(substitute(ivar), nl, parent.frame())
   if (is.numeric(ivar)) ivar = names(data)[ivar]
+  intvar = eval(substitute(intvar), nl, parent.frame())
+  if (is.numeric(intvar)) intvar = names(data)[intvar]
+  id = eval(substitute(id), nl, parent.frame())
+  if (is.numeric(id)) id = names(data)[id]
   
   if (is.null(gvar)) stop("A non-NULL `gvar` argument is required.\n")
   if (is.null(tvar)) stop("A non-NULL `tvar` argument is required.\n")
@@ -170,7 +177,7 @@ etwfe = function(
   }
   rhs = paste0(".Dtreat : ", rhs)
   
-  rhs = paste0(rhs, "i(", gvar, ", i.", tvar, ref_string, ")")
+  rhs = paste0(rhs, "i(", gvar, ", as_factor(", tvar, "), ", ref_string, ")")
   
   ## Demean and interact controls ----
   
@@ -219,8 +226,19 @@ etwfe = function(
   
   ## Estimation ----
   
-  ## Full formula
-  Fml = Formula::as.Formula(paste(lhs, " ~ ", rhs, "|", fes)) 
+  ##### NEW: demean the interacted variable ######
+  if (!is.null(intvar)){
+    intvar_dm <- data[intvar] - mean(dplyr::pull(dplyr::distinct(dplyr::filter(data, .Dtreat == T), get(id), .keep_all = T), intvar), na.rm = T)
+    intvar_dm_df = stats::setNames(intvar_dm, paste0(intvar, "_dm")) # give a name
+    data = cbind(data, intvar_dm_df)
+  } 
+  
+  ## NEW: Full formula with interaction
+  if( !is.null(intvar) ) {
+    Fml = Formula::as.Formula(paste(lhs, " ~ ", rhs, ":", paste0(intvar, "_dm"), "+", rhs, "+ i(", gvar, ", as_factor(", tvar, ")):", intvar, "|", fes))
+  } else {# formula without interaction
+    Fml = Formula::as.Formula(paste(lhs, " ~ ", rhs, "|", fes)) 
+  }
   
   ## Estimate
   if (is.null(family)) {
@@ -231,12 +249,23 @@ etwfe = function(
   
   ## Overload class and new attributes (for post-estimation) ----
   class(est) = c("etwfe", class(est))
-  attr(est, "etwfe") = list(
-    gvar = gvar,
-    tvar = tvar,
-    gref = gref,
-    tref = tref
-  )
+  if (!is.null(intvar)){
+    attr(est, "etwfe") = list(
+      gvar = gvar,
+      tvar = tvar,
+      gref = gref,
+      tref = tref,
+      intvar = intvar
+      
+    )
+  } else {
+    attr(est, "etwfe") = list(
+      gvar = gvar,
+      tvar = tvar,
+      gref = gref,
+      tref = tref
+    ) 
+  }
   
   ## Return ----
   
