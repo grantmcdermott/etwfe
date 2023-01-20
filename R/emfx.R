@@ -23,6 +23,14 @@ emfx = function(
     ...
 ) {
   
+  # sanity check
+  if (!is.null(intvar)) {
+    if(!any(stringr::str_detect(rownames(object$coeftable), intvar))){
+      warning("The treatment was not interacted with \"intvar\" in the model object. Average margins are reported.")
+      intvar <- NULL
+      }
+  }
+  
   .Dtreat = NULL
   type = match.arg(type)
   gvar = attributes(object)[["etwfe"]][["gvar"]]
@@ -37,7 +45,7 @@ emfx = function(
   } else {
     if (".Dtreat" %in% names(dat)) dat = dat[dat[[".Dtreat"]], , drop = FALSE]
   }
-  
+
   if (type=="simple") by_var = ".Dtreat"
   if (type=="group") by_var = gvar
   if (type=="calendar") by_var = tvar

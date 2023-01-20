@@ -94,7 +94,6 @@ etwfe = function(
   
   if (is.null(fml)) stop("A non-NULL `fml` argument is required.\n")
   if (is.null(data)) stop("A non-NULL `data` argument is required.\n")
-  if (is.null(id)) stop("The individual-ID is required with an interaction term.\n")
   data = as.data.frame(data)
   
   ## NSE ----
@@ -111,6 +110,7 @@ etwfe = function(
   id = eval(substitute(id), nl, parent.frame())
   if (is.numeric(id)) id = names(data)[id]
   
+  if (!is.null(intvar) & is.null(id)) stop("The individual-ID is required with an interaction term.\n")
   if (is.null(gvar)) stop("A non-NULL `gvar` argument is required.\n")
   if (is.null(tvar)) stop("A non-NULL `tvar` argument is required.\n")
   if (!is.null(family)) ivar = NULL
