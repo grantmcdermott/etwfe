@@ -236,8 +236,7 @@ etwfe = function(
   if( !is.null(xvar) ) {# Formula with interaction
     Fml <- Formula::as.Formula(paste0(
       lhs, " ~ ", rhs, "*", xvar, "_dm - ", xvar, "_dm",
-      "+ i(", gvar, ", ref = ", gref, "):", xvar, "_dm + i(", tvar, ", ref = ", tref, "):", 
-      xvar, "_dm |", fes
+      "+ i(", tvar, ", ref = ", tref, "):", xvar, "_dm |", fes
     )) 
   } else {# formula without interaction
     Fml = Formula::as.Formula(paste(lhs, " ~ ", rhs, "|", fes)) 
