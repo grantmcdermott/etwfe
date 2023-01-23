@@ -233,7 +233,7 @@ etwfe = function(
   ## Estimation ----
   
   ## Formula
-  if( !is.null(intvar) ) {# Formula with interaction
+  if( !is.null(xvar) ) {# Formula with interaction
     Fml <- Formula::as.Formula(paste0(
       lhs, " ~ ", rhs, "*", xvar, "_dm - ", xvar, "_dm",
       "+ i(", gvar, ", ref = ", gref, "):", xvar, "_dm + i(", tvar, ", ref = ", tref, "):", 

@@ -8,6 +8,8 @@ emfx(
   object,
   type = c("simple", "group", "calendar", "event"),
   post_only = TRUE,
+  xvar = NULL,
+  hypothesis = NULL,
   ...
 )
 }
@@ -23,6 +25,13 @@ the dataset. But you may want to keep them for presentation reasons
 (e.g., plotting an event-study); though be warned that this is 
 strictly performative. This argument will only be evaluated if
 `type = "event"`.}
+
+\item{xvar}{Interacted Covariate. Calculates the marginal effect separately
+for every value of `xvar` (default is NULL).}
+
+\item{hypothesis}{Testing. This can be any test regarding the
+marginal effects. For example, 
+one can test whether b1 = b2 if `xvar` is binary.}
 
 \item{...}{Additional arguments passed to 
 [`marginaleffects::marginaleffects`].}
