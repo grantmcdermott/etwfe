@@ -16,6 +16,8 @@
 ##' for nonlinear models (see `family` argument below). However, you may still
 ##' want to cluster your standard errors by your index variable through the
 ##' `vcov` argument. See examples below.
+##' @param xvar Interacted covariate (default is NULL). Estimates the treatment 
+##' effect separately for each value of `xvar`.
 ##' @param tref Optional reference value for `tvar`. Defaults to its minimum 
 ##' value (i.e., the first time period observed in the dataset).
 ##' @param gref Optional reference value for `gvar`. You shouldn't need to 
@@ -77,8 +79,7 @@ etwfe = function(
     gvar = NULL,
     data = NULL,
     ivar = NULL,
-    intvar = NULL,
-    id   = NULL,
+    xvar = NULL,
     tref = NULL,
     gref = NULL,
     cgroup = c("notyet", "never"),
@@ -105,12 +106,9 @@ etwfe = function(
   if (is.numeric(gvar)) gvar = names(data)[gvar]
   ivar = eval(substitute(ivar), nl, parent.frame())
   if (is.numeric(ivar)) ivar = names(data)[ivar]
-  intvar = eval(substitute(intvar), nl, parent.frame())
-  if (is.numeric(intvar)) intvar = names(data)[intvar]
-  id = eval(substitute(id), nl, parent.frame())
-  if (is.numeric(id)) id = names(data)[id]
-  
-  if (!is.null(intvar) & is.null(id)) stop("The individual-ID is required with an interaction term.\n")
+  xvar = eval(substitute(xvar), nl, parent.frame())
+  if (is.numeric(xvar)) xvar = names(data)[xvar]
+
   if (is.null(gvar)) stop("A non-NULL `gvar` argument is required.\n")
   if (is.null(tvar)) stop("A non-NULL `tvar` argument is required.\n")
   if (!is.null(family)) ivar = NULL
@@ -177,10 +175,9 @@ etwfe = function(
   }
   rhs = paste0(".Dtreat : ", rhs)
   
-  rhs = paste0(rhs, "i(", gvar, ", as_factor(", tvar, "), ", ref_string, ")")
+  rhs = paste0(rhs, "i(", gvar, ", i.", tvar, ref_string, ")")
   
   ## Demean and interact controls ----
-  
   if (!is.null(ctrls)) {
     dm_fml = stats::reformulate(c(gvar, tvar), response = ctrls)
     ctrls_dm_df = fixest::demean(dm_fml, data = data, as.matrix = FALSE)
@@ -207,8 +204,17 @@ etwfe = function(
     }
   }
   
-  ## Fixed effects ----
+  ## Demean the interacted covariate ----
+  if (!is.null(xvar)) {
+    data$treat = ifelse(data[[gvar]] != 0 & !is.na(data[[gvar]]), 1, 0) # generate a treatment-dummy
+    
+    dm_fml = stats::reformulate(c(tvar), response = xvar)
+    ctrls_dm_df = fixest::demean(dm_fml, data = data, weights = data$treat, as.matrix = FALSE) # weights: only use the treated units to demean
+    ctrls_dm_df = stats::setNames(ctrls_dm_df, paste0(xvar, "_dm")) # give a name
+    data = cbind(data, ctrls_dm_df)
+  }
   
+  ## Fixed effects ----
   if (fe != "none") {
     if (is.null(ivar)) {
       fes = stats::reformulate(paste0(c(gvar, tvar), vs))
@@ -226,16 +232,13 @@ etwfe = function(
   
   ## Estimation ----
   
-  ##### NEW: demean the interacted variable ######
-  if (!is.null(intvar)){
-    intvar_dm <- data[intvar] - mean(dplyr::pull(dplyr::distinct(dplyr::filter(data, .Dtreat == T), get(id), .keep_all = T), intvar), na.rm = T)
-    intvar_dm_df = stats::setNames(intvar_dm, paste0(intvar, "_dm")) # give a name
-    data = cbind(data, intvar_dm_df)
-  } 
-  
-  ## NEW: Full formula with interaction
-  if( !is.null(intvar) ) {
-    Fml = Formula::as.Formula(paste(lhs, " ~ ", rhs, ":", paste0(intvar, "_dm"), "+", rhs, "+ i(", gvar, ", as_factor(", tvar, ")):", intvar, "|", fes))
+  ## Formula
+  if( !is.null(intvar) ) {# Formula with interaction
+    Fml <- Formula::as.Formula(paste0(
+      lhs, " ~ ", rhs, "*", xvar, "_dm - ", xvar, "_dm",
+      "+ i(", gvar, ", ref = ", gref, "):", xvar, "_dm + i(", tvar, ", ref = ", tref, "):", 
+      xvar, "_dm |", fes
+    )) 
   } else {# formula without interaction
     Fml = Formula::as.Formula(paste(lhs, " ~ ", rhs, "|", fes)) 
   }
@@ -249,26 +252,15 @@ etwfe = function(
   
   ## Overload class and new attributes (for post-estimation) ----
   class(est) = c("etwfe", class(est))
-  if (!is.null(intvar)){
     attr(est, "etwfe") = list(
       gvar = gvar,
       tvar = tvar,
       gref = gref,
       tref = tref,
-      intvar = intvar
-      
-    )
-  } else {
-    attr(est, "etwfe") = list(
-      gvar = gvar,
-      tvar = tvar,
-      gref = gref,
-      tref = tref
-    ) 
-  }
-  
+      xvar = xvar
+      )
+
   ## Return ----
-  
   return(est)
   
 }

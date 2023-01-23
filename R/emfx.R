@@ -9,6 +9,11 @@
 ##'   (e.g., plotting an event-study); though be warned that this is 
 ##'   strictly performative. This argument will only be evaluated if
 ##'   `type = "event"`.
+##' @param xvar Interacted Covariate. Calculates the marginal effect separately
+##' for every value of `xvar` (default is NULL).
+##' @param hypothesis Testing. This can be any test regarding the
+##' marginal effects. For example, 
+##' one can test whether b1 = b2 if `xvar` is binary.
 ##' @param ... Additional arguments passed to 
 ##' [`marginaleffects::marginaleffects`].
 ##' @return A marginaleffects object.
@@ -19,15 +24,16 @@ emfx = function(
     object,
     type = c("simple", "group", "calendar", "event"),
     post_only = TRUE,
-    intvar = NULL,
+    xvar = NULL,
+    hypothesis = NULL,
     ...
 ) {
   
   # sanity check
-  if (!is.null(intvar)) {
-    if(!any(stringr::str_detect(rownames(object$coeftable), intvar))){
-      warning("The treatment was not interacted with \"intvar\" in the model object. Average margins are reported.")
-      intvar <- NULL
+  if (!is.null(xvar)) {
+    if(!any( grepl(xvar, rownames(object$coeftable)) )){
+      warning("The treatment was not interacted with \"xvar\" in the model object. Average margins are reported.")
+      xvar = NULL
       }
   }
   
@@ -37,7 +43,7 @@ emfx = function(
   tvar = attributes(object)[["etwfe"]][["tvar"]]
   gref = attributes(object)[["etwfe"]][["gref"]]
   tref = attributes(object)[["etwfe"]][["tref"]]
-  if(!is.null(intvar)) intvar = attributes(object)[["etwfe"]][["intvar"]]
+  if(!is.null(xvar)) xvar = attributes(object)[["etwfe"]][["xvar"]]
   
   dat = eval(object$call$data, object$call_env)
   if (type=="event" & !post_only) {
@@ -50,15 +56,16 @@ emfx = function(
   if (type=="group") by_var = gvar
   if (type=="calendar") by_var = tvar
   if (type=="event") {
-    dat[["event"]] = as.numeric(as.character(dat[[tvar]])) - as.numeric(as.character(dat[[gvar]]))
+    dat[["event"]] = dat[[tvar]] - dat[[gvar]]
     by_var = "event"
   }
   
-  if(!is.null(intvar)) by_var <- c(by_var, intvar)
+  if(!is.null(xvar)) by_var = c(by_var, xvar)
   
   mfx = marginaleffects::marginaleffects(
     object,
     newdata = dat,
+    hypothesis = hypothesis,    
     variables = ".Dtreat",
     by = by_var
   )
