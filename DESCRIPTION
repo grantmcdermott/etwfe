@@ -4,11 +4,17 @@ Title: Extended Two-Way Fixed Effects
 Version: 0.2.0
 Date: 2023-01-11
 Authors@R: 
+    c(
     person(given = "Grant",
            family = "McDermott",
            role = c("aut", "cre"),
            email = "grantmcd@uoregon.edu",
-           comment = c(ORCID = "0000-0001-7883-8573"))
+           comment = c(ORCID = "0000-0001-7883-8573")),
+    person( given = "Frederic",
+            family = "Kluser",
+            role = "ctb",
+            email = "frederic.kluser@unibe.ch")
+            )
 Description: Convenience functions for implementing extended two-way 
   fixed effect regressions a la Wooldridge (2021, 2022)
   <doi:10.2139/ssrn.3906345>, <doi:10.2139/ssrn.4183726>.

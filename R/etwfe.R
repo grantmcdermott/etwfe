@@ -16,9 +16,10 @@
 ##' for nonlinear models (see `family` argument below). However, you may still
 ##' want to cluster your standard errors by your index variable through the
 ##' `vcov` argument. See examples below.
-##' @param xvar Interacted covariate (default is NULL). Estimates the treatment 
-##' effect separately for each value of `xvar`.
-##' @param tref Optional reference value for `tvar`. Defaults to its minimum 
+##' @param xvar Interacted categorical covariate. Calculates the marginal effect separately
+##' for every value of `xvar` (default is NULL). Works with two as well as multiple
+##' values.
+##' ##' @param tref Optional reference value for `tvar`. Defaults to its minimum 
 ##' value (i.e., the first time period observed in the dataset).
 ##' @param gref Optional reference value for `gvar`. You shouldn't need to 
 ##' provide this if your `gvar` variable is well specified. But providing an 
@@ -234,6 +235,7 @@ etwfe = function(
   
   ## Formula
   if( !is.null(xvar) ) {# Formula with interaction
+    # one could add gvar:xvar, but the result is equivalent
     Fml <- Formula::as.Formula(paste0(
       lhs, " ~ ", rhs, "*", xvar, "_dm - ", xvar, "_dm",
       "+ i(", tvar, ", ref = ", tref, "):", xvar, "_dm |", fes
