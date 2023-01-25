@@ -45,13 +45,37 @@ emfx = function(
   tref = attributes(object)[["etwfe"]][["tref"]]
   if(!is.null(xvar)) xvar = attributes(object)[["etwfe"]][["xvar"]]
   
-  dat = eval(object$call$data, object$call_env)
+  dat = as.data.table(eval(object$call$data, object$call_env))
+  #dat = eval(object$call$data, object$call_env) # base version
+
   if (type=="event" & !post_only) {
     dat = dat[dat[[gvar]] != gref, , drop = FALSE]
   } else {
     if (".Dtreat" %in% names(dat)) dat = dat[dat[[".Dtreat"]], , drop = FALSE]
   }
+  
+  # define formulas and calculate weights
+  if(!is.null(xvar)){
+    # form_count = stats::as.formula(paste(".", " ~", gvar, "+", tvar, "+", xvar)) # base
+    # form_data  = stats::as.formula(paste(".", " ~", gvar, "+", tvar, "+", xvar, "+ .Dtreat")) # base
+    # dat_weights = aggregate(form_count, data = subset(dat, .Dtreat == 1), FUN = length)[c(gvar, tvar, xvar, ".Dtreat")] # base
+    # names(dat_weights)[names(dat_weights) == ".Dtreat"] = "N"
+    dat_weights = dat[.Dtreat == T][, .N, by = c(gvar, tvar, xvar)]
 
+  } else {
+    # form_count = stats::as.formula(paste(".", " ~", gvar, "+", tvar)) # base
+    # form_data  = stats::as.formula(paste(".", " ~", gvar, "+", tvar, "+ .Dtreat")) # base
+    # dat_weights = aggregate(form_count, data = subset(dat, .Dtreat == 1), FUN = length)[c(gvar, tvar, ".Dtreat")] # base
+    # names(dat_weights)[names(dat_weights) == ".Dtreat"] = "N"
+    dat_weights = dat[.Dtreat == T][, .N, by = c(gvar, tvar)]
+  }
+  
+  # collapse the data 
+  # dat = aggregate(form_data, data = subset(dat, .Dtreat == 1), FUN = mean, na.rm = TRUE) # collapse data (base)
+  # dat = merge(dat, dat_weights, all.x = T) # add weights (base)
+  dat = dat[.Dtreat == T][, lapply(.SD, mean), by = c(gvar, tvar, xvar, ".Dtreat")] # collapse data
+  dat = data.table::setDT(dat)[, merge(.SD, dat_weights, all.x = T)] # add weights
+    
   if (type=="simple") by_var = ".Dtreat"
   if (type=="group") by_var = gvar
   if (type=="calendar") by_var = tvar
@@ -63,11 +87,12 @@ emfx = function(
   mfx = marginaleffects::marginaleffects(
     object,
     newdata = dat,   
+    wts = "N",
     variables = ".Dtreat",
     by = c(by_var, xvar),
     ...
   )
-  
+    
   if (type!="simple") mfx = mfx[order(mfx[[by_var]]),]
    
   return(mfx)
