@@ -208,10 +208,10 @@ etwfe = function(
   
   ## Demean the interacted covariate ----
   if (!is.null(xvar)) {
-    data$treat = ifelse(data[[gvar]] != 0 & !is.na(data[[gvar]]), 1, 0) # generate a treatment-dummy
+    data$.Dtreated_cohort = ifelse(data[[gvar]] != gref & !is.na(data[[gvar]]), 1, 0) # generate a treatment-dummy
     
     dm_fml = stats::reformulate(c(tvar), response = xvar)
-    ctrls_dm_df = fixest::demean(dm_fml, data = data, weights = data$treat, as.matrix = FALSE) # weights: only use the treated units to demean
+    ctrls_dm_df = fixest::demean(dm_fml, data = data, weights = data$.Dtreated_cohort, as.matrix = FALSE) # weights: only use the treated cohorts (units) to demean
     ctrls_dm_df = stats::setNames(ctrls_dm_df, paste0(xvar, "_dm")) # give a name
     data = cbind(data, ctrls_dm_df)
   }
