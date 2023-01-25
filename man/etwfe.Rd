@@ -10,6 +10,7 @@ etwfe(
   gvar = NULL,
   data = NULL,
   ivar = NULL,
+  xvar = NULL,
   tref = NULL,
   gref = NULL,
   cgroup = c("notyet", "never"),
@@ -39,6 +40,9 @@ group-level fixed effects being used, which is more efficient and necessary
 for nonlinear models (see `family` argument below). However, you may still
 want to cluster your standard errors by your index variable through the
 `vcov` argument. See examples below.}
+
+\item{xvar}{Interacted covariate (default is NULL). Estimates the treatment 
+effect separately for each value of `xvar`.}
 
 \item{tref}{Optional reference value for `tvar`. Defaults to its minimum 
 value (i.e., the first time period observed in the dataset).}

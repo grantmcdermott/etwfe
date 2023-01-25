@@ -9,6 +9,12 @@
 ##'   (e.g., plotting an event-study); though be warned that this is 
 ##'   strictly performative. This argument will only be evaluated if
 ##'   `type = "event"`.
+##' @param xvar Interacted categorical covariate. Calculates the marginal effect separately
+##' for every value of `xvar` (default is NULL). Works with two as well as multiple
+##' values.
+##' @param hypothesis Testing. This can be any test regarding the
+##' marginal effects. For example, 
+##' one can test whether b1 = b2 if `xvar` is binary (see `marginaleffects` for details.)
 ##' @param ... Additional arguments passed to 
 ##' [`marginaleffects::marginaleffects`].
 ##' @return A marginaleffects object.
@@ -19,8 +25,18 @@ emfx = function(
     object,
     type = c("simple", "group", "calendar", "event"),
     post_only = TRUE,
+    xvar = NULL,
+    hypothesis = NULL,
     ...
 ) {
+  
+  # sanity check
+  if (!is.null(xvar)) {
+    if(!any( grepl(xvar, rownames(object$coeftable)) )){
+      warning("The treatment was not interacted with \"xvar\" in the model object. Average margins are reported.")
+      xvar = NULL
+      }
+  }
   
   .Dtreat = NULL
   type = match.arg(type)
@@ -28,6 +44,7 @@ emfx = function(
   tvar = attributes(object)[["etwfe"]][["tvar"]]
   gref = attributes(object)[["etwfe"]][["gref"]]
   tref = attributes(object)[["etwfe"]][["tref"]]
+  if(!is.null(xvar)) xvar = attributes(object)[["etwfe"]][["xvar"]]
   
   dat = eval(object$call$data, object$call_env)
   if (type=="event" & !post_only) {
@@ -35,7 +52,7 @@ emfx = function(
   } else {
     if (".Dtreat" %in% names(dat)) dat = dat[dat[[".Dtreat"]], , drop = FALSE]
   }
-  
+
   if (type=="simple") by_var = ".Dtreat"
   if (type=="group") by_var = gvar
   if (type=="calendar") by_var = tvar
@@ -47,11 +64,13 @@ emfx = function(
   mfx = marginaleffects::marginaleffects(
     object,
     newdata = dat,
+    hypothesis = hypothesis,    
     variables = ".Dtreat",
-    by = by_var
+    by = c(by_var, xvar)
   )
   
-  if (type!="simple") mfx = mfx[order(mfx[[by_var]]), ]
+  if (type!="simple") mfx = mfx[order(mfx[[by_var]]),]
    
   return(mfx)
 }
+
