@@ -1,3 +1,10 @@
+# etwfe 0.2.9999 (development version)
+
+## Enhancements
+
+- Support for heterogeneous treatment effects via the new `xvar` interacted
+covariate argument (#16, thanks @frederickluser).
+
 # etwfe 0.2.0
 
 ## Bug fixes and breaking changes
