@@ -48,7 +48,7 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.2.0" id="etwfe-020">etwfe 0.2.0<a class="anchor" aria-label="anchor" href="#etwfe-020"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.2.0" id="etwfe-020">etwfe 0.2.0<a class="anchor" aria-label="anchor" href="#etwfe-020"></a></h2><p class="text-muted">CRAN release: 2023-01-11</p>
 <div class="section level3">
 <h3 id="bug-fixes-and-breaking-changes-0-2-0">Bug fixes and breaking changes<a class="anchor" aria-label="anchor" href="#bug-fixes-and-breaking-changes-0-2-0"></a></h3>
 <ul><li><p>The <code>.Dtreat</code> indicator variable created during the <code>etwfe</code> call is now logical instead of integer (<a href="https://github.com/grantmcdermott/etwfe/issues/14" class="external-link">#14</a>). This fix yields slightly different effect sizes for <code>emfx</code> output when applied to non-linear model families (e.g., <code>etwfe(..., family = "poisson")</code>. The reason is that we are now implicitly calling <code><a href="https://vincentarelbundock.github.io/marginaleffects/reference/comparisons.html" class="external-link">marginaleffects::comparisons</a></code> under the hood rather than <code><a href="https://vincentarelbundock.github.io/marginaleffects/reference/marginaleffects.html" class="external-link">marginaleffects::marginaleffects</a></code>. Note that the main <code>etwfe</code> coefficients (for any family) are unaffected, and the same is also true for <code>emfx</code> when applied to a linear model (i.e., the default).</p></li>

@@ -60,6 +60,7 @@
 <span>  gvar <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  data <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  ivar <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  xvar <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  tref <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  gref <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  cgroup <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"notyet"</span>, <span class="st">"never"</span><span class="op">)</span>,</span>
@@ -100,6 +101,11 @@ group-level fixed effects being used, which is more efficient and necessary
 for nonlinear models (see `family` argument below). However, you may still
 want to cluster your standard errors by your index variable through the
 `vcov` argument. See examples below.</p></dd>
+
+
+<dt>xvar</dt>
+<dd><p>Interacted covariate (default is NULL). Estimates the treatment 
+effect separately for each value of `xvar`.</p></dd>
 
 
 <dt>tref</dt>

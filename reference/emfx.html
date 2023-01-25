@@ -58,6 +58,8 @@
 <span>  <span class="va">object</span>,</span>
 <span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"simple"</span>, <span class="st">"group"</span>, <span class="st">"calendar"</span>, <span class="st">"event"</span><span class="op">)</span>,</span>
 <span>  post_only <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  xvar <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  hypothesis <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -80,6 +82,17 @@ the dataset. But you may want to keep them for presentation reasons
 (e.g., plotting an event-study); though be warned that this is 
 strictly performative. This argument will only be evaluated if
 `type = "event"`.</p></dd>
+
+
+<dt>xvar</dt>
+<dd><p>Interacted Covariate. Calculates the marginal effect separately
+for every value of `xvar` (default is NULL).</p></dd>
+
+
+<dt>hypothesis</dt>
+<dd><p>Testing. This can be any test regarding the
+marginal effects. For example, 
+one can test whether b1 = b2 if `xvar` is binary.</p></dd>
 
 
 <dt>...</dt>
