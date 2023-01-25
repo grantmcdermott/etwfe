@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">etwfe</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.9001</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -104,8 +104,10 @@ want to cluster your standard errors by your index variable through the
 
 
 <dt>xvar</dt>
-<dd><p>Interacted covariate (default is NULL). Estimates the treatment 
-effect separately for each value of `xvar`.</p></dd>
+<dd><p>Optional interacted categorical covariate for estimating
+heterogeneous treatment effects. In other words, allows recovery of the
+(marginal) treatment effect for distinct values of `xvar`. Works with binary
+categorical variables (e.g. "adult" or "child"), as well as multiple values.</p></dd>
 
 
 <dt>tref</dt>
