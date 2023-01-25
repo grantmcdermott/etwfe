@@ -16,10 +16,11 @@
 ##' for nonlinear models (see `family` argument below). However, you may still
 ##' want to cluster your standard errors by your index variable through the
 ##' `vcov` argument. See examples below.
-##' @param xvar Interacted categorical covariate. Calculates the marginal effect separately
-##' for every value of `xvar` (default is NULL). Works with two as well as multiple
-##' values.
-##' ##' @param tref Optional reference value for `tvar`. Defaults to its minimum 
+##' @param xvar Optional interacted categorical covariate for estimating
+##' heterogeneous treatment effects. In other words, allows recovery of the
+##' (marginal) treatment effect for distinct values of `xvar`. Works with binary
+##' categorical variables (e.g. "adult" or "child"), as well as multiple values.
+##' @param tref Optional reference value for `tvar`. Defaults to its minimum 
 ##' value (i.e., the first time period observed in the dataset).
 ##' @param gref Optional reference value for `gvar`. You shouldn't need to 
 ##' provide this if your `gvar` variable is well specified. But providing an 

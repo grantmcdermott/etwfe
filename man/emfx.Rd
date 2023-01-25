@@ -7,9 +7,8 @@
 emfx(
   object,
   type = c("simple", "group", "calendar", "event"),
-  post_only = TRUE,
   xvar = NULL,
-  hypothesis = NULL,
+  post_only = TRUE,
   ...
 )
 }
@@ -17,6 +16,11 @@ emfx(
 \item{object}{An `etwfe` model object.}
 
 \item{type}{Character. The desired type of post-estimation aggregation.}
+
+\item{xvar}{Optional interacted categorical covariate for estimating
+heterogeneous treatment effects. In other words, allows recovery of the
+(marginal) treatment effect for distinct values of `xvar`. Works with binary
+categorical variables (e.g. "adult" or "child"), as well as multiple values.}
 
 \item{post_only}{Logical. Only keep post-treatment effects. All
 pre-treatment effects will be zero as a mechanical result of ETWFE's 
@@ -26,15 +30,10 @@ the dataset. But you may want to keep them for presentation reasons
 strictly performative. This argument will only be evaluated if
 `type = "event"`.}
 
-\item{xvar}{Interacted Covariate. Calculates the marginal effect separately
-for every value of `xvar` (default is NULL).}
-
-\item{hypothesis}{Testing. This can be any test regarding the
-marginal effects. For example, 
-one can test whether b1 = b2 if `xvar` is binary.}
-
-\item{...}{Additional arguments passed to 
-[`marginaleffects::marginaleffects`].}
+\item{...}{Additional arguments passed to [`marginaleffects::marginaleffects`]. 
+A potentially useful case is testing whether heterogeneous treatment effects
+(from any `xvar` covariate) are equal by invoking the `hypothesis` argument,
+e.g. `hypothesis = "adult = child"`.}
 }
 \value{
 A marginaleffects object.

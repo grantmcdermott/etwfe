@@ -2,6 +2,10 @@
 ##'
 ##' @param object An `etwfe` model object.
 ##' @param type Character. The desired type of post-estimation aggregation.
+##' @param xvar Optional interacted categorical covariate for estimating
+##' heterogeneous treatment effects. In other words, allows recovery of the
+##' (marginal) treatment effect for distinct values of `xvar`. Works with binary
+##' categorical variables (e.g. "adult" or "child"), as well as multiple values.
 ##' @param post_only Logical. Only keep post-treatment effects. All
 ##'   pre-treatment effects will be zero as a mechanical result of ETWFE's 
 ##'   estimation setup, so the default is to drop these nuisance rows from
@@ -9,14 +13,10 @@
 ##'   (e.g., plotting an event-study); though be warned that this is 
 ##'   strictly performative. This argument will only be evaluated if
 ##'   `type = "event"`.
-##' @param xvar Interacted categorical covariate. Calculates the marginal effect separately
-##' for every value of `xvar` (default is NULL). Works with two as well as multiple
-##' values.
-##' @param hypothesis Testing. This can be any test regarding the
-##' marginal effects. For example, 
-##' one can test whether b1 = b2 if `xvar` is binary (see `marginaleffects` for details.)
-##' @param ... Additional arguments passed to 
-##' [`marginaleffects::marginaleffects`].
+##' @param ... Additional arguments passed to [`marginaleffects::marginaleffects`]. 
+##' A potentially useful case is testing whether heterogeneous treatment effects
+##' (from any `xvar` covariate) are equal by invoking the `hypothesis` argument,
+##' e.g. `hypothesis = "adult = child"`. 
 ##' @return A marginaleffects object.
 ##' @seealso [marginaleffects::marginaleffects()]
 ##' @inherit etwfe return examples
@@ -24,9 +24,8 @@
 emfx = function(
     object,
     type = c("simple", "group", "calendar", "event"),
-    post_only = TRUE,
     xvar = NULL,
-    hypothesis = NULL,
+    post_only = TRUE,
     ...
 ) {
   
@@ -63,10 +62,10 @@ emfx = function(
   
   mfx = marginaleffects::marginaleffects(
     object,
-    newdata = dat,
-    hypothesis = hypothesis,    
+    newdata = dat,   
     variables = ".Dtreat",
-    by = c(by_var, xvar)
+    by = c(by_var, xvar),
+    ...
   )
   
   if (type!="simple") mfx = mfx[order(mfx[[by_var]]),]
