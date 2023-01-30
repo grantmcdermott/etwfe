@@ -2,3 +2,5 @@
 
 export(emfx)
 export(etwfe)
+importFrom(data.table,.N)
+importFrom(data.table,.SD)

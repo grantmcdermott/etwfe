@@ -13,6 +13,8 @@
 ##'   (e.g., plotting an event-study); though be warned that this is 
 ##'   strictly performative. This argument will only be evaluated if
 ##'   `type = "event"`.
+##' @param collapse_data Logical. Collapses data before calculating marginal
+##' effects. Is faster, but requires `ivar = NULL` in `etwfe`.
 ##' @param ... Additional arguments passed to [`marginaleffects::marginaleffects`]. 
 ##' A potentially useful case is testing whether heterogeneous treatment effects
 ##' (from any `xvar` covariate) are equal by invoking the `hypothesis` argument,
@@ -20,12 +22,14 @@
 ##' @return A marginaleffects object.
 ##' @seealso [marginaleffects::marginaleffects()]
 ##' @inherit etwfe return examples
+##' @importFrom data.table .N .SD
 ##' @export
 emfx = function(
     object,
     type = c("simple", "group", "calendar", "event"),
     xvar = NULL,
     post_only = TRUE,
+    collapse_data = TRUE,
     ...
 ) {
   
@@ -36,17 +40,16 @@ emfx = function(
       xvar = NULL
       }
   }
-  
+
   .Dtreat = NULL
   type = match.arg(type)
   gvar = attributes(object)[["etwfe"]][["gvar"]]
   tvar = attributes(object)[["etwfe"]][["tvar"]]
+  ivar = attributes(object)[["etwfe"]][["ivar"]]
   gref = attributes(object)[["etwfe"]][["gref"]]
   tref = attributes(object)[["etwfe"]][["tref"]]
-  if(!is.null(xvar)) xvar = attributes(object)[["etwfe"]][["xvar"]]
-  
-  dat = as.data.table(eval(object$call$data, object$call_env))
-  #dat = eval(object$call$data, object$call_env) # base version
+
+  dat = data.table::as.data.table(eval(object$call$data, object$call_env))
 
   if (type=="event" & !post_only) {
     dat = dat[dat[[gvar]] != gref, , drop = FALSE]
@@ -55,27 +58,27 @@ emfx = function(
   }
   
   # define formulas and calculate weights
-  if(!is.null(xvar)){
-    # form_count = stats::as.formula(paste(".", " ~", gvar, "+", tvar, "+", xvar)) # base
-    # form_data  = stats::as.formula(paste(".", " ~", gvar, "+", tvar, "+", xvar, "+ .Dtreat")) # base
-    # dat_weights = aggregate(form_count, data = subset(dat, .Dtreat == 1), FUN = length)[c(gvar, tvar, xvar, ".Dtreat")] # base
-    # names(dat_weights)[names(dat_weights) == ".Dtreat"] = "N"
-    dat_weights = dat[.Dtreat == T][, .N, by = c(gvar, tvar, xvar)]
-
+  if(collapse_data == T & is.null(ivar)){
+    if(!is.null(xvar)){
+      dat_weights = dat[.Dtreat == T][, .N, by = c(gvar, tvar, xvar)]
+  
+    } else {
+      dat_weights = dat[.Dtreat == T][, .N, by = c(gvar, tvar)]
+    }
+    
+    # collapse the data
+    dat = dat[.Dtreat == T][, lapply(.SD, mean), by = c(gvar, tvar, xvar, ".Dtreat")] # collapse data
+    dat = data.table::setDT(dat)[, merge(.SD, dat_weights, all.x = T)] # add weights
+    
+  } else if (collapse_data == T & !is.null(ivar)) {
+    warning("\"ivar\" is not NULL. Marginal effects are calculated without collapsing.")
+    dat$N = 1
+    
   } else {
-    # form_count = stats::as.formula(paste(".", " ~", gvar, "+", tvar)) # base
-    # form_data  = stats::as.formula(paste(".", " ~", gvar, "+", tvar, "+ .Dtreat")) # base
-    # dat_weights = aggregate(form_count, data = subset(dat, .Dtreat == 1), FUN = length)[c(gvar, tvar, ".Dtreat")] # base
-    # names(dat_weights)[names(dat_weights) == ".Dtreat"] = "N"
-    dat_weights = dat[.Dtreat == T][, .N, by = c(gvar, tvar)]
+    dat$N = 1
   }
   
   # collapse the data 
-  # dat = aggregate(form_data, data = subset(dat, .Dtreat == 1), FUN = mean, na.rm = TRUE) # collapse data (base)
-  # dat = merge(dat, dat_weights, all.x = T) # add weights (base)
-  dat = dat[.Dtreat == T][, lapply(.SD, mean), by = c(gvar, tvar, xvar, ".Dtreat")] # collapse data
-  dat = data.table::setDT(dat)[, merge(.SD, dat_weights, all.x = T)] # add weights
-    
   if (type=="simple") by_var = ".Dtreat"
   if (type=="group") by_var = gvar
   if (type=="calendar") by_var = tvar

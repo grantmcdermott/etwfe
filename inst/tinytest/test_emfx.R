@@ -149,10 +149,10 @@ event_pois_known =
 
 # Tests ----
 
-expect_equal(summary(emfx(m3)), simple_known)
-expect_equal(summary(emfx(m3, type = "simple")), simple_known)
-expect_equal(summary(emfx(m3, type = "calendar")), calendar_known)
-expect_equal(summary(emfx(m3, type = "group")), group_known)
-expect_equal(summary(emfx(m3, type = "event")), event_known)
-expect_equal(data.frame(emfx(m3, type = "event", post_only = FALSE)), event_pre_known)
-expect_equal(summary(emfx(m3p, type = "event")), event_pois_known)
+expect_equal(summary(emfx(m3, collapse_data = F)), simple_known)
+expect_equal(summary(emfx(m3, collapse_data = F, type = "simple")), simple_known)
+expect_equal(summary(emfx(m3, collapse_data = F, type = "calendar")), calendar_known)
+expect_equal(summary(emfx(m3, collapse_data = F, type = "group")), group_known)
+expect_equal(summary(emfx(m3, collapse_data = F, type = "event")), event_known)
+expect_equal(data.frame(emfx(m3, collapse_data = F, type = "event", post_only = FALSE)), event_pre_known)
+expect_equal(summary(emfx(m3p, collapse_data = F, type = "event")), event_pois_known)

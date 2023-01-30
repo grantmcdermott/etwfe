@@ -9,6 +9,7 @@ emfx(
   type = c("simple", "group", "calendar", "event"),
   xvar = NULL,
   post_only = TRUE,
+  collapse_data = TRUE,
   ...
 )
 }
@@ -29,6 +30,9 @@ the dataset. But you may want to keep them for presentation reasons
 (e.g., plotting an event-study); though be warned that this is 
 strictly performative. This argument will only be evaluated if
 `type = "event"`.}
+
+\item{collapse_data}{Logical. Collapses data before calculating marginal
+effects. Is faster, but requires `ivar = NULL` in `etwfe`.}
 
 \item{...}{Additional arguments passed to [`marginaleffects::marginaleffects`]. 
 A potentially useful case is testing whether heterogeneous treatment effects
