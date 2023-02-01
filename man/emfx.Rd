@@ -9,7 +9,7 @@ emfx(
   type = c("simple", "group", "calendar", "event"),
   xvar = NULL,
   post_only = TRUE,
-  collapse_data = TRUE,
+  collapse_data = "auto",
   ...
 )
 }
@@ -32,7 +32,8 @@ strictly performative. This argument will only be evaluated if
 `type = "event"`.}
 
 \item{collapse_data}{Logical. Collapses data before calculating marginal
-effects. Is faster, but requires `ivar = NULL` in `etwfe`.}
+effects. Is faster, but requires `ivar = NULL` in `etwfe` (Default is "auto",
+which collapses if the data set has more than 10'000 rows).}
 
 \item{...}{Additional arguments passed to [`marginaleffects::marginaleffects`]. 
 A potentially useful case is testing whether heterogeneous treatment effects
