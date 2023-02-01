@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">etwfe</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.9002</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -101,11 +101,11 @@ e.g. `hypothesis = "adult = child"`.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
 
-<p>A marginaleffects object.</p>
+<p>A `slopes` object from the `marginaleffects` package.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p>[marginaleffects::marginaleffects()]</p></div>
+    <div class="dont-index"><p>[marginaleffects::slopes()]</p></div>
     </div>
 
     <div class="section level2">
@@ -169,21 +169,21 @@ e.g. `hypothesis = "adult = child"`.</p></dd>
 <span class="r-in"><span><span class="co"># We can recover a variety of treatment effects of interest with the </span></span></span>
 <span class="r-in"><span><span class="co"># complementary emfx() function. For example:</span></span></span>
 <span class="r-in"><span><span class="fu">emfx</span><span class="op">(</span><span class="va">mod</span>, type <span class="op">=</span> <span class="st">"event"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       type    term                 contrast        dydx  std.error statistic</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 response .Dtreat mean(TRUE) - mean(FALSE) -0.03321220 0.01336867 -2.484331</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 response .Dtreat mean(TRUE) - mean(FALSE) -0.05734565 0.01715312 -3.343162</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 response .Dtreat mean(TRUE) - mean(FALSE) -0.13787039 0.03079459 -4.477097</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 response .Dtreat mean(TRUE) - mean(FALSE) -0.10953946 0.03232182 -3.389024</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        p.value    conf.low   conf.high predicted predicted_hi predicted_lo</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 1.297951e-02 -0.05941432 -0.00701009  8.555778     8.555778     8.650093</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 8.282952e-04 -0.09096514 -0.02372616  6.009372     6.009372     6.073214</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 7.566490e-06 -0.19822668 -0.07751409  5.312274     5.312274     5.480921</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 7.014175e-04 -0.17288907 -0.04618984  5.388610     5.388610     5.504973</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   event</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1     0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2     1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3     2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4     3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Term                 Contrast Estimate Std. Error      z   Pr(&gt;|z|)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat mean(TRUE) - mean(FALSE) -0.03321    0.01337 -2.484 0.01297951</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat mean(TRUE) - mean(FALSE) -0.05735    0.01715 -3.343 0.00082830</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat mean(TRUE) - mean(FALSE) -0.13787    0.03079 -4.477 7.5665e-06</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat mean(TRUE) - mean(FALSE) -0.10954    0.03232 -3.389 0.00070142</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     2.5 %   97.5 % event</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.05941 -0.00701     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.09097 -0.02373     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.19823 -0.07751     2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.17289 -0.04619     3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Prediction type:  response </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Columns: type, term, contrast, estimate, std.error, statistic, p.value, conf.low, conf.high, event, predicted, predicted_hi, predicted_lo </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

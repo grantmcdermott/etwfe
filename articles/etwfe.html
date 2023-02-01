@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">etwfe</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.9002</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -262,12 +262,14 @@ doing so: <code><a href="../reference/emfx.html">emfx()</a></code>, which is a t
 follows.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="va">mod</span><span class="op">)</span></span>
-<span><span class="co">#&gt;       type    term                 contrast        dydx  std.error statistic</span></span>
-<span><span class="co">#&gt; 1 response .Dtreat mean(TRUE) - mean(FALSE) -0.05062703 0.01249979 -4.050232</span></span>
-<span><span class="co">#&gt;        p.value    conf.low  conf.high predicted predicted_hi predicted_lo</span></span>
-<span><span class="co">#&gt; 1 5.116687e-05 -0.07512616 -0.0261279  8.555778     8.555778     8.650093</span></span>
-<span><span class="co">#&gt;   .Dtreat</span></span>
-<span><span class="co">#&gt; 1    TRUE</span></span></code></pre></div>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     Term                 Contrast Estimate Std. Error     z   Pr(&gt;|z|)    2.5 %</span></span>
+<span><span class="co">#&gt;  .Dtreat mean(TRUE) - mean(FALSE) -0.05063     0.0125 -4.05 5.1167e-05 -0.07513</span></span>
+<span><span class="co">#&gt;    97.5 % .Dtreat</span></span>
+<span><span class="co">#&gt;  -0.02613    TRUE</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Prediction type:  response </span></span>
+<span><span class="co">#&gt; Columns: type, term, contrast, estimate, std.error, statistic, p.value, conf.low, conf.high, .Dtreat, predicted, predicted_hi, predicted_lo</span></span></code></pre></div>
 <p>Or, we can recover the dynamic treatment effects <em>a la</em> an
 event study by invoking the <code>type</code> argument. This time I’ll
 save the resulting object since I plan to reuse it in a moment.</p>
@@ -276,19 +278,20 @@ save the resulting object since I plan to reuse it in a moment.</p>
 <span></span>
 <span><span class="co"># Summary print looks a bit nicer, so let's use that here.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">mod_es</span><span class="op">)</span> </span>
-<span><span class="co">#&gt;      Term                 Contrast event   Effect Std. Error z value   Pr(&gt;|z|)</span></span>
-<span><span class="co">#&gt; 1 .Dtreat mean(TRUE) - mean(FALSE)     0 -0.03321    0.01337  -2.484 0.01297951</span></span>
-<span><span class="co">#&gt; 2 .Dtreat mean(TRUE) - mean(FALSE)     1 -0.05735    0.01715  -3.343 0.00082830</span></span>
-<span><span class="co">#&gt; 3 .Dtreat mean(TRUE) - mean(FALSE)     2 -0.13787    0.03079  -4.477 7.5665e-06</span></span>
-<span><span class="co">#&gt; 4 .Dtreat mean(TRUE) - mean(FALSE)     3 -0.10954    0.03232  -3.389 0.00070142</span></span>
-<span><span class="co">#&gt;      2.5 %   97.5 %</span></span>
-<span><span class="co">#&gt; 1 -0.05941 -0.00701</span></span>
-<span><span class="co">#&gt; 2 -0.09097 -0.02373</span></span>
-<span><span class="co">#&gt; 3 -0.19823 -0.07751</span></span>
-<span><span class="co">#&gt; 4 -0.17289 -0.04619</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Model type:  etwfe </span></span>
-<span><span class="co">#&gt; Prediction type:  response</span></span></code></pre></div>
+<span><span class="co">#&gt;     Term                 Contrast Estimate Std. Error      z   Pr(&gt;|z|)</span></span>
+<span><span class="co">#&gt;  .Dtreat mean(TRUE) - mean(FALSE) -0.03321    0.01337 -2.484 0.01297951</span></span>
+<span><span class="co">#&gt;  .Dtreat mean(TRUE) - mean(FALSE) -0.05735    0.01715 -3.343 0.00082830</span></span>
+<span><span class="co">#&gt;  .Dtreat mean(TRUE) - mean(FALSE) -0.13787    0.03079 -4.477 7.5665e-06</span></span>
+<span><span class="co">#&gt;  .Dtreat mean(TRUE) - mean(FALSE) -0.10954    0.03232 -3.389 0.00070142</span></span>
+<span><span class="co">#&gt;     2.5 %   97.5 % event</span></span>
+<span><span class="co">#&gt;  -0.05941 -0.00701     0</span></span>
+<span><span class="co">#&gt;  -0.09097 -0.02373     1</span></span>
+<span><span class="co">#&gt;  -0.19823 -0.07751     2</span></span>
+<span><span class="co">#&gt;  -0.17289 -0.04619     3</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Prediction type:  response </span></span>
+<span><span class="co">#&gt; Columns: type, term, contrast, estimate, std.error, statistic, p.value, conf.low, conf.high, event, predicted, predicted_hi, predicted_lo</span></span></code></pre></div>
 <p>Other types of aggregations include <code>"calendar"</code> (i.e.,
 treatment effect by period) and <code>"group"</code> (i.e., treatment
 effect by cohort).</p>
@@ -439,7 +442,7 @@ method. For example:</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>panel.grid.minor <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_blank</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">mod_es</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">event</span>, y <span class="op">=</span> <span class="va">dydx</span>, ymin <span class="op">=</span> <span class="va">conf.low</span>, ymax <span class="op">=</span> <span class="va">conf.high</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">mod_es</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">event</span>, y <span class="op">=</span> <span class="va">estimate</span>, ymin <span class="op">=</span> <span class="va">conf.low</span>, ymax <span class="op">=</span> <span class="va">conf.high</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_hline</a></span><span class="op">(</span>yintercept <span class="op">=</span> <span class="fl">0</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_linerange.html" class="external-link">geom_pointrange</a></span><span class="op">(</span>col <span class="op">=</span> <span class="st">"darkcyan"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Years post treatment"</span>, y <span class="op">=</span> <span class="st">"Effect on log employment"</span><span class="op">)</span></span></code></pre></div>
@@ -458,7 +461,7 @@ aesthetically pleasing.</p>
 <code class="sourceCode R"><span><span class="co"># Use post_only = FALSE to get the "zero" pre-treatment effects</span></span>
 <span><span class="va">mod_es2</span> <span class="op">=</span> <span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="va">mod</span>, type <span class="op">=</span> <span class="st">"event"</span>, post_only <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">mod_es2</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">event</span>, y <span class="op">=</span> <span class="va">dydx</span>, ymin <span class="op">=</span> <span class="va">conf.low</span>, ymax <span class="op">=</span> <span class="va">conf.high</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">mod_es2</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">event</span>, y <span class="op">=</span> <span class="va">estimate</span>, ymin <span class="op">=</span> <span class="va">conf.low</span>, ymax <span class="op">=</span> <span class="va">conf.high</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_hline</a></span><span class="op">(</span>yintercept <span class="op">=</span> <span class="fl">0</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_vline</a></span><span class="op">(</span>xintercept <span class="op">=</span> <span class="op">-</span><span class="fl">1</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_linerange.html" class="external-link">geom_pointrange</a></span><span class="op">(</span>col <span class="op">=</span> <span class="st">"darkcyan"</span><span class="op">)</span> <span class="op">+</span></span>
@@ -486,19 +489,20 @@ recast our earlier event-study as a Poisson regression.</p>
 <span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="st">"event"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt;      Term                 Contrast event   Effect Std. Error  z value</span></span>
-<span><span class="co">#&gt; 1 .Dtreat mean(TRUE) - mean(FALSE)     0  -25.350      15.90 -1.59409</span></span>
-<span><span class="co">#&gt; 2 .Dtreat mean(TRUE) - mean(FALSE)     1    1.092      41.84  0.02609</span></span>
-<span><span class="co">#&gt; 3 .Dtreat mean(TRUE) - mean(FALSE)     2  -75.125      22.30 -3.36942</span></span>
-<span><span class="co">#&gt; 4 .Dtreat mean(TRUE) - mean(FALSE)     3 -101.824      28.10 -3.62309</span></span>
-<span><span class="co">#&gt;     Pr(&gt;|z|)   2.5 %  97.5 %</span></span>
-<span><span class="co">#&gt; 1 0.11091631  -56.52   5.818</span></span>
-<span><span class="co">#&gt; 2 0.97918362  -80.92  83.100</span></span>
-<span><span class="co">#&gt; 3 0.00075327 -118.82 -31.425</span></span>
-<span><span class="co">#&gt; 4 0.00029111 -156.91 -46.741</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Model type:  etwfe </span></span>
-<span><span class="co">#&gt; Prediction type:  response</span></span></code></pre></div>
+<span><span class="co">#&gt;     Term                 Contrast Estimate Std. Error        z   Pr(&gt;|z|)</span></span>
+<span><span class="co">#&gt;  .Dtreat mean(TRUE) - mean(FALSE)  -25.350      15.90 -1.59409 0.11091631</span></span>
+<span><span class="co">#&gt;  .Dtreat mean(TRUE) - mean(FALSE)    1.092      41.84  0.02609 0.97918362</span></span>
+<span><span class="co">#&gt;  .Dtreat mean(TRUE) - mean(FALSE)  -75.125      22.30 -3.36942 0.00075327</span></span>
+<span><span class="co">#&gt;  .Dtreat mean(TRUE) - mean(FALSE) -101.824      28.10 -3.62309 0.00029111</span></span>
+<span><span class="co">#&gt;    2.5 %  97.5 % event</span></span>
+<span><span class="co">#&gt;   -56.52   5.818     0</span></span>
+<span><span class="co">#&gt;   -80.92  83.100     1</span></span>
+<span><span class="co">#&gt;  -118.82 -31.425     2</span></span>
+<span><span class="co">#&gt;  -156.91 -46.741     3</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Prediction type:  response </span></span>
+<span><span class="co">#&gt; Columns: type, term, contrast, estimate, std.error, statistic, p.value, conf.low, conf.high, event, predicted, predicted_hi, predicted_lo</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="under-the-hood">Under the hood<a class="anchor" aria-label="anchor" href="#under-the-hood"></a>
@@ -519,7 +523,7 @@ easily grab the formula of an estimated model to see for yourself.</p>
 <code class="sourceCode R"><span><span class="va">mod</span><span class="op">$</span><span class="va">fml_all</span></span>
 <span><span class="co">#&gt; $linear</span></span>
 <span><span class="co">#&gt; lemp ~ .Dtreat:i(first.treat, i.year, ref = 0, ref2 = 2003)/lpop_dm</span></span>
-<span><span class="co">#&gt; &lt;environment: 0x563922209b80&gt;</span></span>
+<span><span class="co">#&gt; &lt;environment: 0x562b2fadb9c0&gt;</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $fixef</span></span>
 <span><span class="co">#&gt; ~first.treat + first.treat[[lpop]] + year + year[[lpop]]</span></span></code></pre></div>
