@@ -14,7 +14,8 @@
 ##'   strictly performative. This argument will only be evaluated if
 ##'   `type = "event"`.
 ##' @param collapse_data Logical. Collapses data before calculating marginal
-##' effects. Is faster, but requires `ivar = NULL` in `etwfe`.
+##' effects. Is faster, but requires `ivar = NULL` in `etwfe` (Default is "auto",
+##' which collapses if the data set has more than 10'000 rows).
 ##' @param ... Additional arguments passed to [`marginaleffects::marginaleffects`]. 
 ##' A potentially useful case is testing whether heterogeneous treatment effects
 ##' (from any `xvar` covariate) are equal by invoking the `hypothesis` argument,
@@ -29,7 +30,7 @@ emfx = function(
     type = c("simple", "group", "calendar", "event"),
     xvar = NULL,
     post_only = TRUE,
-    collapse_data = TRUE,
+    collapse_data = "auto",
     ...
 ) {
   
@@ -48,9 +49,21 @@ emfx = function(
   ivar = attributes(object)[["etwfe"]][["ivar"]]
   gref = attributes(object)[["etwfe"]][["gref"]]
   tref = attributes(object)[["etwfe"]][["tref"]]
-
+  if (!collapse_data %in% c("auto", TRUE, FALSE)) stop("\"collapse_data\" has to be \"auto\", TRUE, or FALSE.")
+  
   dat = data.table::as.data.table(eval(object$call$data, object$call_env))
+  
+  # check collapse_data argument
+  if (collapse_data == "auto") {
+    nrows = nrow(dat)
 
+    if (nrows >= 1e5) {
+      collapse_data = TRUE
+    } else {
+      collapse_data = FALSE
+    }
+  }
+  
   if (type=="event" & !post_only) {
     dat = dat[dat[[gvar]] != gref, , drop = FALSE]
   } else {
