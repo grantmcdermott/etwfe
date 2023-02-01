@@ -168,10 +168,20 @@ event_pois_known <-
 
 # Tests ----
 
-expect_equal(summary(emfx(x3)), simple_known)
-expect_equal(summary(emfx(x3, type = "simple")), simple_known)
-expect_equal(summary(emfx(x3, type = "calendar")), calendar_known)
-expect_equal(summary(emfx(x3, type = "group")), group_known)
-expect_equal(summary(emfx(x3, type = "event")), event_known)
-expect_equal(summary(emfx(x3, type = "event", post_only = FALSE)), event_pre_known)
-expect_equal(summary(emfx(x3p, type = "event")), event_pois_known)
+e1 = emfx(x3)
+e2 = emfx(x3, type = "simple")
+e3 = emfx(x3, type = "calendar")
+e4 = emfx(x3, type = "group")
+e5 = emfx(x3, type = "event")
+e6 = emfx(x3, type = "event", post_only = FALSE)
+e7 = emfx(x3p, type = "event")
+for (col in c("estimate", "std.error", "conf.low", "conf.high")) {
+  expect_equivalent(e1[[col]], simple_known[[col]])
+  expect_equivalent(e2[[col]], simple_known[[col]])
+  expect_equivalent(e3[[col]], calendar_known[[col]])
+  expect_equivalent(e4[[col]], group_known[[col]])
+  expect_equivalent(e5[[col]], event_known[[col]])
+  expect_equivalent(e6[[col]], event_pre_known[[col]])
+  expect_equivalent(e7[[col]], event_pois_known[[col]])
+}
+

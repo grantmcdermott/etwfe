@@ -1,7 +1,7 @@
 Package: etwfe
 Type: Package
 Title: Extended Two-Way Fixed Effects
-Version: 0.2.9001
+Version: 0.2.9002
 Date: 2023-01-24
 Authors@R: 
     c(
@@ -23,7 +23,7 @@ Imports:
   fixest (>= 0.11.0),
   stats,
   Formula,
-  marginaleffects (>= 0.8.1)
+  marginaleffects (>= 0.9.0)
 Suggests:
     did,
     modelsummary,

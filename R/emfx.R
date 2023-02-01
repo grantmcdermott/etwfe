@@ -17,8 +17,8 @@
 ##' A potentially useful case is testing whether heterogeneous treatment effects
 ##' (from any `xvar` covariate) are equal by invoking the `hypothesis` argument,
 ##' e.g. `hypothesis = "adult = child"`. 
-##' @return A marginaleffects object.
-##' @seealso [marginaleffects::marginaleffects()]
+##' @return A `slopes` object from the `marginaleffects` package.
+##' @seealso [marginaleffects::slopes()]
 ##' @inherit etwfe return examples
 ##' @export
 emfx = function(
@@ -59,14 +59,21 @@ emfx = function(
     dat[["event"]] = dat[[tvar]] - dat[[gvar]]
     by_var = "event"
   }
-  
-  mfx = marginaleffects::marginaleffects(
+
+  mfx = marginaleffects::slopes(
     object,
     newdata = dat,   
     variables = ".Dtreat",
     by = c(by_var, xvar),
     ...
   )
+
+  # marginaleffects::slopes() sometimes -- but not always -- returns exact zero rows
+  # this code can be removed when this is fixed upstream
+  # https://github.com/vincentarelbundock/marginaleffects/issues/624
+  idx = mfx$estimate != 0 | mfx$std.error != 0
+  mfx = mfx[idx, , drop = FALSE]
+
   
   if (type!="simple") mfx = mfx[order(mfx[[by_var]]),]
    

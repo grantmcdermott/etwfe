@@ -36,7 +36,7 @@ A potentially useful case is testing whether heterogeneous treatment effects
 e.g. `hypothesis = "adult = child"`.}
 }
 \value{
-A marginaleffects object.
+A `slopes` object from the `marginaleffects` package.
 }
 \description{
 Post-estimation treatment effects for an ETWFE regressions.
@@ -64,5 +64,5 @@ emfx(mod, type = "event")
 
 }
 \seealso{
-[marginaleffects::marginaleffects()]
+[marginaleffects::slopes()]
 }
