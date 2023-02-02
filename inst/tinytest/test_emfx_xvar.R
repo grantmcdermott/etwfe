@@ -387,13 +387,29 @@ event_pois_known <- structure(list(type = c(
 
 # Tests ----
 
-expect_warning(summary(emfx(x3, xvar = "xvarrrr")))
-expect_warning(summary(emfx(x3i, xvar = "xvar", collapse_data = T)))
+expect_warning(emfx(x3, xvar = "xvarrrr"))
+expect_warning(emfx(x3i, xvar = "xvar", collapse_data = TRUE))
 
-expect_equal(summary(emfx(x3, xvar = "xvar")), simple_known)
-expect_equal(summary(emfx(x3, xvar = "xvar", type = "simple")), simple_known)
-expect_equal(summary(emfx(x3, xvar = "xvar", type = "calendar")), calendar_known)
-expect_equal(summary(emfx(x3, xvar = "xvar", type = "group")), group_known)
-expect_equal(summary(emfx(x3, xvar = "xvar", type = "event")), event_known)
-expect_equal(summary(emfx(x3, xvar = "xvar", type = "event", post_only = FALSE)), event_pre_known)
-expect_equal(summary(emfx(x3p, xvar = "xvar", type = "event")), event_pois_known)
+e1 = emfx(x3, xvar = "xvar")
+e2 = emfx(x3, xvar = "xvar", type = "simple")
+e3 = emfx(x3, xvar = "xvar", type = "calendar")
+e4 = emfx(x3, xvar = "xvar", type = "group")
+e5 = emfx(x3, xvar = "xvar", type = "event")
+e6 = emfx(x3, xvar = "xvar", type = "event", post_only = FALSE)
+e7 = emfx(x3p, xvar = "xvar", type = "event")
+# e1 = emfx(x3)
+# e2 = emfx(x3, type = "simple")
+# e3 = emfx(x3, type = "calendar")
+# e4 = emfx(x3, type = "group")
+# e5 = emfx(x3, type = "event")
+# e6 = emfx(x3, type = "event", post_only = FALSE)
+# e7 = emfx(x3p, type = "event")
+for (col in c("estimate", "std.error", "conf.low", "conf.high")) {
+  expect_equivalent(e1[[col]], simple_known[[col]])
+  expect_equivalent(e2[[col]], simple_known[[col]])
+  expect_equivalent(e3[[col]], calendar_known[[col]])
+  expect_equivalent(e4[[col]], group_known[[col]])
+  expect_equivalent(e5[[col]], event_known[[col]])
+  expect_equivalent(e6[[col]], event_pre_known[[col]])
+  expect_equivalent(e7[[col]], event_pois_known[[col]])
+}

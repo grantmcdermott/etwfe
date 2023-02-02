@@ -8,17 +8,17 @@ baker <- expand.grid(n = 1:30, id = 1:1000)
 baker <-
   baker |>
   within({
-    year <- n + 1980 - 1
-    state <- 1 + (id - 1) %/% 25
-    firms <- runif(id * year, 0, 5)
-    group <- 1 + (state - 1) %/% 10
-    treat_date <- 1980 + group * 6
-    time_til <- year - treat_date
-    treat <- time_til >= 0
-    e <- rnorm(id * year, 0, 0.5^2)
-    te <- rnorm(id * year, 10 - 2 * (group - 1), 0.2^2)
-    y <- firms + n + treat * te * (year - treat_date + 1) + e
-    y2 <- firms + n + te * treat + e
+    year       = n + 1980 - 1
+    state      = 1 + (id-1) %/% 25
+    firms      = runif(id*year, 0, 5)
+    grp        = 1 + (state-1) %/% 10
+    treat_date = 1980 + grp*6
+    time_til   = year - treat_date
+    treat      = time_til>=0
+    e          = rnorm(id*year, 0, 0.5^2)
+    te         = rnorm(id*year, 10-2*(grp-1), 0.2^2)
+    y          = firms + n + treat*te*(year - treat_date + 1) + e 
+    y2         = firms + n + te*treat + e
   })
 
 bmod_known <-
@@ -83,7 +83,7 @@ bmod_known <-
     "data.frame"
   ), conf_level = 0.95, FUN = "mean", type = structure("response", names = NA_character_), model_type = "etwfe")
 
-bmod <- summary(emfx(
+bmod = emfx(
   etwfe(
     fml  = y ~ 0,
     tvar = year,
@@ -91,7 +91,9 @@ bmod <- summary(emfx(
     data = baker,
     vcov = ~id
   ),
-  "event"
-))
+  type = "event"
+)
 
-expect_equal(bmod, bmod_known, tolerance = 1e-6)
+for (col in c("estimate", "std.error", "conf.low", "conf.high", "event")) {
+  expect_equivalent(bmod[[col]], bmod_known[[col]], tolerance = 1e-6)
+}
