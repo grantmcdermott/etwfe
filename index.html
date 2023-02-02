@@ -30,7 +30,7 @@
     
     <a class="navbar-brand me-2" href="index.html">etwfe</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.9002</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.9004</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -140,16 +140,16 @@
 <span><span class="co">#&gt;                  Within R2: 8.449e-4</span></span>
 <span></span>
 <span><span class="co"># Event-study treatment effects</span></span>
-<span><span class="fu"><a href="reference/emfx.html">emfx</a></span><span class="op">(</span><span class="va">mod</span>, type <span class="op">=</span> <span class="st">"event"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt;      Term                 Contrast event   Effect Std. Error z value   Pr(&gt;|z|)    2.5 %   97.5 %</span></span>
-<span><span class="co">#&gt; 1 .Dtreat mean(TRUE) - mean(FALSE)     0 -0.03321    0.01337  -2.484 0.01297951 -0.05941 -0.00701</span></span>
-<span><span class="co">#&gt; 2 .Dtreat mean(TRUE) - mean(FALSE)     1 -0.05735    0.01715  -3.343 0.00082830 -0.09097 -0.02373</span></span>
-<span><span class="co">#&gt; 3 .Dtreat mean(TRUE) - mean(FALSE)     2 -0.13787    0.03079  -4.477 7.5665e-06 -0.19823 -0.07751</span></span>
-<span><span class="co">#&gt; 4 .Dtreat mean(TRUE) - mean(FALSE)     3 -0.10954    0.03232  -3.389 0.00070142 -0.17289 -0.04619</span></span>
+<span><span class="fu"><a href="reference/emfx.html">emfx</a></span><span class="op">(</span><span class="va">mod</span>, type <span class="op">=</span> <span class="st">"event"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Model type:  etwfe </span></span>
-<span><span class="co">#&gt; Prediction type:  response</span></span></code></pre></div>
+<span><span class="co">#&gt;     Term                 Contrast Estimate Std. Error      z   Pr(&gt;|z|)    2.5 %   97.5 % event</span></span>
+<span><span class="co">#&gt;  .Dtreat mean(TRUE) - mean(FALSE) -0.03321    0.01337 -2.484 0.01297951 -0.05941 -0.00701     0</span></span>
+<span><span class="co">#&gt;  .Dtreat mean(TRUE) - mean(FALSE) -0.05735    0.01715 -3.343 0.00082830 -0.09097 -0.02373     1</span></span>
+<span><span class="co">#&gt;  .Dtreat mean(TRUE) - mean(FALSE) -0.13787    0.03079 -4.477 7.5665e-06 -0.19823 -0.07751     2</span></span>
+<span><span class="co">#&gt;  .Dtreat mean(TRUE) - mean(FALSE) -0.10954    0.03232 -3.389 0.00070142 -0.17289 -0.04619     3</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Prediction type:  response </span></span>
+<span><span class="co">#&gt; Columns: type, term, contrast, estimate, std.error, statistic, p.value, conf.low, conf.high, event, predicted, predicted_hi, predicted_lo</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="acknowledgements">Acknowledgements<a class="anchor" aria-label="anchor" href="#acknowledgements"></a>

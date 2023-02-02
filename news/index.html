@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">etwfe</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.9002</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.9004</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,10 +48,16 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.2.9001" id="etwfe-029001-development-version">etwfe 0.2.9001 (development version)<a class="anchor" aria-label="anchor" href="#etwfe-029001-development-version"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.2.9004" id="etwfe-029004-development-version">etwfe 0.2.9004 (development version)<a class="anchor" aria-label="anchor" href="#etwfe-029004-development-version"></a></h2>
 <div class="section level3">
-<h3 id="enhancements-0-2-9001">Enhancements<a class="anchor" aria-label="anchor" href="#enhancements-0-2-9001"></a></h3>
+<h3 id="enhancements-0-2-9004">Enhancements<a class="anchor" aria-label="anchor" href="#enhancements-0-2-9004"></a></h3>
 <ul><li>Support for heterogeneous treatment effects via the new <code>xvar</code> interacted covariate argument (<a href="https://github.com/grantmcdermott/etwfe/issues/16" class="external-link">#16</a>, thanks <a href="https://github.com/frederickluser" class="external-link">@frederickluser</a>).</li>
+<li>
+<code>emfx</code> accepts a new <code>collapse</code> argument that can substantially reduce estimation times for large datasets (<a href="https://github.com/grantmcdermott/etwfe/issues/19" class="external-link">#19</a>. thanks <a href="https://github.com/frederickluser" class="external-link">@frederickluser</a>). This performance boost does trade off against a loss in estimate accuracy. But testing suggests that the difference is relatively minor for typical use cases (i.e., results are equivalent up to the 1st or 2nd significant decimal place; see <a href="https://github.com/grantmcdermott/etwfe/issues/18" class="external-link">#18</a> for some examples). Please let us know if you find edge cases where this is not true.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="bug-fixes-0-2-9004">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-2-9004"></a></h3>
+<ul><li>Internal code and tests have been updated to account for some upstream breaking changes in <strong>marginaleffects</strong> 0.9.0 (<a href="https://github.com/grantmcdermott/etwfe/issues/20" class="external-link">#20</a>, thanks <a href="https://github.com/vincentarelbundock" class="external-link">@vincentarelbundock</a>).</li>
 </ul></div>
 </div>
     <div class="section level2">
@@ -62,7 +68,7 @@
 <li><p>The (optional) <code>ivar</code> argument of <code><a href="../reference/etwfe.html">etwfe()</a></code> has been moved down the argument order list from second position to fifth (i.e., after the <code>data</code> argument). This means that the four required arguments of function now occupy the top positions, which could enable shorter, unnamed notation like <code>etwfe(y ~ x, year, cohort, dat)</code>.</p></li>
 </ul></div>
 <div class="section level3">
-<h3 id="improvements-0-2-0">Improvements<a class="anchor" aria-label="anchor" href="#improvements-0-2-0"></a></h3>
+<h3 id="enhancements-0-2-0">Enhancements<a class="anchor" aria-label="anchor" href="#enhancements-0-2-0"></a></h3>
 <ul><li><p><code>emfx</code> now allows (time-invariant) interacted control variables on the fml RHS.</p></li>
 <li><p><code>emfx</code> now has a <code>post_only</code> logical argument, which may be useful for plotting aesthetics (but not inference). See the example in the introductory vignette.</p></li>
 <li><p>Various improvements to the documentation (restructuring, fixed typos, etc.)</p></li>
