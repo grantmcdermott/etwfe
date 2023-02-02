@@ -22,6 +22,7 @@ License: MIT + file LICENSE
 Imports:
   fixest (>= 0.11.0),
   stats,
+  data.table,
   Formula,
   marginaleffects (>= 0.9.0)
 Suggests:

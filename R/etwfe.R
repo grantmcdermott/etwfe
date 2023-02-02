@@ -257,9 +257,10 @@ etwfe = function(
     attr(est, "etwfe") = list(
       gvar = gvar,
       tvar = tvar,
+      xvar = xvar,
+      ivar = ivar,
       gref = gref,
-      tref = tref,
-      xvar = xvar
+      tref = tref
       )
 
   ## Return ----

@@ -148,6 +148,7 @@ event_pois_known =
   )
 
 # Tests ----
+
 e1 = emfx(m3)
 e2 = emfx(m3, type = "simple")
 e3 = emfx(m3, type = "calendar")
