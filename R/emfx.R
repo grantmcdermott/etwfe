@@ -102,10 +102,11 @@ emfx = function(
     } else {
       by_var = xvar  
     }
-  }
-  if (type=="group") by_var = gvar
-  if (type=="calendar") by_var = tvar
-  if (type=="event") {
+  } else if (type=="group") {
+    by_var = gvar
+  } else if (type=="calendar") {
+    by_var = tvar
+  } else if (type=="event") {
     dat[["event"]] = dat[[tvar]] - dat[[gvar]]
     by_var = "event"
   }
