@@ -14,11 +14,11 @@
 ##'   strictly performative. This argument will only be evaluated if
 ##'   `type = "event"`.
 ##' @param collapse Logical. Collapse the data by (period by cohort) groups 
-##' before calculating marginal effects? This trades off a slight loss in
-##' estimate accuracy (typically around the second decimal point) for a 
+##' before calculating marginal effects? This trades off a loss in estimate 
+##' accuracy (typically around the 1st or 2nd significant decimal point) for a 
 ##' substantial improvement in estimation time for large datasets. The default 
 ##' behaviour ("auto") is to automatically collapse if the original dataset has 
-##' more than 100,000 rows. Users can override by setting either FALSE or TRUE. 
+##' more than 500,000 rows. Users can override by setting either FALSE or TRUE. 
 ##' Note that collapsing by group is only valid if the preceding `etwfe` call 
 ##' was run with "ivar = NULL" (the default).
 ##' @param ... Additional arguments passed to [`marginaleffects::marginaleffects`]. 
@@ -59,10 +59,11 @@ emfx = function(
   dat = data.table::as.data.table(eval(object$call$data, object$call_env))
   
   # check collapse argument
+  nrows = NULL
   if (collapse == "auto") {
     nrows = nrow(dat)
 
-    if (nrows >= 1e5) {
+    if (nrows >= 5e5) {
       collapse = TRUE
     } else {
       collapse = FALSE
@@ -83,9 +84,19 @@ emfx = function(
       dat_weights = dat[(.Dtreat)][, .N, by = c(gvar, tvar)]
     }
     
+   if (!is.null(nrows) && nrows > 5e5) warning(
+    "\nNote: Dataset larger than 500k rows detected. The data will be ",
+    "collapsed by period-cohort groups to reduce estimation times. ", 
+    "However, this shortcut can reduce the accuracy of the reported ",
+    "marginal effects. ",
+    "To override this default behaviour, specify: ",
+    "`emfx(..., collapse = FALSE)`\n"
+    ) 
+    
     # collapse the data
     dat = dat[(.Dtreat)][, lapply(.SD, mean), by = c(gvar, tvar, xvar, ".Dtreat")] # collapse data
     dat = data.table::setDT(dat)[, merge(.SD, dat_weights, all.x = TRUE)] # add weights
+    
     
   } else if (collapse & !is.null(ivar)) {
     warning("\"ivar\" is not NULL. Marginal effects are calculated without collapsing.")

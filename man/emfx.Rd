@@ -32,11 +32,11 @@ strictly performative. This argument will only be evaluated if
 `type = "event"`.}
 
 \item{collapse}{Logical. Collapse the data by (period by cohort) groups 
-before calculating marginal effects? This trades off a slight loss in
-estimate accuracy (typically around the second decimal point) for a 
+before calculating marginal effects? This trades off a loss in estimate 
+accuracy (typically around the 1st or 2nd significant decimal point) for a 
 substantial improvement in estimation time for large datasets. The default 
 behaviour ("auto") is to automatically collapse if the original dataset has 
-more than 100,000 rows. Users can override by setting either FALSE or TRUE. 
+more than 500,000 rows. Users can override by setting either FALSE or TRUE. 
 Note that collapsing by group is only valid if the preceding `etwfe` call 
 was run with "ivar = NULL" (the default).}
 
