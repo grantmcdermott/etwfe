@@ -1,4 +1,4 @@
-# etwfe 0.2.9003 (development version)
+# etwfe 0.2.9004 (development version)
 
 ## Enhancements
 
@@ -8,13 +8,14 @@ covariate argument (#16, thanks @frederickluser).
 estimation times for large datasets (#19. thanks @frederickluser). This
 performance boost does trade off against a loss in estimate accuracy. But
 testing suggests that the difference is relatively minor for typical use cases
-(i.e., results equivalent up to the 1st or 2nd decimal place; see #18 for some 
-examples). Please let us know if you find edge cases where this is not true.
+(i.e., results are equivalent up to the 1st or 2nd significant decimal place;
+see #18 for some examples). Please let us know if you find edge cases where this
+is not true.
 
 ## Bug fixes
 
-- Internal code and tests have been updated to match some breaking changes in
-**marginaleffects** 0.9.0 (#20, thanks @vincentarelbundock).
+- Internal code and tests have been updated to account for some upstream
+breaking changes in **marginaleffects** 0.9.0 (#20, thanks @vincentarelbundock).
 
 # etwfe 0.2.0
 
