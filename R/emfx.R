@@ -89,14 +89,20 @@ emfx = function(
     
   } else if (collapse_data & !is.null(ivar)) {
     warning("\"ivar\" is not NULL. Marginal effects are calculated without collapsing.")
-    dat$N = 1
+    dat$N = 1L
     
   } else {
-    dat$N = 1
+    dat$N = 1L
   }
   
   # collapse the data 
-  if (type=="simple") by_var = ".Dtreat"
+  if (type=="simple") {
+    if (is.null(xvar)) {
+      by_var = ".Dtreat"
+    } else {
+      by_var = xvar  
+    }
+  }
   if (type=="group") by_var = gvar
   if (type=="calendar") by_var = tvar
   if (type=="event") {
@@ -121,7 +127,7 @@ emfx = function(
     mfx = mfx[idx, , drop = FALSE]
   }
   
-  if (type!="simple") mfx = mfx[order(mfx[[by_var]]),]
+  if (type!="simple" | !is.null(xvar)) mfx = mfx[order(mfx[[by_var]]),]
    
   return(mfx)
 }
