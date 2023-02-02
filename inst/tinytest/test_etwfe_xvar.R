@@ -1,13 +1,13 @@
 set.seed(123)
 data("mpdta", package = "did")
-mpdta$xvar <- rep(sample(1:3, size = 500, replace = T), each = 5) # a categorical var for every id
-mpdta$emp <- exp(mpdta$lemp)
+mpdta$xvar = rep(sample(1:3, size = 500, replace = TRUE), each = 5) # a categorical var for every id
+mpdta$emp = exp(mpdta$lemp)
 
 # Known outputs ----
 
 # from etwfe(...) |> fixest::coeftable() |> dput()
 
-x1_known <- structure(c(
+x1_known = structure(c(
   -0.019524066522547, -0.0796380318073288, -0.134204917778194,
   -0.10841966070768, 0.0152968423715633, -0.0336946809186372, -0.0511485418564485,
   -0.146970466674907, -0.145527532198954, -0.119389584067427, -0.160589500183802,
@@ -39,7 +39,7 @@ x1_known <- structure(c(
   ".Dtreat:first.treat::2006:year::2007:xvar_dm", ".Dtreat:first.treat::2007:year::2007:xvar_dm"
 ), c("Estimate", "Std. Error", "t value", "Pr(>|t|)")), type = "Clustered (countyreal)")
 
-x2_known <- structure(c(
+x2_known = structure(c(
   -0.0177280343359208, -0.0780488449553613, -0.144502200465749,
   -0.109497312646439, 0.00289701082107226, 0.00211334616529051,
   -0.00203395773586354, -0.0418058502772696, 0.00926716038018843,
@@ -86,7 +86,7 @@ x2_known <- structure(c(
   ".Dtreat:first.treat::2007:year::2006:xvar_dm", ".Dtreat:first.treat::2007:year::2007:xvar_dm"
 ), c("Estimate", "Std. Error", "t value", "Pr(>|t|)")), type = "Clustered (countyreal)")
 
-x3_known <- structure(c(
+x3_known = structure(c(
   -0.0127020076747978, -0.0752671139311374, -0.128226490551655,
   -0.0995567882709647, 0.0168748779423594, -0.0364935045756735,
   -0.0438524359835098, 0.010569479215233, 0.0136058916590233, 0.0176258547231566,
@@ -140,7 +140,7 @@ x3_known <- structure(c(
   ".Dtreat:first.treat::2006:year::2007:xvar_dm:lpop_dm", ".Dtreat:first.treat::2007:year::2007:xvar_dm:lpop_dm"
 ), c("Estimate", "Std. Error", "t value", "Pr(>|t|)")), type = "Clustered (countyreal)")
 
-x3p_known <- structure(c(
+x3p_known = structure(c(
   -0.0346004088213415, -0.0803179736233184, -0.146037347254729,
   -0.12858363211337, -0.014520383567862, -0.0723619322066703, -0.0534477540132797,
   0.0444170298612762, 0.0327116212235207, 0.0400911444564683, 0.0136924085319922,
@@ -201,16 +201,16 @@ x3p_known <- structure(c(
 # Tests ----
 
 # No other controls
-x1 <- etwfe(lemp ~ 0, tvar = year, gvar = first.treat, xvar = xvar, data = mpdta, vcov = ~countyreal)
-x1a <- etwfe(lemp ~ 0, tvar = "year", gvar = "first.treat", xvar = "xvar", data = mpdta, vcov = ~countyreal) # chars instead of nse
-x1r <- etwfe(lemp ~ 0, tvar = "year", gvar = "first.treat", xvar = "xvar", data = mpdta, vcov = ~countyreal, gref = 0) # with explicit ref
+x1 = etwfe(lemp ~ 0, tvar = year, gvar = first.treat, xvar = xvar, data = mpdta, vcov = ~countyreal)
+x1a = etwfe(lemp ~ 0, tvar = "year", gvar = "first.treat", xvar = "xvar", data = mpdta, vcov = ~countyreal) # chars instead of nse
+x1r = etwfe(lemp ~ 0, tvar = "year", gvar = "first.treat", xvar = "xvar", data = mpdta, vcov = ~countyreal, gref = 0) # with explicit ref
 
 expect_equal(fixest::coeftable(x1), x1_known)
 expect_equal(fixest::coeftable(x1a), x1_known)
 expect_equal(fixest::coeftable(x1r), x1_known)
 
 # With never-treated control group
-x2 <- etwfe(lemp ~ 0,
+x2 = etwfe(lemp ~ 0,
   tvar = year, gvar = first.treat, xvar = xvar, data = mpdta, vcov = ~countyreal,
   cgroup = "never"
 )
@@ -218,7 +218,7 @@ x2 <- etwfe(lemp ~ 0,
 expect_equal(fixest::coeftable(x2), x2_known)
 
 # With controls
-x3 <- etwfe(lemp ~ lpop, tvar = year, gvar = first.treat, xvar = xvar, data = mpdta, vcov = ~countyreal)
+x3 = etwfe(lemp ~ lpop, tvar = year, gvar = first.treat, xvar = xvar, data = mpdta, vcov = ~countyreal)
 expect_equal(fixest::coeftable(x3), x3_known)
 
 expect_error(
@@ -226,5 +226,5 @@ expect_error(
 )
 
 # Poisson version
-x3p <- etwfe(emp ~ lpop, tvar = year, gvar = first.treat, xvar = xvar, data = mpdta, vcov = ~countyreal, family = "poisson")
+x3p = etwfe(emp ~ lpop, tvar = year, gvar = first.treat, xvar = xvar, data = mpdta, vcov = ~countyreal, family = "poisson")
 expect_equal(fixest::coeftable(x3p), x3p_known)
