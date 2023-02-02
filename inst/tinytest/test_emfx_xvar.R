@@ -1,19 +1,19 @@
 set.seed(123)
 data("mpdta", package = "did")
-mpdta$xvar <- rep(sample(1:3, size = 500, replace = T), each = 5) # a categorical var for every id
-mpdta$emp <- exp(mpdta$lemp)
+mpdta$xvar = rep(sample(1:3, size = 500, replace = TRUE), each = 5) # a categorical var for every id
+mpdta$emp = exp(mpdta$lemp)
 
 # We'll continue with model 3 from the etwfe tests...
-x3 <- etwfe(lemp ~ lpop, tvar = year, gvar = first.treat, xvar = xvar, data = mpdta, vcov = ~countyreal)
-x3i <- etwfe(lemp ~ lpop, tvar = year, gvar = first.treat, ivar = countyreal, xvar = xvar, data = mpdta, vcov = ~countyreal)
+x3 = etwfe(lemp ~ lpop, tvar = year, gvar = first.treat, xvar = xvar, data = mpdta, vcov = ~countyreal)
+x3i = etwfe(lemp ~ lpop, tvar = year, gvar = first.treat, ivar = countyreal, xvar = xvar, data = mpdta, vcov = ~countyreal)
 
 # Poisson version
-x3p <- etwfe(emp ~ lpop, tvar = year, gvar = first.treat, xvar = xvar, data = mpdta, vcov = ~countyreal, family = "poisson")
+x3p = etwfe(emp ~ lpop, tvar = year, gvar = first.treat, xvar = xvar, data = mpdta, vcov = ~countyreal, family = "poisson")
 
 # Known outputs ----
 
-# from m3 |> emfx(...) |> summary() |> dput()
-simple_known <- structure(list(
+# from m3 |> emfx(...) |> c() |> data.frame() |> dput()
+simple_known = structure(list(
   type = c("response", "response", "response"),
   term = c(".Dtreat", ".Dtreat", ".Dtreat"), contrast = c(
     "mean(TRUE) - mean(FALSE)",
@@ -42,7 +42,8 @@ simple_known <- structure(list(
   NA,
   -3L
 ), class = c("marginaleffects.summary", "data.frame"), conf_level = 0.95, FUN = "mean", type = structure("response", names = NA_character_), model_type = "etwfe")
-calendar_known <- structure(list(type = c(
+
+calendar_known = structure(list(type = c(
   "response", "response", "response", "response",
   "response", "response", "response", "response", "response", "response",
   "response", "response"
@@ -99,10 +100,7 @@ calendar_known <- structure(list(type = c(
   -12L
 ), class = c("marginaleffects.summary", "data.frame"), conf_level = 0.95, FUN = "mean", type = structure("response", names = NA_character_), model_type = "etwfe")
 
-
-
-
-group_known <- structure(list(
+group_known = structure(list(
   type = c(
     "response", "response", "response", "response",
     "response", "response", "response", "response", "response"
@@ -154,7 +152,7 @@ group_known <- structure(list(
   "data.frame"
 ), conf_level = 0.95, FUN = "mean", type = structure("response", names = NA_character_), model_type = "etwfe")
 
-event_known <- structure(list(
+event_known = structure(list(
   type = c(
     "response", "response", "response", "response",
     "response", "response", "response", "response", "response"
@@ -205,7 +203,8 @@ event_known <- structure(list(
   "marginaleffects.summary",
   "data.frame"
 ), conf_level = 0.95, FUN = "mean", type = structure("response", names = NA_character_), model_type = "etwfe")
-event_known <- structure(list(
+
+event_known = structure(list(
   type = c(
     "response", "response", "response", "response",
     "response", "response", "response", "response", "response", "response",
@@ -267,7 +266,7 @@ event_known <- structure(list(
   -12L
 ), class = c("marginaleffects.summary", "data.frame"), conf_level = 0.95, FUN = "mean", type = structure("response", names = NA_character_), model_type = "etwfe")
 
-event_pre_known <- structure(list(
+event_pre_known = structure(list(
   type = c(
     "response", "response", "response", "response",
     "response", "response", "response", "response", "response", "response",
@@ -329,7 +328,7 @@ event_pre_known <- structure(list(
   -12L
 ), class = c("marginaleffects.summary", "data.frame"), conf_level = 0.95, FUN = "mean", type = structure("response", names = NA_character_), model_type = "etwfe")
 
-event_pois_known <- structure(list(type = c(
+event_pois_known = structure(list(type = c(
   "response", "response", "response", "response",
   "response", "response", "response", "response", "response", "response",
   "response", "response"
@@ -388,22 +387,16 @@ event_pois_known <- structure(list(type = c(
 # Tests ----
 
 expect_warning(emfx(x3, xvar = "xvarrrr"))
-expect_warning(emfx(x3i, xvar = "xvar", collapse_data = TRUE))
+expect_warning(emfx(x3i, xvar = "xvar", collapse = TRUE))
 
-e1 = emfx(x3, xvar = "xvar", collapse_data = TRUE)
-e2 = emfx(x3, xvar = "xvar", type = "simple", collapse_data = TRUE)
-e3 = emfx(x3, xvar = "xvar", type = "calendar", collapse_data = TRUE)
-e4 = emfx(x3, xvar = "xvar", type = "group", collapse_data = TRUE)
-e5 = emfx(x3, xvar = "xvar", type = "event", collapse_data = TRUE)
-e6 = emfx(x3, xvar = "xvar", type = "event", post_only = FALSE, collapse_data = TRUE)
-e7 = emfx(x3p, xvar = "xvar", type = "event", collapse_data = TRUE)
-# e1 = emfx(x3)
-# e2 = emfx(x3, type = "simple")
-# e3 = emfx(x3, type = "calendar")
-# e4 = emfx(x3, type = "group")
-# e5 = emfx(x3, type = "event")
-# e6 = emfx(x3, type = "event", post_only = FALSE)
-# e7 = emfx(x3p, type = "event")
+e1 = emfx(x3, xvar = "xvar", collapse = TRUE)
+e2 = emfx(x3, xvar = "xvar", type = "simple", collapse = TRUE)
+e3 = emfx(x3, xvar = "xvar", type = "calendar", collapse = TRUE)
+e4 = emfx(x3, xvar = "xvar", type = "group", collapse = TRUE)
+e5 = emfx(x3, xvar = "xvar", type = "event", collapse = TRUE)
+e6 = emfx(x3, xvar = "xvar", type = "event", post_only = FALSE, collapse = TRUE)
+e7 = emfx(x3p, xvar = "xvar", type = "event", collapse = TRUE)
+
 for (col in c("estimate", "std.error", "conf.low", "conf.high")) {
   expect_equivalent(e1[[col]], simple_known[[col]])
   expect_equivalent(e2[[col]], simple_known[[col]])

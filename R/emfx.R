@@ -13,13 +13,14 @@
 ##'   (e.g., plotting an event-study); though be warned that this is 
 ##'   strictly performative. This argument will only be evaluated if
 ##'   `type = "event"`.
-##' @param collapse_data Logical. Collapse the data by group before calculating 
-##' marginal effects? This trades off a slight loss in estimate accuracy (not at
-##' a meaningful scale for typical cases) for a substantial improvement in 
-##' estimation time for large datasets. The default behaviour ("auto") is to
-##' automatically collapses if the dataset has more than 100,000 rows. Users can
-##' override by setting either FALSE or TRUE. Note that collapsing by group is only
-##' valid if the preceding `etwfe` call was run with "ivar = NULL" (the default).
+##' @param collapse Logical. Collapse the data by (period by cohort) groups 
+##' before calculating marginal effects? This trades off a slight loss in
+##' estimate accuracy (typically around the second decimal point) for a 
+##' substantial improvement in estimation time for large datasets. The default 
+##' behaviour ("auto") is to automatically collapse if the original dataset has 
+##' more than 100,000 rows. Users can override by setting either FALSE or TRUE. 
+##' Note that collapsing by group is only valid if the preceding `etwfe` call 
+##' was run with "ivar = NULL" (the default).
 ##' @param ... Additional arguments passed to [`marginaleffects::marginaleffects`]. 
 ##' A potentially useful case is testing whether heterogeneous treatment effects
 ##' (from any `xvar` covariate) are equal by invoking the `hypothesis` argument,
@@ -34,7 +35,7 @@ emfx = function(
     type = c("simple", "group", "calendar", "event"),
     xvar = NULL,
     post_only = TRUE,
-    collapse_data = "auto",
+    collapse = "auto",
     ...
 ) {
   
@@ -53,18 +54,18 @@ emfx = function(
   ivar = attributes(object)[["etwfe"]][["ivar"]]
   gref = attributes(object)[["etwfe"]][["gref"]]
   tref = attributes(object)[["etwfe"]][["tref"]]
-  if (!collapse_data %in% c("auto", TRUE, FALSE)) stop("\"collapse_data\" has to be \"auto\", TRUE, or FALSE.")
+  if (!collapse %in% c("auto", TRUE, FALSE)) stop("\"collapse\" has to be \"auto\", TRUE, or FALSE.")
   
   dat = data.table::as.data.table(eval(object$call$data, object$call_env))
   
-  # check collapse_data argument
-  if (collapse_data == "auto") {
+  # check collapse argument
+  if (collapse == "auto") {
     nrows = nrow(dat)
 
     if (nrows >= 1e5) {
-      collapse_data = TRUE
+      collapse = TRUE
     } else {
-      collapse_data = FALSE
+      collapse = FALSE
     }
   }
   
@@ -75,10 +76,9 @@ emfx = function(
   }
   
   # define formulas and calculate weights
-  if(collapse_data & is.null(ivar)){
+  if(collapse & is.null(ivar)){
     if(!is.null(xvar)){
       dat_weights = dat[(.Dtreat)][, .N, by = c(gvar, tvar, xvar)]
-  
     } else {
       dat_weights = dat[(.Dtreat)][, .N, by = c(gvar, tvar)]
     }
@@ -87,7 +87,7 @@ emfx = function(
     dat = dat[(.Dtreat)][, lapply(.SD, mean), by = c(gvar, tvar, xvar, ".Dtreat")] # collapse data
     dat = data.table::setDT(dat)[, merge(.SD, dat_weights, all.x = TRUE)] # add weights
     
-  } else if (collapse_data & !is.null(ivar)) {
+  } else if (collapse & !is.null(ivar)) {
     warning("\"ivar\" is not NULL. Marginal effects are calculated without collapsing.")
     dat$N = 1L
     
