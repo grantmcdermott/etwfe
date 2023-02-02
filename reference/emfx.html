@@ -59,6 +59,7 @@
 <span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"simple"</span>, <span class="st">"group"</span>, <span class="st">"calendar"</span>, <span class="st">"event"</span><span class="op">)</span>,</span>
 <span>  xvar <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  post_only <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  collapse_data <span class="op">=</span> <span class="st">"auto"</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -88,6 +89,16 @@ the dataset. But you may want to keep them for presentation reasons
 (e.g., plotting an event-study); though be warned that this is 
 strictly performative. This argument will only be evaluated if
 `type = "event"`.</p></dd>
+
+
+<dt>collapse_data</dt>
+<dd><p>Logical. Collapse the data by group before calculating 
+marginal effects? This trades off a slight loss in estimate accuracy (not at
+a meaningful scale for typical cases) for a substantial improvement in 
+estimation time for large datasets. The default behaviour ("auto") is to
+automatically collapses if the dataset has more than 100,000 rows. Users can
+override by setting either FALSE or TRUE. Note that collapsing by group is only
+valid if the preceding `etwfe` call was run with "ivar = NULL" (the default).</p></dd>
 
 
 <dt>...</dt>
