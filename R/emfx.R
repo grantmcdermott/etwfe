@@ -116,9 +116,10 @@ emfx = function(
   # marginaleffects::slopes() sometimes -- but not always -- returns exact zero rows
   # this code can be removed when this is fixed upstream
   # https://github.com/vincentarelbundock/marginaleffects/issues/624
-  idx = mfx$estimate != 0 | mfx$std.error != 0
-  mfx = mfx[idx, , drop = FALSE]
-
+  if (post_only) {
+    idx = mfx$estimate != 0 | mfx$std.error != 0
+    mfx = mfx[idx, , drop = FALSE]
+  }
   
   if (type!="simple") mfx = mfx[order(mfx[[by_var]]),]
    
