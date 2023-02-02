@@ -75,19 +75,19 @@ emfx = function(
   }
   
   # define formulas and calculate weights
-  if(collapse_data == T & is.null(ivar)){
+  if(collapse_data & is.null(ivar)){
     if(!is.null(xvar)){
-      dat_weights = dat[.Dtreat == T][, .N, by = c(gvar, tvar, xvar)]
+      dat_weights = dat[(.Dtreat)][, .N, by = c(gvar, tvar, xvar)]
   
     } else {
-      dat_weights = dat[.Dtreat == T][, .N, by = c(gvar, tvar)]
+      dat_weights = dat[(.Dtreat)][, .N, by = c(gvar, tvar)]
     }
     
     # collapse the data
-    dat = dat[.Dtreat == T][, lapply(.SD, mean), by = c(gvar, tvar, xvar, ".Dtreat")] # collapse data
-    dat = data.table::setDT(dat)[, merge(.SD, dat_weights, all.x = T)] # add weights
+    dat = dat[(.Dtreat)][, lapply(.SD, mean), by = c(gvar, tvar, xvar, ".Dtreat")] # collapse data
+    dat = data.table::setDT(dat)[, merge(.SD, dat_weights, all.x = TRUE)] # add weights
     
-  } else if (collapse_data == T & !is.null(ivar)) {
+  } else if (collapse_data & !is.null(ivar)) {
     warning("\"ivar\" is not NULL. Marginal effects are calculated without collapsing.")
     dat$N = 1
     
