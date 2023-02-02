@@ -166,9 +166,7 @@ reuse it in a moment.
 
 ```{r}
 mod_es = emfx(mod, type = "event")
-
-# Summary print looks a bit nicer, so let's use that here.
-summary(mod_es) 
+mod_es
 ```
 
 Other types of aggregations include `"calendar"` (i.e., treatment effect by period) 
