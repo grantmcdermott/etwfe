@@ -31,9 +31,13 @@ the dataset. But you may want to keep them for presentation reasons
 strictly performative. This argument will only be evaluated if
 `type = "event"`.}
 
-\item{collapse_data}{Logical. Collapses data before calculating marginal
-effects. Is faster, but requires `ivar = NULL` in `etwfe` (Default is "auto",
-which collapses if the data set has more than 10'000 rows).}
+\item{collapse_data}{Logical. Collapse the data by group before calculating 
+marginal effects? This trades off a slight loss in estimate accuracy (not at
+a meaningful scale for typical cases) for a substantial improvement in 
+estimation time for large datasets. The default behaviour ("auto") is to
+automatically collapses if the dataset has more than 100,000 rows. Users can
+override by setting either FALSE or TRUE. Note that collapsing by group is only
+valid if the preceding `etwfe` call was run with "ivar = NULL" (the default).}
 
 \item{...}{Additional arguments passed to [`marginaleffects::marginaleffects`]. 
 A potentially useful case is testing whether heterogeneous treatment effects
