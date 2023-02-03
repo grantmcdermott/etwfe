@@ -105,7 +105,7 @@ data("mpdta", package = "did")
 
 # Run the estimation
 mod = etwfe(
-    fml  = lemp ~ lpop, # outcome ~ controls
+    fml  = lemp ~ lpop, # outcome ~ controls (use 0 or 1 if none)
     tvar = year,        # time variable
     gvar = first.treat, # group variable
     data = mpdta,       # dataset
@@ -116,6 +116,14 @@ mod
 # We can recover a variety of treatment effects of interest with the 
 # complementary emfx() function. For example:
 emfx(mod, type = "event")
+
+# Nonlinear model families are supported through the "family" argument.
+mpdta$emp = exp(mpdta$lemp)
+etwfe(
+   emp ~ lpop, year, first.treat, mpdta,
+   family = "poisson"
+   ) |>
+   emfx("event")
 
 }
 \seealso{
