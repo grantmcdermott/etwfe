@@ -4,15 +4,15 @@
 ##' @param type Character. The desired type of post-estimation aggregation.
 ##' @param xvar Optional interacted categorical covariate for estimating
 ##' heterogeneous treatment effects. In other words, allows recovery of the
-##' (marginal) treatment effect for distinct values of `xvar`. Works with binary
+##' (marginal) treatment effect for distinct levels of `xvar`. Works with binary
 ##' categorical variables (e.g. "adult" or "child"), as well as multiple values.
 ##' @param post_only Logical. Only keep post-treatment effects. All
-##'   pre-treatment effects will be zero as a mechanical result of ETWFE's 
-##'   estimation setup, so the default is to drop these nuisance rows from
-##'   the dataset. But you may want to keep them for presentation reasons
-##'   (e.g., plotting an event-study); though be warned that this is 
-##'   strictly performative. This argument will only be evaluated if
-##'   `type = "event"`.
+##' pre-treatment effects will be zero as a mechanical result of ETWFE's 
+##' estimation setup, so the default is to drop these nuisance rows from
+##' the dataset. But you may want to keep them for presentation reasons
+##' (e.g., plotting an event-study); though be warned that this is 
+##' strictly performative. This argument will only be evaluated if
+##' `type = "event"`.
 ##' @param collapse Logical. Collapse the data by (period by cohort) groups 
 ##' before calculating marginal effects? This trades off a loss in estimate 
 ##' accuracy (typically around the 1st or 2nd significant decimal point) for a 
@@ -20,11 +20,53 @@
 ##' behaviour ("auto") is to automatically collapse if the original dataset has 
 ##' more than 500,000 rows. Users can override by setting either FALSE or TRUE. 
 ##' Note that collapsing by group is only valid if the preceding `etwfe` call 
-##' was run with "ivar = NULL" (the default).
+##' was run with "ivar = NULL" (the default). See the section on Performance
+##' tips below.
 ##' @param ... Additional arguments passed to [`marginaleffects::marginaleffects`]. 
-##' A potentially useful case is testing whether heterogeneous treatment effects
-##' (from any `xvar` covariate) are equal by invoking the `hypothesis` argument,
-##' e.g. `hypothesis = "adult = child"`. 
+##' For example, you can pass `vcov = FALSE` to dramatically speed up estimation
+##' times of the main marginal effects (but at the cost of not getting any 
+##' information about standard errors; see Performance tips below). Another
+##' potentially useful application is testing whether heterogeneous treatment
+##' effects (i.e. the levels of any `xvar` covariate) are equal by invoking the
+##' `hypothesis` argument, e.g. `hypothesis = "adult = child"`.
+##' @section Performance tips: 
+##' 
+##'   For datasets smaller than 100k rows, `emfx` should complete quite
+##'   quickly; within a few seconds or less. However, the computation time does
+##'   tend to scale linearly with the size of the data, as well as the number of
+##'   interactions from the original `etwfe` model. Without getting too far into
+##'   the weeds, the delta method of the underlying marginal effects calculation
+##'   has to estimate two prediction models for *each* coefficient in the model
+##'   and then compute their standard errors. So, it's a potentially expensive
+##'   operation. 
+##'   
+##'   However, there are two key strategies that you can use to speed things up.
+##'   The first is to pass "vcov = FALSE" as an argument to `emfx`. Doing so
+##'   should reduce the estimation time to less than a second, even for datasets
+##'   in excess of a million rows. This approach does come at the cost of not
+##'   returning any standard errors. Yet it can be useful to combine our first
+##'   strategy with a second strategy, which is to invoke the "collapse = TRUE"
+##'   argument. Collapsing the data by groups prior to estimating the marginal
+##'   effects can yield a substantial speed increase (albeit not nearly as
+##'   dramatic as turning of the vcov calculations). But we do get standard
+##'   errors this time. The trade-off from collapsing the data is that we lose
+##'   some accuracy in our estimated parameters. Testing suggests that this loss
+##'   in accuracy tends to be relatively minor, with results equivalent to the
+##'   1st or 2nd significant decimal place (or even better). By combining these
+##'   two strategies, users can very quickly see how bad the loss in accuracy is
+##'   on the main marginal effects, before deciding whether to estimate with the
+##'   collapsed dataset to get approximate standard errors.
+##'   
+##'   Summarizing, if you are worried about the estimation time for a large
+##'   dataset, try the following three-step approach:
+##'   
+##'   1. Run `emfx(..., vcov = FALSE)`.
+##'   
+##'   2. Run `emfx(..., vcov = FALSE, collapse = TRUE)`.
+##'   
+##'   3. Compare the results from steps 1 and 2. If the main parameter estimates
+##'   are similar enough, then as your final model run the following to also 
+##'   obtain approximate standard errors: `emfx(..., collapse = TRUE)`.
 ##' @return A `slopes` object from the `marginaleffects` package.
 ##' @seealso [marginaleffects::slopes()]
 ##' @inherit etwfe return examples
@@ -38,6 +80,8 @@ emfx = function(
     collapse = "auto",
     ...
 ) {
+  
+  dots = list(...)
   
   # sanity check
   if (!is.null(xvar)) {
@@ -135,7 +179,13 @@ emfx = function(
   # this code can be removed when this is fixed upstream
   # https://github.com/vincentarelbundock/marginaleffects/issues/624
   if (post_only) {
-    idx = mfx$estimate != 0 | mfx$std.error != 0
+    vcv = dots$vcov
+    # catch for vcov = FALSE
+    if (!is.null(vcv) && isFALSE(vcv)) {
+      idx = mfx$estimate != 0
+    } else {
+      idx = mfx$estimate != 0 | mfx$std.error != 0
+    }
     mfx = mfx[idx, , drop = FALSE]
   }
   

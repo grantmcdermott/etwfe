@@ -20,7 +20,7 @@ emfx(
 
 \item{xvar}{Optional interacted categorical covariate for estimating
 heterogeneous treatment effects. In other words, allows recovery of the
-(marginal) treatment effect for distinct values of `xvar`. Works with binary
+(marginal) treatment effect for distinct levels of `xvar`. Works with binary
 categorical variables (e.g. "adult" or "child"), as well as multiple values.}
 
 \item{post_only}{Logical. Only keep post-treatment effects. All
@@ -38,12 +38,16 @@ substantial improvement in estimation time for large datasets. The default
 behaviour ("auto") is to automatically collapse if the original dataset has 
 more than 500,000 rows. Users can override by setting either FALSE or TRUE. 
 Note that collapsing by group is only valid if the preceding `etwfe` call 
-was run with "ivar = NULL" (the default).}
+was run with "ivar = NULL" (the default). See the section on Performance
+tips below.}
 
 \item{...}{Additional arguments passed to [`marginaleffects::marginaleffects`]. 
-A potentially useful case is testing whether heterogeneous treatment effects
-(from any `xvar` covariate) are equal by invoking the `hypothesis` argument,
-e.g. `hypothesis = "adult = child"`.}
+For example, you can pass `vcov = FALSE` to dramatically speed up estimation
+times of the main marginal effects (but at the cost of not getting any 
+information about standard errors; see Performance tips below). Another
+potentially useful application is testing whether heterogeneous treatment
+effects (i.e. the levels of any `xvar` covariate) are equal by invoking the
+`hypothesis` argument, e.g. `hypothesis = "adult = child"`.}
 }
 \value{
 A `slopes` object from the `marginaleffects` package.
@@ -51,6 +55,47 @@ A `slopes` object from the `marginaleffects` package.
 \description{
 Post-estimation treatment effects for an ETWFE regressions.
 }
+\section{Performance tips}{
+ 
+
+  For datasets smaller than 100k rows, `emfx` should complete quite
+  quickly; within a few seconds or less. However, the computation time does
+  tend to scale linearly with the size of the data, as well as the number of
+  interactions from the original `etwfe` model. Without getting too far into
+  the weeds, the delta method of the underlying marginal effects calculation
+  has to estimate two prediction models for *each* coefficient in the model
+  and then compute their standard errors. So, it's a potentially expensive
+  operation. 
+  
+  However, there are two key strategies that you can use to speed things up.
+  The first is to pass "vcov = FALSE" as an argument to `emfx`. Doing so
+  should reduce the estimation time to less than a second, even for datasets
+  in excess of a million rows. This approach does come at the cost of not
+  returning any standard errors. Yet it can be useful to combine our first
+  strategy with a second strategy, which is to invoke the "collapse = TRUE"
+  argument. Collapsing the data by groups prior to estimating the marginal
+  effects can yield a substantial speed increase (albeit not nearly as
+  dramatic as turning of the vcov calculations). But we do get standard
+  errors this time. The trade-off from collapsing the data is that we lose
+  some accuracy in our estimated parameters. Testing suggests that this loss
+  in accuracy tends to be relatively minor, with results equivalent to the
+  1st or 2nd significant decimal place (or even better). By combining these
+  two strategies, users can very quickly see how bad the loss in accuracy is
+  on the main marginal effects, before deciding whether to estimate with the
+  collapsed dataset to get approximate standard errors.
+  
+  Summarizing, if you are worried about the estimation time for a large
+  dataset, try the following three-step approach:
+  
+  1. Run `emfx(..., vcov = FALSE)`.
+  
+  2. Run `emfx(..., vcov = FALSE, collapse = TRUE)`.
+  
+  3. Compare the results from steps 1 and 2. If the main parameter estimates
+  are similar enough, then as your final model run the following to also 
+  obtain approximate standard errors: `emfx(..., collapse = TRUE)`.
+}
+
 \examples{
 # We’ll use the mpdta dataset from the did package (which you’ll need to 
 # install separately).
