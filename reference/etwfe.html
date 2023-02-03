@@ -76,7 +76,7 @@
 <dd><p>A formula with the outcome (lhs) and any time-constant controls 
 variables (rhs), e.g. `y ~ x1 + x2`. Please note that time-varying controls
 are not supported. Similarly, if no additional controls are required, the 
-rhs must take the value of zero, e.g. `y ~ 0`.</p></dd>
+rhs must take the value of 0 or 1, e.g. `y ~ 0`.</p></dd>
 
 
 <dt>tvar</dt>
@@ -181,7 +181,7 @@ http://dx.doi.org/10.2139/ssrn.4183726</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Run the estimation</span></span></span>
 <span class="r-in"><span><span class="va">mod</span> <span class="op">=</span> <span class="fu">etwfe</span><span class="op">(</span></span></span>
-<span class="r-in"><span>    fml  <span class="op">=</span> <span class="va">lemp</span> <span class="op">~</span> <span class="va">lpop</span>, <span class="co"># outcome ~ controls</span></span></span>
+<span class="r-in"><span>    fml  <span class="op">=</span> <span class="va">lemp</span> <span class="op">~</span> <span class="va">lpop</span>, <span class="co"># outcome ~ controls (use 0 or 1 if none)</span></span></span>
 <span class="r-in"><span>    tvar <span class="op">=</span> <span class="va">year</span>,        <span class="co"># time variable</span></span></span>
 <span class="r-in"><span>    gvar <span class="op">=</span> <span class="va">first.treat</span>, <span class="co"># group variable</span></span></span>
 <span class="r-in"><span>    data <span class="op">=</span> <span class="va">mpdta</span>,       <span class="co"># dataset</span></span></span>
@@ -243,6 +243,30 @@ http://dx.doi.org/10.2139/ssrn.4183726</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  -0.09097 -0.02373     1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  -0.19823 -0.07751     2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  -0.17289 -0.04619     3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Prediction type:  response </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Columns: type, term, contrast, estimate, std.error, statistic, p.value, conf.low, conf.high, event, predicted, predicted_hi, predicted_lo </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Nonlinear model families are supported through the "family" argument.</span></span></span>
+<span class="r-in"><span><span class="va">mpdta</span><span class="op">$</span><span class="va">emp</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">mpdta</span><span class="op">$</span><span class="va">lemp</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">etwfe</span><span class="op">(</span></span></span>
+<span class="r-in"><span>   <span class="va">emp</span> <span class="op">~</span> <span class="va">lpop</span>, <span class="va">year</span>, <span class="va">first.treat</span>, <span class="va">mpdta</span>,</span></span>
+<span class="r-in"><span>   family <span class="op">=</span> <span class="st">"poisson"</span></span></span>
+<span class="r-in"><span>   <span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>   <span class="fu"><a href="emfx.html">emfx</a></span><span class="op">(</span><span class="st">"event"</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> The variables '.Dtreat:first.treat::2006:year::2004', '.Dtreat:first.treat::2006:year::2005' and eight others have been removed because of collinearity (see $collin.var).</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Term                 Contrast Estimate Std. Error        z   Pr(&gt;|z|)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat mean(TRUE) - mean(FALSE)  -25.350      4.585  -5.5290 3.2206e-08</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat mean(TRUE) - mean(FALSE)    1.092      5.963   0.1831 0.85472858</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat mean(TRUE) - mean(FALSE)  -75.125     19.349  -3.8826 0.00010333</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat mean(TRUE) - mean(FALSE) -101.824      4.822 -21.1160 &lt; 2.22e-16</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    2.5 % 97.5 % event</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   -34.34 -16.36     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   -10.60  12.78     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -113.05 -37.20     2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -111.28 -92.37     3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Prediction type:  response </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Columns: type, term, contrast, estimate, std.error, statistic, p.value, conf.low, conf.high, event, predicted, predicted_hi, predicted_lo </span>
