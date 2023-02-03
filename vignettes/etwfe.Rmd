@@ -252,8 +252,7 @@ etwfe(
   emp ~ lpop, tvar = year, gvar = first.treat, data = mpdta, vcov = ~countyreal,
   family = "poisson"
   ) |>
-  emfx("event") |>
-  summary()
+  emfx("event")
 ```
 
 ## Under the hood
