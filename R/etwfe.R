@@ -3,7 +3,7 @@
 ##' @param fml A formula with the outcome (lhs) and any time-constant controls 
 ##' variables (rhs), e.g. `y ~ x1 + x2`. Please note that time-varying controls
 ##' are not supported. Similarly, if no additional controls are required, the 
-##' rhs must take the value of zero, e.g. `y ~ 0`.
+##' rhs must take the value of 0 or 1, e.g. `y ~ 0`.
 ##' @param tvar Time variable. Can be a string (e.g., "year") or an expression
 ##' (e.g., year).
 ##' @param gvar Group variable. Can be either a string (e.g., "first_treated") 
@@ -120,7 +120,7 @@ etwfe = function(
   ctrls = fml_paste[3]
   if (length(ctrls) == 0) {
     ctrls = NULL
-  } else if (ctrls == "0") {
+  } else if (ctrls %in% c("0", "1")) {
     ctrls = NULL
   } else {
     ctrls_dm = unique(paste0(strsplit(ctrls, " \\+ | \\* | \\: ")[[1]], "_dm"))
