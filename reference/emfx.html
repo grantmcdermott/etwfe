@@ -294,24 +294,25 @@ effects (i.e. the levels of any `xvar` covariate) are equal by invoking the
 <span class="r-in"><span><span class="va">mpdta</span><span class="op">$</span><span class="va">gls</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/substr.html" class="external-link">substr</a></span><span class="op">(</span><span class="va">mpdta</span><span class="op">$</span><span class="va">countyreal</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">gls</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="etwfe.html">etwfe</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>   <span class="va">lemp</span> <span class="op">~</span> <span class="va">lpop</span>, <span class="va">year</span>, <span class="va">first.treat</span>, <span class="va">mpdta</span>, <span class="co"># same args as first ex</span></span></span>
-<span class="r-in"><span>   xvar <span class="op">=</span> <span class="va">gls</span>                             <span class="co"># xvar arg for heterogeneous TEs</span></span></span>
+<span class="r-in"><span>   <span class="va">lemp</span> <span class="op">~</span> <span class="va">lpop</span>, tvar <span class="op">=</span> <span class="va">year</span>, gvar <span class="op">=</span> <span class="va">first.treat</span>, data <span class="op">=</span> <span class="va">mpdta</span>, </span></span>
+<span class="r-in"><span>   vcov <span class="op">=</span> <span class="op">~</span><span class="va">countyreal</span>,</span></span>
+<span class="r-in"><span>   xvar <span class="op">=</span> <span class="va">gls</span>           <span class="co">## &lt;= het. TEs by gls</span></span></span>
 <span class="r-in"><span>   <span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>   <span class="fu">emfx</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Term                 Contrast Estimate Std. Error      z  Pr(&gt;|z|)    2.5 %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat mean(TRUE) - mean(FALSE) -0.04334    0.01364 -3.178 0.0014829 -0.07007</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat mean(TRUE) - mean(FALSE) -0.03660    0.02208 -1.658 0.0973832 -0.07988</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     97.5 % .Dtreat   gls</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.016611    TRUE FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.006675    TRUE  TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Term                 Contrast Estimate Std. Error       z Pr(&gt;|z|)    2.5 %</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat mean(TRUE) - mean(FALSE) -0.04334    0.02702 -1.6037  0.10879 -0.09631</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat mean(TRUE) - mean(FALSE) -0.03660    0.03907 -0.9368  0.34886 -0.11318</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    97.5 % .Dtreat   gls</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.009629    TRUE FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.039976    TRUE  TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Prediction type:  response </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Columns: type, term, contrast, estimate, std.error, statistic, p.value, conf.low, conf.high, .Dtreat, gls, predicted, predicted_hi, predicted_lo </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">#</span></span></span>
-<span class="r-in"><span><span class="co"># Non-linear model (distribution / link) families</span></span></span>
+<span class="r-in"><span><span class="co"># Nonlinear model (distribution / link) families</span></span></span>
 <span class="r-in"><span><span class="co">#</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Poisson example</span></span></span>
@@ -319,23 +320,24 @@ effects (i.e. the levels of any `xvar` covariate) are equal by invoking the
 <span class="r-in"><span><span class="va">mpdta</span><span class="op">$</span><span class="va">emp</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">mpdta</span><span class="op">$</span><span class="va">lemp</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="etwfe.html">etwfe</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>   <span class="va">emp</span> <span class="op">~</span> <span class="va">lpop</span>, <span class="va">year</span>, <span class="va">first.treat</span>, <span class="va">mpdta</span>,</span></span>
-<span class="r-in"><span>   family <span class="op">=</span> <span class="st">"poisson"</span></span></span>
+<span class="r-in"><span>   <span class="va">emp</span> <span class="op">~</span> <span class="va">lpop</span>, tvar <span class="op">=</span> <span class="va">year</span>, gvar <span class="op">=</span> <span class="va">first.treat</span>, data <span class="op">=</span> <span class="va">mpdta</span>, </span></span>
+<span class="r-in"><span>   vcov <span class="op">=</span> <span class="op">~</span><span class="va">countyreal</span>,</span></span>
+<span class="r-in"><span>   family <span class="op">=</span> <span class="st">"poisson"</span>   <span class="co">## &lt;= family arg for nonlinear options</span></span></span>
 <span class="r-in"><span>   <span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>   <span class="fu">emfx</span><span class="op">(</span><span class="st">"event"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> The variables '.Dtreat:first.treat::2006:year::2004', '.Dtreat:first.treat::2006:year::2005' and eight others have been removed because of collinearity (see $collin.var).</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>An "xvar" attribute was not found as part of the supplied model object. (Did your original `etwfe()` call include a valid `xvar = ...` argument?)Average margins are reported instead.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     Term                 Contrast Estimate Std. Error        z   Pr(&gt;|z|)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat mean(TRUE) - mean(FALSE)  -25.350      4.585  -5.5290 3.2206e-08</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat mean(TRUE) - mean(FALSE)    1.092      5.963   0.1831 0.85472858</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat mean(TRUE) - mean(FALSE)  -75.125     19.349  -3.8826 0.00010333</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat mean(TRUE) - mean(FALSE) -101.824      4.822 -21.1160 &lt; 2.22e-16</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    2.5 % 97.5 % event</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   -34.34 -16.36     0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   -10.60  12.78     1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -113.05 -37.20     2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -111.28 -92.37     3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat mean(TRUE) - mean(FALSE)  -25.350      15.90 -1.59409 0.11091631</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat mean(TRUE) - mean(FALSE)    1.092      41.84  0.02609 0.97918362</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat mean(TRUE) - mean(FALSE)  -75.125      22.30 -3.36942 0.00075327</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat mean(TRUE) - mean(FALSE) -101.824      28.10 -3.62309 0.00029111</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    2.5 %  97.5 % event</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   -56.52   5.818     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   -80.92  83.100     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -118.82 -31.425     2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -156.91 -46.741     3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Prediction type:  response </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Columns: type, term, contrast, estimate, std.error, statistic, p.value, conf.low, conf.high, event, predicted, predicted_hi, predicted_lo </span>
