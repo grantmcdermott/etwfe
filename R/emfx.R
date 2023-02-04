@@ -2,17 +2,14 @@
 ##'
 ##' @param object An `etwfe` model object.
 ##' @param type Character. The desired type of post-estimation aggregation.
-##' @param xvar Optional interacted categorical covariate for estimating
-##' heterogeneous treatment effects. In other words, allows recovery of the
-##' (marginal) treatment effect for distinct levels of `xvar`. Works with binary
-##' categorical variables (e.g. "adult" or "child"), as well as multiple values.
-##' @param post_only Logical. Only keep post-treatment effects. All
-##' pre-treatment effects will be zero as a mechanical result of ETWFE's 
-##' estimation setup, so the default is to drop these nuisance rows from
-##' the dataset. But you may want to keep them for presentation reasons
-##' (e.g., plotting an event-study); though be warned that this is 
-##' strictly performative. This argument will only be evaluated if
-##' `type = "event"`.
+##' @param by_xvar Logical. Should the results account for heterogeneous
+##'   treatment effects? Only relevant if the preceding `etwfe` call included a
+##'   specified `xvar` argument, i.e. interacted categorical covariate. The
+##'   default behaviour ("auto") is to automatically estimate heterogeneous
+##'   treatment effects for each level of `xvar` if these are detected as part
+##'   of the underlying `etwfe` model object. Users can override by setting to
+##'   either FALSE or TRUE. See the section on Heterogeneous treatment effects
+##'   below.
 ##' @param collapse Logical. Collapse the data by (period by cohort) groups 
 ##' before calculating marginal effects? This trades off a loss in estimate 
 ##' accuracy (typically around the 1st or 2nd significant decimal point) for a 
@@ -22,6 +19,13 @@
 ##' Note that collapsing by group is only valid if the preceding `etwfe` call 
 ##' was run with "ivar = NULL" (the default). See the section on Performance
 ##' tips below.
+##' @param post_only Logical. Only keep post-treatment effects. All
+##' pre-treatment effects will be zero as a mechanical result of ETWFE's 
+##' estimation setup, so the default is to drop these nuisance rows from
+##' the dataset. But you may want to keep them for presentation reasons
+##' (e.g., plotting an event-study); though be warned that this is 
+##' strictly performative. This argument will only be evaluated if
+##' `type = "event"`.
 ##' @param ... Additional arguments passed to [`marginaleffects::marginaleffects`]. 
 ##' For example, you can pass `vcov = FALSE` to dramatically speed up estimation
 ##' times of the main marginal effects (but at the cost of not getting any 
@@ -29,6 +33,24 @@
 ##' potentially useful application is testing whether heterogeneous treatment
 ##' effects (i.e. the levels of any `xvar` covariate) are equal by invoking the
 ##' `hypothesis` argument, e.g. `hypothesis = "adult = child"`.
+##' 
+##' @section Heterogeneous treatment effects:
+##' 
+##'   Specifying `etwfe(..., xvar = <xvar>)` will generate interaction effects
+##'   for all levels of `<xvar>` as part of the main regression model. The
+##'   reason that this is useful (as opposed to a regular, non-interacted
+##'   covariate in the formula RHS) is that it allows us to estimate
+##'   heterogeneous treatment effects as part of the larger ETWFE framework.
+##'   Specifically, we can recover heterogeneous treatment effects for each
+##'   level of `<xvar>` by passing the resulting `etwfe` model object on to 
+##'   `emfx()`.
+##'   
+##'   For example, imagine that we have a categorical variable called "age" in
+##'   our dataset, with two distinct levels "adult" and "child". Running
+##'   `etwfe(..., xvar = age) |> emfx(...)` will tell us how the efficacy of 
+##'   treatment varies across adults and children. The same principle carries
+##'   over to variables with multiple levels.
+##'   
 ##' @section Performance tips: 
 ##' 
 ##'   For datasets smaller than 100k rows, `emfx` should complete quite
@@ -75,30 +97,38 @@
 emfx = function(
     object,
     type = c("simple", "group", "calendar", "event"),
-    xvar = NULL,
-    post_only = TRUE,
+    by_xvar = "auto",
     collapse = "auto",
+    post_only = TRUE,
     ...
 ) {
   
   dots = list(...)
-  
-  # sanity check
-  if (!is.null(xvar)) {
-    if(!any( grepl(xvar, rownames(object$coeftable)) )){
-      warning("The treatment was not interacted with \"xvar\" in the model object. Average margins are reported.")
-      xvar = NULL
-      }
-  }
 
   .Dtreat = NULL
   type = match.arg(type)
   gvar = attributes(object)[["etwfe"]][["gvar"]]
   tvar = attributes(object)[["etwfe"]][["tvar"]]
   ivar = attributes(object)[["etwfe"]][["ivar"]]
+  xvar = attributes(object)[["etwfe"]][["xvar"]]
   gref = attributes(object)[["etwfe"]][["gref"]]
   tref = attributes(object)[["etwfe"]][["tref"]]
+  if (!by_xvar %in% c("auto", TRUE, FALSE)) stop("\"by_xvar\" has to be \"auto\", TRUE, or FALSE.")
   if (!collapse %in% c("auto", TRUE, FALSE)) stop("\"collapse\" has to be \"auto\", TRUE, or FALSE.")
+  
+  # sanity check
+  if (isTRUE(by_xvar) || by_xvar=="auto") {
+    if(is.null(xvar)){
+      warning(
+        "An \"xvar\" attribute was not found as part of the supplied model object. ",
+        "(Did your original `etwfe()` call include a valid `xvar = ...` argument?)",
+        "Average margins are reported instead."
+        )
+      by_xvar = FALSE
+      }
+  }
+
+  if (by_xvar=="auto") by_xvar = !is.null(xvar)
   
   dat = data.table::as.data.table(eval(object$call$data, object$call_env))
   
@@ -122,7 +152,7 @@ emfx = function(
   
   # define formulas and calculate weights
   if(collapse & is.null(ivar)){
-    if(!is.null(xvar)){
+    if(by_xvar){
       dat_weights = dat[(.Dtreat)][, .N, by = c(gvar, tvar, xvar)]
     } else {
       dat_weights = dat[(.Dtreat)][, .N, by = c(gvar, tvar)]
@@ -152,11 +182,7 @@ emfx = function(
   
   # collapse the data 
   if (type=="simple") {
-    if (is.null(xvar)) {
       by_var = ".Dtreat"
-    } else {
-      by_var = xvar  
-    }
   } else if (type=="group") {
     by_var = gvar
   } else if (type=="calendar") {
@@ -165,13 +191,15 @@ emfx = function(
     dat[["event"]] = dat[[tvar]] - dat[[gvar]]
     by_var = "event"
   }
+  
+  if (by_xvar) by_var = c(by_var, xvar)
 
   mfx = marginaleffects::slopes(
     object,
     newdata = dat,   
     wts = "N",
     variables = ".Dtreat",
-    by = c(by_var, xvar),
+    by = by_var,
     ...
   )
 
@@ -189,7 +217,7 @@ emfx = function(
     mfx = mfx[idx, , drop = FALSE]
   }
   
-  if (type!="simple" | !is.null(xvar)) mfx = mfx[order(mfx[[by_var]]),]
+  if (type!="simple" | !by_xvar) mfx = mfx[order(mfx[[by_var[1]]]),]
    
   return(mfx)
 }

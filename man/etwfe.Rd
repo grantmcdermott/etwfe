@@ -42,9 +42,11 @@ want to cluster your standard errors by your index variable through the
 `vcov` argument. See examples below.}
 
 \item{xvar}{Optional interacted categorical covariate for estimating
-heterogeneous treatment effects. In other words, allows recovery of the
-(marginal) treatment effect for distinct values of `xvar`. Works with binary
-categorical variables (e.g. "adult" or "child"), as well as multiple values.}
+heterogeneous treatment effects. Enables recovery of the marginal
+treatment effect for distinct levels of `xvar`, e.g. "child", "teenager",
+or "adult". (Note that the "x" part of "xvar" is meant to represent a
+treatment-*interacted* covariate, as opposed to a regular control
+variable.)}
 
 \item{tref}{Optional reference value for `tvar`. Defaults to its minimum 
 value (i.e., the first time period observed in the dataset).}
@@ -87,7 +89,14 @@ Extended two-way fixed effects
 # install.packages("did")
 data("mpdta", package = "did")
 
-# Run the estimation
+#
+# Basic example
+#
+
+# The basic ETWFE workflow involves two steps:
+
+# 1) Estimate the main regression model with etwfe().
+
 mod = etwfe(
     fml  = lemp ~ lpop, # outcome ~ controls (use 0 or 1 if none)
     tvar = year,        # time variable
@@ -97,12 +106,38 @@ mod = etwfe(
     )
 mod
 
-# We can recover a variety of treatment effects of interest with the 
-# complementary emfx() function. For example:
-emfx(mod, type = "event")
+# 2) Recover the treatment effects of interest with emfx().
 
-# Nonlinear model families are supported through the "family" argument.
+emfx(mod)                 # average treatment effect (default)
+emfx(mod, type = "event") # dynamic treatment effect a la an event study
+# etc.
+
+#
+# Heterogeneous treatment effects
+#
+
+# Example where we estimate heterogeneous treatment effects for counties 
+# within the 8 US Great Lake states (versus all other counties). 
+
+gls = c("IL" = 17, "IN" = 18, "MI" = 26, "MN" = 27,
+        "NY" = 36, "OH" = 39, "PA" = 42, "WI" = 55)
+
+mpdta$gls = substr(mpdta$countyreal, 1, 2) \%in\% gls
+
+etwfe(
+   lemp ~ lpop, year, first.treat, mpdta, # same args as first ex
+   xvar = gls                             # xvar arg for heterogeneous TEs
+   ) |>
+   emfx()
+
+#
+# Non-linear model (distribution / link) families
+#
+
+# Poisson example
+
 mpdta$emp = exp(mpdta$lemp)
+
 etwfe(
    emp ~ lpop, year, first.treat, mpdta,
    family = "poisson"

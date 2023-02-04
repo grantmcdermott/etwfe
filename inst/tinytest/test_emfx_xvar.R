@@ -4,11 +4,12 @@ mpdta$xvar = rep(sample(1:3, size = 500, replace = TRUE), each = 5) # a categori
 mpdta$emp = exp(mpdta$lemp)
 
 # We'll continue with model 3 from the etwfe tests...
-x3 = etwfe(lemp ~ lpop, tvar = year, gvar = first.treat, xvar = xvar, data = mpdta, vcov = ~countyreal)
-x3i = etwfe(lemp ~ lpop, tvar = year, gvar = first.treat, ivar = countyreal, xvar = xvar, data = mpdta, vcov = ~countyreal)
+x3   = etwfe(lemp ~ lpop, tvar = year, gvar = first.treat, data = mpdta, vcov = ~countyreal)
+x3x  = etwfe(lemp ~ lpop, tvar = year, gvar = first.treat, xvar = xvar, data = mpdta, vcov = ~countyreal)
+x3xi = etwfe(lemp ~ lpop, tvar = year, gvar = first.treat, ivar = countyreal, xvar = xvar, data = mpdta, vcov = ~countyreal)
 
 # Poisson version
-x3p = etwfe(emp ~ lpop, tvar = year, gvar = first.treat, xvar = xvar, data = mpdta, vcov = ~countyreal, family = "poisson")
+x3xp = etwfe(emp ~ lpop, tvar = year, gvar = first.treat, xvar = xvar, data = mpdta, vcov = ~countyreal, family = "poisson")
 
 # Known outputs ----
 
@@ -386,16 +387,15 @@ event_pois_known = structure(list(type = c(
 
 # Tests ----
 
-expect_warning(emfx(x3, xvar = "xvarrrr"))
-expect_warning(emfx(x3i, xvar = "xvar", collapse = TRUE))
+expect_warning(emfx(x3, by_xvar = TRUE))
 
-e1 = emfx(x3, xvar = "xvar", collapse = TRUE)
-e2 = emfx(x3, xvar = "xvar", type = "simple", collapse = TRUE)
-e3 = emfx(x3, xvar = "xvar", type = "calendar", collapse = TRUE)
-e4 = emfx(x3, xvar = "xvar", type = "group", collapse = TRUE)
-e5 = emfx(x3, xvar = "xvar", type = "event", collapse = TRUE)
-e6 = emfx(x3, xvar = "xvar", type = "event", post_only = FALSE, collapse = TRUE)
-e7 = emfx(x3p, xvar = "xvar", type = "event", collapse = TRUE)
+e1 = emfx(x3x, collapse = TRUE)
+e2 = emfx(x3x, collapse = TRUE, by_xvar = TRUE)
+e3 = emfx(x3x, type = "calendar", collapse = TRUE)
+e4 = emfx(x3x, type = "group", collapse = TRUE)
+e5 = emfx(x3x, type = "event", collapse = TRUE)
+e6 = emfx(x3x, type = "event", post_only = FALSE, collapse = TRUE)
+e7 = emfx(x3xp, type = "event", collapse = TRUE)
 
 for (col in c("estimate", "std.error", "conf.low", "conf.high")) {
   expect_equivalent(e1[[col]], simple_known[[col]])

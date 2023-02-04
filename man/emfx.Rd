@@ -7,9 +7,9 @@
 emfx(
   object,
   type = c("simple", "group", "calendar", "event"),
-  xvar = NULL,
-  post_only = TRUE,
+  by_xvar = "auto",
   collapse = "auto",
+  post_only = TRUE,
   ...
 )
 }
@@ -18,18 +18,14 @@ emfx(
 
 \item{type}{Character. The desired type of post-estimation aggregation.}
 
-\item{xvar}{Optional interacted categorical covariate for estimating
-heterogeneous treatment effects. In other words, allows recovery of the
-(marginal) treatment effect for distinct levels of `xvar`. Works with binary
-categorical variables (e.g. "adult" or "child"), as well as multiple values.}
-
-\item{post_only}{Logical. Only keep post-treatment effects. All
-pre-treatment effects will be zero as a mechanical result of ETWFE's 
-estimation setup, so the default is to drop these nuisance rows from
-the dataset. But you may want to keep them for presentation reasons
-(e.g., plotting an event-study); though be warned that this is 
-strictly performative. This argument will only be evaluated if
-`type = "event"`.}
+\item{by_xvar}{Logical. Should the results account for heterogeneous
+treatment effects? Only relevant if the preceding `etwfe` call included a
+specified `xvar` argument, i.e. interacted categorical covariate. The
+default behaviour ("auto") is to automatically estimate heterogeneous
+treatment effects for each level of `xvar` if these are detected as part
+of the underlying `etwfe` model object. Users can override by setting to
+either FALSE or TRUE. See the section on Heterogeneous treatment effects
+below.}
 
 \item{collapse}{Logical. Collapse the data by (period by cohort) groups 
 before calculating marginal effects? This trades off a loss in estimate 
@@ -40,6 +36,14 @@ more than 500,000 rows. Users can override by setting either FALSE or TRUE.
 Note that collapsing by group is only valid if the preceding `etwfe` call 
 was run with "ivar = NULL" (the default). See the section on Performance
 tips below.}
+
+\item{post_only}{Logical. Only keep post-treatment effects. All
+pre-treatment effects will be zero as a mechanical result of ETWFE's 
+estimation setup, so the default is to drop these nuisance rows from
+the dataset. But you may want to keep them for presentation reasons
+(e.g., plotting an event-study); though be warned that this is 
+strictly performative. This argument will only be evaluated if
+`type = "event"`.}
 
 \item{...}{Additional arguments passed to [`marginaleffects::marginaleffects`]. 
 For example, you can pass `vcov = FALSE` to dramatically speed up estimation
@@ -55,6 +59,25 @@ A `slopes` object from the `marginaleffects` package.
 \description{
 Post-estimation treatment effects for an ETWFE regressions.
 }
+\section{Heterogeneous treatment effects}{
+
+
+  Specifying `etwfe(..., xvar = <xvar>)` will generate interaction effects
+  for all levels of `<xvar>` as part of the main regression model. The
+  reason that this is useful (as opposed to a regular, non-interacted
+  covariate in the formula RHS) is that it allows us to estimate
+  heterogeneous treatment effects as part of the larger ETWFE framework.
+  Specifically, we can recover heterogeneous treatment effects for each
+  level of `<xvar>` by passing the resulting `etwfe` model object on to 
+  `emfx()`.
+  
+  For example, imagine that we have a categorical variable called "age" in
+  our dataset, with two distinct levels "adult" and "child". Running
+  `etwfe(..., xvar = age) |> emfx(...)` will tell us how the efficacy of 
+  treatment varies across adults and children. The same principle carries
+  over to variables with multiple levels.
+}
+
 \section{Performance tips}{
  
 
@@ -103,7 +126,14 @@ Post-estimation treatment effects for an ETWFE regressions.
 # install.packages("did")
 data("mpdta", package = "did")
 
-# Run the estimation
+#
+# Basic example
+#
+
+# The basic ETWFE workflow involves two steps:
+
+# 1) Estimate the main regression model with etwfe().
+
 mod = etwfe(
     fml  = lemp ~ lpop, # outcome ~ controls (use 0 or 1 if none)
     tvar = year,        # time variable
@@ -113,12 +143,38 @@ mod = etwfe(
     )
 mod
 
-# We can recover a variety of treatment effects of interest with the 
-# complementary emfx() function. For example:
-emfx(mod, type = "event")
+# 2) Recover the treatment effects of interest with emfx().
 
-# Nonlinear model families are supported through the "family" argument.
+emfx(mod)                 # average treatment effect (default)
+emfx(mod, type = "event") # dynamic treatment effect a la an event study
+# etc.
+
+#
+# Heterogeneous treatment effects
+#
+
+# Example where we estimate heterogeneous treatment effects for counties 
+# within the 8 US Great Lake states (versus all other counties). 
+
+gls = c("IL" = 17, "IN" = 18, "MI" = 26, "MN" = 27,
+        "NY" = 36, "OH" = 39, "PA" = 42, "WI" = 55)
+
+mpdta$gls = substr(mpdta$countyreal, 1, 2) \%in\% gls
+
+etwfe(
+   lemp ~ lpop, year, first.treat, mpdta, # same args as first ex
+   xvar = gls                             # xvar arg for heterogeneous TEs
+   ) |>
+   emfx()
+
+#
+# Non-linear model (distribution / link) families
+#
+
+# Poisson example
+
 mpdta$emp = exp(mpdta$lemp)
+
 etwfe(
    emp ~ lpop, year, first.treat, mpdta,
    family = "poisson"
