@@ -105,9 +105,11 @@ want to cluster your standard errors by your index variable through the
 
 <dt>xvar</dt>
 <dd><p>Optional interacted categorical covariate for estimating
-heterogeneous treatment effects. In other words, allows recovery of the
-(marginal) treatment effect for distinct values of `xvar`. Works with binary
-categorical variables (e.g. "adult" or "child"), as well as multiple values.</p></dd>
+heterogeneous treatment effects. Enables recovery of the marginal
+treatment effect for distinct levels of `xvar`, e.g. "child", "teenager",
+or "adult". (Note that the "x" part of "xvar" is meant to represent a
+treatment-*interacted* covariate, as opposed to a regular control
+variable.)</p></dd>
 
 
 <dt>tref</dt>
@@ -179,7 +181,14 @@ http://dx.doi.org/10.2139/ssrn.4183726</p>
 <span class="r-in"><span><span class="co"># install.packages("did")</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"mpdta"</span>, package <span class="op">=</span> <span class="st">"did"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Run the estimation</span></span></span>
+<span class="r-in"><span><span class="co">#</span></span></span>
+<span class="r-in"><span><span class="co"># Basic example</span></span></span>
+<span class="r-in"><span><span class="co">#</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The basic ETWFE workflow involves two steps:</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># 1) Estimate the main regression model with etwfe().</span></span></span>
+<span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">mod</span> <span class="op">=</span> <span class="fu">etwfe</span><span class="op">(</span></span></span>
 <span class="r-in"><span>    fml  <span class="op">=</span> <span class="va">lemp</span> <span class="op">~</span> <span class="va">lpop</span>, <span class="co"># outcome ~ controls (use 0 or 1 if none)</span></span></span>
 <span class="r-in"><span>    tvar <span class="op">=</span> <span class="va">year</span>,        <span class="co"># time variable</span></span></span>
@@ -229,9 +238,21 @@ http://dx.doi.org/10.2139/ssrn.4183726</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> RMSE: 0.537131     Adj. R2: 0.87167 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                  Within R2: 8.449e-4</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># We can recover a variety of treatment effects of interest with the </span></span></span>
-<span class="r-in"><span><span class="co"># complementary emfx() function. For example:</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="emfx.html">emfx</a></span><span class="op">(</span><span class="va">mod</span>, type <span class="op">=</span> <span class="st">"event"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># 2) Recover the treatment effects of interest with emfx().</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="emfx.html">emfx</a></span><span class="op">(</span><span class="va">mod</span><span class="op">)</span>                 <span class="co"># average treatment effect (default)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>An "xvar" attribute was not found as part of the supplied model object. (Did your original `etwfe()` call include a valid `xvar = ...` argument?)Average margins are reported instead.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Term                 Contrast Estimate Std. Error     z   Pr(&gt;|z|)    2.5 %</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat mean(TRUE) - mean(FALSE) -0.05063     0.0125 -4.05 5.1167e-05 -0.07513</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    97.5 % .Dtreat</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.02613    TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Prediction type:  response </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Columns: type, term, contrast, estimate, std.error, statistic, p.value, conf.low, conf.high, .Dtreat, predicted, predicted_hi, predicted_lo </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"><span><span class="fu"><a href="emfx.html">emfx</a></span><span class="op">(</span><span class="va">mod</span>, type <span class="op">=</span> <span class="st">"event"</span><span class="op">)</span> <span class="co"># dynamic treatment effect a la an event study</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>An "xvar" attribute was not found as part of the supplied model object. (Did your original `etwfe()` call include a valid `xvar = ...` argument?)Average margins are reported instead.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     Term                 Contrast Estimate Std. Error      z   Pr(&gt;|z|)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat mean(TRUE) - mean(FALSE) -0.03321    0.01337 -2.484 0.01297951</span>
@@ -247,15 +268,52 @@ http://dx.doi.org/10.2139/ssrn.4183726</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Prediction type:  response </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Columns: type, term, contrast, estimate, std.error, statistic, p.value, conf.low, conf.high, event, predicted, predicted_hi, predicted_lo </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"><span><span class="co"># etc.</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Nonlinear model families are supported through the "family" argument.</span></span></span>
+<span class="r-in"><span><span class="co">#</span></span></span>
+<span class="r-in"><span><span class="co"># Heterogeneous treatment effects</span></span></span>
+<span class="r-in"><span><span class="co">#</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Example where we estimate heterogeneous treatment effects for counties </span></span></span>
+<span class="r-in"><span><span class="co"># within the 8 US Great Lake states (versus all other counties). </span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">gls</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"IL"</span> <span class="op">=</span> <span class="fl">17</span>, <span class="st">"IN"</span> <span class="op">=</span> <span class="fl">18</span>, <span class="st">"MI"</span> <span class="op">=</span> <span class="fl">26</span>, <span class="st">"MN"</span> <span class="op">=</span> <span class="fl">27</span>,</span></span>
+<span class="r-in"><span>        <span class="st">"NY"</span> <span class="op">=</span> <span class="fl">36</span>, <span class="st">"OH"</span> <span class="op">=</span> <span class="fl">39</span>, <span class="st">"PA"</span> <span class="op">=</span> <span class="fl">42</span>, <span class="st">"WI"</span> <span class="op">=</span> <span class="fl">55</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">mpdta</span><span class="op">$</span><span class="va">gls</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/substr.html" class="external-link">substr</a></span><span class="op">(</span><span class="va">mpdta</span><span class="op">$</span><span class="va">countyreal</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">gls</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu">etwfe</span><span class="op">(</span></span></span>
+<span class="r-in"><span>   <span class="va">lemp</span> <span class="op">~</span> <span class="va">lpop</span>, <span class="va">year</span>, <span class="va">first.treat</span>, <span class="va">mpdta</span>, <span class="co"># same args as first ex</span></span></span>
+<span class="r-in"><span>   xvar <span class="op">=</span> <span class="va">gls</span>                             <span class="co"># xvar arg for heterogeneous TEs</span></span></span>
+<span class="r-in"><span>   <span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>   <span class="fu"><a href="emfx.html">emfx</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Term                 Contrast Estimate Std. Error      z  Pr(&gt;|z|)    2.5 %</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat mean(TRUE) - mean(FALSE) -0.04334    0.01364 -3.178 0.0014829 -0.07007</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat mean(TRUE) - mean(FALSE) -0.03660    0.02208 -1.658 0.0973832 -0.07988</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     97.5 % .Dtreat   gls</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.016611    TRUE FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.006675    TRUE  TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Prediction type:  response </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Columns: type, term, contrast, estimate, std.error, statistic, p.value, conf.low, conf.high, .Dtreat, gls, predicted, predicted_hi, predicted_lo </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">#</span></span></span>
+<span class="r-in"><span><span class="co"># Non-linear model (distribution / link) families</span></span></span>
+<span class="r-in"><span><span class="co">#</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Poisson example</span></span></span>
+<span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">mpdta</span><span class="op">$</span><span class="va">emp</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">mpdta</span><span class="op">$</span><span class="va">lemp</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">etwfe</span><span class="op">(</span></span></span>
 <span class="r-in"><span>   <span class="va">emp</span> <span class="op">~</span> <span class="va">lpop</span>, <span class="va">year</span>, <span class="va">first.treat</span>, <span class="va">mpdta</span>,</span></span>
 <span class="r-in"><span>   family <span class="op">=</span> <span class="st">"poisson"</span></span></span>
 <span class="r-in"><span>   <span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>   <span class="fu"><a href="emfx.html">emfx</a></span><span class="op">(</span><span class="st">"event"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> The variables '.Dtreat:first.treat::2006:year::2004', '.Dtreat:first.treat::2006:year::2005' and eight others have been removed because of collinearity (see $collin.var).</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>An "xvar" attribute was not found as part of the supplied model object. (Did your original `etwfe()` call include a valid `xvar = ...` argument?)Average margins are reported instead.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     Term                 Contrast Estimate Std. Error        z   Pr(&gt;|z|)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat mean(TRUE) - mean(FALSE)  -25.350      4.585  -5.5290 3.2206e-08</span>

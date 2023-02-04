@@ -262,6 +262,9 @@ doing so: <code><a href="../reference/emfx.html">emfx()</a></code>, which is a t
 follows.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="va">mod</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in emfx(mod): An "xvar" attribute was not found as part of the supplied</span></span>
+<span><span class="co">#&gt; model object. (Did your original `etwfe()` call include a valid `xvar = ...`</span></span>
+<span><span class="co">#&gt; argument?)Average margins are reported instead.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;     Term                 Contrast Estimate Std. Error     z   Pr(&gt;|z|)    2.5 %</span></span>
 <span><span class="co">#&gt;  .Dtreat mean(TRUE) - mean(FALSE) -0.05063     0.0125 -4.05 5.1167e-05 -0.07513</span></span>
@@ -275,6 +278,9 @@ event study by invoking the <code>type</code> argument. This time I’ll
 save the resulting object since I plan to reuse it in a moment.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mod_es</span> <span class="op">=</span> <span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="va">mod</span>, type <span class="op">=</span> <span class="st">"event"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in emfx(mod, type = "event"): An "xvar" attribute was not found as part</span></span>
+<span><span class="co">#&gt; of the supplied model object. (Did your original `etwfe()` call include a valid</span></span>
+<span><span class="co">#&gt; `xvar = ...` argument?)Average margins are reported instead.</span></span>
 <span><span class="va">mod_es</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;     Term                 Contrast Estimate Std. Error      z   Pr(&gt;|z|)</span></span>
@@ -458,6 +464,10 @@ aesthetically pleasing.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Use post_only = FALSE to get the "zero" pre-treatment effects</span></span>
 <span><span class="va">mod_es2</span> <span class="op">=</span> <span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="va">mod</span>, type <span class="op">=</span> <span class="st">"event"</span>, post_only <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in emfx(mod, type = "event", post_only = FALSE): An "xvar" attribute</span></span>
+<span><span class="co">#&gt; was not found as part of the supplied model object. (Did your original</span></span>
+<span><span class="co">#&gt; `etwfe()` call include a valid `xvar = ...` argument?)Average margins are</span></span>
+<span><span class="co">#&gt; reported instead.</span></span>
 <span></span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">mod_es2</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">event</span>, y <span class="op">=</span> <span class="va">estimate</span>, ymin <span class="op">=</span> <span class="va">conf.low</span>, ymax <span class="op">=</span> <span class="va">conf.high</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_hline</a></span><span class="op">(</span>yintercept <span class="op">=</span> <span class="fl">0</span><span class="op">)</span> <span class="op">+</span></span>
@@ -520,7 +530,7 @@ easily grab the formula of an estimated model to see for yourself.</p>
 <code class="sourceCode R"><span><span class="va">mod</span><span class="op">$</span><span class="va">fml_all</span></span>
 <span><span class="co">#&gt; $linear</span></span>
 <span><span class="co">#&gt; lemp ~ .Dtreat:i(first.treat, i.year, ref = 0, ref2 = 2003)/lpop_dm</span></span>
-<span><span class="co">#&gt; &lt;environment: 0x55db5ecbc7b8&gt;</span></span>
+<span><span class="co">#&gt; &lt;environment: 0x556705d4b290&gt;</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $fixef</span></span>
 <span><span class="co">#&gt; ~first.treat + first.treat[[lpop]] + year + year[[lpop]]</span></span></code></pre></div>
@@ -2227,6 +2237,10 @@ slightly different).</p>
 <span>  ivar <span class="op">=</span> <span class="va">countyreal</span>  <span class="co"># NEW: Use unit-level (county) FEs</span></span>
 <span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="st">"event"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in emfx(etwfe(lemp ~ lpop, tvar = year, gvar = first.treat, data =</span></span>
+<span><span class="co">#&gt; mpdta, : An "xvar" attribute was not found as part of the supplied model</span></span>
+<span><span class="co">#&gt; object. (Did your original `etwfe()` call include a valid `xvar = ...`</span></span>
+<span><span class="co">#&gt; argument?)Average margins are reported instead.</span></span>
 <span></span>
 <span><span class="fu"><a href="https://vincentarelbundock.github.io/modelsummary/reference/modelsummary.html" class="external-link">modelsummary</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"Group-level FEs (default)"</span> <span class="op">=</span> <span class="va">mod_es</span>, <span class="st">"Unit-level FEs"</span> <span class="op">=</span> <span class="va">mod_es_i</span><span class="op">)</span>,</span>
