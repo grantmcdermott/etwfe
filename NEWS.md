@@ -1,11 +1,12 @@
-# etwfe 0.2.9005 (development version)
+# etwfe 0.2.9006 (development version)
 
 ## New features and enhancements
 
 #### etwfe
 
 - Support for heterogeneous treatment effects via the new `xvar` interacted
-covariate argument (#16, thanks @frederickluser). Also extends to `emfx`.
+covariate argument (#16 thanks to @frederickluser, and #21). Automatically 
+extends to `emfx` via the latter's `by_xvar` argument; see below.
 
 - Users can now specify no covariates with a 1 on the fml RHS, e.g, 
 `etwfe(y ~ 1, ...)`. This provides a second way of doing this, alongside the 
@@ -17,7 +18,7 @@ existing 0 option, e.g. `etwfe(y ~ 0, ...)`
 with two new supported arguments:
   
   1. The `collapse` argument can substantially reduce estimation times for large
-  datasets (#19. thanks @frederickluser). This performance boost does trade off
+  datasets (#19, thanks @frederickluser). This performance boost does trade off
   against a loss in estimate accuracy. But testing suggests that the difference
   is relatively minor for typical use cases (i.e., results are equivalent up to 
   the 1st or 2nd significant decimal place, and sometimes even better). Please 
@@ -28,6 +29,15 @@ with two new supported arguments:
   don't get standard errors. However, the aforementioned Performance tips
   section provides more practical guidance on how to combine
   `emfx(..., vcov = FALSE, collapse = TRUE)`.
+
+- A new `by_xvar` argument acts as a companion to `etwfe(..., xvar = <xvar>)` 
+(#21). Users will most likely defer to the default behaviour, which will
+automatically detect and report heterogeneous treatment effects if these were
+specified in the preceding `etwfe()` call.
+
+#### Other
+
+- Various documentation improvements.
 
 ## Bug fixes
 
