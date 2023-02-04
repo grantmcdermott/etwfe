@@ -125,13 +125,14 @@ gls = c("IL" = 17, "IN" = 18, "MI" = 26, "MN" = 27,
 mpdta$gls = substr(mpdta$countyreal, 1, 2) \%in\% gls
 
 etwfe(
-   lemp ~ lpop, year, first.treat, mpdta, # same args as first ex
-   xvar = gls                             # xvar arg for heterogeneous TEs
+   lemp ~ lpop, tvar = year, gvar = first.treat, data = mpdta, 
+   vcov = ~countyreal,
+   xvar = gls           ## <= het. TEs by gls
    ) |>
    emfx()
 
 #
-# Non-linear model (distribution / link) families
+# Nonlinear model (distribution / link) families
 #
 
 # Poisson example
@@ -139,8 +140,9 @@ etwfe(
 mpdta$emp = exp(mpdta$lemp)
 
 etwfe(
-   emp ~ lpop, year, first.treat, mpdta,
-   family = "poisson"
+   emp ~ lpop, tvar = year, gvar = first.treat, data = mpdta, 
+   vcov = ~countyreal,
+   family = "poisson"   ## <= family arg for nonlinear options
    ) |>
    emfx("event")
 
