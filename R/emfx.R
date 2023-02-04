@@ -117,7 +117,7 @@ emfx = function(
   if (!collapse %in% c("auto", TRUE, FALSE)) stop("\"collapse\" has to be \"auto\", TRUE, or FALSE.")
   
   # sanity check
-  if (isTRUE(by_xvar) || by_xvar=="auto") {
+  if (isTRUE(by_xvar)) {
     if(is.null(xvar)){
       warning(
         "An \"xvar\" attribute was not found as part of the supplied model object. ",
