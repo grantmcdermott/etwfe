@@ -107,9 +107,8 @@ want to cluster your standard errors by your index variable through the
 <dd><p>Optional interacted categorical covariate for estimating
 heterogeneous treatment effects. Enables recovery of the marginal
 treatment effect for distinct levels of `xvar`, e.g. "child", "teenager",
-or "adult". (Note that the "x" part of "xvar" is meant to represent a
-treatment-*interacted* covariate, as opposed to a regular control
-variable.)</p></dd>
+or "adult". Note that the "x" prefix in "xvar" represents a covariate that
+is *interacted* with treatment, as opposed to a regular control variable.</p></dd>
 
 
 <dt>tref</dt>
@@ -157,9 +156,6 @@ non-NULL family entry is detected, `ivar` will automatically be set to NULL.</p>
     
 
 <p>A fixest object with fully saturated interaction effects.</p>
-
-
-<p>A `slopes` object from the `marginaleffects` package.</p>
     </div>
     <div class="section level2">
     <h2 id="heterogeneous-treatment-effects">Heterogeneous treatment effects<a class="anchor" aria-label="anchor" href="#heterogeneous-treatment-effects"></a></h2>
