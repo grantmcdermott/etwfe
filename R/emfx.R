@@ -32,7 +32,7 @@
 ##' information about standard errors; see Performance tips below). Another
 ##' potentially useful application is testing whether heterogeneous treatment
 ##' effects (i.e. the levels of any `xvar` covariate) are equal by invoking the
-##' `hypothesis` argument, e.g. `hypothesis = "adult = child"`.
+##' `hypothesis` argument, e.g. `hypothesis = "b1 = b2"`.
 ##' 
 ##' @section Heterogeneous treatment effects:
 ##' 

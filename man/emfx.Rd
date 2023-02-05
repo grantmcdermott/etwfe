@@ -51,7 +51,7 @@ times of the main marginal effects (but at the cost of not getting any
 information about standard errors; see Performance tips below). Another
 potentially useful application is testing whether heterogeneous treatment
 effects (i.e. the levels of any `xvar` covariate) are equal by invoking the
-`hypothesis` argument, e.g. `hypothesis = "adult = child"`.}
+`hypothesis` argument, e.g. `hypothesis = "b1 = b2"`.}
 }
 \value{
 A `slopes` object from the `marginaleffects` package.
@@ -145,9 +145,10 @@ mod
 
 # 2) Recover the treatment effects of interest with emfx().
 
-emfx(mod)                 # average treatment effect (default)
+emfx(mod)                 # simple average treatment effect (default)
 emfx(mod, type = "event") # dynamic treatment effect a la an event study
-# etc.
+# Etc. Other aggregation types are "group" and "calendar"
+
 
 #
 # Heterogeneous treatment effects
@@ -161,12 +162,21 @@ gls = c("IL" = 17, "IN" = 18, "MI" = 26, "MN" = 27,
 
 mpdta$gls = substr(mpdta$countyreal, 1, 2) \%in\% gls
 
-etwfe(
+hmod = etwfe(
    lemp ~ lpop, tvar = year, gvar = first.treat, data = mpdta, 
    vcov = ~countyreal,
    xvar = gls           ## <= het. TEs by gls
-   ) |>
-   emfx()
+   )
+
+# Heterogeneous ATEs (could also specify "event", etc.) 
+
+emfx(hmod)
+
+# To test whether the ATEs across these two groups (non-GLS vs GLS) are 
+# statistically different, simply pass an appropriate "hypothesis" argument.
+
+emfx(hmod, hypothesis = "b1 = b2")
+
 
 #
 # Nonlinear model (distribution / link) families

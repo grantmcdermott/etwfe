@@ -81,9 +81,10 @@
 ##' 
 ##' # 2) Recover the treatment effects of interest with emfx().
 ##' 
-##' emfx(mod)                 # average treatment effect (default)
+##' emfx(mod)                 # simple average treatment effect (default)
 ##' emfx(mod, type = "event") # dynamic treatment effect a la an event study
-##' # etc.
+##' # Etc. Other aggregation types are "group" and "calendar"
+##' 
 ##' 
 ##' #
 ##' # Heterogeneous treatment effects
@@ -97,12 +98,21 @@
 ##' 
 ##' mpdta$gls = substr(mpdta$countyreal, 1, 2) %in% gls
 ##' 
-##' etwfe(
+##' hmod = etwfe(
 ##'    lemp ~ lpop, tvar = year, gvar = first.treat, data = mpdta, 
 ##'    vcov = ~countyreal,
 ##'    xvar = gls           ## <= het. TEs by gls
-##'    ) |>
-##'    emfx()
+##'    )
+##' 
+##' # Heterogeneous ATEs (could also specify "event", etc.) 
+##' 
+##' emfx(hmod)
+##' 
+##' # To test whether the ATEs across these two groups (non-GLS vs GLS) are 
+##' # statistically different, simply pass an appropriate "hypothesis" argument.
+##' 
+##' emfx(hmod, hypothesis = "b1 = b2")
+##' 
 ##' 
 ##' #
 ##' # Nonlinear model (distribution / link) families
