@@ -86,61 +86,45 @@ below.</p></dd>
 
 
 <dt>collapse</dt>
-<dd><p>Logical. Collapse the data by (period by cohort) groups 
-before calculating marginal effects? This trades off a loss in estimate 
-accuracy (typically around the 1st or 2nd significant decimal point) for a 
-substantial improvement in estimation time for large datasets. The default 
-behaviour ("auto") is to automatically collapse if the original dataset has 
-more than 500,000 rows. Users can override by setting either FALSE or TRUE. 
-Note that collapsing by group is only valid if the preceding `etwfe` call 
-was run with "ivar = NULL" (the default). See the section on Performance
-tips below.</p></dd>
+<dd><p>Logical. Collapse the data by (period by cohort) groups
+before calculating marginal effects? This trades off a loss in estimate
+accuracy (typically around the 1st or 2nd significant decimal point) for a
+substantial improvement in estimation time for large datasets. The default
+behaviour ("auto") is to automatically collapse if the original dataset
+has more than 500,000 rows. Users can override by setting either FALSE or
+TRUE. Note that collapsing by group is only valid if the preceding `etwfe`
+call was run with "ivar = NULL" (the default). See the section on
+Performance tips below.</p></dd>
 
 
 <dt>post_only</dt>
 <dd><p>Logical. Only keep post-treatment effects. All
-pre-treatment effects will be zero as a mechanical result of ETWFE's 
-estimation setup, so the default is to drop these nuisance rows from
-the dataset. But you may want to keep them for presentation reasons
-(e.g., plotting an event-study); though be warned that this is 
-strictly performative. This argument will only be evaluated if
-`type = "event"`.</p></dd>
+pre-treatment effects will be zero as a mechanical result of ETWFE's
+estimation setup, so the default is to drop these nuisance rows from the
+dataset. But you may want to keep them for presentation reasons (e.g.,
+plotting an event-study); though be warned that this is strictly
+performative. This argument will only be evaluated if `type = "event"`.</p></dd>
 
 
 <dt>...</dt>
-<dd><p>Additional arguments passed to [`marginaleffects::marginaleffects`]. 
-For example, you can pass `vcov = FALSE` to dramatically speed up estimation
-times of the main marginal effects (but at the cost of not getting any 
-information about standard errors; see Performance tips below). Another
-potentially useful application is testing whether heterogeneous treatment
-effects (i.e. the levels of any `xvar` covariate) are equal by invoking the
-`hypothesis` argument, e.g. `hypothesis = "b1 = b2"`.</p></dd>
+<dd><p>Additional arguments passed to
+[`marginaleffects::marginaleffects`]. For example, you can pass `vcov =
+FALSE` to dramatically speed up estimation times of the main marginal
+effects (but at the cost of not getting any information about standard
+errors; see Performance tips below). Another potentially useful
+application is testing whether heterogeneous treatment effects (i.e. the
+levels of any `xvar` covariate) are equal by invoking the `hypothesis`
+argument, e.g. `hypothesis = "b1 = b2"`.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
 
+<p>A fixest object with fully saturated interaction effects.</p>
+
+
 <p>A `slopes` object from the `marginaleffects` package.</p>
-    </div>
-    <div class="section level2">
-    <h2 id="heterogeneous-treatment-effects">Heterogeneous treatment effects<a class="anchor" aria-label="anchor" href="#heterogeneous-treatment-effects"></a></h2>
-    
-
-
-<p>Specifying `etwfe(..., xvar = &lt;xvar&gt;)` will generate interaction effects
-  for all levels of `&lt;xvar&gt;` as part of the main regression model. The
-  reason that this is useful (as opposed to a regular, non-interacted
-  covariate in the formula RHS) is that it allows us to estimate
-  heterogeneous treatment effects as part of the larger ETWFE framework.
-  Specifically, we can recover heterogeneous treatment effects for each
-  level of `&lt;xvar&gt;` by passing the resulting `etwfe` model object on to 
-  `emfx()`.</p>  
-<p>For example, imagine that we have a categorical variable called "age" in
-  our dataset, with two distinct levels "adult" and "child". Running
-  `etwfe(..., xvar = age) |&gt; emfx(...)` will tell us how the efficacy of 
-  treatment varies across adults and children. The same principle carries
-  over to variables with multiple levels.</p>
     </div>
     <div class="section level2">
     <h2 id="performance-tips">Performance tips<a class="anchor" aria-label="anchor" href="#performance-tips"></a></h2>
@@ -178,6 +162,29 @@ effects (i.e. the levels of any `xvar` covariate) are equal by invoking the
 <p>3. Compare the results from steps 1 and 2. If the main parameter estimates
   are similar enough, then as your final model run the following to also 
   obtain approximate standard errors: `emfx(..., collapse = TRUE)`.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="heterogeneous-treatment-effects">Heterogeneous treatment effects<a class="anchor" aria-label="anchor" href="#heterogeneous-treatment-effects"></a></h2>
+    
+
+
+<p>Specifying `etwfe(..., xvar = &lt;xvar&gt;)` will generate interaction effects
+  for all levels of `&lt;xvar&gt;` as part of the main regression model. The
+  reason that this is useful (as opposed to a regular, non-interacted
+  covariate in the formula RHS) is that it allows us to estimate
+  heterogeneous treatment effects as part of the larger ETWFE framework.
+  Specifically, we can recover heterogeneous treatment effects for each
+  level of `&lt;xvar&gt;` by passing the resulting `etwfe` model object on to 
+  `emfx()`.</p>  
+<p>For example, imagine that we have a categorical variable called "age" in
+  our dataset, with two distinct levels "adult" and "child". Running
+  `emfx(etwfe(..., xvar = age))` will tell us how the efficacy of treatment 
+  varies across adults and children. We can then also leverage the in-built 
+  hypothesis testing infrastructure of `marginaleffects` to test whether
+  the treatment effect is statistically different across these two age
+  groups; see Examples below. Note the same principles carry over to 
+  categorical variables with multiple levels, or even continuous variables
+  (although continuous variables are not as well supported yet).</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
