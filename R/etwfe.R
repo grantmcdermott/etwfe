@@ -19,9 +19,8 @@
 ##' @param xvar Optional interacted categorical covariate for estimating
 ##'   heterogeneous treatment effects. Enables recovery of the marginal
 ##'   treatment effect for distinct levels of `xvar`, e.g. "child", "teenager",
-##'   or "adult". (Note that the "x" part of "xvar" is meant to represent a
-##'   treatment-*interacted* covariate, as opposed to a regular control
-##'   variable.)
+##'   or "adult". Note that the "x" prefix in "xvar" represents a covariate that
+##'   is *interacted* with treatment, as opposed to a regular control variable.
 ##' @param tref Optional reference value for `tvar`. Defaults to its minimum 
 ##' value (i.e., the first time period observed in the dataset).
 ##' @param gref Optional reference value for `gvar`. You shouldn't need to 
@@ -105,7 +104,6 @@
 ##'   3. Compare the results from steps 1 and 2. If the main parameter estimates
 ##'   are similar enough, then as your final model run the following to also 
 ##'   obtain approximate standard errors: `emfx(..., collapse = TRUE)`.
-##' @return A `slopes` object from the `marginaleffects` package.
 ##' @references 
 ##' Wooldridge, Jeffrey M. (2021). \cite{Two-Way Fixed Effects, the 
 ##' Two-Way Mundlak Regression, and Difference-in-Differences Estimators}.

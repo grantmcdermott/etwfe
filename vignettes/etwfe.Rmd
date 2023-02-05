@@ -83,8 +83,10 @@ data("mpdta", package = "did")
 head(mpdta)
 ```
 
-In the examples that follow, our goal is to estimate the effect of treatment
-(`treat`) on log employment (`lemp`). Notice that the panel ID is at the county
+"Treatment" in this dataset means an increase in the minimum wage rate, while 
+the main outcome of interest is teen employment. In the examples that follow, 
+our goal is to estimate the effect of this minimum wage treatment (`treat`) on 
+teen log employment (`lemp`). Notice that the panel ID is at the county
 level (`countyreal`), but treatment was staggered across cohorts (`first.treat`)
 so that a group of counties were treated at the same time. In addition to these
 staggered treatment effects, we also observe log population (`lpop`) as a 
@@ -98,7 +100,7 @@ Let's load **etwfe** and work through its basic functionality.
 
 ### `etwfe`
 
-Given the package name, it won't surprise you to know that the key estimating
+Given the package name, it won't surprise you to learn that the key estimating
 function is `etwfe()`. Here's how it would look for our example dataset.
 
 ```{r}
@@ -169,8 +171,13 @@ mod_es = emfx(mod, type = "event")
 mod_es
 ```
 
-Other types of aggregations include `"calendar"` (i.e., treatment effect by period) 
-and `"group"` (i.e., treatment effect by cohort).
+Here it seems that the disemployment effect of a minimum wage hike is fairly
+modest at first, but grows over time. We'll look at ways to present this
+information visually in the next section.
+
+Note that `emfx()` also supports other types of aggregations such as 
+`"calendar"` (i.e., treatment effect by period) and `"group"` (i.e., treatment
+effect by cohort).
 
 ### Presentation
 
@@ -210,7 +217,7 @@ theme_set(
 ggplot(mod_es, aes(x = event, y = estimate, ymin = conf.low, ymax = conf.high)) +
   geom_hline(yintercept = 0) +
   geom_pointrange(col = "darkcyan") +
-  labs(x = "Years post treatment", y = "Effect on log employment")
+  labs(x = "Years post treatment", y = "Effect on log teen employment")
 ```
 
 Note that `emfx` only reports post-treatment effects. All pre-treatment effects
@@ -232,14 +239,78 @@ ggplot(mod_es2, aes(x = event, y = estimate, ymin = conf.low, ymax = conf.high))
   geom_vline(xintercept = -1, lty = 2) +
   geom_pointrange(col = "darkcyan") +
   labs(
-    x = "Years post treatment", y = "Effect on log employment",
+    x = "Years post treatment", y = "Effect on log teen employment",
     caption = "Note: Zero pre-treatment effects for illustrative purposes only."
   )
 ```
 
+## Heterogeneous treatment effects
+
+So far we've limited ourselves to a homogeneous treatment effect, where the
+impact of treatment (i.e., minimum wage hike) is averaged across all US counties
+in our dataset. However, many research problems require us to estimate treatment
+effects separately across groups and then, potentially, test for differences
+between them. For example, we might want to test whether the efficacy of a new
+vaccine differs across population age groups, or whether a marketing campaign
+was equally successful across genders. The ETWFE framework naturally lends
+itself to analysis of these kinds of heterogeneous treatment effects.
+
+Consider the following example, where we first create a logical dummy variable
+for all US counties in the eight
+[Great Lake states (GLS)](https://en.wikipedia.org/wiki/Great_Lakes_region).
+
+```{r}
+gls_fips = c("IL" = 17, "IN" = 18, "MI" = 26, "MN" = 27,
+             "NY" = 36, "OH" = 39, "PA" = 42, "WI" = 55)
+
+mpdta$gls = substr(mpdta$countyreal, 1, 2) %in% gls_fips
+```
+
+Now imagine that we are interested in estimating separate treatment effects
+for GLS versus non-GLS counties. We do this simply by invoking the optional
+`xvar` argument as part of our `etwfe()` call.^[Note that the "x" prefix in 
+"xvar" represents a covariate that is *interacted* with treatment, as opposed to 
+a regular control variable (which could obviously be included as part of the 
+`fml` RHS.] Any subsequent `emfx()` call on this object will automatically
+recognize that we want to recover treatment effects by these two distinct 
+groups. 
+
+```{r}
+hmod = etwfe(
+   lemp ~ lpop, tvar = year, gvar = first.treat, data = mpdta, 
+   vcov = ~countyreal,
+   xvar = gls           ## <= het. TEs by gls
+   )
+
+# Heterogeneous ATEs (could also specify `type = "event"`, etc.) 
+emfx(hmod)
+```
+
+It looks like an increase in minimum wage may cause less teen disemployment in
+GLS counties than in the rest of the US on average. However, to test this
+formally we can invoke the powerful
+[`hypothesis`](https://vincentarelbundock.github.io/marginaleffects/articles/hypothesis.html) 
+infrastructure of the underlying **marginaleffects** package. Probably the 
+easiest way to do this is by using `"b[i]"`-style positional arguments, where 
+"[i]" denotes the row of the `emfx()` return object. By specifying 
+`hypothesis = "b1 = b2"`, we are thus testing whether the treatment estimates 
+from row 1 (non-GLS) and row 2 (GLS) are different from one another.
+
+```{r}
+emfx(hmod, hypothesis = "b1 = b2")
+```
+
+Here we see that there is actually no statistical difference in the average
+disemployment effect between GLS and non-GLS counties.
+
+While the simple example here has been limited to average treatment effects
+and two groups, note the same logic carries over to richer settings. We can use
+the ETWFE workflow to estimate heterogeneous treatment effects by different
+aggregations (e.g., event studies) and across groups with many levels.
+
 ## Other families
 
-A key feature of the ETWFE approach---one that sets it apart from other advanced
+Another key feature of the ETWFE approach---one that sets it apart from other advanced
 DiD implementations and extensions---is that it supports nonlinear model
 (distribution / link) families. Users need simply invoke the `family` argument.
 Here's a brief example, where we recast our earlier event-study as a Poisson

@@ -54,8 +54,6 @@ levels of any `xvar` covariate) are equal by invoking the `hypothesis`
 argument, e.g. `hypothesis = "b1 = b2"`.}
 }
 \value{
-A fixest object with fully saturated interaction effects.
-
 A `slopes` object from the `marginaleffects` package.
 }
 \description{

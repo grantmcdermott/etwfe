@@ -33,6 +33,7 @@
 ##'   application is testing whether heterogeneous treatment effects (i.e. the
 ##'   levels of any `xvar` covariate) are equal by invoking the `hypothesis`
 ##'   argument, e.g. `hypothesis = "b1 = b2"`.
+##' @return A `slopes` object from the `marginaleffects` package.
 ##' @seealso [marginaleffects::slopes()]
 ##' @inherit etwfe return examples 
 ##' @inheritSection etwfe Performance tips

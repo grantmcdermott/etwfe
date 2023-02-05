@@ -44,9 +44,8 @@ want to cluster your standard errors by your index variable through the
 \item{xvar}{Optional interacted categorical covariate for estimating
 heterogeneous treatment effects. Enables recovery of the marginal
 treatment effect for distinct levels of `xvar`, e.g. "child", "teenager",
-or "adult". (Note that the "x" part of "xvar" is meant to represent a
-treatment-*interacted* covariate, as opposed to a regular control
-variable.)}
+or "adult". Note that the "x" prefix in "xvar" represents a covariate that
+is *interacted* with treatment, as opposed to a regular control variable.}
 
 \item{tref}{Optional reference value for `tvar`. Defaults to its minimum 
 value (i.e., the first time period observed in the dataset).}
@@ -78,8 +77,6 @@ non-NULL family entry is detected, `ivar` will automatically be set to NULL.}
 }
 \value{
 A fixest object with fully saturated interaction effects.
-
-A `slopes` object from the `marginaleffects` package.
 }
 \description{
 Extended two-way fixed effects
