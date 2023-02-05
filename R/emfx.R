@@ -10,88 +10,33 @@
 ##'   of the underlying `etwfe` model object. Users can override by setting to
 ##'   either FALSE or TRUE. See the section on Heterogeneous treatment effects
 ##'   below.
-##' @param collapse Logical. Collapse the data by (period by cohort) groups 
-##' before calculating marginal effects? This trades off a loss in estimate 
-##' accuracy (typically around the 1st or 2nd significant decimal point) for a 
-##' substantial improvement in estimation time for large datasets. The default 
-##' behaviour ("auto") is to automatically collapse if the original dataset has 
-##' more than 500,000 rows. Users can override by setting either FALSE or TRUE. 
-##' Note that collapsing by group is only valid if the preceding `etwfe` call 
-##' was run with "ivar = NULL" (the default). See the section on Performance
-##' tips below.
+##' @param collapse Logical. Collapse the data by (period by cohort) groups
+##'   before calculating marginal effects? This trades off a loss in estimate
+##'   accuracy (typically around the 1st or 2nd significant decimal point) for a
+##'   substantial improvement in estimation time for large datasets. The default
+##'   behaviour ("auto") is to automatically collapse if the original dataset
+##'   has more than 500,000 rows. Users can override by setting either FALSE or
+##'   TRUE. Note that collapsing by group is only valid if the preceding `etwfe`
+##'   call was run with "ivar = NULL" (the default). See the section on
+##'   Performance tips below.
 ##' @param post_only Logical. Only keep post-treatment effects. All
-##' pre-treatment effects will be zero as a mechanical result of ETWFE's 
-##' estimation setup, so the default is to drop these nuisance rows from
-##' the dataset. But you may want to keep them for presentation reasons
-##' (e.g., plotting an event-study); though be warned that this is 
-##' strictly performative. This argument will only be evaluated if
-##' `type = "event"`.
-##' @param ... Additional arguments passed to [`marginaleffects::marginaleffects`]. 
-##' For example, you can pass `vcov = FALSE` to dramatically speed up estimation
-##' times of the main marginal effects (but at the cost of not getting any 
-##' information about standard errors; see Performance tips below). Another
-##' potentially useful application is testing whether heterogeneous treatment
-##' effects (i.e. the levels of any `xvar` covariate) are equal by invoking the
-##' `hypothesis` argument, e.g. `hypothesis = "b1 = b2"`.
-##' 
-##' @section Heterogeneous treatment effects:
-##' 
-##'   Specifying `etwfe(..., xvar = <xvar>)` will generate interaction effects
-##'   for all levels of `<xvar>` as part of the main regression model. The
-##'   reason that this is useful (as opposed to a regular, non-interacted
-##'   covariate in the formula RHS) is that it allows us to estimate
-##'   heterogeneous treatment effects as part of the larger ETWFE framework.
-##'   Specifically, we can recover heterogeneous treatment effects for each
-##'   level of `<xvar>` by passing the resulting `etwfe` model object on to 
-##'   `emfx()`.
-##'   
-##'   For example, imagine that we have a categorical variable called "age" in
-##'   our dataset, with two distinct levels "adult" and "child". Running
-##'   `etwfe(..., xvar = age) |> emfx(...)` will tell us how the efficacy of 
-##'   treatment varies across adults and children. The same principle carries
-##'   over to variables with multiple levels.
-##'   
-##' @section Performance tips: 
-##' 
-##'   For datasets smaller than 100k rows, `emfx` should complete quite
-##'   quickly; within a few seconds or less. However, the computation time does
-##'   tend to scale linearly with the size of the data, as well as the number of
-##'   interactions from the original `etwfe` model. Without getting too far into
-##'   the weeds, the delta method of the underlying marginal effects calculation
-##'   has to estimate two prediction models for *each* coefficient in the model
-##'   and then compute their standard errors. So, it's a potentially expensive
-##'   operation. 
-##'   
-##'   However, there are two key strategies that you can use to speed things up.
-##'   The first is to pass "vcov = FALSE" as an argument to `emfx`. Doing so
-##'   should reduce the estimation time to less than a second, even for datasets
-##'   in excess of a million rows. This approach does come at the cost of not
-##'   returning any standard errors. Yet it can be useful to combine our first
-##'   strategy with a second strategy, which is to invoke the "collapse = TRUE"
-##'   argument. Collapsing the data by groups prior to estimating the marginal
-##'   effects can yield a substantial speed increase (albeit not nearly as
-##'   dramatic as turning of the vcov calculations). But we do get standard
-##'   errors this time. The trade-off from collapsing the data is that we lose
-##'   some accuracy in our estimated parameters. Testing suggests that this loss
-##'   in accuracy tends to be relatively minor, with results equivalent to the
-##'   1st or 2nd significant decimal place (or even better). By combining these
-##'   two strategies, users can very quickly see how bad the loss in accuracy is
-##'   on the main marginal effects, before deciding whether to estimate with the
-##'   collapsed dataset to get approximate standard errors.
-##'   
-##'   Summarizing, if you are worried about the estimation time for a large
-##'   dataset, try the following three-step approach:
-##'   
-##'   1. Run `emfx(..., vcov = FALSE)`.
-##'   
-##'   2. Run `emfx(..., vcov = FALSE, collapse = TRUE)`.
-##'   
-##'   3. Compare the results from steps 1 and 2. If the main parameter estimates
-##'   are similar enough, then as your final model run the following to also 
-##'   obtain approximate standard errors: `emfx(..., collapse = TRUE)`.
-##' @return A `slopes` object from the `marginaleffects` package.
+##'   pre-treatment effects will be zero as a mechanical result of ETWFE's
+##'   estimation setup, so the default is to drop these nuisance rows from the
+##'   dataset. But you may want to keep them for presentation reasons (e.g.,
+##'   plotting an event-study); though be warned that this is strictly
+##'   performative. This argument will only be evaluated if `type = "event"`.
+##' @param ... Additional arguments passed to
+##'   [`marginaleffects::marginaleffects`]. For example, you can pass `vcov =
+##'   FALSE` to dramatically speed up estimation times of the main marginal
+##'   effects (but at the cost of not getting any information about standard
+##'   errors; see Performance tips below). Another potentially useful
+##'   application is testing whether heterogeneous treatment effects (i.e. the
+##'   levels of any `xvar` covariate) are equal by invoking the `hypothesis`
+##'   argument, e.g. `hypothesis = "b1 = b2"`.
 ##' @seealso [marginaleffects::slopes()]
-##' @inherit etwfe return examples
+##' @inherit etwfe return examples 
+##' @inheritSection etwfe Performance tips
+##' @inheritSection etwfe Heterogeneous treatment effects
 ##' @importFrom data.table .N .SD
 ##' @export
 emfx = function(

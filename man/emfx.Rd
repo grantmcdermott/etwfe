@@ -27,57 +27,40 @@ of the underlying `etwfe` model object. Users can override by setting to
 either FALSE or TRUE. See the section on Heterogeneous treatment effects
 below.}
 
-\item{collapse}{Logical. Collapse the data by (period by cohort) groups 
-before calculating marginal effects? This trades off a loss in estimate 
-accuracy (typically around the 1st or 2nd significant decimal point) for a 
-substantial improvement in estimation time for large datasets. The default 
-behaviour ("auto") is to automatically collapse if the original dataset has 
-more than 500,000 rows. Users can override by setting either FALSE or TRUE. 
-Note that collapsing by group is only valid if the preceding `etwfe` call 
-was run with "ivar = NULL" (the default). See the section on Performance
-tips below.}
+\item{collapse}{Logical. Collapse the data by (period by cohort) groups
+before calculating marginal effects? This trades off a loss in estimate
+accuracy (typically around the 1st or 2nd significant decimal point) for a
+substantial improvement in estimation time for large datasets. The default
+behaviour ("auto") is to automatically collapse if the original dataset
+has more than 500,000 rows. Users can override by setting either FALSE or
+TRUE. Note that collapsing by group is only valid if the preceding `etwfe`
+call was run with "ivar = NULL" (the default). See the section on
+Performance tips below.}
 
 \item{post_only}{Logical. Only keep post-treatment effects. All
-pre-treatment effects will be zero as a mechanical result of ETWFE's 
-estimation setup, so the default is to drop these nuisance rows from
-the dataset. But you may want to keep them for presentation reasons
-(e.g., plotting an event-study); though be warned that this is 
-strictly performative. This argument will only be evaluated if
-`type = "event"`.}
+pre-treatment effects will be zero as a mechanical result of ETWFE's
+estimation setup, so the default is to drop these nuisance rows from the
+dataset. But you may want to keep them for presentation reasons (e.g.,
+plotting an event-study); though be warned that this is strictly
+performative. This argument will only be evaluated if `type = "event"`.}
 
-\item{...}{Additional arguments passed to [`marginaleffects::marginaleffects`]. 
-For example, you can pass `vcov = FALSE` to dramatically speed up estimation
-times of the main marginal effects (but at the cost of not getting any 
-information about standard errors; see Performance tips below). Another
-potentially useful application is testing whether heterogeneous treatment
-effects (i.e. the levels of any `xvar` covariate) are equal by invoking the
-`hypothesis` argument, e.g. `hypothesis = "b1 = b2"`.}
+\item{...}{Additional arguments passed to
+[`marginaleffects::marginaleffects`]. For example, you can pass `vcov =
+FALSE` to dramatically speed up estimation times of the main marginal
+effects (but at the cost of not getting any information about standard
+errors; see Performance tips below). Another potentially useful
+application is testing whether heterogeneous treatment effects (i.e. the
+levels of any `xvar` covariate) are equal by invoking the `hypothesis`
+argument, e.g. `hypothesis = "b1 = b2"`.}
 }
 \value{
+A fixest object with fully saturated interaction effects.
+
 A `slopes` object from the `marginaleffects` package.
 }
 \description{
 Post-estimation treatment effects for an ETWFE regressions.
 }
-\section{Heterogeneous treatment effects}{
-
-
-  Specifying `etwfe(..., xvar = <xvar>)` will generate interaction effects
-  for all levels of `<xvar>` as part of the main regression model. The
-  reason that this is useful (as opposed to a regular, non-interacted
-  covariate in the formula RHS) is that it allows us to estimate
-  heterogeneous treatment effects as part of the larger ETWFE framework.
-  Specifically, we can recover heterogeneous treatment effects for each
-  level of `<xvar>` by passing the resulting `etwfe` model object on to 
-  `emfx()`.
-  
-  For example, imagine that we have a categorical variable called "age" in
-  our dataset, with two distinct levels "adult" and "child". Running
-  `etwfe(..., xvar = age) |> emfx(...)` will tell us how the efficacy of 
-  treatment varies across adults and children. The same principle carries
-  over to variables with multiple levels.
-}
-
 \section{Performance tips}{
  
 
@@ -117,6 +100,29 @@ Post-estimation treatment effects for an ETWFE regressions.
   3. Compare the results from steps 1 and 2. If the main parameter estimates
   are similar enough, then as your final model run the following to also 
   obtain approximate standard errors: `emfx(..., collapse = TRUE)`.
+}
+
+\section{Heterogeneous treatment effects}{
+
+
+  Specifying `etwfe(..., xvar = <xvar>)` will generate interaction effects
+  for all levels of `<xvar>` as part of the main regression model. The
+  reason that this is useful (as opposed to a regular, non-interacted
+  covariate in the formula RHS) is that it allows us to estimate
+  heterogeneous treatment effects as part of the larger ETWFE framework.
+  Specifically, we can recover heterogeneous treatment effects for each
+  level of `<xvar>` by passing the resulting `etwfe` model object on to 
+  `emfx()`.
+  
+  For example, imagine that we have a categorical variable called "age" in
+  our dataset, with two distinct levels "adult" and "child". Running
+  `emfx(etwfe(..., xvar = age))` will tell us how the efficacy of treatment 
+  varies across adults and children. We can then also leverage the in-built 
+  hypothesis testing infrastructure of `marginaleffects` to test whether
+  the treatment effect is statistically different across these two age
+  groups; see Examples below. Note the same principles carry over to 
+  categorical variables with multiple levels, or even continuous variables
+  (although continuous variables are not as well supported yet).
 }
 
 \examples{
