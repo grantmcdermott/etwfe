@@ -215,10 +215,10 @@ non-NULL family entry is detected, `ivar` will automatically be set to NULL.</p>
   the 1st or 2nd significant decimal place (or even better).</p>  
 <p>Summarizing, here's a quick plan of attack for you to try if you are
   worried about the estimation time for large datasets and models:</p>  
-<p>0. Estimate `mod = etwfe(...)` as per usual.
-  1. Run `emfx(mod, vcov = FALSE, ...)`. 
-  2. Run `emfx(mod, vcov = FALSE, collapse = TRUE, ...)`. 
-  3. Compare the point estimates from steps 1 and 2. If they are are similar
+<p>0. Estimate `mod = etwfe(...)` as per usual.</p>  
+<p>1. Run `emfx(mod, vcov = FALSE, ...)`.</p>  
+<p>2. Run `emfx(mod, vcov = FALSE, collapse = TRUE, ...)`.</p>  
+<p>3. Compare the point estimates from steps 1 and 2. If they are are similar
   enough to your satisfaction, get the approximate standard errors by
   running `emfx(mod, collapse = TRUE, ...)`.</p>
     </div>
