@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">etwfe</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.9006</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.9007</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -128,37 +128,42 @@ argument, e.g. `hypothesis = "b1 = b2"`.</p></dd>
     
  
 
-<p>For datasets smaller than 100k rows, `emfx` should complete quite
-  quickly; within a few seconds or less. However, the computation time does
-  tend to scale linearly with the size of the data, as well as the number of
-  interactions from the original `etwfe` model. Without getting too far into
-  the weeds, the delta method of the underlying marginal effects calculation
-  has to estimate two prediction models for *each* coefficient in the model
-  and then compute their standard errors. So, it's a potentially expensive
-  operation.</p>  
-<p>However, there are two key strategies that you can use to speed things up.
-  The first is to pass "vcov = FALSE" as an argument to `emfx`. Doing so
-  should reduce the estimation time to less than a second, even for datasets
-  in excess of a million rows. This approach does come at the cost of not
-  returning any standard errors. Yet it can be useful to combine our first
-  strategy with a second strategy, which is to invoke the "collapse = TRUE"
-  argument. Collapsing the data by groups prior to estimating the marginal
-  effects can yield a substantial speed increase (albeit not nearly as
-  dramatic as turning of the vcov calculations). But we do get standard
-  errors this time. The trade-off from collapsing the data is that we lose
-  some accuracy in our estimated parameters. Testing suggests that this loss
-  in accuracy tends to be relatively minor, with results equivalent to the
-  1st or 2nd significant decimal place (or even better). By combining these
-  two strategies, users can very quickly see how bad the loss in accuracy is
-  on the main marginal effects, before deciding whether to estimate with the
-  collapsed dataset to get approximate standard errors.</p>  
-<p>Summarizing, if you are worried about the estimation time for a large
-  dataset, try the following three-step approach:</p>  
-<p>1. Run `emfx(..., vcov = FALSE)`.</p>  
-<p>2. Run `emfx(..., vcov = FALSE, collapse = TRUE)`.</p>  
-<p>3. Compare the results from steps 1 and 2. If the main parameter estimates
-  are similar enough, then as your final model run the following to also 
-  obtain approximate standard errors: `emfx(..., collapse = TRUE)`.</p>
+<p>Under most situations, `etwfe` should complete very quickly. For its part,
+  `emfx` is quite performant too and should take a few seconds or less for 
+  datasets under 100k rows. However, `emfx`'s computation time does tend to
+  scale linearly with the size of the original data, as well as the number
+  of interactions from the underlying `etwfe` model. Without getting too deep
+  into the weeds, the numerical delta method used to recover the ATEs of
+  interest has to estimate two prediction models for *each* coefficient in
+  the model and then compute their standard errors. So, it's a potentially
+  expensive operation that can push the computation time for large datasets
+  (&gt; 1m rows) up to several minutes or longer.</p>  
+<p>Fortunately, there are two
+  complementary strategies that you can use to speed things up. The first is
+  to turn off the most expensive part of the whole procedure---standard
+  error calculation---by calling `emfx(..., vcov = FALSE)`. Doing so should
+  bring the estimation time back down to a few seconds or less, even for
+  datasets in excess of a million rows. While the loss of standard errors
+  might not be an acceptable trade-off for projects where statistical
+  inference is critical, the good news is this first strategy can still be
+  combined our second strategy. It turns out that collapsing the data by
+  groups prior to estimating the marginal effects can yield substantial
+  speed gains of its own. Users can do this by invoking the `emfx(...,
+  collapse = TRUE)` argument. While the effect here is not as dramatic as
+  the first strategy, our second strategy does have the virtue of retaining
+  information about the standard errors. The trade-off this time, however,
+  is that collapsing our data does lead to a loss in accuracy for our
+  estimated parameters. On the other hand, testing suggests that this loss
+  in accuracy tends to be relatively minor, with results equivalent up to
+  the 1st or 2nd significant decimal place (or even better).</p>  
+<p>Summarizing, here's a quick plan of attack for you to try if you are
+  worried about the estimation time for large datasets and models:</p>  
+<p>0. Estimate `mod = etwfe(...)` as per usual.
+  1. Run `emfx(mod, vcov = FALSE, ...)`. 
+  2. Run `emfx(mod, vcov = FALSE, collapse = TRUE, ...)`. 
+  3. Compare the point estimates from steps 1 and 2. If they are are similar
+  enough to your satisfaction, get the approximate standard errors by
+  running `emfx(mod, collapse = TRUE, ...)`.</p>
     </div>
     <div class="section level2">
     <h2 id="heterogeneous-treatment-effects">Heterogeneous treatment effects<a class="anchor" aria-label="anchor" href="#heterogeneous-treatment-effects"></a></h2>
