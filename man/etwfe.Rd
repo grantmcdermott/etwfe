@@ -141,8 +141,11 @@ Extended two-way fixed effects
   worried about the estimation time for large datasets and models:
   
   0. Estimate `mod = etwfe(...)` as per usual.
+  
   1. Run `emfx(mod, vcov = FALSE, ...)`. 
+  
   2. Run `emfx(mod, vcov = FALSE, collapse = TRUE, ...)`. 
+  
   3. Compare the point estimates from steps 1 and 2. If they are are similar
   enough to your satisfaction, get the approximate standard errors by
   running `emfx(mod, collapse = TRUE, ...)`.
