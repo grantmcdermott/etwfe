@@ -96,7 +96,9 @@ omit controls if you don't have any.]
 
 ## Basic usage
 
-Let's load **etwfe** and work through its basic functionality.
+Let's load **etwfe** and work through its basic functionality. As we'll see,
+the core workflow of the package involves consecutive calls to two complementary 
+functions: 1) `etwfe()` and 2) `emfx()`.
 
 ### `etwfe`
 
@@ -154,34 +156,37 @@ dimension of interest
 (e.g., by groups or time, or as an event study). A natural way to perform these
 aggregations is by recovering the appropriate marginal effects. The **etwfe**
 package provides another convenience function for doing so: `emfx()`, which is a
-thin(ish) wrapper around `marginaleffects::marginaleffects()`.
+thin(ish) wrapper around
+[`marginaleffects::slopes()`](https://vincentarelbundock.github.io/marginaleffects/articles/slopes.html).
 
-For example, we can recover the average treatment effect as follows.
+For example, we can recover the average treatment effect (ATE) as follows.
 
 ```{r}
 emfx(mod)
 ```
 
-Or, we can recover the dynamic treatment effects _a la_ an event study by invoking
-the `type` argument. This time I'll save the resulting object since I plan to
-reuse it in a moment.
+In other words, an increase in the minimum wage leads to an approximate 5 
+percent decrease in teen employment. 
+
+Beyond simple ATEs, `emfx()` also supports other types of aggregations through
+the `type` argument. For example, we can use `type = "calendar"` to get ATEs by
+period, or `type = "group"` to get ATEs by cohort groups. But the option that
+will probably be of use to most people is `type = "event"`, which will recover
+dynamic treatment effects _a la_ an event study. This try this out and then save
+the resulting object, since I plan to reuse it in a moment.
 
 ```{r}
 mod_es = emfx(mod, type = "event")
 mod_es
 ```
 
-Here it seems that the disemployment effect of a minimum wage hike is fairly
-modest at first, but grows over time. We'll look at ways to present this
+Here it seems that the teen disemployment effect of a minimum wage hike is
+fairly modest at first, but grows over time. We'll look at ways to present this
 information visually in the next section.
-
-Note that `emfx()` also supports other types of aggregations such as 
-`"calendar"` (i.e., treatment effect by period) and `"group"` (i.e., treatment
-effect by cohort).
 
 ### Presentation
 
-Since `emfx` produces a standard `marginaleffects` object, we can pass it on to
+Since `emfx()` produces a standard `marginaleffects` object, we can pass it on to
 other supported methods and packages. For example, we can pass it on to
 [**modelsummary**](https://vincentarelbundock.github.io/modelsummary/index.html)
 to get a nice regression table of the event study coefficients. Note the use of
@@ -206,7 +211,9 @@ modelsummary(
   notes       = "Std. errors are clustered at the county level"
 )
 ```
-For visualization, you can pass it on to your preferred plotting method. For example:
+
+For visualization, you can pass it on to your preferred plotting method. For
+example:
 
 ```{r}
 library(ggplot2)
@@ -246,14 +253,14 @@ ggplot(mod_es2, aes(x = event, y = estimate, ymin = conf.low, ymax = conf.high))
 
 ## Heterogeneous treatment effects
 
-So far we've limited ourselves to a homogeneous treatment effect, where the
+So far we've limited ourselves to homogeneous treatment effects, where the
 impact of treatment (i.e., minimum wage hike) is averaged across all US counties
 in our dataset. However, many research problems require us to estimate treatment
 effects separately across groups and then, potentially, test for differences
 between them. For example, we might want to test whether the efficacy of a new
-vaccine differs across population age groups, or whether a marketing campaign
-was equally successful across genders. The ETWFE framework naturally lends
-itself to analysis of these kinds of heterogeneous treatment effects.
+vaccine differs across age groups, or whether a marketing campaign was equally
+successful across genders. The ETWFE framework naturally lends itself to
+analysis of these kinds of heterogeneous treatment effects.
 
 Consider the following example, where we first create a logical dummy variable
 for all US counties in the eight
@@ -303,18 +310,18 @@ emfx(hmod, hypothesis = "b1 = b2")
 Here we see that there is actually no statistical difference in the average
 disemployment effect between GLS and non-GLS counties.
 
-While the simple example here has been limited to average treatment effects
-and two groups, note the same logic carries over to richer settings. We can use
-the ETWFE workflow to estimate heterogeneous treatment effects by different
+While the simple example here has been limited to a binary comparison of group  
+ATEs, note the same logic carries over to richer settings. We can use
+the exact same workflow to estimate heterogeneous treatment effects by different
 aggregations (e.g., event studies) and across groups with many levels.
 
 ## Other families
 
-Another key feature of the ETWFE approach---one that sets it apart from other advanced
-DiD implementations and extensions---is that it supports nonlinear model
-(distribution / link) families. Users need simply invoke the `family` argument.
-Here's a brief example, where we recast our earlier event-study as a Poisson
-regression.
+Another key feature of the ETWFE approach---one that sets it apart from other
+advanced DiD implementations and extensions---is that it supports nonlinear
+model (distribution / link) families. Users need simply invoke the `family`
+argument. Here's a brief example, where we recast our earlier event-study as a
+Poisson regression.
 
 ```{r, warning=FALSE, message=FALSE}
 mpdta$emp = exp(mpdta$lemp)
@@ -324,6 +331,84 @@ etwfe(
   family = "poisson"
   ) |>
   emfx("event")
+```
+
+## Performance tips
+
+Thinking of the **etwfe** workflow as a pair consecutive functional calls, the
+first `etwfe()` stage tends to be very fast. We're leveraging the incredible
+performance of **fixest** and also taking some shortcuts to avoid wasting time
+on nuisance parameters. See the
+[Regarding fixed effects](#regarding-fixed-effects) section below for more 
+details about this.
+
+For its part, the second `emfx()` stage also tends to be pretty performant. If
+your data has less than 100k rows, it's unlikely that you'll have to wait more
+than a few seconds to obtain results. However, `emfx`'s computation time does
+tend to scale linearly with the size of the original data, as well as the number
+of interactions from the underlying `etwfe` model object. Without getting too
+deep into the weeds, the numerical delta method being used to recover the
+ATEs of interest has to estimate two prediction models for *each* coefficient in
+the model and then compute their standard errors. So, it's a potentially
+expensive operation that can push the computation time for large datasets (> 1m
+rows) up to several minutes or longer.
+
+Fortunately, there are two complementary strategies that you can use to speed
+things up. The first is to turn off the most expensive part of the whole 
+procedure---standard error calculation---by calling `emfx(..., vcov = FALSE)`.
+Doing so should bring the estimation time back down to a few seconds or less,
+even for datasets in excess of a million rows. While the loss of standard errors
+might not be an acceptable trade-off for projects where statistical inference is
+critical, the good news is this first strategy can still be combined our second
+strategy. It turns out that collapsing the data by groups prior to estimating
+the marginal effects can yield substantial speed gains of its own. Users can do
+this by invoking the `emfx(..., collapse = TRUE)` argument. While the effect
+here is not as dramatic as the first strategy, our second strategy does have the
+virtue of retaining information about the standard errors. The trade-off this
+time, however, is that collapsing our data does lead to a loss in accuracy for
+our estimated parameters. On the other hand, testing suggests that this loss in
+accuracy tends to be relatively minor, with results equivalent up to the 1st or 
+2nd significant decimal place (or even better).
+
+Summarizing, here's a quick plan of attack for you to try if you are worried
+about the estimation time for large datasets and models:
+
+0. Estimate `mod = etwfe(...)` as per usual.
+1. Run `emfx(mod, vcov = FALSE, ...)`.
+2. Run `emfx(mod, vcov = FALSE, collapse = TRUE, ...)`.
+3. Compare the point estimates from steps 1 and 2. If they are are similar 
+enough to your satisfaction, get the approximate standard errors by running 
+`emfx(mod, collapse = TRUE, ...)`.
+
+It's a bit of performance art, since all of the examples in this vignette
+complete very quickly anyway, but here's a reworking of our earlier event study
+example to demonstrate this performance-conscious workflow.
+
+```{r}
+# Step 0 already complete: using the same `mod` object from earlier...
+
+# Step 1
+emfx(mod, type = "event", vcov = FALSE)
+
+# Step 2
+emfx(mod, type = "event", vcov = FALSE, collapse = TRUE)
+
+# Step 3: Results from 1 and 2 are similar enough, so get approx. SEs
+mod_es2 = emfx(mod, type = "event", collapse = TRUE)
+```
+
+To put a fine point on it, here's how the collapsed estimates compare with our
+original event study.
+
+```{r}
+modelsummary(
+    list("Original" = mod_es, "Collapsed" = mod_es2),
+    shape       = term:event:statistic ~ model,
+    coef_rename = rename_fn,
+    gof_omit    = "Adj|Within|IC|RMSE",
+    title       = "Event study",
+    notes       = "Std. errors are clustered at the county level"
+)
 ```
 
 ## Under the hood
