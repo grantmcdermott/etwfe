@@ -1,43 +1,34 @@
-# etwfe 0.2.9006 (development version)
+# etwfe 0.2.9007 (development version)
 
 ## New features and enhancements
 
-#### etwfe
+- Support for estimating heterogeneous treatment effects via the new 
+`etwfe(..., xvar = <xvar>` argument (#16, thanks to @frederickluser). 
+Automatically extends to `emfx()` via the latter's `by_xvar` argument (#21).
+More details are provided in the dedicated "Heterogeneous treatment effects"
+section of the vignette and help documentation
 
-- Support for heterogeneous treatment effects via the new `xvar` interacted
-covariate argument (#16 thanks to @frederickluser, and #21). Automatically 
-extends to `emfx` via the latter's `by_xvar` argument; see below.
+- The new `emfx(..., collapse = TRUE)` argument can substantially reduce
+estimation times for large datasets (#19, thanks @frederickluser). This
+performance boost does trade off against a loss in estimate accuracy. But
+testing suggests that the difference is relatively minor for typical use cases
+(i.e., results are equivalent up to the 1st or 2nd significant decimal place,
+and sometimes even better). Please let us know if you find edge cases where this
+is not true. More details are available in the dedicated "Performance tips" 
+section of the vignette and help documentation, including advice for combining
+collapsing with `emfx(..., vcov = FALSE)` (which yields an even more dramatic
+speed boost but at a cost of not reporting any standard errors).
 
-- Users can now specify no covariates with a 1 on the fml RHS, e.g, 
-`etwfe(y ~ 1, ...)`. This provides a second way of doing this, alongside the 
-existing 0 option, e.g. `etwfe(y ~ 0, ...)` 
-
-#### emfx
-
-- A new section on Performance tips in the `emfx` help documentation coincides
-with two new supported arguments:
-  
-  1. The `collapse` argument can substantially reduce estimation times for large
-  datasets (#19, thanks @frederickluser). This performance boost does trade off
-  against a loss in estimate accuracy. But testing suggests that the difference
-  is relatively minor for typical use cases (i.e., results are equivalent up to 
-  the 1st or 2nd significant decimal place, and sometimes even better). Please 
-  let us know if you find edge cases where this is not true.
-  
-  2. An even more dramatic performance gain (>100 speedup for large datasets) is
-  possible with `emfx(..., vcov = FALSE)`. The trade-off in this case is that we
-  don't get standard errors. However, the aforementioned Performance tips
-  section provides more practical guidance on how to combine
-  `emfx(..., vcov = FALSE, collapse = TRUE)`.
-
-- A new `by_xvar` argument acts as a companion to `etwfe(..., xvar = <xvar>)` 
-(#21). Users will most likely defer to the default behaviour, which will
-automatically detect and report heterogeneous treatment effects if these were
-specified in the preceding `etwfe()` call.
+- Users can now use a 1 on the fml RHS to indicate that there are no control
+as part of the `etwfe` call, e.g. `etwfe(y ~ 1, ...)`. This provides a second 
+way of doing this, alongside the existing 0 option, e.g. `etwfe(y ~ 0, ...)` 
 
 #### Other
 
 - Various documentation improvements.
+
+- **data.table** is added to Suggests and thus becomes a direct dependency. It
+was already an indirect dependency through **marginaleffects**.
 
 ## Bug fixes
 
