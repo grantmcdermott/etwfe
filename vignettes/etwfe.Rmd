@@ -54,8 +54,8 @@ feols(y ~ Dtreat | id + period, data = somedata)
 These TWFE regressions are easy to run and intuitive, and for a long time
 everyone was happy. But it was too good to last. A cottage industry of smart
 research now demonstrates that things aren't quite so simple. Among other
-things, the core TWFE result is very likely to be biased if the rollout of
-treatment was staggered over time (a common occurrence).
+things, the core TWFE result is very likely to be biased in the presence of 
+staggered treatment rollout (a common occurrence).
 
 Fortunately, just as econometricians were taking away one of our
 favourite tools, they were kind enough to replace it with some new ones. 
