@@ -109,32 +109,32 @@ Extended two-way fixed effects
   Under most situations, `etwfe` should complete very quickly. For its part,
   `emfx` is quite performant too and should take a few seconds or less for 
   datasets under 100k rows. However, `emfx`'s computation time does tend to
-  scale linearly with the size of the original data, as well as the number
-  of interactions from the underlying `etwfe` model. Without getting too deep
-  into the weeds, the numerical delta method used to recover the ATEs of
-  interest has to estimate two prediction models for *each* coefficient in
-  the model and then compute their standard errors. So, it's a potentially
-  expensive operation that can push the computation time for large datasets
-  (> 1m rows) up to several minutes or longer. 
+  scale non-linearly with the size of the original data, as well as the
+  number of interactions from the underlying `etwfe` model. Without getting
+  too deep into the weeds, the numerical delta method used to recover the
+  ATEs of interest has to estimate two prediction models for *each*
+  coefficient in the model and then compute their standard errors. So, it's
+  a potentially expensive operation that can push the computation time for
+  large datasets (> 1m rows) up to several minutes or longer.
   
-  Fortunately, there are two
-  complementary strategies that you can use to speed things up. The first is
-  to turn off the most expensive part of the whole procedure---standard
-  error calculation---by calling `emfx(..., vcov = FALSE)`. Doing so should
-  bring the estimation time back down to a few seconds or less, even for
-  datasets in excess of a million rows. While the loss of standard errors
-  might not be an acceptable trade-off for projects where statistical
-  inference is critical, the good news is this first strategy can still be
-  combined our second strategy. It turns out that collapsing the data by
-  groups prior to estimating the marginal effects can yield substantial
-  speed gains of its own. Users can do this by invoking the `emfx(...,
-  collapse = TRUE)` argument. While the effect here is not as dramatic as
-  the first strategy, our second strategy does have the virtue of retaining
-  information about the standard errors. The trade-off this time, however,
-  is that collapsing our data does lead to a loss in accuracy for our
-  estimated parameters. On the other hand, testing suggests that this loss
-  in accuracy tends to be relatively minor, with results equivalent up to
-  the 1st or 2nd significant decimal place (or even better).
+  Fortunately, there are two complementary strategies that you can use to
+  speed things up. The first is to turn off the most expensive part of the
+  whole procedure---standard error calculation---by calling `emfx(..., vcov
+  = FALSE)`. Doing so should bring the estimation time back down to a few
+  seconds or less, even for datasets in excess of a million rows. While the
+  loss of standard errors might not be an acceptable trade-off for projects
+  where statistical inference is critical, the good news is this first
+  strategy can still be combined our second strategy. It turns out that
+  collapsing the data by groups prior to estimating the marginal effects can
+  yield substantial speed gains of its own. Users can do this by invoking
+  the `emfx(..., collapse = TRUE)` argument. While the effect here is not as
+  dramatic as the first strategy, our second strategy does have the virtue
+  of retaining information about the standard errors. The trade-off this
+  time, however, is that collapsing our data does lead to a loss in accuracy
+  for our estimated parameters. On the other hand, testing suggests that
+  this loss in accuracy tends to be relatively minor, with results
+  equivalent up to the 1st or 2nd significant decimal place (or even
+  better).
   
   Summarizing, here's a quick plan of attack for you to try if you are
   worried about the estimation time for large datasets and models:
