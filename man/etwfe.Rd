@@ -232,7 +232,7 @@ Working paper (version: August 16, 2021). Available:
 http://dx.doi.org/10.2139/ssrn.3906345
 
 Wooldridge, Jeffrey M. (2022). \cite{Simple Approaches to Nonlinear
-Difference-in-Differences with Panel Data}. Journal of Econometrics
+Difference-in-Differences with Panel Data}. The Econometrics Journal
 (forthcoming). Available: http://dx.doi.org/10.2139/ssrn.4183726
 }
 \seealso{
