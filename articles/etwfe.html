@@ -592,9 +592,9 @@ recast our earlier event-study as a Poisson regression.</p>
 <div class="section level2">
 <h2 id="performance-tips">Performance tips<a class="anchor" aria-label="anchor" href="#performance-tips"></a>
 </h2>
-<p>Thinking of the <strong>etwfe</strong> workflow as a pair consecutive
-functional calls, the first <code><a href="../reference/etwfe.html">etwfe()</a></code> stage tends to be very
-fast. We’re leveraging the incredible performance of
+<p>Thinking again about the <strong>etwfe</strong> workflow as a pair of
+consecutive functional calls, the first <code><a href="../reference/etwfe.html">etwfe()</a></code> stage tends
+to be very fast. We’re leveraging the incredible performance of
 <strong>fixest</strong> and also taking some shortcuts to avoid wasting
 time on nuisance parameters. See the <a href="#regarding-fixed-effects">Regarding fixed effects</a> section
 below for more details about this.</p>
@@ -602,8 +602,8 @@ below for more details about this.</p>
 pretty performant. If your data has less than 100k rows, it’s unlikely
 that you’ll have to wait more than a few seconds to obtain results.
 However, <code>emfx</code>’s computation time does tend to scale
-linearly with the size of the original data, as well as the number of
-interactions from the underlying <code>etwfe</code> model object.
+non-linearly with the size of the original data, as well as the number
+of interactions from the underlying <code>etwfe</code> model object.
 Without getting too deep into the weeds, the numerical delta method
 being used to recover the ATEs of interest has to estimate two
 prediction models for <em>each</em> coefficient in the model and then
@@ -615,21 +615,21 @@ to speed things up. The first is to turn off the most expensive part of
 the whole procedure—standard error calculation—by calling
 <code>emfx(..., vcov = FALSE)</code>. Doing so should bring the
 estimation time back down to a few seconds or less, even for datasets in
-excess of a million rows. While the loss of standard errors might not be
-an acceptable trade-off for projects where statistical inference is
-critical, the good news is this first strategy can still be combined our
-second strategy. It turns out that collapsing the data by groups prior
-to estimating the marginal effects can yield substantial speed gains of
-its own. Users can do this by invoking the
+excess of a million rows. Of course, the loss of standard errors might
+not be an acceptable trade-off for projects where statistical inference
+is critical. But the good news is this first strategy can still be
+combined our second strategy: it turns out that collapsing the data by
+groups prior to estimating the marginal effects can yield substantial
+speed gains of its own. Users can do this by invoking the
 <code>emfx(..., collapse = TRUE)</code> argument. While the effect here
-is not as dramatic as the first strategy, our second strategy does have
+is not as dramatic as the first strategy, collapsing the data does have
 the virtue of retaining information about the standard errors. The
 trade-off this time, however, is that collapsing our data does lead to a
 loss in accuracy for our estimated parameters. On the other hand,
 testing suggests that this loss in accuracy tends to be relatively
 minor, with results equivalent up to the 1st or 2nd significant decimal
 place (or even better).</p>
-<p>Summarizing, here’s a quick plan of attack for you to try if you are
+<p>Summarizing, here is a quick plan of attack for you to try if you are
 worried about the estimation time for large datasets and models:</p>
 <ol start="0" style="list-style-type: decimal">
 <li>Estimate <code>mod = etwfe(...)</code> as per usual.</li>
@@ -853,7 +853,7 @@ easily grab the formula of an estimated model to see for yourself.</p>
 <code class="sourceCode R"><span><span class="va">mod</span><span class="op">$</span><span class="va">fml_all</span></span>
 <span><span class="co">#&gt; $linear</span></span>
 <span><span class="co">#&gt; lemp ~ .Dtreat:i(first.treat, i.year, ref = 0, ref2 = 2003)/lpop_dm</span></span>
-<span><span class="co">#&gt; &lt;environment: 0x55f949ffaa20&gt;</span></span>
+<span><span class="co">#&gt; &lt;environment: 0x55974a1befa0&gt;</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $fixef</span></span>
 <span><span class="co">#&gt; ~first.treat + first.treat[[lpop]] + year + year[[lpop]]</span></span></code></pre></div>
@@ -882,8 +882,8 @@ regression manually:</p>
 <span>  vcov <span class="op">=</span> <span class="op">~</span><span class="va">countyreal</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>We can confirm that the manual approach yields the same output as our
-original etwfe regression. I’ll use <code>modelsummary</code> to do that
-here, since I’ve already loaded it above.<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content='&lt;p&gt;Another option would be to use
+original etwfe regression. I’ll use <strong>modelsummary</strong> to do
+that here, since I’ve already loaded it above.<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content='&lt;p&gt;Another option would be to use
 &lt;code&gt;&lt;a href="https://lrberge.github.io/fixest/reference/etable.html" class="external-link"&gt;fixest::etable()&lt;/a&gt;&lt;/code&gt;&lt;/p&gt;'><sup>4</sup></a>.</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://vincentarelbundock.github.io/modelsummary/reference/modelsummary.html" class="external-link">modelsummary</a></span><span class="op">(</span></span>
@@ -1198,6 +1198,51 @@ manual
 </tr>
 </tbody>
 </table>
+<p>To transform these raw coefficients into their more meaningful ATE
+counterparts, we just need to perform the appropriate marginal effects
+operation. For example, here’s how we can get both the simple ATEs and
+event-study ATEs from earlier. This is what <code><a href="../reference/emfx.html">emfx()</a></code> is doing
+behind the scenes.</p>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://vincentarelbundock.github.io/marginaleffects/" class="external-link">marginaleffects</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Simple ATE</span></span>
+<span><span class="fu"><a href="https://vincentarelbundock.github.io/marginaleffects/reference/slopes.html" class="external-link">slopes</a></span><span class="op">(</span></span>
+<span>  <span class="va">mod2</span>, </span>
+<span>  newdata   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">mpdta2</span>, <span class="va">.Dtreat</span><span class="op">)</span>, <span class="co"># we only want rows where .Dtreat is TRUE</span></span>
+<span>  variables <span class="op">=</span> <span class="st">".Dtreat"</span>, </span>
+<span>  by        <span class="op">=</span> <span class="st">".Dtreat"</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     Term                 Contrast Estimate Std. Error     z   Pr(&gt;|z|)    2.5 %</span></span>
+<span><span class="co">#&gt;  .Dtreat mean(TRUE) - mean(FALSE) -0.05063     0.0125 -4.05 5.1167e-05 -0.07513</span></span>
+<span><span class="co">#&gt;    97.5 % .Dtreat</span></span>
+<span><span class="co">#&gt;  -0.02613    TRUE</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Prediction type:  response </span></span>
+<span><span class="co">#&gt; Columns: type, term, contrast, estimate, std.error, statistic, p.value, conf.low, conf.high, .Dtreat, predicted, predicted_hi, predicted_lo</span></span>
+<span></span>
+<span><span class="co"># Event study</span></span>
+<span><span class="fu"><a href="https://vincentarelbundock.github.io/marginaleffects/reference/slopes.html" class="external-link">slopes</a></span><span class="op">(</span></span>
+<span>  <span class="va">mod2</span>, </span>
+<span>  newdata   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">mpdta2</span>, <span class="va">.Dtreat</span><span class="op">)</span>, event <span class="op">=</span> <span class="va">first.treat</span> <span class="op">-</span> <span class="va">year</span><span class="op">)</span>,</span>
+<span>  variables <span class="op">=</span> <span class="st">".Dtreat"</span>, </span>
+<span>  by        <span class="op">=</span> <span class="st">"event"</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     Term                 Contrast Estimate Std. Error      z   Pr(&gt;|z|)</span></span>
+<span><span class="co">#&gt;  .Dtreat mean(TRUE) - mean(FALSE) -0.03321    0.01337 -2.484 0.01297951</span></span>
+<span><span class="co">#&gt;  .Dtreat mean(TRUE) - mean(FALSE) -0.05735    0.01715 -3.343 0.00082830</span></span>
+<span><span class="co">#&gt;  .Dtreat mean(TRUE) - mean(FALSE) -0.13787    0.03079 -4.477 7.5665e-06</span></span>
+<span><span class="co">#&gt;  .Dtreat mean(TRUE) - mean(FALSE) -0.10954    0.03232 -3.389 0.00070142</span></span>
+<span><span class="co">#&gt;     2.5 %   97.5 % event</span></span>
+<span><span class="co">#&gt;  -0.05941 -0.00701     0</span></span>
+<span><span class="co">#&gt;  -0.09097 -0.02373    -1</span></span>
+<span><span class="co">#&gt;  -0.19823 -0.07751    -2</span></span>
+<span><span class="co">#&gt;  -0.17289 -0.04619    -3</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Prediction type:  response </span></span>
+<span><span class="co">#&gt; Columns: type, term, contrast, estimate, std.error, statistic, p.value, conf.low, conf.high, event, predicted, predicted_hi, predicted_lo</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="regarding-fixed-effects">Regarding fixed effects<a class="anchor" aria-label="anchor" href="#regarding-fixed-effects"></a>
@@ -1219,7 +1264,7 @@ the fixed effects slot, we can avoid polluting the user’s console with a
 host of extra coefficients. Nonetheless, we can control this behaviour
 with the <code>fe</code> (“fixed effects”) argument. Consider the
 following options and their manual equivalents.</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># fe = "feo" (fixed effects only)</span></span>
 <span><span class="va">mod_feo</span> <span class="op">=</span> <span class="fu"><a href="../reference/etwfe.html">etwfe</a></span><span class="op">(</span></span>
 <span>  <span class="va">lemp</span> <span class="op">~</span> <span class="va">lpop</span>, tvar <span class="op">=</span> <span class="va">year</span>, gvar <span class="op">=</span> <span class="va">first.treat</span>, data <span class="op">=</span> <span class="va">mpdta</span>, vcov <span class="op">=</span> <span class="op">~</span><span class="va">countyreal</span>,</span>
@@ -1249,7 +1294,7 @@ following options and their manual equivalents.</p>
 <code>emfx</code> to confirm that they give correct aggregated treatment
 effects. But we can quickly demonstrate in a regression table that they
 all return the same raw coefficients.</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mods</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  <span class="st">"etwfe"</span>         <span class="op">=</span> <span class="va">mod</span>,</span>
 <span>  <span class="st">"manual"</span>        <span class="op">=</span> <span class="va">mod2</span>,</span>
@@ -2554,7 +2599,7 @@ for the linear case through the <code>ivar</code> argument. Again, we
 can easily confirm that this yields the same estimated treatment effects
 as the group-level default (although the standard errors will be
 slightly different).</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mod_es_i</span> <span class="op">=</span> <span class="fu"><a href="../reference/etwfe.html">etwfe</a></span><span class="op">(</span></span>
 <span>  <span class="va">lemp</span> <span class="op">~</span> <span class="va">lpop</span>, tvar <span class="op">=</span> <span class="va">year</span>, gvar <span class="op">=</span> <span class="va">first.treat</span>, data <span class="op">=</span> <span class="va">mpdta</span>,</span>
 <span>  ivar <span class="op">=</span> <span class="va">countyreal</span>  <span class="co"># NEW: Use unit-level (county) FEs</span></span>
