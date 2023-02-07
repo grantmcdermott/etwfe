@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">etwfe</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.9008</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,19 +48,19 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.2.9008" id="etwfe-029008-development-version">etwfe 0.2.9008 (development version)<a class="anchor" aria-label="anchor" href="#etwfe-029008-development-version"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.3.0" id="etwfe-030">etwfe 0.3.0<a class="anchor" aria-label="anchor" href="#etwfe-030"></a></h2>
 <div class="section level3">
-<h3 id="new-features-and-enhancements-0-2-9008">New features and enhancements<a class="anchor" aria-label="anchor" href="#new-features-and-enhancements-0-2-9008"></a></h3>
+<h3 id="new-features-and-enhancements-0-3-0">New features and enhancements<a class="anchor" aria-label="anchor" href="#new-features-and-enhancements-0-3-0"></a></h3>
 <ul><li><p>Support for estimating heterogeneous treatment effects via the new <code>etwfe(..., xvar = &lt;xvar&gt;</code> argument (<a href="https://github.com/grantmcdermott/etwfe/issues/16" class="external-link">#16</a>, thanks to <a href="https://github.com/frederickluser" class="external-link">@frederickluser</a>). Automatically extends to <code><a href="../reference/emfx.html">emfx()</a></code> via the latter’s <code>by_xvar</code> argument (<a href="https://github.com/grantmcdermott/etwfe/issues/21" class="external-link">#21</a>). More details are provided in the dedicated “Heterogeneous treatment effects” section of the vignette and help documentation</p></li>
 <li><p>The new <code>emfx(..., collapse = TRUE)</code> argument can substantially reduce estimation times for large datasets (<a href="https://github.com/grantmcdermott/etwfe/issues/19" class="external-link">#19</a>, thanks <a href="https://github.com/frederickluser" class="external-link">@frederickluser</a>). This performance boost does trade off against a loss in estimate accuracy. But testing suggests that the difference is relatively minor for typical use cases (i.e., results are equivalent up to the 1st or 2nd significant decimal place, and sometimes even better). Please let us know if you find edge cases where this is not true. More details are available in the dedicated “Performance tips” section of the vignette and help documentation, including advice for combining collapsing with <code>emfx(..., vcov = FALSE)</code> (which yields an even more dramatic speed boost but at a cost of not reporting any standard errors).</p></li>
 <li><p>Users can now use a 1 on the fml RHS to indicate that there are no control as part of the <code>etwfe</code> call, e.g. <code>etwfe(y ~ 1, ...)</code>. This provides a second way of doing this, alongside the existing 0 option, e.g. <code>etwfe(y ~ 0, ...)</code></p></li>
 </ul></div>
 <div class="section level3">
-<h3 id="bug-fixes-0-2-9008">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-2-9008"></a></h3>
+<h3 id="bug-fixes-0-3-0">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-3-0"></a></h3>
 <ul><li>Internal code and tests have been updated to account for some upstream breaking changes in <strong>marginaleffects</strong> 0.9.0 (<a href="https://github.com/grantmcdermott/etwfe/issues/20" class="external-link">#20</a>, thanks <a href="https://github.com/vincentarelbundock" class="external-link">@vincentarelbundock</a>). From the user side, the most notable changes are that we no longer have to call <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> on <code>emfx</code> objects for pretty printing, and that the (former) “dydx” column of the resulting object is now named “estimate”. These changes are reflected in the updated documentation.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="other-0-2-9008">Other<a class="anchor" aria-label="anchor" href="#other-0-2-9008"></a></h3>
+<h3 id="other-0-3-0">Other<a class="anchor" aria-label="anchor" href="#other-0-3-0"></a></h3>
 <ul><li><p>Various documentation improvements. For example, the aforementioned sections on Heterogeneous TEs and Performance tips. I have also removed some warnings about the use of time-varying controls (<a href="https://github.com/grantmcdermott/etwfe/issues/17" class="external-link">#17</a>). In truth, I can’t quite recall why I included these warnings in the first place and testing confirms that it does not appear to pose a problem for the ETWFE framework. Thanks to Felix Pretis for prompting me to revisit this implicit restriction, including forwarding some relevant correspondence with Prof. Wooldridge.</p></li>
 <li><p><strong>data.table</strong> is added to Imports and thus becomes a direct dependency. It was already an indirect dependency through <strong>marginaleffects</strong>.</p></li>
 <li><p>It’s now possible to install the development version of the package from R-universe. Details are provided in the README.</p></li>
