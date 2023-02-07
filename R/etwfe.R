@@ -4,44 +4,44 @@
 ##'   variables (rhs), e.g. `y ~ x1 + x2`. If no controls are required, the rhs
 ##'   must take the value of 0 or 1, e.g. `y ~ 0`.
 ##' @param tvar Time variable. Can be a string (e.g., "year") or an expression
-##' (e.g., year).
-##' @param gvar Group variable. Can be either a string (e.g., "first_treated") 
-##' or an expression (e.g., first_treated). In a staggered treatment setting, 
-##' the group variable typically denotes treatment cohort.
+##'   (e.g., year).
+##' @param gvar Group variable. Can be either a string (e.g., "first_treated")
+##'   or an expression (e.g., first_treated). In a staggered treatment setting,
+##'   the group variable typically denotes treatment cohort.
 ##' @param data The data frame that you want to run ETWFE on.
-##' @param ivar Optional index variable. Can be a string (e.g., "country") or an 
-##' expression (e.g., country). Leaving as NULL (the default) will result in
-##' group-level fixed effects being used, which is more efficient and necessary 
-##' for nonlinear models (see `family` argument below). However, you may still
-##' want to cluster your standard errors by your index variable through the
-##' `vcov` argument. See examples below.
+##' @param ivar Optional index variable. Can be a string (e.g., "country") or an
+##'   expression (e.g., country). Leaving as NULL (the default) will result in
+##'   group-level fixed effects being used, which is more efficient and
+##'   necessary for nonlinear models (see `family` argument below). However, you
+##'   may still want to cluster your standard errors by your index variable
+##'   through the `vcov` argument. See Examples below.
 ##' @param xvar Optional interacted categorical covariate for estimating
 ##'   heterogeneous treatment effects. Enables recovery of the marginal
 ##'   treatment effect for distinct levels of `xvar`, e.g. "child", "teenager",
 ##'   or "adult". Note that the "x" prefix in "xvar" represents a covariate that
 ##'   is *interacted* with treatment, as opposed to a regular control variable.
-##' @param tref Optional reference value for `tvar`. Defaults to its minimum 
-##' value (i.e., the first time period observed in the dataset).
-##' @param gref Optional reference value for `gvar`. You shouldn't need to 
-##' provide this if your `gvar` variable is well specified. But providing an 
-##' explicit reference value can be useful/necessary if the desired control 
-##' group takes an unusual value.
-##' @param cgroup What control group do you wish to use for 
-##' estimating treatment effects. Either "notyet" treated (the default) or
-##' "never" treated.
-##' @param fe What level of fixed effects should be used? Defaults to "vs" 
-##' (varying slopes), which is the most efficient in terms of estimation and 
-##' terseness of the return model object. The other two options, "feo" (fixed 
-##' effects only) and "none" (no fixed effects whatsoever), trade off efficiency
-##' for additional information on other (nuisance) model parameters. Note that
-##' the primary treatment parameters of interest should remain unchanged 
-##' regardless of choice.
-##' @param family Which [`family`] to use for the estimation. Defaults to NULL, in 
-##' which case [`fixest::feols`] is used. Otherwise passed to [`fixest::feglm`], so
-##' that valid entries include "logit", "poisson", and "negbin". Note that if a
-##' non-NULL family entry is detected, `ivar` will automatically be set to NULL. 
-##' @param ... Additional arguments passed to [`fixest::feols`] (or 
-##' [`fixest::feglm`]). The most common example would be a `vcov` argument.
+##' @param tref Optional reference value for `tvar`. Defaults to its minimum
+##'   value (i.e., the first time period observed in the dataset).
+##' @param gref Optional reference value for `gvar`. You shouldn't need to
+##'   provide this if your `gvar` variable is well specified. But providing an
+##'   explicit reference value can be useful/necessary if the desired control
+##'   group takes an unusual value.
+##' @param cgroup What control group do you wish to use for estimating treatment
+##'   effects. Either "notyet" treated (the default) or "never" treated.
+##' @param fe What level of fixed effects should be used? Defaults to "vs"
+##'   (varying slopes), which is the most efficient in terms of estimation and
+##'   terseness of the return model object. The other two options, "feo" (fixed
+##'   effects only) and "none" (no fixed effects whatsoever), trade off
+##'   efficiency for additional information on other (nuisance) model
+##'   parameters. Note that the primary treatment parameters of interest should
+##'   remain unchanged regardless of choice.
+##' @param family Which [`family`] to use for the estimation. Defaults to NULL,
+##'   in which case [`fixest::feols`] is used. Otherwise passed to
+##'   [`fixest::feglm`], so that valid entries include "logit", "poisson", and
+##'   "negbin". Note that if a non-NULL family entry is detected, `ivar` will
+##'   automatically be set to NULL.
+##' @param ... Additional arguments passed to [`fixest::feols`] (or
+##'   [`fixest::feglm`]). The most common example would be a `vcov` argument.
 ##' @return A fixest object with fully saturated interaction effects.
 ##' 
 ##' @section Heterogeneous treatment effects:
