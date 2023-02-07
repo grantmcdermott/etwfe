@@ -40,6 +40,10 @@ was already an indirect dependency through **marginaleffects**.
 
 - Internal code and tests have been updated to account for some upstream
 breaking changes in **marginaleffects** 0.9.0 (#20, thanks @vincentarelbundock).
+From the user side, the most notable changes are that we no longer have to call
+`summary()` on `emfx` objects for pretty printing, and that the (former) "dydx"
+column of the resulting object is now named "estimate". These changes are
+reflected in the updated documentation.
 
 # etwfe 0.2.0
 
