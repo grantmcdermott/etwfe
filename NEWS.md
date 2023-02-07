@@ -1,4 +1,4 @@
-# etwfe 0.2.9008 (development version)
+# etwfe 0.3.0
 
 ## New features and enhancements
 
