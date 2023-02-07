@@ -1,8 +1,9 @@
 ## Overview
 
-This `etwfe` update includes some minor bug fixes and cosmetic changes (vignette
-typos and rephrasing, etc.) The core functionality of the package remains
-unchanged from the previous version.
+This `etwfe` 0.3.0 update fixes the CRAN errors in version 0.2.0, which were due 
+to some breaking changes in an upstream dependency. In addition, I have added
+some new features for estimating heterogeneous treatment effects and improved
+performance with large models. A full changelog is provided in the NEWS file.
 
 Many thanks for reviewing.
 
