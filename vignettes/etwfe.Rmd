@@ -30,21 +30,21 @@ treatment effect. In base R this might look something like:
 lm(y ~ Dtreated_unit * Dpost_treatment, data = somedata)
 ```
 
-In practice, rather than specify the interaction directly, researchers often use
+Rather than specify the interaction directly, in practice researchers often use
 an equivalent formulation known as _two-way fixed effects_ (TWFE). The core idea
-of TWFE is that we can subsume our dummy variables above (`Dtreated_unit` and
-`Dpost_treatment`) by adding unit and time fixed effects to the regression. A
-single treatment dummy can then be used to capture the effect of treatment
-directly. This shortcut is especially nice for more complicated panel data
-settings with multiple units and multiple times periods. A TWFE in base R might
-look as follows:
+of TWFE is that we can subsume the interaction term in the previous code chunk
+by adding unit and time fixed effects to the regression. A single treatment 
+dummy can then be used to capture the effect of treatment directly. A TWFE 
+regression in base R might look as follows:
 
 ```r
 lm(y ~ Dtreat + factor(id) + factor(period), data = somedata)
 ```
 
-Or, if you prefer to use a dedicated fixed effects / panel data package like 
-**fixest**, you could estimate:
+The TWFE shortcut is especially nice for more complicated panel data settings 
+with multiple units and multiple times periods. Speaking of which, if you prefer
+to use a dedicated fixed effects / panel data package like **fixest**, you could
+also estimate the previous regression like so:
 
 ```r
 library(fixest)
@@ -52,10 +52,12 @@ feols(y ~ Dtreat | id + period, data = somedata)
 ```
 
 These TWFE regressions are easy to run and intuitive, and for a long time
-everyone was happy. But it was too good to last. A cottage industry of smart
-research now demonstrates that things aren't quite so simple. Among other
-things, the core TWFE result is very likely to be biased in the presence of 
-staggered treatment rollout (a common occurrence).
+everyone was happy. But it was too good to last. A cottage industry of clever
+research now demonstrates that things are not quite so simple. Among other
+things, the standard TWFE formulation can impose strange (negative) weighting 
+conditions on key parts of the estimation procedure. One implication is that you
+risk a high probability of estimate bias in the presence of staggered treatment
+rollouts, which are very common in real-life applications.
 
 Fortunately, just as econometricians were taking away one of our
 favourite tools, they were kind enough to replace it with some new ones. 
@@ -74,9 +76,11 @@ Wooldridge refers to the general idea as as _extended_ TWFE---or, ETWFE---which
 I rather like and is where this package takes its name.
 
 The Wooldridge ETWFE solution is intuitive and elegant. But it is also rather
-tedious and error prone to code up manually. The **etwfe** package aims to
-simplify the process by providing convenience functions that do the work for
-you.
+tedious and error prone to code up manually. You have to correctly specify all
+the possible interactions, demean control variables within groups, and then 
+recover the treatment effects of interest via an appropriate marginal effect
+aggregation. The **etwfe** package aims to simplify the process by providing 
+convenience functions that do all this work for you.
 
 ## Dataset
 
@@ -91,20 +95,19 @@ data("mpdta", package = "did")
 head(mpdta)
 ```
 
-"Treatment" in this dataset means an increase in the minimum wage rate, while 
-the main outcome of interest is teen employment. In the examples that follow, 
-our goal is to estimate the effect of this minimum wage treatment (`treat`) on 
-teen log employment (`lemp`). Notice that the panel ID is at the county
-level (`countyreal`), but treatment was staggered across cohorts (`first.treat`)
-so that a group of counties were treated at the same time. In addition to these
-staggered treatment effects, we also observe log population (`lpop`) as a 
-potential control variable.
+"Treatment" in this dataset refers to an increase in the minimum wage rate. In
+the examples that follow, our goal is to estimate the effect of this minimum
+wage treatment (`treat`) on the log of teen employment (`lemp`). Notice that the
+panel ID is at the county level (`countyreal`), but treatment was staggered
+across cohorts (`first.treat`) so that a group of counties were treated at the
+same time. In addition to these staggered treatment effects, we also observe log
+population (`lpop`) as a potential control variable.
 
 ## Basic usage
 
 Let's load **etwfe** and work through its basic functionality. As we'll see,
-the core workflow of the package involves consecutive calls to two complementary 
-functions: 1) `etwfe()` and 2) `emfx()`.
+the core workflow of the package involves two consecutive function calls: 1)
+`etwfe()` and 2) `emfx()`.
 
 ### `etwfe`
 
@@ -150,7 +153,7 @@ functions from the
 could plot the raw regression coefficients with 
 `fixest::coefplot()`, or print them to a nice regression table with
 `fixest::etable()`.  However, the raw coefficients from an `etwfe()` estimation
-are not particularly meaningful in of themselves; recall that these are complex
+are not particularly meaningful in of themselves. Recall that these are complex,
 multiway interaction terms that are probably hard to to interpret on their own.
 This insight leads us to our next key function...
 
@@ -171,13 +174,13 @@ For example, we can recover the average treatment effect (ATE) as follows.
 emfx(mod)
 ```
 
-In other words, an increase in the minimum wage leads to an approximate 5 
-percent decrease in teen employment. 
+In other words, our model is tell us that an increase in the minimum wage leads 
+to an approximate 5 percent decrease in teen employment. 
 
 Beyond simple ATEs, `emfx()` also supports other types of aggregations via the
 `type` argument. For example, we can use `type = "calendar"` to get ATEs by
 period, or `type = "group"` to get ATEs by cohort groups. But the option that
-will probably be of use to most people is `type = "event"`, which will recover
+will probably be useful to most people is `type = "event"`, which will recover
 dynamic treatment effects _a la_ an event study. Let's try this out and then
 save the resulting object, since I plan to reuse it in a moment.
 
@@ -186,9 +189,10 @@ mod_es = emfx(mod, type = "event")
 mod_es
 ```
 
-It seems that the teen disemployment effect from a minimum wage hike is fairly
-modest at first, but grows over time. In the next section, we'll look at ways to
-present this kind of finding to your audience.
+Our event study suggests that the teen disemployment effect of a minimum wage 
+hike is fairly modest at first (3%), but increases over the next few years 
+(>10%). In the next section, we'll look at ways to communicate this kind of 
+finding to your audience.
 
 ### Presentation
 
@@ -265,8 +269,8 @@ in our dataset. However, many research problems require us to estimate treatment
 effects separately across groups and then, potentially, test for differences
 between them. For example, we might want to test whether the efficacy of a new
 vaccine differs across age groups, or whether a marketing campaign was equally
-successful across genders. The ETWFE framework naturally lends itself to
-analysis of these kinds of heterogeneous treatment effects.
+successful across genders. The ETWFE framework naturally lends itself to these
+kinds of heterogeneous treatment effects.
 
 Consider the following example, where we first create a logical dummy variable
 for all US counties in the eight
@@ -282,11 +286,11 @@ mpdta$gls = substr(mpdta$countyreal, 1, 2) %in% gls_fips
 Now imagine that we are interested in estimating separate treatment effects
 for GLS versus non-GLS counties. We do this simply by invoking the optional
 `xvar` argument as part of our `etwfe()` call.^[Note that the "x" prefix in 
-"xvar" represents a covariate that is *interacted* with treatment, as opposed to 
-a regular control variable (which could obviously be included as part of the 
-`fml` RHS.] Any subsequent `emfx()` call on this object will automatically
-recognize that we want to recover treatment effects by these two distinct 
-groups. 
+"xvar" represents a covariate that is *interacted* (×) with treatment, as
+opposed to a regular control variable (which could obviously be included as part
+of the `fml` RHS.] Any subsequent `emfx()` call on this object will
+automatically recognize that we want to recover treatment effects by these two
+distinct groups.
 
 ```{r}
 hmod = etwfe(
@@ -299,13 +303,13 @@ hmod = etwfe(
 emfx(hmod)
 ```
 
-The point estimates might lead us to think that a minimum wage hike causes less
-teen disemployment in GLS counties than in the rest of the US on average.
+The above point estimates might tempt us to think that minimum wage hikes caused
+less teen disemployment in GLS counties than in the rest of the US on average.
 However, to test this formally we can invoke the powerful
-[`hypothesis`](https://vincentarelbundock.github.io/marginaleffects/articles/hypothesis.html) 
-infrastructure of the underlying **marginaleffects** package. Probably the 
-easiest way to do this is by using `"b[i]"`-style positional arguments, where 
-"[i]" denotes the row of the `emfx()` return object. Thus, by specifying 
+[`hypothesis`](https://vincentarelbundock.github.io/marginaleffects/articles/hypothesis.html)
+infrastructure of the underlying **marginaleffects** package. Probably the
+easiest way to do this is by using `b[i]`-style positional arguments, where
+"`[i]`" denotes the row of the `emfx()` return object. Thus, by specifying
 `hypothesis = "b1 = b2"`, we can test whether the ATEs from row 1 (non-GLS) and
 row 2 (GLS) are different from one another.
 
@@ -341,7 +345,7 @@ etwfe(
 
 ## Performance tips
 
-Thinking again about the **etwfe** workflow as a pair of consecutive functional
+Thinking of the **etwfe** workflow again as a pair of consecutive functional
 calls, the first `etwfe()` stage tends to be very fast. We're leveraging the
 incredible performance of **fixest** and also taking some shortcuts to avoid
 wasting time on nuisance parameters. See the
@@ -353,11 +357,12 @@ your data has less than 100k rows, it's unlikely that you'll have to wait more
 than a few seconds to obtain results. However, `emfx`'s computation time does
 tend to scale non-linearly with the size of the original data, as well as the
 number of interactions from the underlying `etwfe` model object. Without getting
-too deep into the weeds, the numerical delta method being used to recover the
-ATEs of interest has to estimate two prediction models for *each* coefficient in
-the model and then compute their standard errors. So, it's a potentially
-expensive operation that can push the computation time for large datasets (> 1m
-rows) up to several minutes or longer.
+too deep into the weeds, we are relying on a numerical delta method of the
+(excellent) **marginaleffects** package underneath the hood to recover the ATEs
+of interest. This method requires estimating two prediction models for *each*
+coefficient in the model and then computing their standard errors. So it's a
+potentially expensive operation that can push the computation time for large
+datasets (> 1m rows) up to several minutes or longer.
 
 Fortunately, there are two complementary strategies that you can use to speed
 things up. The first is to turn off the most expensive part of the whole
@@ -367,7 +372,7 @@ even for datasets in excess of a million rows. Of course, the loss of standard
 errors might not be an acceptable trade-off for projects where statistical
 inference is critical. But the good news is this first strategy can still be
 combined our second strategy: it turns out that collapsing the data by groups
-prior to estimating the marginal effects can yield substantial speed gains of
+prior to estimating the marginal effects can yield substantial speed gains on
 its own. Users can do this by invoking the `emfx(..., collapse = TRUE)`
 argument. While the effect here is not as dramatic as the first strategy,
 collapsing the data does have the virtue of retaining information about the
@@ -388,7 +393,7 @@ enough to your satisfaction, get the approximate standard errors by running
 `emfx(mod, collapse = TRUE, ...)`.
 
 It's a bit of performance art, since all of the examples in this vignette
-complete very quickly anyway, but here's a reworking of our earlier event study
+complete very quickly anyway. But here is a reworking of our earlier event study
 example to demonstrate this performance-conscious workflow.
 
 ```{r}
@@ -404,8 +409,8 @@ emfx(mod, type = "event", vcov = FALSE, collapse = TRUE)
 mod_es2 = emfx(mod, type = "event", collapse = TRUE)
 ```
 
-To put a fine point on it, here's how the collapsed estimates compare with our
-original event study.
+To put a fine point on it, we can can compare our original event study with the
+collapsed estimates and see that the results are indeed very similar.
 
 ```{r}
 modelsummary(
@@ -421,16 +426,16 @@ modelsummary(
 ## Under the hood
 
 Now that you've seen **etwfe** in action, let's circle back to what the package
-is doing under the hood. This section isn't necessary for you to use any of the 
-functions; feel free to skip it. But a review of the internal details should help
-you to optimize for different scenarios and also give you an understanding of
-**etwfe's** default choices. 
+is doing under the hood. This section isn't necessary for you to use the
+package; feel free to skip it. But a review of the internal details should help
+you to optimize for different scenarios and also give you a better understanding
+of **etwfe's** default choices. 
 
 ### Manual implementation
 
-As I keep reiterating, the Wooldridge ETWFE approach basically involves
-saturating the regression with interaction effects. You can easily grab the
-formula of an estimated model to see for yourself.
+As I keep reiterating, the ETWFE approach basically involves saturating the
+regression with interaction effects. You can easily grab the formula of an
+estimated model to see for yourself.
 
 ```{r}
 mod$fml_all
