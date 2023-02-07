@@ -1,4 +1,4 @@
-# etwfe 0.2.9007 (development version)
+# etwfe 0.2.9008 (development version)
 
 ## New features and enhancements
 
@@ -25,9 +25,15 @@ way of doing this, alongside the existing 0 option, e.g. `etwfe(y ~ 0, ...)`
 
 #### Other
 
-- Various documentation improvements.
+- Various documentation improvements. For example, the aforementioned sections
+on Heterogeneous TEs and Performance tips. I have also removed some warnings
+about the use of time-varying controls (#17). In truth, I can't quite recall why
+I included these warnings in the first place and testing confirms that it does
+not appear to pose a problem for the ETWFE framework. Thanks to Felix Pretis for
+prompting me to revisit this implicit restriction, including forwarding some
+relevant correspondence with Prof. Wooldridge.
 
-- **data.table** is added to Suggests and thus becomes a direct dependency. It
+- **data.table** is added to Imports and thus becomes a direct dependency. It
 was already an indirect dependency through **marginaleffects**.
 
 ## Bug fixes
