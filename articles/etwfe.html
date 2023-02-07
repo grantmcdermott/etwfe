@@ -89,27 +89,31 @@ dummy variables suffices to recover the treatment effect. In base R this
 might look something like:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">Dtreated_unit</span> <span class="op">*</span> <span class="va">Dpost_treatment</span>, data <span class="op">=</span> <span class="va">somedata</span><span class="op">)</span></span></code></pre></div>
-<p>In practice, rather than specify the interaction directly,
-researchers often use an equivalent formulation known as <em>two-way
-fixed effects</em> (TWFE). The core idea of TWFE is that we can subsume
-our dummy variables above (<code>Dtreated_unit</code> and
-<code>Dpost_treatment</code>) by adding unit and time fixed effects to
-the regression. A single treatment dummy can then be used to capture the
-effect of treatment directly. This shortcut is especially nice for more
-complicated panel data settings with multiple units and multiple times
-periods. A TWFE in base R might look as follows:</p>
+<p>Rather than specify the interaction directly, in practice researchers
+often use an equivalent formulation known as <em>two-way fixed
+effects</em> (TWFE). The core idea of TWFE is that we can subsume the
+interaction term in the previous code chunk by adding unit and time
+fixed effects to the regression. A single treatment dummy can then be
+used to capture the effect of treatment directly. A TWFE regression in
+base R might look as follows:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">Dtreat</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">id</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">period</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">somedata</span><span class="op">)</span></span></code></pre></div>
-<p>Or, if you prefer to use a dedicated fixed effects / panel data
-package like <strong>fixest</strong>, you could estimate:</p>
+<p>The TWFE shortcut is especially nice for more complicated panel data
+settings with multiple units and multiple times periods. Speaking of
+which, if you prefer to use a dedicated fixed effects / panel data
+package like <strong>fixest</strong>, you could also estimate the
+previous regression like so:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://lrberge.github.io/fixest/" class="external-link">fixest</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://lrberge.github.io/fixest/reference/feols.html" class="external-link">feols</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">Dtreat</span> <span class="op">|</span> <span class="va">id</span> <span class="op">+</span> <span class="va">period</span>, data <span class="op">=</span> <span class="va">somedata</span><span class="op">)</span></span></code></pre></div>
 <p>These TWFE regressions are easy to run and intuitive, and for a long
 time everyone was happy. But it was too good to last. A cottage industry
-of smart research now demonstrates that things aren’t quite so simple.
-Among other things, the core TWFE result is very likely to be biased in
-the presence of staggered treatment rollout (a common occurrence).</p>
+of clever research now demonstrates that things are not quite so simple.
+Among other things, the standard TWFE formulation can impose strange
+(negative) weighting conditions on key parts of the estimation
+procedure. One implication is that you risk a high probability of
+estimate bias in the presence of staggered treatment rollouts, which are
+very common in real-life applications.</p>
 <p>Fortunately, just as econometricians were taking away one of our
 favourite tools, they were kind enough to replace it with some new ones.
 Among these, the proposed approach by Wooldridge (<a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3906345" class="external-link">2021</a>,
@@ -126,9 +130,12 @@ etc.) So it’s not entirely clear what to call it. But Wooldridge refers
 to the general idea as as <em>extended</em> TWFE—or, ETWFE—which I
 rather like and is where this package takes its name.</p>
 <p>The Wooldridge ETWFE solution is intuitive and elegant. But it is
-also rather tedious and error prone to code up manually. The
+also rather tedious and error prone to code up manually. You have to
+correctly specify all the possible interactions, demean control
+variables within groups, and then recover the treatment effects of
+interest via an appropriate marginal effect aggregation. The
 <strong>etwfe</strong> package aims to simplify the process by providing
-convenience functions that do the work for you.</p>
+convenience functions that do all this work for you.</p>
 </div>
 <div class="section level2">
 <h2 id="dataset">Dataset<a class="anchor" aria-label="anchor" href="#dataset"></a>
@@ -148,24 +155,23 @@ dataset on US teen employment from the <strong>did</strong> package
 <span><span class="co">#&gt; 819 2006       8001 5.896761 8.378161        2007     1</span></span>
 <span><span class="co">#&gt; 827 2007       8001 5.896761 8.487352        2007     1</span></span>
 <span><span class="co">#&gt; 937 2003       8019 2.232377 4.997212        2007     1</span></span></code></pre></div>
-<p>“Treatment” in this dataset means an increase in the minimum wage
-rate, while the main outcome of interest is teen employment. In the
-examples that follow, our goal is to estimate the effect of this minimum
-wage treatment (<code>treat</code>) on teen log employment
-(<code>lemp</code>). Notice that the panel ID is at the county level
-(<code>countyreal</code>), but treatment was staggered across cohorts
-(<code>first.treat</code>) so that a group of counties were treated at
-the same time. In addition to these staggered treatment effects, we also
-observe log population (<code>lpop</code>) as a potential control
-variable.</p>
+<p>“Treatment” in this dataset refers to an increase in the minimum wage
+rate. In the examples that follow, our goal is to estimate the effect of
+this minimum wage treatment (<code>treat</code>) on the log of teen
+employment (<code>lemp</code>). Notice that the panel ID is at the
+county level (<code>countyreal</code>), but treatment was staggered
+across cohorts (<code>first.treat</code>) so that a group of counties
+were treated at the same time. In addition to these staggered treatment
+effects, we also observe log population (<code>lpop</code>) as a
+potential control variable.</p>
 </div>
 <div class="section level2">
 <h2 id="basic-usage">Basic usage<a class="anchor" aria-label="anchor" href="#basic-usage"></a>
 </h2>
 <p>Let’s load <strong>etwfe</strong> and work through its basic
 functionality. As we’ll see, the core workflow of the package involves
-consecutive calls to two complementary functions: 1)
-<code><a href="../reference/etwfe.html">etwfe()</a></code> and 2) <code><a href="../reference/emfx.html">emfx()</a></code>.</p>
+two consecutive function calls: 1) <code><a href="../reference/etwfe.html">etwfe()</a></code> and 2)
+<code><a href="../reference/emfx.html">emfx()</a></code>.</p>
 <div class="section level3">
 <h3 id="etwfe">
 <code>etwfe</code><a class="anchor" aria-label="anchor" href="#etwfe"></a>
@@ -248,7 +254,7 @@ object. For example, we could plot the raw regression coefficients with
 <code><a href="https://lrberge.github.io/fixest/reference/coefplot.html" class="external-link">fixest::coefplot()</a></code>, or print them to a nice regression
 table with <code><a href="https://lrberge.github.io/fixest/reference/etable.html" class="external-link">fixest::etable()</a></code>. However, the raw coefficients
 from an <code><a href="../reference/etwfe.html">etwfe()</a></code> estimation are not particularly meaningful
-in of themselves; recall that these are complex multiway interaction
+in of themselves. Recall that these are complex, multiway interaction
 terms that are probably hard to to interpret on their own. This insight
 leads us to our next key function…</p>
 </div>
@@ -275,13 +281,13 @@ follows.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Prediction type:  response </span></span>
 <span><span class="co">#&gt; Columns: type, term, contrast, estimate, std.error, statistic, p.value, conf.low, conf.high, .Dtreat, predicted, predicted_hi, predicted_lo</span></span></code></pre></div>
-<p>In other words, an increase in the minimum wage leads to an
-approximate 5 percent decrease in teen employment.</p>
+<p>In other words, our model is tell us that an increase in the minimum
+wage leads to an approximate 5 percent decrease in teen employment.</p>
 <p>Beyond simple ATEs, <code><a href="../reference/emfx.html">emfx()</a></code> also supports other types of
 aggregations via the <code>type</code> argument. For example, we can use
 <code>type = "calendar"</code> to get ATEs by period, or
 <code>type = "group"</code> to get ATEs by cohort groups. But the option
-that will probably be of use to most people is
+that will probably be useful to most people is
 <code>type = "event"</code>, which will recover dynamic treatment
 effects <em>a la</em> an event study. Let’s try this out and then save
 the resulting object, since I plan to reuse it in a moment.</p>
@@ -302,9 +308,10 @@ the resulting object, since I plan to reuse it in a moment.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Prediction type:  response </span></span>
 <span><span class="co">#&gt; Columns: type, term, contrast, estimate, std.error, statistic, p.value, conf.low, conf.high, event, predicted, predicted_hi, predicted_lo</span></span></code></pre></div>
-<p>It seems that the teen disemployment effect from a minimum wage hike
-is fairly modest at first, but grows over time. In the next section,
-we’ll look at ways to present this kind of finding to your audience.</p>
+<p>Our event study suggests that the teen disemployment effect of a
+minimum wage hike is fairly modest at first (3%), but increases over the
+next few years (&gt;10%). In the next section, we’ll look at ways to
+communicate this kind of finding to your audience.</p>
 </div>
 <div class="section level3">
 <h3 id="presentation">Presentation<a class="anchor" aria-label="anchor" href="#presentation"></a>
@@ -492,8 +499,8 @@ require us to estimate treatment effects separately across groups and
 then, potentially, test for differences between them. For example, we
 might want to test whether the efficacy of a new vaccine differs across
 age groups, or whether a marketing campaign was equally successful
-across genders. The ETWFE framework naturally lends itself to analysis
-of these kinds of heterogeneous treatment effects.</p>
+across genders. The ETWFE framework naturally lends itself to these
+kinds of heterogeneous treatment effects.</p>
 <p>Consider the following example, where we first create a logical dummy
 variable for all US counties in the eight <a href="https://en.wikipedia.org/wiki/Great_Lakes_region" class="external-link">Great Lake
 states (GLS)</a>.</p>
@@ -506,8 +513,8 @@ states (GLS)</a>.</p>
 effects for GLS versus non-GLS counties. We do this simply by invoking
 the optional <code>xvar</code> argument as part of our
 <code><a href="../reference/etwfe.html">etwfe()</a></code> call.<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;Note that the “x” prefix in “xvar” represents a
-covariate that is &lt;em&gt;interacted&lt;/em&gt; with treatment, as opposed to a
-regular control variable (which could obviously be included as part of
+covariate that is &lt;em&gt;interacted&lt;/em&gt; (×) with treatment, as opposed to
+a regular control variable (which could obviously be included as part of
 the &lt;code&gt;fml&lt;/code&gt; RHS.&lt;/p&gt;"><sup>3</sup></a> Any subsequent <code><a href="../reference/emfx.html">emfx()</a></code> call on
 this object will automatically recognize that we want to recover
 treatment effects by these two distinct groups.</p>
@@ -530,16 +537,17 @@ treatment effects by these two distinct groups.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Prediction type:  response </span></span>
 <span><span class="co">#&gt; Columns: type, term, contrast, estimate, std.error, statistic, p.value, conf.low, conf.high, .Dtreat, gls, predicted, predicted_hi, predicted_lo</span></span></code></pre></div>
-<p>The point estimates might lead us to think that a minimum wage hike
-causes less teen disemployment in GLS counties than in the rest of the
-US on average. However, to test this formally we can invoke the powerful
-<a href="https://vincentarelbundock.github.io/marginaleffects/articles/hypothesis.html" class="external-link"><code>hypothesis</code></a>
+<p>The above point estimates might tempt us to think that minimum wage
+hikes caused less teen disemployment in GLS counties than in the rest of
+the US on average. However, to test this formally we can invoke the
+powerful <a href="https://vincentarelbundock.github.io/marginaleffects/articles/hypothesis.html" class="external-link"><code>hypothesis</code></a>
 infrastructure of the underlying <strong>marginaleffects</strong>
 package. Probably the easiest way to do this is by using
-<code>"b[i]"</code>-style positional arguments, where “[i]” denotes the
-row of the <code><a href="../reference/emfx.html">emfx()</a></code> return object. Thus, by specifying
-<code>hypothesis = "b1 = b2"</code>, we can test whether the ATEs from
-row 1 (non-GLS) and row 2 (GLS) are different from one another.</p>
+<code>b[i]</code>-style positional arguments, where “<code>[i]</code>”
+denotes the row of the <code><a href="../reference/emfx.html">emfx()</a></code> return object. Thus, by
+specifying <code>hypothesis = "b1 = b2"</code>, we can test whether the
+ATEs from row 1 (non-GLS) and row 2 (GLS) are different from one
+another.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="va">hmod</span>, hypothesis <span class="op">=</span> <span class="st">"b1 = b2"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -591,7 +599,7 @@ recast our earlier event-study as a Poisson regression.</p>
 <div class="section level2">
 <h2 id="performance-tips">Performance tips<a class="anchor" aria-label="anchor" href="#performance-tips"></a>
 </h2>
-<p>Thinking again about the <strong>etwfe</strong> workflow as a pair of
+<p>Thinking of the <strong>etwfe</strong> workflow again as a pair of
 consecutive functional calls, the first <code><a href="../reference/etwfe.html">etwfe()</a></code> stage tends
 to be very fast. We’re leveraging the incredible performance of
 <strong>fixest</strong> and also taking some shortcuts to avoid wasting
@@ -603,12 +611,13 @@ that you’ll have to wait more than a few seconds to obtain results.
 However, <code>emfx</code>’s computation time does tend to scale
 non-linearly with the size of the original data, as well as the number
 of interactions from the underlying <code>etwfe</code> model object.
-Without getting too deep into the weeds, the numerical delta method
-being used to recover the ATEs of interest has to estimate two
-prediction models for <em>each</em> coefficient in the model and then
-compute their standard errors. So, it’s a potentially expensive
-operation that can push the computation time for large datasets (&gt; 1m
-rows) up to several minutes or longer.</p>
+Without getting too deep into the weeds, we are relying on a numerical
+delta method of the (excellent) <strong>marginaleffects</strong> package
+underneath the hood to recover the ATEs of interest. This method
+requires estimating two prediction models for <em>each</em> coefficient
+in the model and then computing their standard errors. So it’s a
+potentially expensive operation that can push the computation time for
+large datasets (&gt; 1m rows) up to several minutes or longer.</p>
 <p>Fortunately, there are two complementary strategies that you can use
 to speed things up. The first is to turn off the most expensive part of
 the whole procedure—standard error calculation—by calling
@@ -619,7 +628,7 @@ not be an acceptable trade-off for projects where statistical inference
 is critical. But the good news is this first strategy can still be
 combined our second strategy: it turns out that collapsing the data by
 groups prior to estimating the marginal effects can yield substantial
-speed gains of its own. Users can do this by invoking the
+speed gains on its own. Users can do this by invoking the
 <code>emfx(..., collapse = TRUE)</code> argument. While the effect here
 is not as dramatic as the first strategy, collapsing the data does have
 the virtue of retaining information about the standard errors. The
@@ -639,7 +648,7 @@ similar enough to your satisfaction, get the approximate standard errors
 by running <code>emfx(mod, collapse = TRUE, ...)</code>.</li>
 </ol>
 <p>It’s a bit of performance art, since all of the examples in this
-vignette complete very quickly anyway, but here’s a reworking of our
+vignette complete very quickly anyway. But here is a reworking of our
 earlier event study example to demonstrate this performance-conscious
 workflow.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
@@ -671,8 +680,9 @@ workflow.</p>
 <span></span>
 <span><span class="co"># Step 3: Results from 1 and 2 are similar enough, so get approx. SEs</span></span>
 <span><span class="va">mod_es2</span> <span class="op">=</span> <span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="va">mod</span>, type <span class="op">=</span> <span class="st">"event"</span>, collapse <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p>To put a fine point on it, here’s how the collapsed estimates compare
-with our original event study.</p>
+<p>To put a fine point on it, we can can compare our original event
+study with the collapsed estimates and see that the results are indeed
+very similar.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://vincentarelbundock.github.io/modelsummary/reference/modelsummary.html" class="external-link">modelsummary</a></span><span class="op">(</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"Original"</span> <span class="op">=</span> <span class="va">mod_es</span>, <span class="st">"Collapsed"</span> <span class="op">=</span> <span class="va">mod_es2</span><span class="op">)</span>,</span>
@@ -838,21 +848,21 @@ X
 </h2>
 <p>Now that you’ve seen <strong>etwfe</strong> in action, let’s circle
 back to what the package is doing under the hood. This section isn’t
-necessary for you to use any of the functions; feel free to skip it. But
-a review of the internal details should help you to optimize for
-different scenarios and also give you an understanding of
+necessary for you to use the package; feel free to skip it. But a review
+of the internal details should help you to optimize for different
+scenarios and also give you a better understanding of
 <strong>etwfe’s</strong> default choices.</p>
 <div class="section level3">
 <h3 id="manual-implementation">Manual implementation<a class="anchor" aria-label="anchor" href="#manual-implementation"></a>
 </h3>
-<p>As I keep reiterating, the Wooldridge ETWFE approach basically
-involves saturating the regression with interaction effects. You can
-easily grab the formula of an estimated model to see for yourself.</p>
+<p>As I keep reiterating, the ETWFE approach basically involves
+saturating the regression with interaction effects. You can easily grab
+the formula of an estimated model to see for yourself.</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mod</span><span class="op">$</span><span class="va">fml_all</span></span>
 <span><span class="co">#&gt; $linear</span></span>
 <span><span class="co">#&gt; lemp ~ .Dtreat:i(first.treat, i.year, ref = 0, ref2 = 2003)/lpop_dm</span></span>
-<span><span class="co">#&gt; &lt;environment: 0x560ff53e2ee0&gt;</span></span>
+<span><span class="co">#&gt; &lt;environment: 0x5639fae30738&gt;</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $fixef</span></span>
 <span><span class="co">#&gt; ~first.treat + first.treat[[lpop]] + year + year[[lpop]]</span></span></code></pre></div>
