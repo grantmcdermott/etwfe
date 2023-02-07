@@ -43,7 +43,15 @@ look as follows:
 lm(y ~ Dtreat + factor(id) + factor(period), data = somedata)
 ```
 
-This type of regression is easy to run and intuitive, and for a long time
+Or, if you prefer to use a dedicated fixed effects / panel data package like 
+**fixest**, you could estimate:
+
+```r
+library(fixest)
+feols(y ~ Dtreat | id + period, data = somedata)
+```
+
+These TWFE regressions are easy to run and intuitive, and for a long time
 everyone was happy. But it was too good to last. A cottage industry of smart
 research now demonstrates that things aren't quite so simple. Among other
 things, the core TWFE result is very likely to be biased if the rollout of
@@ -90,9 +98,7 @@ teen log employment (`lemp`). Notice that the panel ID is at the county
 level (`countyreal`), but treatment was staggered across cohorts (`first.treat`)
 so that a group of counties were treated at the same time. In addition to these
 staggered treatment effects, we also observe log population (`lpop`) as a 
-potential, time-invariant control.^[The time-invariance property is important;
-time-varying controls are not allowed in the ETWFE framework. But you can also
-omit controls if you don't have any.]
+potential control variable.
 
 ## Basic usage
 
@@ -110,7 +116,7 @@ library(etwfe)
 
 mod =
   etwfe(
-    fml  = lemp ~ lpop, # outcome ~ (time-invariant) controls
+    fml  = lemp ~ lpop, # outcome ~ controls
     tvar = year,        # time variable
     gvar = first.treat, # group variable
     data = mpdta,       # dataset
@@ -168,21 +174,21 @@ emfx(mod)
 In other words, an increase in the minimum wage leads to an approximate 5 
 percent decrease in teen employment. 
 
-Beyond simple ATEs, `emfx()` also supports other types of aggregations through
-the `type` argument. For example, we can use `type = "calendar"` to get ATEs by
+Beyond simple ATEs, `emfx()` also supports other types of aggregations via the
+`type` argument. For example, we can use `type = "calendar"` to get ATEs by
 period, or `type = "group"` to get ATEs by cohort groups. But the option that
 will probably be of use to most people is `type = "event"`, which will recover
-dynamic treatment effects _a la_ an event study. This try this out and then save
-the resulting object, since I plan to reuse it in a moment.
+dynamic treatment effects _a la_ an event study. Let's try this out and then
+save the resulting object, since I plan to reuse it in a moment.
 
 ```{r}
 mod_es = emfx(mod, type = "event")
 mod_es
 ```
 
-Here it seems that the teen disemployment effect of a minimum wage hike is
-fairly modest at first, but grows over time. We'll look at ways to present this
-information visually in the next section.
+It seems that the teen disemployment effect from a minimum wage hike is fairly
+modest at first, but grows over time. In the next section, we'll look at ways to
+present this kind of finding to your audience.
 
 ### Presentation
 
@@ -293,15 +299,15 @@ hmod = etwfe(
 emfx(hmod)
 ```
 
-It looks like an increase in minimum wage may cause less teen disemployment in
-GLS counties than in the rest of the US on average. However, to test this
-formally we can invoke the powerful
+The point estimates might lead us to think that a minimum wage hike causes less
+teen disemployment in GLS counties than in the rest of the US on average.
+However, to test this formally we can invoke the powerful
 [`hypothesis`](https://vincentarelbundock.github.io/marginaleffects/articles/hypothesis.html) 
 infrastructure of the underlying **marginaleffects** package. Probably the 
 easiest way to do this is by using `"b[i]"`-style positional arguments, where 
-"[i]" denotes the row of the `emfx()` return object. By specifying 
-`hypothesis = "b1 = b2"`, we are thus testing whether the treatment estimates 
-from row 1 (non-GLS) and row 2 (GLS) are different from one another.
+"[i]" denotes the row of the `emfx()` return object. Thus, by specifying 
+`hypothesis = "b1 = b2"`, we can test whether the ATEs from row 1 (non-GLS) and
+row 2 (GLS) are different from one another.
 
 ```{r}
 emfx(hmod, hypothesis = "b1 = b2")
@@ -433,7 +439,7 @@ At this point, however, you may notice a few things. The first is that our
 formula references several variables that aren't in the original dataset. An
 obvious one is the `.Dtreat` treatment dummy. A more subtle one is `lpop_dm`,
 which is the _demeaned_ (i.e., group-centered) version of our `lpop` control
-variable.  All (time-invariant) control variables have to be demeaned before
+variable.  All control variables have to be demeaned before
 they are interacted in the ETWFE setting. Here's how you could have constructed
 the dataset ahead of time and estimated the ETWFE regression manually:
 

@@ -1,9 +1,8 @@
 ##' Extended two-way fixed effects
 ##'
-##' @param fml A formula with the outcome (lhs) and any time-constant controls 
-##' variables (rhs), e.g. `y ~ x1 + x2`. Please note that time-varying controls
-##' are not supported. Similarly, if no additional controls are required, the 
-##' rhs must take the value of 0 or 1, e.g. `y ~ 0`.
+##' @param fml A two-side formula representing the outcome (lhs) and any control
+##'   variables (rhs), e.g. `y ~ x1 + x2`. If no controls are required, the rhs
+##'   must take the value of 0 or 1, e.g. `y ~ 0`.
 ##' @param tvar Time variable. Can be a string (e.g., "year") or an expression
 ##' (e.g., year).
 ##' @param gvar Group variable. Can be either a string (e.g., "first_treated") 
