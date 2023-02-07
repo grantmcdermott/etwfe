@@ -23,7 +23,16 @@ speed boost but at a cost of not reporting any standard errors).
 as part of the `etwfe` call, e.g. `etwfe(y ~ 1, ...)`. This provides a second 
 way of doing this, alongside the existing 0 option, e.g. `etwfe(y ~ 0, ...)` 
 
-#### Other
+## Bug fixes
+
+- Internal code and tests have been updated to account for some upstream
+breaking changes in **marginaleffects** 0.9.0 (#20, thanks @vincentarelbundock).
+From the user side, the most notable changes are that we no longer have to call
+`summary()` on `emfx` objects for pretty printing, and that the (former) "dydx"
+column of the resulting object is now named "estimate". These changes are
+reflected in the updated documentation.
+
+## Other
 
 - Various documentation improvements. For example, the aforementioned sections
 on Heterogeneous TEs and Performance tips. I have also removed some warnings
@@ -36,14 +45,8 @@ relevant correspondence with Prof. Wooldridge.
 - **data.table** is added to Imports and thus becomes a direct dependency. It
 was already an indirect dependency through **marginaleffects**.
 
-## Bug fixes
-
-- Internal code and tests have been updated to account for some upstream
-breaking changes in **marginaleffects** 0.9.0 (#20, thanks @vincentarelbundock).
-From the user side, the most notable changes are that we no longer have to call
-`summary()` on `emfx` objects for pretty printing, and that the (former) "dydx"
-column of the resulting object is now named "estimate". These changes are
-reflected in the updated documentation.
+- It's now possible to install the development version of the package from
+R-universe. Details are provided in the README.
 
 # etwfe 0.2.0
 

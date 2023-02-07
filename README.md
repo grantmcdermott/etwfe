@@ -5,10 +5,12 @@
 
 <!-- badges: start -->
 
-[![Dev
-R-CMD-check](https://github.com/grantmcdermott/etwfe/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/grantmcdermott/etwfe/actions/workflows/R-CMD-check.yaml)
 [![CRAN
 version](https://www.r-pkg.org/badges/version/etwfe)](https://CRAN.R-project.org/package=etwfe)
+[![R-universe status
+badge](https://grantmcdermott.r-universe.dev/badges/etwfe)](https://grantmcdermott.r-universe.dev)
+[![Dev
+R-CMD-check](https://github.com/grantmcdermott/etwfe/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/grantmcdermott/etwfe/actions/workflows/R-CMD-check.yaml)
 [![CRAN
 checks](https://badges.cranchecks.info/worst/etwfe.svg)](https://cran.r-project.org/web/checks/check_results_etwfe.html)
 [![CRAN
@@ -39,11 +41,10 @@ You can install **etwfe** from CRAN.
 install.packages("etwfe")
 ```
 
-Or, you can grab the development version from GitHub.
+Or, you can grab the development version from R-universe.
 
 ``` r
-# install.packages("remotes")
-remotes::install_github("grantmcdermott/etwfe")
+install.packages("etwfe", repos = "https://grantmcdermott.r-universe.dev")
 ```
 
 ## Quickstart example
