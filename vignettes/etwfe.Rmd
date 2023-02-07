@@ -320,10 +320,24 @@ emfx(hmod, hypothesis = "b1 = b2")
 Here we see that there is actually no statistical difference in the average
 disemployment effect between GLS and non-GLS counties.
 
+One final aside is that you can easily display the results of heterogeneous 
+treatment effects in plot or table form. Here's an example of the latter, where
+we again make use of the `modelsummary(..., shape = ...)` argument.
+
+```{r}
+modelsummary(
+    models      = list("GLS county" = emfx(hmod)),
+    shape       = term + statistic ~ model + gls, # add xvar variable (here: gls)
+    coef_map    = c(".Dtreat" = "ATT"),
+    gof_map     = NA,
+    title       = "Comparing the ATT on GLS and non-GLS counties"
+)
+```
+
 While the simple example here has been limited to a binary comparison of group  
 ATEs, note the same logic carries over to richer settings. We can use
 the exact same workflow to estimate heterogeneous treatment effects by different
-aggregations (e.g., event studies) and across groups with many levels.
+aggregations (e.g., event studies) and across groups with many levels. 
 
 ## Other families
 
