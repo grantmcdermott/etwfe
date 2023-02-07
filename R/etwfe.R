@@ -116,9 +116,9 @@
 ##' Working paper (version: August 16, 2021). Available: 
 ##' http://dx.doi.org/10.2139/ssrn.3906345
 ##'
-##' Wooldridge, Jeffrey M. (2022). \cite{Simple Approaches to Nonlinear Difference-in-Differences with Panel Data}.
-##' Working paper (version: August 7, 2022). Available: 
-##' http://dx.doi.org/10.2139/ssrn.4183726
+##' Wooldridge, Jeffrey M. (2022). \cite{Simple Approaches to Nonlinear
+##' Difference-in-Differences with Panel Data}. Journal of Econometrics
+##' (forthcoming). Available: http://dx.doi.org/10.2139/ssrn.4183726
 ##' @seealso [fixest::feols()], [fixest::feglm()]
 ##' @examples
 ##' # We’ll use the mpdta dataset from the did package (which you’ll need to 
