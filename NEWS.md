@@ -1,3 +1,9 @@
+# etwfe 0.3.0.9000 (development version)
+
+## Other
+
+- Some documentation improvements.
+
 # etwfe 0.3.0
 
 ## New features and enhancements
