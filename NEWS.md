@@ -25,9 +25,9 @@ section of the vignette and help documentation, including advice for combining
 collapsing with `emfx(..., vcov = FALSE)` (which yields an even more dramatic
 speed boost but at a cost of not reporting any standard errors).
 
-- Users can now use a 1 on the fml RHS to indicate that there are no control
+- Users can now use a 1 on the fml RHS to indicate that there are no control variables
 as part of the `etwfe` call, e.g. `etwfe(y ~ 1, ...)`. This provides a second 
-way of doing this, alongside the existing 0 option, e.g. `etwfe(y ~ 0, ...)` 
+way of indicating no controls, alongside the existing 0 option, e.g. `etwfe(y ~ 0, ...)` 
 
 ## Bug fixes
 
