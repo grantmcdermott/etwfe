@@ -30,16 +30,22 @@ treatment effect. In base R this might look something like:
 lm(y ~ Dtreated_unit * Dpost_treatment, data = somedata)
 ```
 
-Rather than specify the interaction directly, in practice researchers often use
-an equivalent formulation known as _two-way fixed effects_ (TWFE). The core idea
-of TWFE is that we can subsume the interaction term in the previous code chunk
-by adding unit and time fixed effects to the regression. A single treatment 
-dummy can then be used to capture the effect of treatment directly. A TWFE 
-regression in base R might look as follows:
+where the resulting coefficient on the `Dtreated_unitTRUE:Dpost_treatmentTRUE`
+interaction term represents the treatment effect.
+
+Rather than manually specify the interaction term, in practice researchers
+often use an equivalent formulation known as _two-way fixed effects_ (TWFE). The
+core idea of TWFE is that we can subsume the interaction term from the previous
+code chunk by adding unit and time fixed effects. A single treatment dummy can
+then be used to capture the effect of treatment directly. A TWFE regression in
+base R might look as follows:
 
 ```r
 lm(y ~ Dtreat + factor(id) + factor(period), data = somedata)
 ```
+
+where the treatment effect is now captured by the coefficient on the `Dtreat` 
+dummy.
 
 The TWFE shortcut is especially nice for more complicated panel data settings 
 with multiple units and multiple times periods. Speaking of which, if you prefer

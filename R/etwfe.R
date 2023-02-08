@@ -146,9 +146,10 @@
 ##' 
 ##' # 2) Recover the treatment effects of interest with emfx().
 ##' 
-##' emfx(mod)                 # simple average treatment effect (default)
-##' emfx(mod, type = "event") # dynamic treatment effect a la an event study
-##' # Etc. Other aggregation types are "group" and "calendar"
+##' emfx(mod, type = "event") # dynamic ATE a la an event study
+##' 
+##' # Etc. Other aggregation type options are "simple" (the default), "group"
+##' # and "calendar"
 ##' 
 ##' 
 ##' #
