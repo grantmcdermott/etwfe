@@ -142,7 +142,7 @@
 ##'     data = mpdta,       # dataset
 ##'     vcov = ~countyreal  # vcov adjustment (here: clustered by county)
 ##'     )
-##' mod
+##' # mod ## A fixest model object; uncomment to see.
 ##' 
 ##' # 2) Recover the treatment effects of interest with emfx().
 ##' 
