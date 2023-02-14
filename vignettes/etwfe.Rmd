@@ -180,7 +180,7 @@ For example, we can recover the average treatment effect (ATE) as follows.
 emfx(mod)
 ```
 
-In other words, our model is tell us that an increase in the minimum wage leads 
+In other words, our model is telling us that an increase in the minimum wage leads 
 to an approximate 5 percent decrease in teen employment. 
 
 Beyond simple ATEs, `emfx()` also supports other types of aggregations via the
