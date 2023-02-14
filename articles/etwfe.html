@@ -286,8 +286,9 @@ follows.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Prediction type:  response </span></span>
 <span><span class="co">#&gt; Columns: type, term, contrast, estimate, std.error, statistic, p.value, conf.low, conf.high, .Dtreat, predicted, predicted_hi, predicted_lo</span></span></code></pre></div>
-<p>In other words, our model is tell us that an increase in the minimum
-wage leads to an approximate 5 percent decrease in teen employment.</p>
+<p>In other words, our model is telling us that an increase in the
+minimum wage leads to an approximate 5 percent decrease in teen
+employment.</p>
 <p>Beyond simple ATEs, <code><a href="../reference/emfx.html">emfx()</a></code> also supports other types of
 aggregations via the <code>type</code> argument. For example, we can use
 <code>type = "calendar"</code> to get ATEs by period, or
@@ -928,7 +929,7 @@ the formula of an estimated model to see for yourself.</p>
 <code class="sourceCode R"><span><span class="va">mod</span><span class="op">$</span><span class="va">fml_all</span></span>
 <span><span class="co">#&gt; $linear</span></span>
 <span><span class="co">#&gt; lemp ~ .Dtreat:i(first.treat, i.year, ref = 0, ref2 = 2003)/lpop_dm</span></span>
-<span><span class="co">#&gt; &lt;environment: 0x558abefae738&gt;</span></span>
+<span><span class="co">#&gt; &lt;environment: 0x5567afd05408&gt;</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $fixef</span></span>
 <span><span class="co">#&gt; ~first.treat + first.treat[[lpop]] + year + year[[lpop]]</span></span></code></pre></div>
