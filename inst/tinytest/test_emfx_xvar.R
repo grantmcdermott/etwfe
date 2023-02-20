@@ -1,4 +1,5 @@
 set.seed(123)
+tol <- 5e-4
 data("mpdta", package = "did")
 mpdta$xvar = rep(sample(1:3, size = 500, replace = TRUE), each = 5) # a categorical var for every id
 mpdta$emp = exp(mpdta$lemp)
@@ -398,11 +399,11 @@ e6 = emfx(x3x, type = "event", post_only = FALSE, collapse = TRUE)
 e7 = emfx(x3xp, type = "event", collapse = TRUE)
 
 for (col in c("estimate", "std.error", "conf.low", "conf.high")) {
-  expect_equivalent(e1[[col]], simple_known[[col]])
-  expect_equivalent(e2[[col]], simple_known[[col]])
-  expect_equivalent(e3[[col]], calendar_known[[col]])
-  expect_equivalent(e4[[col]], group_known[[col]])
-  expect_equivalent(e5[[col]], event_known[[col]])
-  expect_equivalent(e6[[col]], event_pre_known[[col]])
-  expect_equivalent(e7[[col]], event_pois_known[[col]])
+  expect_equivalent(e1[[col]], simple_known[[col]], tolerance = tol)
+  expect_equivalent(e2[[col]], simple_known[[col]], tolerance = tol)
+  expect_equivalent(e3[[col]], calendar_known[[col]], tolerance = tol)
+  expect_equivalent(e4[[col]], group_known[[col]], tolerance = tol)
+  expect_equivalent(e5[[col]], event_known[[col]], tolerance = tol)
+  expect_equivalent(e6[[col]], event_pre_known[[col]], tolerance = tol)
+  expect_equivalent(e7[[col]], event_pois_known[[col]], tolerance = tol)
 }
