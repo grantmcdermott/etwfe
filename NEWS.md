@@ -1,5 +1,11 @@
 # etwfe 0.3.0.9000 (development version)
 
+## Internal
+
+-Updated some unit tests and internal code to match forthcoming updates to 
+**marginaleffects** 0.10.0. The latter update also brings some notable
+performance improvements to `emfx()`. 
+
 ## Other
 
 - Some documentation improvements.
