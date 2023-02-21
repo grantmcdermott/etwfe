@@ -174,7 +174,8 @@ package provides another convenience function for doing so: `emfx()`, which is a
 thin(ish) wrapper around
 [`marginaleffects::slopes()`](https://vincentarelbundock.github.io/marginaleffects/articles/slopes.html).
 
-For example, we can recover the average treatment effect (ATE) as follows.
+For example, we can recover the average treatment effect on the treated (ATT) as
+follows.
 
 ```{r}
 emfx(mod)
@@ -183,9 +184,9 @@ emfx(mod)
 In other words, our model is telling us that an increase in the minimum wage leads 
 to an approximate 5 percent decrease in teen employment. 
 
-Beyond simple ATEs, `emfx()` also supports other types of aggregations via the
-`type` argument. For example, we can use `type = "calendar"` to get ATEs by
-period, or `type = "group"` to get ATEs by cohort groups. But the option that
+Beyond simple ATTs, `emfx()` also supports other types of aggregations via the
+`type` argument. For example, we can use `type = "calendar"` to get ATTs by
+period, or `type = "group"` to get ATTs by cohort groups. But the option that
 will probably be useful to most people is `type = "event"`, which will recover
 dynamic treatment effects _a la_ an event study. Let's try this out and then
 save the resulting object, since I plan to reuse it in a moment.
@@ -305,7 +306,7 @@ hmod = etwfe(
    xvar = gls           ## <= het. TEs by gls
    )
 
-# Heterogeneous ATEs (could also specify `type = "event"`, etc.) 
+# Heterogeneous ATTs (could also specify `type = "event"`, etc.) 
 emfx(hmod)
 ```
 
@@ -316,7 +317,7 @@ However, to test this formally we can invoke the powerful
 infrastructure of the underlying **marginaleffects** package. Probably the
 easiest way to do this is by using `b[i]`-style positional arguments, where
 "`[i]`" denotes the row of the `emfx()` return object. Thus, by specifying
-`hypothesis = "b1 = b2"`, we can test whether the ATEs from row 1 (non-GLS) and
+`hypothesis = "b1 = b2"`, we can test whether the ATTs from row 1 (non-GLS) and
 row 2 (GLS) are different from one another.
 
 ```{r}
@@ -341,7 +342,7 @@ modelsummary(
 ```
 
 While the simple example here has been limited to a binary comparison of group  
-ATEs, note the same logic carries over to richer settings. We can use
+ATTs, note the same logic carries over to richer settings. We can use
 the exact same workflow to estimate heterogeneous treatment effects by different
 aggregations (e.g., event studies) and across groups with many levels. 
 
@@ -378,7 +379,7 @@ than a few seconds to obtain results. However, `emfx`'s computation time does
 tend to scale non-linearly with the size of the original data, as well as the
 number of interactions from the underlying `etwfe` model object. Without getting
 too deep into the weeds, we are relying on a numerical delta method of the
-(excellent) **marginaleffects** package underneath the hood to recover the ATEs
+(excellent) **marginaleffects** package underneath the hood to recover the ATTs
 of interest. This method requires estimating two prediction models for *each*
 coefficient in the model and then computing their standard errors. So it's a
 potentially expensive operation that can push the computation time for large
@@ -497,15 +498,15 @@ modelsummary(
 )
 ```
 
-To transform these raw coefficients into their more meaningful ATE counterparts,
+To transform these raw coefficients into their more meaningful ATT counterparts,
 we just need to perform the appropriate marginal effects operation. For example,
-here's how we can get both the simple ATEs and event-study ATEs from earlier. 
+here's how we can get both the simple ATTs and event-study ATTs from earlier. 
 This is what `emfx()` is doing behind the scenes.
 
 ```{r}
 library(marginaleffects)
 
-# Simple ATE
+# Simple ATT
 slopes(
   mod2, 
   newdata   = subset(mpdta2, .Dtreat), # we only want rows where .Dtreat is TRUE
