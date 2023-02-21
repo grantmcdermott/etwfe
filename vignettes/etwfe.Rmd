@@ -516,7 +516,7 @@ slopes(
 # Event study
 slopes(
   mod2, 
-  newdata   = transform(subset(mpdta2, .Dtreat), event = first.treat - year),
+  newdata   = transform(subset(mpdta2, .Dtreat), event = year - first.treat),
   variables = ".Dtreat", 
   by        = "event"
   )
