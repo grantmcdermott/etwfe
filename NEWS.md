@@ -2,7 +2,7 @@
 
 ## Internal
 
--Updated some unit tests and internal code to match forthcoming updates to 
+- Updated some unit tests and internal code to match forthcoming updates to 
 **marginaleffects** 0.10.0. The latter update also brings some notable
 performance improvements to `emfx()`. 
 
