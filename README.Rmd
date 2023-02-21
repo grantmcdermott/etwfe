@@ -74,9 +74,11 @@ mod =
     data = mpdta,       # dataset
     vcov = ~countyreal  # vcov adjustment (here: clustered)
     )
+
+# This gives us a regression model with full saturated interactions
 mod
 
-# Event-study treatment effects
+# Pass to emfx() to recover the ATTs of interest. Here's an event-study example.
 emfx(mod, type = "event")
 ```
 

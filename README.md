@@ -78,6 +78,8 @@ mod =
     data = mpdta,       # dataset
     vcov = ~countyreal  # vcov adjustment (here: clustered)
     )
+
+# This gives us a regression model with full saturated interactions
 mod
 #> OLS estimation, Dep. Var.: lemp
 #> Observations: 2,500 
@@ -105,17 +107,17 @@ mod
 #> RMSE: 0.537131     Adj. R2: 0.87167 
 #>                  Within R2: 8.449e-4
 
-# Event-study treatment effects
+# Pass to emfx() to recover the ATTs of interest. Here's an event-study example.
 emfx(mod, type = "event")
 #> 
-#>     Term                 Contrast Estimate Std. Error      z   Pr(>|z|)    2.5 %   97.5 % event
-#>  .Dtreat mean(TRUE) - mean(FALSE) -0.03321    0.01337 -2.484 0.01297951 -0.05941 -0.00701     0
-#>  .Dtreat mean(TRUE) - mean(FALSE) -0.05735    0.01715 -3.343 0.00082830 -0.09097 -0.02373     1
-#>  .Dtreat mean(TRUE) - mean(FALSE) -0.13787    0.03079 -4.477 7.5665e-06 -0.19823 -0.07751     2
-#>  .Dtreat mean(TRUE) - mean(FALSE) -0.10954    0.03232 -3.389 0.00070142 -0.17289 -0.04619     3
+#>     Term                 Contrast event Estimate Std. Error     z Pr(>|z|)   2.5 %   97.5 %
+#>  .Dtreat mean(TRUE) - mean(FALSE)     0  -0.0332     0.0134 -2.48    0.013 -0.0594 -0.00701
+#>  .Dtreat mean(TRUE) - mean(FALSE)     1  -0.0573     0.0172 -3.34   <0.001 -0.0910 -0.02373
+#>  .Dtreat mean(TRUE) - mean(FALSE)     2  -0.1379     0.0308 -4.48   <0.001 -0.1982 -0.07751
+#>  .Dtreat mean(TRUE) - mean(FALSE)     3  -0.1095     0.0323 -3.39   <0.001 -0.1729 -0.04619
 #> 
 #> Prediction type:  response 
-#> Columns: type, term, contrast, estimate, std.error, statistic, p.value, conf.low, conf.high, event, predicted, predicted_hi, predicted_lo
+#> Columns: type, term, contrast, event, estimate, std.error, statistic, p.value, conf.low, conf.high, predicted, predicted_hi, predicted_lo
 ```
 
 ## Acknowledgements
