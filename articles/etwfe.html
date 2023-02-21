@@ -274,8 +274,8 @@ time, or as an event study). A natural way to perform these aggregations
 is by recovering the appropriate marginal effects. The
 <strong>etwfe</strong> package provides another convenience function for
 doing so: <code><a href="../reference/emfx.html">emfx()</a></code>, which is a thin(ish) wrapper around <a href="https://vincentarelbundock.github.io/marginaleffects/articles/slopes.html" class="external-link"><code>marginaleffects::slopes()</code></a>.</p>
-<p>For example, we can recover the average treatment effect (ATE) as
-follows.</p>
+<p>For example, we can recover the average treatment effect on the
+treated (ATT) as follows.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="va">mod</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -289,10 +289,10 @@ follows.</p>
 <p>In other words, our model is telling us that an increase in the
 minimum wage leads to an approximate 5 percent decrease in teen
 employment.</p>
-<p>Beyond simple ATEs, <code><a href="../reference/emfx.html">emfx()</a></code> also supports other types of
+<p>Beyond simple ATTs, <code><a href="../reference/emfx.html">emfx()</a></code> also supports other types of
 aggregations via the <code>type</code> argument. For example, we can use
-<code>type = "calendar"</code> to get ATEs by period, or
-<code>type = "group"</code> to get ATEs by cohort groups. But the option
+<code>type = "calendar"</code> to get ATTs by period, or
+<code>type = "group"</code> to get ATTs by cohort groups. But the option
 that will probably be useful to most people is
 <code>type = "event"</code>, which will recover dynamic treatment
 effects <em>a la</em> an event study. Let’s try this out and then save
@@ -532,7 +532,7 @@ treatment effects by these two distinct groups.</p>
 <span>   xvar <span class="op">=</span> <span class="va">gls</span>           <span class="co">## &lt;= het. TEs by gls</span></span>
 <span>   <span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Heterogeneous ATEs (could also specify `type = "event"`, etc.) </span></span>
+<span><span class="co"># Heterogeneous ATTs (could also specify `type = "event"`, etc.) </span></span>
 <span><span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="va">hmod</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;     Term                 Contrast .Dtreat   gls Estimate Std. Error      z</span></span>
@@ -553,7 +553,7 @@ package. Probably the easiest way to do this is by using
 <code>b[i]</code>-style positional arguments, where “<code>[i]</code>”
 denotes the row of the <code><a href="../reference/emfx.html">emfx()</a></code> return object. Thus, by
 specifying <code>hypothesis = "b1 = b2"</code>, we can test whether the
-ATEs from row 1 (non-GLS) and row 2 (GLS) are different from one
+ATTs from row 1 (non-GLS) and row 2 (GLS) are different from one
 another.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="va">hmod</span>, hypothesis <span class="op">=</span> <span class="st">"b1 = b2"</span><span class="op">)</span></span>
@@ -628,7 +628,7 @@ ATT
 </table>
 <p>While the simple example here has been limited to a binary comparison
 of group<br>
-ATEs, note the same logic carries over to richer settings. We can use
+ATTs, note the same logic carries over to richer settings. We can use
 the exact same workflow to estimate heterogeneous treatment effects by
 different aggregations (e.g., event studies) and across groups with many
 levels.</p>
@@ -681,7 +681,7 @@ non-linearly with the size of the original data, as well as the number
 of interactions from the underlying <code>etwfe</code> model object.
 Without getting too deep into the weeds, we are relying on a numerical
 delta method of the (excellent) <strong>marginaleffects</strong> package
-underneath the hood to recover the ATEs of interest. This method
+underneath the hood to recover the ATTs of interest. This method
 requires estimating two prediction models for <em>each</em> coefficient
 in the model and then computing their standard errors. So it’s a
 potentially expensive operation that can push the computation time for
@@ -930,7 +930,7 @@ the formula of an estimated model to see for yourself.</p>
 <code class="sourceCode R"><span><span class="va">mod</span><span class="op">$</span><span class="va">fml_all</span></span>
 <span><span class="co">#&gt; $linear</span></span>
 <span><span class="co">#&gt; lemp ~ .Dtreat:i(first.treat, i.year, ref = 0, ref2 = 2003)/lpop_dm</span></span>
-<span><span class="co">#&gt; &lt;environment: 0x55ac0dafac98&gt;</span></span>
+<span><span class="co">#&gt; &lt;environment: 0x560ded73a9f0&gt;</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $fixef</span></span>
 <span><span class="co">#&gt; ~first.treat + first.treat[[lpop]] + year + year[[lpop]]</span></span></code></pre></div>
@@ -1275,15 +1275,15 @@ manual
 </tr>
 </tbody>
 </table>
-<p>To transform these raw coefficients into their more meaningful ATE
+<p>To transform these raw coefficients into their more meaningful ATT
 counterparts, we just need to perform the appropriate marginal effects
-operation. For example, here’s how we can get both the simple ATEs and
-event-study ATEs from earlier. This is what <code><a href="../reference/emfx.html">emfx()</a></code> is doing
+operation. For example, here’s how we can get both the simple ATTs and
+event-study ATTs from earlier. This is what <code><a href="../reference/emfx.html">emfx()</a></code> is doing
 behind the scenes.</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://vincentarelbundock.github.io/marginaleffects/" class="external-link">marginaleffects</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Simple ATE</span></span>
+<span><span class="co"># Simple ATT</span></span>
 <span><span class="fu"><a href="https://vincentarelbundock.github.io/marginaleffects/reference/slopes.html" class="external-link">slopes</a></span><span class="op">(</span></span>
 <span>  <span class="va">mod2</span>, </span>
 <span>  newdata   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">mpdta2</span>, <span class="va">.Dtreat</span><span class="op">)</span>, <span class="co"># we only want rows where .Dtreat is TRUE</span></span>
@@ -1302,21 +1302,21 @@ behind the scenes.</p>
 <span><span class="co"># Event study</span></span>
 <span><span class="fu"><a href="https://vincentarelbundock.github.io/marginaleffects/reference/slopes.html" class="external-link">slopes</a></span><span class="op">(</span></span>
 <span>  <span class="va">mod2</span>, </span>
-<span>  newdata   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">mpdta2</span>, <span class="va">.Dtreat</span><span class="op">)</span>, event <span class="op">=</span> <span class="va">first.treat</span> <span class="op">-</span> <span class="va">year</span><span class="op">)</span>,</span>
+<span>  newdata   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">mpdta2</span>, <span class="va">.Dtreat</span><span class="op">)</span>, event <span class="op">=</span> <span class="va">year</span> <span class="op">-</span> <span class="va">first.treat</span><span class="op">)</span>,</span>
 <span>  variables <span class="op">=</span> <span class="st">".Dtreat"</span>, </span>
 <span>  by        <span class="op">=</span> <span class="st">"event"</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;     Term                 Contrast event Estimate Std. Error     z Pr(&gt;|z|)</span></span>
-<span><span class="co">#&gt;  .Dtreat mean(TRUE) - mean(FALSE)    -3  -0.1095     0.0323 -3.39   &lt;0.001</span></span>
-<span><span class="co">#&gt;  .Dtreat mean(TRUE) - mean(FALSE)    -2  -0.1379     0.0308 -4.48   &lt;0.001</span></span>
-<span><span class="co">#&gt;  .Dtreat mean(TRUE) - mean(FALSE)    -1  -0.0573     0.0172 -3.34   &lt;0.001</span></span>
 <span><span class="co">#&gt;  .Dtreat mean(TRUE) - mean(FALSE)     0  -0.0332     0.0134 -2.48    0.013</span></span>
+<span><span class="co">#&gt;  .Dtreat mean(TRUE) - mean(FALSE)     1  -0.0573     0.0172 -3.34   &lt;0.001</span></span>
+<span><span class="co">#&gt;  .Dtreat mean(TRUE) - mean(FALSE)     2  -0.1379     0.0308 -4.48   &lt;0.001</span></span>
+<span><span class="co">#&gt;  .Dtreat mean(TRUE) - mean(FALSE)     3  -0.1095     0.0323 -3.39   &lt;0.001</span></span>
 <span><span class="co">#&gt;    2.5 %   97.5 %</span></span>
-<span><span class="co">#&gt;  -0.1729 -0.04619</span></span>
-<span><span class="co">#&gt;  -0.1982 -0.07751</span></span>
-<span><span class="co">#&gt;  -0.0910 -0.02373</span></span>
 <span><span class="co">#&gt;  -0.0594 -0.00701</span></span>
+<span><span class="co">#&gt;  -0.0910 -0.02373</span></span>
+<span><span class="co">#&gt;  -0.1982 -0.07751</span></span>
+<span><span class="co">#&gt;  -0.1729 -0.04619</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Prediction type:  response </span></span>
 <span><span class="co">#&gt; Columns: type, term, contrast, event, estimate, std.error, statistic, p.value, conf.low, conf.high, predicted, predicted_hi, predicted_lo</span></span></code></pre></div>
