@@ -1,8 +1,8 @@
 Package: etwfe
 Type: Package
 Title: Extended Two-Way Fixed Effects
-Version: 0.3.0.9000
-Date: 2023-02-20
+Version: 0.3.1
+Date: 2023-02-22
 Authors@R: 
     c(
     person(given = "Grant",
@@ -19,13 +19,12 @@ Description: Convenience functions for implementing extended two-way
   fixed effect regressions a la Wooldridge (2021, 2022)
   <doi:10.2139/ssrn.3906345>, <doi:10.2139/ssrn.4183726>.
 License: MIT + file LICENSE
-Remotes: vincentarelbundock/marginaleffects
 Imports:
   fixest (>= 0.11.0),
   stats,
   data.table,
   Formula,
-  marginaleffects (>= 0.9.9101)
+  marginaleffects (>= 0.10.0)
 Suggests:
   did,
   modelsummary,
