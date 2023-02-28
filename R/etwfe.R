@@ -143,7 +143,8 @@
 ##'     data = mpdta,       # dataset
 ##'     vcov = ~countyreal  # vcov adjustment (here: clustered by county)
 ##'     )
-##' # mod ## A fixest model object; uncomment to see.
+##' 
+##' # mod ## A fixest model object with fully saturated interaction effects.
 ##' 
 ##' # 2) Recover the treatment effects of interest with emfx().
 ##' 
