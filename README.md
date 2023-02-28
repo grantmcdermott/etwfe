@@ -79,7 +79,7 @@ mod =
     vcov = ~countyreal  # vcov adjustment (here: clustered)
     )
 
-# This gives us a regression model with full saturated interactions
+# This gives us a regression model with fully saturated interactions
 mod
 #> OLS estimation, Dep. Var.: lemp
 #> Observations: 2,500 

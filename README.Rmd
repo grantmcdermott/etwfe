@@ -75,7 +75,7 @@ mod =
     vcov = ~countyreal  # vcov adjustment (here: clustered)
     )
 
-# This gives us a regression model with full saturated interactions
+# This gives us a regression model with fully saturated interactions
 mod
 
 # Pass to emfx() to recover the ATTs of interest. Here's an event-study example.
