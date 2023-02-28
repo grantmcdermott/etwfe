@@ -121,6 +121,7 @@
 ##' (forthcoming). Available: http://dx.doi.org/10.2139/ssrn.4183726
 ##' @seealso [fixest::feols()], [fixest::feglm()]
 ##' @examples
+##' \dontrun{
 ##' # We’ll use the mpdta dataset from the did package (which you’ll need to 
 ##' # install separately).
 ##'
@@ -194,6 +195,7 @@
 ##'    family = "poisson"   ## <= family arg for nonlinear options
 ##'    ) |>
 ##'    emfx("event")
+##' }
 ##' 
 ##' @export
 etwfe = function(

@@ -151,6 +151,7 @@ Extended two-way fixed effects
 }
 
 \examples{
+\dontrun{
 # We’ll use the mpdta dataset from the did package (which you’ll need to 
 # install separately).
 
@@ -224,6 +225,7 @@ etwfe(
    family = "poisson"   ## <= family arg for nonlinear options
    ) |>
    emfx("event")
+}
 
 }
 \references{

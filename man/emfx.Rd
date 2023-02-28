@@ -130,6 +130,7 @@ Post-estimation treatment effects for an ETWFE regressions.
 }
 
 \examples{
+\dontrun{
 # We’ll use the mpdta dataset from the did package (which you’ll need to 
 # install separately).
 
@@ -203,6 +204,7 @@ etwfe(
    family = "poisson"   ## <= family arg for nonlinear options
    ) |>
    emfx("event")
+}
 
 }
 \seealso{
