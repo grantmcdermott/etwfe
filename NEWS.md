@@ -10,6 +10,9 @@ performance improvements to `emfx()`.
 ## Other
 
 - Some documentation improvements.
+- The Examples have been wrapped in `\dontrun` to avoid triggering CRAN NOTEs on
+Windows for exceeding 5 seconds execution time. Note that the package homepage
+still runs these Examples if users want to inspect the output online.
 
 # etwfe 0.3.0
 
