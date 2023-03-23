@@ -1,3 +1,11 @@
+# etwfe 0.3.1.9000 (dev version)
+
+## Breaking change
+
+- Bug fix for internal covariate centering function (#30). This may lead to changes in
+the heterogeneous ATTs (i.e., through the `xvar` arg), which were imprecisely
+estimated previously.
+
 # etwfe 0.3.1
 
 ## Internal
