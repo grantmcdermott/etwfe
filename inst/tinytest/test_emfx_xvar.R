@@ -1,6 +1,43 @@
 set.seed(123)
 tol = 5e-4
 data("mpdta", package = "did")
+
+# Vignette example ----
+
+gls_fips = c("IL" = 17, "IN" = 18, "MI" = 26, "MN" = 27,
+             "NY" = 36, "OH" = 39, "PA" = 42, "WI" = 55)
+
+mpdta$gls = substr(mpdta$countyreal, 1, 2) %in% gls_fips
+hmod_att = emfx(etwfe(
+  lemp ~ lpop,
+  tvar = year, gvar = first.treat, data = mpdta,
+  vcov = ~countyreal,
+  xvar = gls ## <= het. TEs by gls
+))
+
+hmod_att_known = structure(
+  list(
+    term = c(".Dtreat", ".Dtreat"),
+    contrast = c("mean(TRUE) - mean(FALSE)", "mean(TRUE) - mean(FALSE)"),
+    .Dtreat = c(TRUE, TRUE),
+    gls = c(FALSE, TRUE),
+    estimate = c(-0.0636770215654252, -0.0472387691288247),
+    std.error = c(0.0372373208438418, 0.0266553873613548),
+    statistic = c(-1.710032304216, -1.77220343821797),
+    p.value = c(0.0872598995734215, 0.0763607931014942),
+    conf.low = c(-0.136660829300118, -0.0994823683510443),
+    conf.high = c(0.00930678616926726, 0.00500483009339487),
+    predicted = c(8.58047839057103, 5.4198122639013),
+    predicted_hi = c(8.58047839057103, 5.4198122639013),
+    predicted_lo = c(8.65392156078294, 5.43931783410603)
+  ),
+  class = "data.frame", row.names = c(NA, -2L)
+)
+
+expect_equal(hmod_att, hmod_att_known)
+
+# Other (simulated) examples ----
+
 mpdta$xvar = rep(sample(1:3, size = 500, replace = TRUE), each = 5) # a categorical var for every id
 mpdta$emp = exp(mpdta$lemp)
 
