@@ -305,7 +305,7 @@ etwfe = function(
   
   ## Demean and interact controls ----
   if (!is.null(ctrls)) {
-    dm_fml = stats::reformulate(c(gvar, tvar), response = ctrls)
+    dm_fml = stats::reformulate(gvar, response = ctrls)
     ctrls_dm_df = fixest::demean(dm_fml, data = data, as.matrix = FALSE)
     ctrls_dm_df = stats::setNames(ctrls_dm_df, ctrls_dm)
     data = cbind(data, ctrls_dm_df)
@@ -334,7 +334,7 @@ etwfe = function(
   if (!is.null(xvar)) {
     data$.Dtreated_cohort = ifelse(data[[gvar]] != gref & !is.na(data[[gvar]]), 1, 0) # generate a treatment-dummy
     
-    dm_fml = stats::reformulate(c(tvar), response = xvar)
+    dm_fml = stats::reformulate(gvar, response = xvar)
     ctrls_dm_df = fixest::demean(dm_fml, data = data, weights = data$.Dtreated_cohort, as.matrix = FALSE) # weights: only use the treated cohorts (units) to demean
     ctrls_dm_df = stats::setNames(ctrls_dm_df, paste0(xvar, "_dm")) # give a name
     data = cbind(data, ctrls_dm_df)

@@ -116,8 +116,7 @@ emfx(mod, type = "event")
 #>  .Dtreat mean(TRUE) - mean(FALSE)     2  -0.1379     0.0308 -4.48   <0.001 -0.1982 -0.07751
 #>  .Dtreat mean(TRUE) - mean(FALSE)     3  -0.1095     0.0323 -3.39   <0.001 -0.1729 -0.04619
 #> 
-#> Prediction type:  response 
-#> Columns: type, term, contrast, event, estimate, std.error, statistic, p.value, conf.low, conf.high, predicted, predicted_hi, predicted_lo
+#> Columns: term, contrast, event, estimate, std.error, statistic, p.value, conf.low, conf.high, predicted, predicted_hi, predicted_lo
 ```
 
 ## Acknowledgements
