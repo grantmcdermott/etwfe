@@ -48,7 +48,14 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.3.1" id="etwfe-031">etwfe 0.3.1<a class="anchor" aria-label="anchor" href="#etwfe-031"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.3.1.9000" id="etwfe-0319000-dev-version">etwfe 0.3.1.9000 (dev version)<a class="anchor" aria-label="anchor" href="#etwfe-0319000-dev-version"></a></h2>
+<div class="section level3">
+<h3 id="breaking-change-0-3-1-9000">Breaking change<a class="anchor" aria-label="anchor" href="#breaking-change-0-3-1-9000"></a></h3>
+<ul><li>Bug fix for internal covariate centering function (<a href="https://github.com/grantmcdermott/etwfe/issues/30" class="external-link">#30</a>). This fix should have no impact on the main ATT estimates (i.e., typical use of the package). But it may lead to differences in the heterogeneous ATTs (i.e., through the <code>xvar</code> arg), which were incorrectly estimated in some cases.</li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.1" id="etwfe-031">etwfe 0.3.1<a class="anchor" aria-label="anchor" href="#etwfe-031"></a></h2><p class="text-muted">CRAN release: 2023-02-28</p>
 <div class="section level3">
 <h3 id="internal-0-3-1">Internal<a class="anchor" aria-label="anchor" href="#internal-0-3-1"></a></h3>
 <ul><li>Minor updates to internal code and some unit tests to match forthcoming updates to <strong>marginaleffects</strong> 0.10.0. The latter update also brings some notable performance improvements to <code><a href="../reference/emfx.html">emfx()</a></code>.</li>

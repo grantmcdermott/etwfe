@@ -278,8 +278,7 @@ Difference-in-Differences with Panel Data</cite>. The Econometrics Journal
 <span class="r-out co"><span class="r-pr">#&gt;</span>  -0.1982 -0.07751</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  -0.1729 -0.04619</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Prediction type:  response </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Columns: type, term, contrast, event, estimate, std.error, statistic, p.value, conf.low, conf.high, predicted, predicted_hi, predicted_lo </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Columns: term, contrast, event, estimate, std.error, statistic, p.value, conf.low, conf.high, predicted, predicted_hi, predicted_lo </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Etc. Other aggregation type options are "simple" (the default), "group"</span></span></span>
@@ -308,15 +307,14 @@ Difference-in-Differences with Panel Data</cite>. The Econometrics Journal
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="emfx.html">emfx</a></span><span class="op">(</span><span class="va">hmod</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Term                 Contrast .Dtreat   gls Estimate Std. Error      z</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat mean(TRUE) - mean(FALSE)    TRUE FALSE  -0.0433     0.0270 -1.604</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat mean(TRUE) - mean(FALSE)    TRUE  TRUE  -0.0366     0.0391 -0.937</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Term                 Contrast .Dtreat   gls Estimate Std. Error     z</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat mean(TRUE) - mean(FALSE)    TRUE FALSE  -0.0637     0.0372 -1.71</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat mean(TRUE) - mean(FALSE)    TRUE  TRUE  -0.0472     0.0267 -1.77</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Pr(&gt;|z|)   2.5 %  97.5 %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     0.109 -0.0963 0.00963</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     0.349 -0.1132 0.03998</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    0.0873 -0.1367 0.00931</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    0.0764 -0.0995 0.00500</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Prediction type:  response </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Columns: type, term, contrast, .Dtreat, gls, estimate, std.error, statistic, p.value, conf.low, conf.high, predicted, predicted_hi, predicted_lo </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Columns: term, contrast, .Dtreat, gls, estimate, std.error, statistic, p.value, conf.low, conf.high, predicted, predicted_hi, predicted_lo </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># To test whether the ATEs across these two groups (non-GLS vs GLS) are </span></span></span>
@@ -324,11 +322,10 @@ Difference-in-Differences with Panel Data</cite>. The Econometrics Journal
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="emfx.html">emfx</a></span><span class="op">(</span><span class="va">hmod</span>, hypothesis <span class="op">=</span> <span class="st">"b1 = b2"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Term Estimate Std. Error      z Pr(&gt;|z|) 2.5 % 97.5 %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  b1=b2 -0.00674     0.0529 -0.127    0.899 -0.11 0.0969</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Term Estimate Std. Error      z Pr(&gt;|z|)  2.5 % 97.5 %</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  b1=b2  -0.0164     0.0545 -0.302    0.763 -0.123 0.0903</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Prediction type:  response </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Columns: type, term, estimate, std.error, statistic, p.value, conf.low, conf.high </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Columns: term, estimate, std.error, statistic, p.value, conf.low, conf.high </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
@@ -359,8 +356,7 @@ Difference-in-Differences with Panel Data</cite>. The Econometrics Journal
 <span class="r-out co"><span class="r-pr">#&gt;</span>  -118.8 -31.43</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  -156.9 -46.75</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Prediction type:  response </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Columns: type, term, contrast, event, estimate, std.error, statistic, p.value, conf.low, conf.high, predicted, predicted_hi, predicted_lo </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Columns: term, contrast, event, estimate, std.error, statistic, p.value, conf.low, conf.high, predicted, predicted_hi, predicted_lo </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>

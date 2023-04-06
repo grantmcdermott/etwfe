@@ -284,8 +284,7 @@ treated (ATT) as follows.</p>
 <span><span class="co">#&gt;    2.5 %  97.5 %</span></span>
 <span><span class="co">#&gt;  -0.0751 -0.0261</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Prediction type:  response </span></span>
-<span><span class="co">#&gt; Columns: type, term, contrast, .Dtreat, estimate, std.error, statistic, p.value, conf.low, conf.high, predicted, predicted_hi, predicted_lo</span></span></code></pre></div>
+<span><span class="co">#&gt; Columns: term, contrast, .Dtreat, estimate, std.error, statistic, p.value, conf.low, conf.high, predicted, predicted_hi, predicted_lo</span></span></code></pre></div>
 <p>In other words, our model is telling us that an increase in the
 minimum wage leads to an approximate 5 percent decrease in teen
 employment.</p>
@@ -312,8 +311,7 @@ the resulting object, since I plan to reuse it in a moment.</p>
 <span><span class="co">#&gt;  -0.1982 -0.07751</span></span>
 <span><span class="co">#&gt;  -0.1729 -0.04619</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Prediction type:  response </span></span>
-<span><span class="co">#&gt; Columns: type, term, contrast, event, estimate, std.error, statistic, p.value, conf.low, conf.high, predicted, predicted_hi, predicted_lo</span></span></code></pre></div>
+<span><span class="co">#&gt; Columns: term, contrast, event, estimate, std.error, statistic, p.value, conf.low, conf.high, predicted, predicted_hi, predicted_lo</span></span></code></pre></div>
 <p>Our event study suggests that the teen disemployment effect of a
 minimum wage hike is fairly modest at first (3%), but increases over the
 next few years (&gt;10%). In the next section, we’ll look at ways to
@@ -535,15 +533,14 @@ treatment effects by these two distinct groups.</p>
 <span><span class="co"># Heterogeneous ATTs (could also specify `type = "event"`, etc.) </span></span>
 <span><span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="va">hmod</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     Term                 Contrast .Dtreat   gls Estimate Std. Error      z</span></span>
-<span><span class="co">#&gt;  .Dtreat mean(TRUE) - mean(FALSE)    TRUE FALSE  -0.0433     0.0270 -1.604</span></span>
-<span><span class="co">#&gt;  .Dtreat mean(TRUE) - mean(FALSE)    TRUE  TRUE  -0.0366     0.0391 -0.937</span></span>
+<span><span class="co">#&gt;     Term                 Contrast .Dtreat   gls Estimate Std. Error     z</span></span>
+<span><span class="co">#&gt;  .Dtreat mean(TRUE) - mean(FALSE)    TRUE FALSE  -0.0637     0.0372 -1.71</span></span>
+<span><span class="co">#&gt;  .Dtreat mean(TRUE) - mean(FALSE)    TRUE  TRUE  -0.0472     0.0267 -1.77</span></span>
 <span><span class="co">#&gt;  Pr(&gt;|z|)   2.5 %  97.5 %</span></span>
-<span><span class="co">#&gt;     0.109 -0.0963 0.00963</span></span>
-<span><span class="co">#&gt;     0.349 -0.1132 0.03998</span></span>
+<span><span class="co">#&gt;    0.0873 -0.1367 0.00931</span></span>
+<span><span class="co">#&gt;    0.0764 -0.0995 0.00500</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Prediction type:  response </span></span>
-<span><span class="co">#&gt; Columns: type, term, contrast, .Dtreat, gls, estimate, std.error, statistic, p.value, conf.low, conf.high, predicted, predicted_hi, predicted_lo</span></span></code></pre></div>
+<span><span class="co">#&gt; Columns: term, contrast, .Dtreat, gls, estimate, std.error, statistic, p.value, conf.low, conf.high, predicted, predicted_hi, predicted_lo</span></span></code></pre></div>
 <p>The above point estimates might tempt us to think that minimum wage
 hikes caused less teen disemployment in GLS counties than in the rest of
 the US on average. However, to test this formally we can invoke the
@@ -558,11 +555,10 @@ another.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="va">hmod</span>, hypothesis <span class="op">=</span> <span class="st">"b1 = b2"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;   Term Estimate Std. Error      z Pr(&gt;|z|) 2.5 % 97.5 %</span></span>
-<span><span class="co">#&gt;  b1=b2 -0.00674     0.0529 -0.127    0.899 -0.11 0.0969</span></span>
+<span><span class="co">#&gt;   Term Estimate Std. Error      z Pr(&gt;|z|)  2.5 % 97.5 %</span></span>
+<span><span class="co">#&gt;  b1=b2  -0.0164     0.0545 -0.302    0.763 -0.123 0.0903</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Prediction type:  response </span></span>
-<span><span class="co">#&gt; Columns: type, term, estimate, std.error, statistic, p.value, conf.low, conf.high</span></span></code></pre></div>
+<span><span class="co">#&gt; Columns: term, estimate, std.error, statistic, p.value, conf.low, conf.high</span></span></code></pre></div>
 <p>Here we see that there is actually no statistical difference in the
 average disemployment effect between GLS and non-GLS counties.</p>
 <p>One final aside is that you can easily display the results of
@@ -608,20 +604,20 @@ TRUE
 ATT
 </td>
 <td style="text-align:center;">
-−0.043
+−0.064
 </td>
 <td style="text-align:center;">
-−0.037
+−0.047
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
 </td>
 <td style="text-align:center;">
-(0.027)
+(0.037)
 </td>
 <td style="text-align:center;">
-(0.039)
+(0.027)
 </td>
 </tr>
 </tbody>
@@ -661,8 +657,7 @@ recast our earlier event-study as a Poisson regression.</p>
 <span><span class="co">#&gt;  -118.8 -31.43</span></span>
 <span><span class="co">#&gt;  -156.9 -46.75</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Prediction type:  response </span></span>
-<span><span class="co">#&gt; Columns: type, term, contrast, event, estimate, std.error, statistic, p.value, conf.low, conf.high, predicted, predicted_hi, predicted_lo</span></span></code></pre></div>
+<span><span class="co">#&gt; Columns: term, contrast, event, estimate, std.error, statistic, p.value, conf.low, conf.high, predicted, predicted_hi, predicted_lo</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="performance-tips">Performance tips<a class="anchor" aria-label="anchor" href="#performance-tips"></a>
@@ -731,8 +726,7 @@ workflow.</p>
 <span><span class="co">#&gt;  .Dtreat mean(TRUE) - mean(FALSE)     2  -0.1379</span></span>
 <span><span class="co">#&gt;  .Dtreat mean(TRUE) - mean(FALSE)     3  -0.1095</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Prediction type:  response </span></span>
-<span><span class="co">#&gt; Columns: type, term, contrast, event, estimate, predicted, predicted_hi, predicted_lo</span></span>
+<span><span class="co">#&gt; Columns: term, contrast, event, estimate, predicted, predicted_hi, predicted_lo</span></span>
 <span></span>
 <span><span class="co"># Step 2</span></span>
 <span><span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="va">mod</span>, type <span class="op">=</span> <span class="st">"event"</span>, vcov <span class="op">=</span> <span class="cn">FALSE</span>, collapse <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
@@ -743,8 +737,7 @@ workflow.</p>
 <span><span class="co">#&gt;  .Dtreat mean(TRUE) - mean(FALSE)     2  -0.1379</span></span>
 <span><span class="co">#&gt;  .Dtreat mean(TRUE) - mean(FALSE)     3  -0.1095</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Prediction type:  response </span></span>
-<span><span class="co">#&gt; Columns: type, term, contrast, event, estimate, predicted, predicted_hi, predicted_lo</span></span>
+<span><span class="co">#&gt; Columns: term, contrast, event, estimate, predicted, predicted_hi, predicted_lo</span></span>
 <span></span>
 <span><span class="co"># Step 3: Results from 1 and 2 are similar enough, so get approx. SEs</span></span>
 <span><span class="va">mod_es2</span> <span class="op">=</span> <span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="va">mod</span>, type <span class="op">=</span> <span class="st">"event"</span>, collapse <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
@@ -930,7 +923,7 @@ the formula of an estimated model to see for yourself.</p>
 <code class="sourceCode R"><span><span class="va">mod</span><span class="op">$</span><span class="va">fml_all</span></span>
 <span><span class="co">#&gt; $linear</span></span>
 <span><span class="co">#&gt; lemp ~ .Dtreat:i(first.treat, i.year, ref = 0, ref2 = 2003)/lpop_dm</span></span>
-<span><span class="co">#&gt; &lt;environment: 0x55f722a245d0&gt;</span></span>
+<span><span class="co">#&gt; &lt;environment: 0x561468556038&gt;</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $fixef</span></span>
 <span><span class="co">#&gt; ~first.treat + first.treat[[lpop]] + year + year[[lpop]]</span></span></code></pre></div>
@@ -1296,8 +1289,7 @@ behind the scenes.</p>
 <span><span class="co">#&gt;    2.5 %  97.5 %</span></span>
 <span><span class="co">#&gt;  -0.0751 -0.0261</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Prediction type:  response </span></span>
-<span><span class="co">#&gt; Columns: type, term, contrast, .Dtreat, estimate, std.error, statistic, p.value, conf.low, conf.high, predicted, predicted_hi, predicted_lo</span></span>
+<span><span class="co">#&gt; Columns: term, contrast, .Dtreat, estimate, std.error, statistic, p.value, conf.low, conf.high, predicted, predicted_hi, predicted_lo</span></span>
 <span></span>
 <span><span class="co"># Event study</span></span>
 <span><span class="fu"><a href="https://vincentarelbundock.github.io/marginaleffects/reference/slopes.html" class="external-link">slopes</a></span><span class="op">(</span></span>
@@ -1318,8 +1310,7 @@ behind the scenes.</p>
 <span><span class="co">#&gt;  -0.1982 -0.07751</span></span>
 <span><span class="co">#&gt;  -0.1729 -0.04619</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Prediction type:  response </span></span>
-<span><span class="co">#&gt; Columns: type, term, contrast, event, estimate, std.error, statistic, p.value, conf.low, conf.high, predicted, predicted_hi, predicted_lo</span></span></code></pre></div>
+<span><span class="co">#&gt; Columns: term, contrast, event, estimate, std.error, statistic, p.value, conf.low, conf.high, predicted, predicted_hi, predicted_lo</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="regarding-fixed-effects">Regarding fixed effects<a class="anchor" aria-label="anchor" href="#regarding-fixed-effects"></a>
