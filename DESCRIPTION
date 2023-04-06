@@ -28,6 +28,7 @@ Imports:
 Suggests:
   did,
   modelsummary,
+  gt,
   ggplot2,
   knitr,
   rmarkdown,
