@@ -336,7 +336,13 @@ etwfe = function(
     
     dm_fml = stats::reformulate(gvar, response = xvar)
     ctrls_dm_df = fixest::demean(dm_fml, data = data, weights = data$.Dtreated_cohort, as.matrix = FALSE) # weights: only use the treated cohorts (units) to demean
-    ctrls_dm_df = stats::setNames(ctrls_dm_df, paste0(xvar, "_dm")) # give a name
+    if (length(xvar)==ncol(ctrls_dm_df)){ #maybe just length(xvar)==1 ?
+      ctrls_dm_df = stats::setNames(ctrls_dm_df, paste0(xvar, "_dm")) # give a name
+      xvar_fml_vars = paste0(xvar, "_dm")
+    } else {
+      names(ctrls_dm_df) = paste0(names(ctrls_dm_df), "_dm") # give a name
+      xvar_fml_vars = paste0("(",paste(names(ctrls_dm_df), collapse = "+"), ")")
+    }
     data = cbind(data, ctrls_dm_df)
   }
   
@@ -361,10 +367,14 @@ etwfe = function(
   ## Formula
   if( !is.null(xvar) ) {# Formula with interaction
     # one could add gvar:xvar, but the result is equivalent
-    Fml <- Formula::as.Formula(paste0(
-      lhs, " ~ ", rhs, "*", xvar, "_dm - ", xvar, "_dm",
-      "+ i(", tvar, ", ref = ", tref, "):", xvar, "_dm |", fes
+    Fml = Formula::as.Formula(paste0(
+      lhs, " ~ ", rhs, "*", xvar_fml_vars, " - ", xvar_fml_vars,
+      "+ i(", tvar, ", ref = ", tref, "):", xvar_fml_vars, " | ", fes
     )) 
+    # Fml = Formula::as.Formula(paste0(
+    #   lhs, " ~ ", rhs, "*", xvar, "_dm - ", xvar, "_dm",
+    #   "+ i(", tvar, ", ref = ", tref, "):", xvar, "_dm |", fes
+    # )) 
   } else {# formula without interaction
     Fml = Formula::as.Formula(paste(lhs, " ~ ", rhs, "|", fes)) 
   }
