@@ -1,11 +1,13 @@
-# etwfe 0.3.1.9000 (dev version)
+# etwfe 0.3.1.9001 (dev version)
 
-## Breaking change
+## Bug fixes
 
-- Bug fix for internal covariate centering function (#30). This fix should have
-no impact on the main ATT estimates (i.e., typical use of the package). But it
-may lead to differences in the heterogeneous ATTs (i.e., through the `xvar`
-arg), which were incorrectly estimated in some cases.
+- Fixed internal centering procedure and handling of multiple covariate levels
+(#30, #31). These fixes should have no impact on the main ATT estimates (i.e.,
+typical use of the package). But it may lead to differences in the heterogeneous
+ATTs---i.e., via the `xvar` arg---which were incorrectly estimated in some
+cases. Thanks to @PhilipCarthy for flagging and to @frederickluser for helpful
+discussions.
 
 # etwfe 0.3.1
 
