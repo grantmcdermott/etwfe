@@ -216,7 +216,7 @@ etwfe = function(
   
   cgroup = match.arg(cgroup)
   fe = match.arg(fe)
-  rhs = ctrls = vs = ref_string = ctrls_dm_df = NULL
+  rhs = ctrls = vs = ref_string = xvar_dm_df = ctrls_fml_vars = xvar_fml_vars = NULL
   gref_min_flag = FALSE
   
   if (is.null(fml)) stop("A non-NULL `fml` argument is required.\n")
@@ -311,10 +311,11 @@ etwfe = function(
     data = cbind(data, ctrls_dm_df)
     
     if (length(ctrls_dm) > 1) {
-      rhs = paste(rhs, "/", "(", paste(ctrls_dm, collapse = " + "), ")")
+      ctrls_fml_vars = paste("(", paste(ctrls_dm, collapse = " + "), ")")
     } else {
-      rhs = paste(rhs, "/", ctrls_dm)
+      ctrls_fml_vars = paste(ctrls_dm)
     }
+    rhs = paste(rhs, "/", ctrls_fml_vars)
     
     if (fe != "vs") {
       ictrls = strsplit(ctrls, split = " \\+ ")[[1]]
@@ -330,14 +331,38 @@ etwfe = function(
     }
   }
   
-  ## Demean the interacted covariate ----
+  ## Demean the interacted covariate (for heterogeneous ATEs) ----
   if (!is.null(xvar)) {
     data$.Dtreated_cohort = ifelse(data[[gvar]] != gref & !is.na(data[[gvar]]), 1, 0) # generate a treatment-dummy
-    
-    dm_fml = stats::reformulate(gvar, response = xvar)
-    ctrls_dm_df = fixest::demean(dm_fml, data = data, weights = data$.Dtreated_cohort, as.matrix = FALSE) # weights: only use the treated cohorts (units) to demean
-    ctrls_dm_df = stats::setNames(ctrls_dm_df, paste0(xvar, "_dm")) # give a name
-    data = cbind(data, ctrls_dm_df)
+    xvar_dm_fml = stats::reformulate(gvar, response = xvar)
+    xvar_dm_df = fixest::demean(xvar_dm_fml, data = data, weights = data$.Dtreated_cohort, as.matrix = FALSE) # weights: only use the treated cohorts (units) to demean
+    if (length(xvar)==ncol(xvar_dm_df)){
+      xvar_dm_df = stats::setNames(xvar_dm_df, paste0(xvar, "_dm")) # give a name
+      xvar_fml_vars = paste0(xvar, "_dm")
+    } else {
+      names(xvar_dm_df) = paste0(names(xvar_dm_df), "_dm") # give a name
+      xvar_fml_vars = paste0("(",paste(names(xvar_dm_df), collapse = "+"), ")")
+    }
+    data = cbind(data, xvar_dm_df)
+
+    if (is.null(ctrls)) {
+      rhs = paste0(
+        rhs, 
+        " / ", xvar_fml_vars,
+        " +  i(", tvar, ", ", xvar_fml_vars, ", ref = ", tref, ")"
+      )
+    # splice together with ctrl vars if necessary
+    } else {
+      rhs = paste0(
+        gsub(
+          ctrls_fml_vars, 
+          paste0("(", ctrls_fml_vars, "+", xvar_fml_vars, ")"),
+          rhs
+        ),
+        " +  i(", tvar, ", ", xvar_fml_vars, ", ref = ", tref, ")"
+      )
+    }
+
   }
   
   ## Fixed effects ----
@@ -361,9 +386,8 @@ etwfe = function(
   ## Formula
   if( !is.null(xvar) ) {# Formula with interaction
     # one could add gvar:xvar, but the result is equivalent
-    Fml <- Formula::as.Formula(paste0(
-      lhs, " ~ ", rhs, "*", xvar, "_dm - ", xvar, "_dm",
-      "+ i(", tvar, ", ref = ", tref, "):", xvar, "_dm |", fes
+    Fml = Formula::as.Formula(paste(
+      lhs, " ~ ", rhs, "|", fes
     )) 
   } else {# formula without interaction
     Fml = Formula::as.Formula(paste(lhs, " ~ ", rhs, "|", fes)) 
@@ -389,5 +413,5 @@ etwfe = function(
 
   ## Return ----
   return(est)
-  
+
 }
