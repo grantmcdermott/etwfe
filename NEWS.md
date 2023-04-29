@@ -1,4 +1,4 @@
-# etwfe 0.3.1.9001 (dev version)
+# etwfe 0.3.1.9002 (dev version)
 
 ## Bug fixes
 
@@ -7,7 +7,13 @@
 typical use of the package). But it may lead to differences in the heterogeneous
 ATTs---i.e., via the `xvar` arg---which were incorrectly estimated in some
 cases. Thanks to @PhilipCarthy for flagging and to @frederickluser for helpful
-discussions.
+discussions
+
+- Fixed internal and upstream bug which was causing model offsets to error (#28,
+thanks @mariofiorini for the initial report and several others for helpful
+discussion). Note that this fix requires **insight** >= 0.19.1.8, which is the
+development version at the time of writing. More information available here:
+https://github.com/easystats/insight/pull/759
 
 # etwfe 0.3.1
 
