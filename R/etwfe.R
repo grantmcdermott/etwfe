@@ -400,6 +400,12 @@ etwfe = function(
     est = fixest::feglm(Fml, data = data, notes = FALSE, family = family, ...)
   }
   
+  # catch for offset if/when passing to emfx later
+  # hacky but works (i.e., overcomes the xpd / envir mismatch)
+  if (!is.null(est$call$offset) && !is.null(est$model_info$offset)) {
+    est$call$offset = stats::reformulate(est$model_info$offset)
+  }
+  
   ## Overload class and new attributes (for post-estimation) ----
   class(est) = c("etwfe", class(est))
     attr(est, "etwfe") = list(
