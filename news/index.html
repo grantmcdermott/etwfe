@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">etwfe</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9002</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,10 +48,11 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.3.1.9001" id="etwfe-0319001-dev-version">etwfe 0.3.1.9001 (dev version)<a class="anchor" aria-label="anchor" href="#etwfe-0319001-dev-version"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.3.1.9002" id="etwfe-0319002-dev-version">etwfe 0.3.1.9002 (dev version)<a class="anchor" aria-label="anchor" href="#etwfe-0319002-dev-version"></a></h2>
 <div class="section level3">
-<h3 id="bug-fixes-0-3-1-9001">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-3-1-9001"></a></h3>
-<ul><li>Fixed internal centering procedure and handling of multiple covariate levels (<a href="https://github.com/grantmcdermott/etwfe/issues/30" class="external-link">#30</a>, <a href="https://github.com/grantmcdermott/etwfe/issues/31" class="external-link">#31</a>). These fixes should have no impact on the main ATT estimates (i.e., typical use of the package). But it may lead to differences in the heterogeneous ATTs—i.e., via the <code>xvar</code> arg—which were incorrectly estimated in some cases. Thanks to <a href="https://github.com/PhilipCarthy" class="external-link">@PhilipCarthy</a> for flagging and to <a href="https://github.com/frederickluser" class="external-link">@frederickluser</a> for helpful discussions.</li>
+<h3 id="bug-fixes-0-3-1-9002">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-3-1-9002"></a></h3>
+<ul><li><p>Fixed internal centering procedure and handling of multiple covariate levels (<a href="https://github.com/grantmcdermott/etwfe/issues/30" class="external-link">#30</a>, <a href="https://github.com/grantmcdermott/etwfe/issues/31" class="external-link">#31</a>). These fixes should have no impact on the main ATT estimates (i.e., typical use of the package). But it may lead to differences in the heterogeneous ATTs—i.e., via the <code>xvar</code> arg—which were incorrectly estimated in some cases. Thanks to <a href="https://github.com/PhilipCarthy" class="external-link">@PhilipCarthy</a> for flagging and to <a href="https://github.com/frederickluser" class="external-link">@frederickluser</a> for helpful discussions</p></li>
+<li><p>Fixed internal and upstream bug which was causing model offsets to error (<a href="https://github.com/grantmcdermott/etwfe/issues/28" class="external-link">#28</a>, thanks <a href="https://github.com/mariofiorini" class="external-link">@mariofiorini</a> for the initial report and several others for helpful discussion). Note that this fix requires <strong>insight</strong> &gt;= 0.19.1.8, which is the development version at the time of writing. More information available here: <a href="https://github.com/easystats/insight/pull/759" class="external-link uri">https://github.com/easystats/insight/pull/759</a></p></li>
 </ul></div>
 </div>
     <div class="section level2">
