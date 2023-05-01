@@ -1,12 +1,8 @@
-This is a resubmission that wraps Examples in `\dontrun` to avoid the NOTE
-triggered by my previous submission (23 Feb), regarding examples taking more
-than 5 seconds on Windows. The key features of this `etwfe` update are otherwise
-unchanged and remain as per the below.
-
 ## Overview
 
-`etwfe` 0.3.1 is a patch release that ensures the package internals reflect some
-changes introduced by an upstream dependency.
+`etwfe` 0.3.2 is a patch release that fixes some bugs related to estimating
+heterogeneous treatment effect, as well as allowing for offsets to be used in
+the estimation.
 
 ## Test environments
 
