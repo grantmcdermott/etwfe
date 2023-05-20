@@ -223,6 +223,8 @@ sim_es_known = structure(
 
 
 # Tests ----
+# match order
+sim_es = sim_es[order(sim_es$event, sim_es$te_grp),]
 
 for (col in c("estimate", "std.error", "conf.low", "conf.high")) {
   expect_equivalent(sim_att[[col]], sim_att_known[[col]], tolerance = tol)

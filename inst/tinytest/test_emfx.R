@@ -144,6 +144,11 @@ e4 = emfx(m3, type = "group")
 e5 = emfx(m3, type = "event")
 e6 = emfx(m3, type = "event", post_only = FALSE)
 e7 = emfx(m3p, type = "event")
+
+# match order
+e3 = e3[order(e3$year),]
+e4 = e4[order(e4$first.treat),]
+
 for (col in c("estimate", "std.error", "conf.low", "conf.high")) {
   expect_equivalent(e1[[col]], simple_known[[col]], tolerance = tol)
   expect_equivalent(e2[[col]], simple_known[[col]], tolerance = tol)
