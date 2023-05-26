@@ -1,4 +1,10 @@
-# etwfe 0.3.2.9000 (dev version)
+# etwfe 0.3.3
+
+## Internal
+
+- Rejigged some internal tests following upstream changes to **marginaleffects**
+(#35 @vincentarelbundock).
+
 
 # etwfe 0.3.2
 
