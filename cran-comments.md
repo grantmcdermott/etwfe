@@ -1,8 +1,7 @@
 ## Overview
 
-`etwfe` 0.3.2 is a patch release that fixes some bugs related to estimating
-heterogeneous treatment effect, as well as allowing for offsets to be used in
-the estimation.
+`etwfe` 0.3.3 is a patch release that addresses test failures due to upstream
+changes in `marginaleffects`.
 
 ## Test environments
 
