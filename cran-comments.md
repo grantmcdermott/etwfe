@@ -1,7 +1,7 @@
 ## Overview
 
-`etwfe` 0.3.3 is a patch release that addresses test failures due to upstream
-changes in `marginaleffects`.
+`etwfe` 0.3.4 is a patch release that preemptively addresses test failures due
+to upstream changes in `marginaleffects`.
 
 ## Test environments
 

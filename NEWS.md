@@ -1,3 +1,11 @@
+# etwfe 0.3.4
+
+## Internal
+
+- Update tests to match upstream changes to **marginaleffects**
+(#36 @vincentarelbundock).
+
+
 # etwfe 0.3.3
 
 ## Internal
