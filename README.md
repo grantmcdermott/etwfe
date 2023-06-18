@@ -110,28 +110,28 @@ mod
 # Pass to emfx() to recover the ATTs of interest. Here's an event-study example.
 emfx(mod, type = "event")
 #> 
-#>     Term                 Contrast event Estimate Std. Error     z Pr(>|z|)   2.5 %   97.5 %
-#>  .Dtreat mean(TRUE) - mean(FALSE)     0  -0.0332     0.0134 -2.48    0.013 -0.0594 -0.00701
-#>  .Dtreat mean(TRUE) - mean(FALSE)     1  -0.0573     0.0172 -3.34   <0.001 -0.0910 -0.02373
-#>  .Dtreat mean(TRUE) - mean(FALSE)     2  -0.1379     0.0308 -4.48   <0.001 -0.1982 -0.07751
-#>  .Dtreat mean(TRUE) - mean(FALSE)     3  -0.1095     0.0323 -3.39   <0.001 -0.1729 -0.04619
+#>     Term                 Contrast event Estimate Std. Error     z Pr(>|z|)    S   2.5 %   97.5 %
+#>  .Dtreat mean(TRUE) - mean(FALSE)     0  -0.0332     0.0134 -2.48    0.013  6.3 -0.0594 -0.00701
+#>  .Dtreat mean(TRUE) - mean(FALSE)     1  -0.0573     0.0172 -3.34   <0.001 10.2 -0.0910 -0.02373
+#>  .Dtreat mean(TRUE) - mean(FALSE)     2  -0.1379     0.0308 -4.48   <0.001 17.0 -0.1982 -0.07751
+#>  .Dtreat mean(TRUE) - mean(FALSE)     3  -0.1095     0.0323 -3.39   <0.001 10.5 -0.1729 -0.04619
 #> 
-#> Columns: term, contrast, event, estimate, std.error, statistic, p.value, conf.low, conf.high, predicted, predicted_hi, predicted_lo
+#> Columns: term, contrast, event, estimate, std.error, statistic, p.value, s.value, conf.low, conf.high, predicted, predicted_hi, predicted_lo
 ```
 
 ## Acknowledgements
 
-- [Jeffrey Wooldridge](https://twitter.com/jmwooldridge) for the
-  [theory](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3906345)
-  [underlying](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4183726)
-  ETWFE.
-- [Laurent Bergé](https://twitter.com/lrberge)
+- [Jeffrey Wooldridge](http://econ.msu.edu/faculty/wooldridge/) for the
+  underlying
+  [ETWFE](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3906345)
+  [theory](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4183726).
+- [Laurent Bergé](https://sites.google.com/site/laurentrberge/)
   ([**fixest**](https://lrberge.github.io/fixest/)) and [Vincent
-  Arel-Bundock](https://twitter.com/VincentAB)
+  Arel-Bundock](https://arelbundock.com/)
   ([**marginaleffects**](https://vincentarelbundock.github.io/marginaleffects/))
   for maintaining the two wonderful R packages that do most of the heavy
   lifting under the hood here.
-- [Fernando Rios-Avila](https://twitter.com/friosavila) for the
+- [Fernando Rios-Avila](https://friosavila.github.io/) for the
   [`JWDID`](https://ideas.repec.org/c/boc/bocode/s459114.html) Stata
   module, which has provided a welcome foil for unit testing and whose
   elegant design helped inform my own choices for this R equivalent.
