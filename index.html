@@ -30,7 +30,7 @@
     
     <a class="navbar-brand me-2" href="index.html">etwfe</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.4</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -143,24 +143,24 @@
 <span><span class="co"># Pass to emfx() to recover the ATTs of interest. Here's an event-study example.</span></span>
 <span><span class="fu"><a href="reference/emfx.html">emfx</a></span><span class="op">(</span><span class="va">mod</span>, type <span class="op">=</span> <span class="st">"event"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     Term                 Contrast event Estimate Std. Error     z Pr(&gt;|z|)   2.5 %   97.5 %</span></span>
-<span><span class="co">#&gt;  .Dtreat mean(TRUE) - mean(FALSE)     0  -0.0332     0.0134 -2.48    0.013 -0.0594 -0.00701</span></span>
-<span><span class="co">#&gt;  .Dtreat mean(TRUE) - mean(FALSE)     1  -0.0573     0.0172 -3.34   &lt;0.001 -0.0910 -0.02373</span></span>
-<span><span class="co">#&gt;  .Dtreat mean(TRUE) - mean(FALSE)     2  -0.1379     0.0308 -4.48   &lt;0.001 -0.1982 -0.07751</span></span>
-<span><span class="co">#&gt;  .Dtreat mean(TRUE) - mean(FALSE)     3  -0.1095     0.0323 -3.39   &lt;0.001 -0.1729 -0.04619</span></span>
+<span><span class="co">#&gt;     Term                 Contrast event Estimate Std. Error     z Pr(&gt;|z|)    S   2.5 %   97.5 %</span></span>
+<span><span class="co">#&gt;  .Dtreat mean(TRUE) - mean(FALSE)     0  -0.0332     0.0134 -2.48    0.013  6.3 -0.0594 -0.00701</span></span>
+<span><span class="co">#&gt;  .Dtreat mean(TRUE) - mean(FALSE)     1  -0.0573     0.0172 -3.34   &lt;0.001 10.2 -0.0910 -0.02373</span></span>
+<span><span class="co">#&gt;  .Dtreat mean(TRUE) - mean(FALSE)     2  -0.1379     0.0308 -4.48   &lt;0.001 17.0 -0.1982 -0.07751</span></span>
+<span><span class="co">#&gt;  .Dtreat mean(TRUE) - mean(FALSE)     3  -0.1095     0.0323 -3.39   &lt;0.001 10.5 -0.1729 -0.04619</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Columns: term, contrast, event, estimate, std.error, statistic, p.value, conf.low, conf.high, predicted, predicted_hi, predicted_lo</span></span></code></pre></div>
+<span><span class="co">#&gt; Columns: term, contrast, event, estimate, std.error, statistic, p.value, s.value, conf.low, conf.high, predicted, predicted_hi, predicted_lo</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="acknowledgements">Acknowledgements<a class="anchor" aria-label="anchor" href="#acknowledgements"></a>
 </h2>
 <ul>
 <li>
-<a href="https://twitter.com/jmwooldridge" class="external-link">Jeffrey Wooldridge</a> for the <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3906345" class="external-link">theory</a> <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4183726" class="external-link">underlying</a> ETWFE.</li>
+<a href="http://econ.msu.edu/faculty/wooldridge/" class="external-link">Jeffrey Wooldridge</a> for the underlying <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3906345" class="external-link">ETWFE</a> <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4183726" class="external-link">theory</a>.</li>
 <li>
-<a href="https://twitter.com/lrberge" class="external-link">Laurent Bergé</a> (<a href="https://lrberge.github.io/fixest/" class="external-link"><strong>fixest</strong></a>) and <a href="https://twitter.com/VincentAB" class="external-link">Vincent Arel-Bundock</a> (<a href="https://vincentarelbundock.github.io/marginaleffects/" class="external-link"><strong>marginaleffects</strong></a>) for maintaining the two wonderful R packages that do most of the heavy lifting under the hood here.</li>
+<a href="https://sites.google.com/site/laurentrberge/" class="external-link">Laurent Bergé</a> (<a href="https://lrberge.github.io/fixest/" class="external-link"><strong>fixest</strong></a>) and <a href="https://arelbundock.com/" class="external-link">Vincent Arel-Bundock</a> (<a href="https://vincentarelbundock.github.io/marginaleffects/" class="external-link"><strong>marginaleffects</strong></a>) for maintaining the two wonderful R packages that do most of the heavy lifting under the hood here.</li>
 <li>
-<a href="https://twitter.com/friosavila" class="external-link">Fernando Rios-Avila</a> for the <a href="https://ideas.repec.org/c/boc/bocode/s459114.html" class="external-link"><code>JWDID</code></a> Stata module, which has provided a welcome foil for unit testing and whose elegant design helped inform my own choices for this R equivalent.</li>
+<a href="https://friosavila.github.io/" class="external-link">Fernando Rios-Avila</a> for the <a href="https://ideas.repec.org/c/boc/bocode/s459114.html" class="external-link"><code>JWDID</code></a> Stata module, which has provided a welcome foil for unit testing and whose elegant design helped inform my own choices for this R equivalent.</li>
 </ul>
 </div>
 </div>
