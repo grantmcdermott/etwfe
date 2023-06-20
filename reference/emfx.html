@@ -224,18 +224,18 @@ argument, e.g. `hypothesis = "b1 = b2"`.</p></dd>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">emfx</span><span class="op">(</span><span class="va">mod</span>, type <span class="op">=</span> <span class="st">"event"</span><span class="op">)</span> <span class="co"># dynamic ATE a la an event study</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Term                 Contrast event Estimate Std. Error     z Pr(&gt;|z|)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat mean(TRUE) - mean(FALSE)     0  -0.0332     0.0134 -2.48    0.013</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat mean(TRUE) - mean(FALSE)     1  -0.0573     0.0172 -3.34   &lt;0.001</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat mean(TRUE) - mean(FALSE)     2  -0.1379     0.0308 -4.48   &lt;0.001</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat mean(TRUE) - mean(FALSE)     3  -0.1095     0.0323 -3.39   &lt;0.001</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Term                 Contrast event Estimate Std. Error     z Pr(&gt;|z|)    S</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat mean(TRUE) - mean(FALSE)     0  -0.0332     0.0134 -2.48    0.013  6.3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat mean(TRUE) - mean(FALSE)     1  -0.0573     0.0172 -3.34   &lt;0.001 10.2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat mean(TRUE) - mean(FALSE)     2  -0.1379     0.0308 -4.48   &lt;0.001 17.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat mean(TRUE) - mean(FALSE)     3  -0.1095     0.0323 -3.39   &lt;0.001 10.5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    2.5 %   97.5 %</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0594 -0.00701</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0910 -0.02373</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  -0.1982 -0.07751</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  -0.1729 -0.04619</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Columns: term, contrast, event, estimate, std.error, statistic, p.value, conf.low, conf.high, predicted, predicted_hi, predicted_lo </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Columns: term, contrast, event, estimate, std.error, statistic, p.value, s.value, conf.low, conf.high, predicted, predicted_hi, predicted_lo </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Etc. Other aggregation type options are "simple" (the default), "group"</span></span></span>
@@ -267,11 +267,11 @@ argument, e.g. `hypothesis = "b1 = b2"`.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     Term                 Contrast .Dtreat   gls Estimate Std. Error     z</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat mean(TRUE) - mean(FALSE)    TRUE FALSE  -0.0637     0.0376 -1.69</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat mean(TRUE) - mean(FALSE)    TRUE  TRUE  -0.0472     0.0271 -1.74</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Pr(&gt;|z|)  2.5 %  97.5 %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    0.0906 -0.137 0.01007</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    0.0817 -0.100 0.00594</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Pr(&gt;|z|)   S  2.5 %  97.5 %</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    0.0906 3.5 -0.137 0.01007</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    0.0817 3.6 -0.100 0.00594</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Columns: term, contrast, .Dtreat, gls, estimate, std.error, statistic, p.value, conf.low, conf.high, predicted, predicted_hi, predicted_lo </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Columns: term, contrast, .Dtreat, gls, estimate, std.error, statistic, p.value, s.value, conf.low, conf.high, predicted, predicted_hi, predicted_lo </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># To test whether the ATEs across these two groups (non-GLS vs GLS) are </span></span></span>
@@ -279,10 +279,10 @@ argument, e.g. `hypothesis = "b1 = b2"`.</p></dd>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">emfx</span><span class="op">(</span><span class="va">hmod</span>, hypothesis <span class="op">=</span> <span class="st">"b1 = b2"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Term Estimate Std. Error      z Pr(&gt;|z|)  2.5 % 97.5 %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  b1=b2  -0.0164     0.0559 -0.294    0.769 -0.126  0.093</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Term Estimate Std. Error      z Pr(&gt;|z|)   S  2.5 % 97.5 %</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  b1=b2  -0.0164     0.0559 -0.294    0.769 0.4 -0.126  0.093</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Columns: term, estimate, std.error, statistic, p.value, conf.low, conf.high </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Columns: term, estimate, std.error, statistic, p.value, s.value, conf.low, conf.high </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
@@ -307,13 +307,13 @@ argument, e.g. `hypothesis = "b1 = b2"`.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat mean(TRUE) - mean(FALSE)     1     1.09       41.8  0.0261    0.979</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat mean(TRUE) - mean(FALSE)     2   -75.12       22.3 -3.3696   &lt;0.001</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat mean(TRUE) - mean(FALSE)     3  -101.82       28.1 -3.6234   &lt;0.001</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   2.5 % 97.5 %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   -56.5   5.82</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   -80.9  83.09</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -118.8 -31.43</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -156.9 -46.75</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     S  2.5 % 97.5 %</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   3.2  -56.5   5.82</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.0  -80.9  83.09</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  10.4 -118.8 -31.43</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  11.7 -156.9 -46.75</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Columns: term, contrast, event, estimate, std.error, statistic, p.value, conf.low, conf.high, predicted, predicted_hi, predicted_lo </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Columns: term, contrast, event, estimate, std.error, statistic, p.value, s.value, conf.low, conf.high, predicted, predicted_hi, predicted_lo </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
