@@ -6,7 +6,6 @@
 ##' @param tvar Time variable. Can be a string (e.g., "year") or an expression
 ##'   (e.g., year).
 ##' @param gvar Group variable. Can be either a string (e.g., "first_treated")
-##'   or an expression (e.g., first_treated). In a staggered treatment setting,
 ##'   the group variable typically denotes treatment cohort.
 ##' @param data The data frame that you want to run ETWFE on.
 ##' @param ivar Optional index variable. Can be a string (e.g., "country") or an
@@ -148,7 +147,6 @@
 ##' 
 ##' # 2) Recover the treatment effects of interest with emfx().
 ##' 
-##' emfx(mod, type = "event") # dynamic ATE a la an event study
 ##' 
 ##' # Etc. Other aggregation type options are "simple" (the default), "group"
 ##' # and "calendar"
@@ -414,7 +412,8 @@ etwfe = function(
       xvar = xvar,
       ivar = ivar,
       gref = gref,
-      tref = tref
+      tref = tref, 
+      processed_data = data
       )
 
   ## Return ----
