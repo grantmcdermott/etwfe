@@ -25,14 +25,29 @@
 ##'   dataset. But you may want to keep them for presentation reasons (e.g.,
 ##'   plotting an event-study); though be warned that this is strictly
 ##'   performative. This argument will only be evaluated if `type = "event"`.
+##' @param bootstrap Logical. FALSE by default. Should inference be conducted 
+##'        via analytical standard errors or a  wild bootstrap? To run the 
+##'        bootstrap, the `fwildclusterboot` package needs to be installed. 
+##'        If you want to run a bootstrap, you need to 
+##'        pass a number of bootstrap iterations via the `...` through
+##'        `emfx()`, e.g. `B = 9999`. The bootstrap is currently only supported 
+##'        for `type == 'simple'` and clustered errors. 
 ##' @param ... Additional arguments passed to
-##'   [`marginaleffects::marginaleffects`]. For example, you can pass `vcov =
-##'   FALSE` to dramatically speed up estimation times of the main marginal
-##'   effects (but at the cost of not getting any information about standard
-##'   errors; see Performance tips below). Another potentially useful
-##'   application is testing whether heterogeneous treatment effects (i.e. the
-##'   levels of any `xvar` covariate) are equal by invoking the `hypothesis`
-##'   argument, e.g. `hypothesis = "b1 = b2"`.
+##'   [`marginaleffects::marginaleffects`] or 
+##'   [`fwildclusterboot::boot_aggregate`] (the ladder is only relevant when 
+##'   `bootstrap = TRUE`). For example, you can pass `vcov = FALSE` 
+##'   to `marginaleffects` to dramatically speed up estimation times of the
+##'   main marginal effects (but at the cost of not getting any information 
+##'   about standard errors; see Performance tips below). 
+##'   Another potentially useful application is testing whether 
+##'   heterogeneous treatment effects (i.e. the levels of any `xvar` covariate)
+##'   are equal by invoking the `hypothesis` argument, e.g. 
+##'   `hypothesis = "b1 = b2"`. For the bootstrap, you can e.g. pass along the 
+##'   number of bootstrap iterations, the 
+##'   "bootcluster" variable (relevant for the subcluster bootstrap, via the 
+##'   `bootcluster` argument) or the number of threads to use 
+##'   (via the `nthreads` argument). For a comprehensive list 
+##'   of arguments, check `?fwildclusterboot::boot_aggregate()`.
 ##' @return A `slopes` object from the `marginaleffects` package.
 ##' @seealso [marginaleffects::slopes()]
 ##' @inherit etwfe return examples 
@@ -46,6 +61,7 @@ emfx = function(
     by_xvar = "auto",
     collapse = "auto",
     post_only = TRUE,
+    bootstrap = FALSE, 
     ...
 ) {
   
@@ -140,14 +156,71 @@ emfx = function(
   
   if (by_xvar) by_var = c(by_var, xvar)
 
-  mfx = marginaleffects::slopes(
-    object,
-    newdata = dat,   
-    wts = "N",
-    variables = ".Dtreat",
-    by = by_var,
-    ...
-  )
+  if(!bootstrap){
+    
+    mfx = marginaleffects::slopes(
+      object,
+      newdata = dat,   
+      wts = "N",
+      variables = ".Dtreat",
+      by = by_var,
+      ...
+    )
+    
+  } else {
+    
+    if(!requireNamespace("fwildclusterboot")){
+      stop(
+        "To run the bootstrap, the `fwildclusterboot` package",
+        "needs to be installed. ", 
+        "However, the package cannot be found. Please install it by",
+        "running `install.packages('fwildclusterboot')`\n."
+      ) 
+    }
+    
+    if(mod$method != "feols"){
+      stop(
+        "Bootstrapping is only supported for models estimated", 
+        "via OLS / `feols()`."
+      )
+    }
+    
+    if(type == "simple"){
+      agg = c("ATT"="^.Dtreat:first.treat::[0-9]{4}:year::[0-9]{4}$")
+    } else {
+      stop("Only type = 'auto' is currently supported.")
+    }
+    
+    clustid_long <- attr(object$cov.scaled, "type")
+    clustid <- sub(".*\\((.*?)\\).*", "\\1", clustid_long)
+    ssc <- attr(object$cov.scaled, "ssc")
+    boot_ssc <- fwildclusterboot::boot_ssc(
+      adj = ssc$adj, 
+      fixef.K = "none", 
+      cluster.adj = ssc$cluster.adj, 
+      cluster.df = ssc$cluster.df
+    )
+    
+    if(ssc$fixef.K != "none"){
+      warning(
+        paste0("The bootstrap does not support the ssc() argument", 
+        "`fixef.K='", ssc$fixef.K, "'`."), 
+        "Using `fixef.K='none' instead.", 
+        "This will lead to a slightly different non-bootstrapped t-statistic`",
+        "but will not affect bootstrapped p-values and CIs.\n"
+      )
+    }
+    
+    mfx <- fwildclusterboot::boot_aggregate(
+      x = mod, 
+      agg = agg, 
+      ssc = boot_ssc, 
+      clustid = clustid, 
+      ...
+    )
+    
+  }
+
 
    
   return(mfx)

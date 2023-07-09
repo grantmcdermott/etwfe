@@ -10,6 +10,7 @@ emfx(
   by_xvar = "auto",
   collapse = "auto",
   post_only = TRUE,
+  bootstrap = FALSE,
   ...
 )
 }
@@ -44,14 +45,30 @@ dataset. But you may want to keep them for presentation reasons (e.g.,
 plotting an event-study); though be warned that this is strictly
 performative. This argument will only be evaluated if `type = "event"`.}
 
+\item{bootstrap}{Logical. FALSE by default. Should inference be conducted 
+via analytical standard errors or a  wild bootstrap? To run the 
+bootstrap, the `fwildclusterboot` package needs to be installed. 
+If you want to run a bootstrap, you need to 
+pass a number of bootstrap iterations via the `...` through
+`emfx()`, e.g. `B = 9999`. The bootstrap is currently only supported 
+for `type == 'simple'` and clustered errors.}
+
 \item{...}{Additional arguments passed to
-[`marginaleffects::marginaleffects`]. For example, you can pass `vcov =
-FALSE` to dramatically speed up estimation times of the main marginal
-effects (but at the cost of not getting any information about standard
-errors; see Performance tips below). Another potentially useful
-application is testing whether heterogeneous treatment effects (i.e. the
-levels of any `xvar` covariate) are equal by invoking the `hypothesis`
-argument, e.g. `hypothesis = "b1 = b2"`.}
+[`marginaleffects::marginaleffects`] or 
+[`fwildclusterboot::boot_aggregate`] (the ladder is only relevant when 
+`bootstrap = TRUE`). For example, you can pass `vcov = FALSE` 
+to `marginaleffects` to dramatically speed up estimation times of the
+main marginal effects (but at the cost of not getting any information 
+about standard errors; see Performance tips below). 
+Another potentially useful application is testing whether 
+heterogeneous treatment effects (i.e. the levels of any `xvar` covariate)
+are equal by invoking the `hypothesis` argument, e.g. 
+`hypothesis = "b1 = b2"`. For the bootstrap, you can e.g. pass along the 
+number of bootstrap iterations, the 
+"bootcluster" variable (relevant for the subcluster bootstrap, via the 
+`bootcluster` argument) or the number of threads to use 
+(via the `nthreads` argument). For a comprehensive list 
+of arguments, check `?fwildclusterboot::boot_aggregate()`.}
 }
 \value{
 A `slopes` object from the `marginaleffects` package.
