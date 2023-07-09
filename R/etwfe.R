@@ -6,6 +6,7 @@
 ##' @param tvar Time variable. Can be a string (e.g., "year") or an expression
 ##'   (e.g., year).
 ##' @param gvar Group variable. Can be either a string (e.g., "first_treated")
+##'   or an expression (e.g., first_treated). In a staggered treatment setting,
 ##'   the group variable typically denotes treatment cohort.
 ##' @param data The data frame that you want to run ETWFE on.
 ##' @param ivar Optional index variable. Can be a string (e.g., "country") or an
@@ -147,6 +148,7 @@
 ##' 
 ##' # 2) Recover the treatment effects of interest with emfx().
 ##' 
+##' emfx(mod, type = "event") # dynamic ATE a la an event study
 ##' 
 ##' # Etc. Other aggregation type options are "simple" (the default), "group"
 ##' # and "calendar"
@@ -232,7 +234,7 @@ etwfe = function(
   if (is.numeric(ivar)) ivar = names(data)[ivar]
   xvar = eval(substitute(xvar), nl, parent.frame())
   if (is.numeric(xvar)) xvar = names(data)[xvar]
-
+  
   if (is.null(gvar)) stop("A non-NULL `gvar` argument is required.\n")
   if (is.null(tvar)) stop("A non-NULL `tvar` argument is required.\n")
   if (!is.null(family)) ivar = NULL
@@ -276,13 +278,13 @@ etwfe = function(
   ref_string = paste0(", ref = ", gref)
   
   if (is.null(tref)) {
-      tref = min(data[[tvar]], na.rm = TRUE)
+    tref = min(data[[tvar]], na.rm = TRUE)
   } else if (!(tref %in% unique(data[[tvar]]))) {
-      stop("Proposed reference level ", tref, " not found in ", tvar, ".\n")
+    stop("Proposed reference level ", tref, " not found in ", tvar, ".\n")
   }
   if (length(tref) > 1) {
-      tref = min(tref, na.rm = TRUE) ## placeholder. could do something a bit smarter here like bin post periods.
-      ## also: what about NA vals?
+    tref = min(tref, na.rm = TRUE) ## placeholder. could do something a bit smarter here like bin post periods.
+    ## also: what about NA vals?
   }
   ref_string = paste0(ref_string, ", ref2 = ", tref)
   
@@ -322,9 +324,9 @@ etwfe = function(
           ctrls,
           paste(paste0("i(", gvar, ", ", ictrls, ", ref = ", gref, ")"), collapse = " + "),
           paste(paste0("i(", tvar, ", ", ictrls, ", ref = ", tref, ")"), collapse = " + ")
-          ),
+        ),
         collapse = " + "
-        )
+      )
       rhs = paste(rhs, "+", ictrls) 
     }
   }
@@ -342,14 +344,14 @@ etwfe = function(
       xvar_fml_vars = paste0("(",paste(names(xvar_dm_df), collapse = "+"), ")")
     }
     data = cbind(data, xvar_dm_df)
-
+    
     if (is.null(ctrls)) {
       rhs = paste0(
         rhs, 
         " / ", xvar_fml_vars,
         " +  i(", tvar, ", ", xvar_fml_vars, ", ref = ", tref, ")"
       )
-    # splice together with ctrl vars if necessary
+      # splice together with ctrl vars if necessary
     } else {
       rhs = paste0(
         gsub(
@@ -360,7 +362,7 @@ etwfe = function(
         " +  i(", tvar, ", ", xvar_fml_vars, ", ref = ", tref, ")"
       )
     }
-
+    
   }
   
   ## Fixed effects ----
@@ -376,7 +378,7 @@ etwfe = function(
     rhs = paste0(
       rhs, 
       "+ i(", gvar, ", ref = ", gref, ") + i(", tvar, ", ref = ", tref, ")"
-      )
+    )
   }
   
   ## Estimation ----
@@ -406,17 +408,16 @@ etwfe = function(
   
   ## Overload class and new attributes (for post-estimation) ----
   class(est) = c("etwfe", class(est))
-    attr(est, "etwfe") = list(
-      gvar = gvar,
-      tvar = tvar,
-      xvar = xvar,
-      ivar = ivar,
-      gref = gref,
-      tref = tref, 
-      processed_data = data
-      )
-
+  attr(est, "etwfe") = list(
+    gvar = gvar,
+    tvar = tvar,
+    xvar = xvar,
+    ivar = ivar,
+    gref = gref,
+    tref = tref
+  )
+  
   ## Return ----
   return(est)
-
+  
 }
