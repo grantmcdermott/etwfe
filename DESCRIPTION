@@ -32,7 +32,11 @@ Suggests:
   ggplot2,
   knitr,
   rmarkdown,
-  tinytest
+  tinytest, 
+  fwildclusterboot
+Remotes: 
+  kylebutts/fixest/tree/sparse-matrix
+  s3alfisc/fwildclusterboot/tree/etwfe-support
 Encoding: UTF-8
 RoxygenNote: 7.2.3
 URL: https://grantmcdermott.com/etwfe/
