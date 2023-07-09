@@ -10,6 +10,7 @@ emfx(
   by_xvar = "auto",
   collapse = "auto",
   post_only = TRUE,
+  bootstrap = FALSE,
   ...
 )
 }
@@ -44,14 +45,28 @@ dataset. But you may want to keep them for presentation reasons (e.g.,
 plotting an event-study); though be warned that this is strictly
 performative. This argument will only be evaluated if `type = "event"`.}
 
+\item{bootstrap}{Logical. FALSE by default. Should inference be conducted 
+via analytical standard errors or a  wild bootstrap? To run the 
+bootstrap, the `fwildclusterboot` package needs to be installed. 
+Note that at the moment, only the wild *clustered* bootstrap is 
+supported.}
+
 \item{...}{Additional arguments passed to
-[`marginaleffects::marginaleffects`]. For example, you can pass `vcov =
-FALSE` to dramatically speed up estimation times of the main marginal
-effects (but at the cost of not getting any information about standard
-errors; see Performance tips below). Another potentially useful
-application is testing whether heterogeneous treatment effects (i.e. the
-levels of any `xvar` covariate) are equal by invoking the `hypothesis`
-argument, e.g. `hypothesis = "b1 = b2"`.}
+[`marginaleffects::marginaleffects`] or 
+[`fwildclusterboot::boot_aggregate`] (only relevant when 
+`bootstrap = TRUE`). For example, you can pass `vcov = FALSE` 
+to `marginaleffects` to dramatically speed up estimation times of the
+main marginal effects (but at the cost of not getting any information 
+about standard errors; see Performance tips below). 
+Another potentially useful application is testing whether 
+heterogeneous treatment effects (i.e. the levels of any `xvar` covariate)
+are equal by invoking the `hypothesis` argument, e.g. 
+`hypothesis = "b1 = b2"`. For the bootstrap, you can e.g. pass along the 
+number of bootstrap iterations (the default is `B = 9999`), the 
+"bootcluster" variable (relevant for the subcluster bootstrap, via the 
+`bootcluster` argument) or the number of threads to use 
+(via the `nthreads` argument). For a comprehensive list 
+of arguments, check `?fwildclusterboot::boot_aggregate()`.}
 }
 \value{
 A `slopes` object from the `marginaleffects` package.
@@ -157,7 +172,6 @@ mod = etwfe(
 
 # 2) Recover the treatment effects of interest with emfx().
 
-emfx(mod, type = "event") # dynamic ATE a la an event study
 
 # Etc. Other aggregation type options are "simple" (the default), "group"
 # and "calendar"

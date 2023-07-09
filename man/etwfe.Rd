@@ -28,7 +28,6 @@ must take the value of 0 or 1, e.g. `y ~ 0`.}
 (e.g., year).}
 
 \item{gvar}{Group variable. Can be either a string (e.g., "first_treated")
-or an expression (e.g., first_treated). In a staggered treatment setting,
 the group variable typically denotes treatment cohort.}
 
 \item{data}{The data frame that you want to run ETWFE on.}
@@ -178,7 +177,6 @@ mod = etwfe(
 
 # 2) Recover the treatment effects of interest with emfx().
 
-emfx(mod, type = "event") # dynamic ATE a la an event study
 
 # Etc. Other aggregation type options are "simple" (the default), "group"
 # and "calendar"
