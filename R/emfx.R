@@ -202,7 +202,7 @@ emfx = function(
     )
     if(ssc$fixef.K != "none"){
       warning(
-        paste0("The bootstrap does not support the ssc() argument `fixef.K='", fixef.K, "'`. Using `fixef.K='none' instead. This will lead to a slightly different non-bootstrapped t-statistic`, but will not affect bootstrapped p-values and CIs.")
+        paste0("The bootstrap does not support the ssc() argument `fixef.K='", ssc$fixef.K, "'`. Using `fixef.K='none' instead. This will lead to a slightly different non-bootstrapped t-statistic`, but will not affect bootstrapped p-values and CIs.")
       )
       fixef.K = "none"
     }
