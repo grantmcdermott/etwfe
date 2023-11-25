@@ -117,7 +117,7 @@ m3p_known =
         ".Dtreat:first.treat::2006:year::2006:lpop_dm", ".Dtreat:first.treat::2006:year::2007:lpop_dm",
         ".Dtreat:first.treat::2007:year::2007:lpop_dm"
       ),
-      c("Estimate", "Std. Error", "t value", "Pr(>|t|)")
+      c("Estimate", "Std. Error", "z value", "Pr(>|z|)")
     ), 
     type = "Clustered (countyreal)"
   )
