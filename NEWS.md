@@ -1,3 +1,10 @@
+# etwfe 0.3.5
+
+## Internal
+
+- Update tests to match upstream changes to **fixest**.
+- Update maintainer email address.
+
 # etwfe 0.3.4
 
 ## Internal
