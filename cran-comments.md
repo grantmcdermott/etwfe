@@ -1,7 +1,8 @@
 ## Overview
 
-`etwfe` 0.3.4 is a patch release that preemptively addresses test failures due
-to upstream changes in `marginaleffects`.
+`etwfe` 0.3.5 is a patch release that addresses a test failure due to an
+upstream changes in `fixest`. In addition, I have updated the maintainer email
+address to reflect my new institutional affiliation.
 
 ## Test environments
 
