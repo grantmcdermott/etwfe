@@ -20,7 +20,7 @@ Description: Convenience functions for implementing extended two-way
   <doi:10.2139/ssrn.3906345>, <doi:10.2139/ssrn.4183726>.
 License: MIT + file LICENSE
 Imports:
-  fixest (>= 0.11.0),
+  fixest (>= 0.11.2),
   stats,
   data.table,
   Formula,
