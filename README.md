@@ -116,21 +116,21 @@ emfx(mod, type = "event")
 #>  .Dtreat mean(TRUE) - mean(FALSE)     2  -0.1379     0.0308 -4.48   <0.001 17.0 -0.1982 -0.07751
 #>  .Dtreat mean(TRUE) - mean(FALSE)     3  -0.1095     0.0323 -3.39   <0.001 10.5 -0.1729 -0.04619
 #> 
-#> Columns: term, contrast, event, estimate, std.error, statistic, p.value, s.value, conf.low, conf.high, predicted, predicted_hi, predicted_lo
+#> Columns: term, contrast, event, estimate, std.error, statistic, p.value, s.value, conf.low, conf.high, predicted_lo, predicted_hi, predicted 
+#> Type:  response
 ```
 
 ## Acknowledgements
 
 - [Jeffrey Wooldridge](http://econ.msu.edu/faculty/wooldridge/) for the
-  underlying
-  [ETWFE](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3906345)
-  [theory](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4183726).
+  underlying [ETWFE](https://dx.doi.org/10.2139/ssrn.3906345)
+  [theory](https://dx.doi.org/10.2139/ssrn.4183726).
 - [Laurent Bergé](https://sites.google.com/site/laurentrberge/)
   ([**fixest**](https://lrberge.github.io/fixest/)) and [Vincent
   Arel-Bundock](https://arelbundock.com/)
-  ([**marginaleffects**](https://vincentarelbundock.github.io/marginaleffects/))
-  for maintaining the two wonderful R packages that do most of the heavy
-  lifting under the hood here.
+  ([**marginaleffects**](https://marginaleffects.com/)) for maintaining
+  the two wonderful R packages that do most of the heavy lifting under
+  the hood here.
 - [Fernando Rios-Avila](https://friosavila.github.io/) for the
   [`JWDID`](https://ideas.repec.org/c/boc/bocode/s459114.html) Stata
   module, which has provided a welcome foil for unit testing and whose

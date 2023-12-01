@@ -77,8 +77,8 @@ rollouts, which are very common in real-life applications.
 Fortunately, just as econometricians were taking away one of our
 favourite tools, they were kind enough to replace it with some new ones. 
 Among these, the proposed approach by 
-Wooldridge ([2021](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3906345),
-[2022](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4183726))
+Wooldridge ([2021](https://dx.doi.org/10.2139/ssrn.3906345),
+[2022](https://dx.doi.org/10.2139/ssrn.4183726))
 is noteworthy. His idea might be paraphrased as stating that the problem 
 with TWFE is not that we were doing it in the first place. Rather, it's that we
 weren't doing it enough. Instead of only including a single treatment × time
@@ -181,7 +181,7 @@ dimension of interest
 aggregations is by recovering the appropriate marginal effects. The **etwfe**
 package provides another convenience function for doing so: `emfx()`, which is a
 thin(ish) wrapper around
-[`marginaleffects::slopes()`](https://vincentarelbundock.github.io/marginaleffects/articles/slopes.html).
+[`marginaleffects::slopes()`](https://marginaleffects.com/vignettes/slopes/).
 
 For example, we can recover the average treatment effect on the treated (ATT) as
 follows.
@@ -214,7 +214,7 @@ finding to your audience.
 
 Since `emfx()` produces a standard `marginaleffects` object, we can pass it on to
 other supported methods and packages. For example, we can pass it on to
-[**modelsummary**](https://vincentarelbundock.github.io/modelsummary/index.html)
+[**modelsummary**](https://modelsummary.com/index.html)
 to get a nice regression table of the event study coefficients. Note the use of
 the `shape` and `coef_rename` arguments below; these are optional but help to
 make the output look a bit nicer.
@@ -322,7 +322,7 @@ emfx(hmod)
 The above point estimates might tempt us to think that minimum wage hikes caused
 less teen disemployment in GLS counties than in the rest of the US on average.
 However, to test this formally we can invoke the powerful
-[`hypothesis`](https://vincentarelbundock.github.io/marginaleffects/articles/hypothesis.html)
+[`hypothesis`](https://marginaleffects.com/vignettes/hypothesis/)
 infrastructure of the underlying **marginaleffects** package. Probably the
 easiest way to do this is by using `b[i]`-style positional arguments, where
 "`[i]`" denotes the row of the `emfx()` return object. Thus, by specifying
