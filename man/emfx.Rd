@@ -14,16 +14,16 @@ emfx(
 )
 }
 \arguments{
-\item{object}{An `etwfe` model object.}
+\item{object}{An \code{etwfe} model object.}
 
 \item{type}{Character. The desired type of post-estimation aggregation.}
 
 \item{by_xvar}{Logical. Should the results account for heterogeneous
-treatment effects? Only relevant if the preceding `etwfe` call included a
-specified `xvar` argument, i.e. interacted categorical covariate. The
+treatment effects? Only relevant if the preceding \code{etwfe} call included a
+specified \code{xvar} argument, i.e. interacted categorical covariate. The
 default behaviour ("auto") is to automatically estimate heterogeneous
-treatment effects for each level of `xvar` if these are detected as part
-of the underlying `etwfe` model object. Users can override by setting to
+treatment effects for each level of \code{xvar} if these are detected as part
+of the underlying \code{etwfe} model object. Users can override by setting to
 either FALSE or TRUE. See the section on Heterogeneous treatment effects
 below.}
 
@@ -33,7 +33,7 @@ accuracy (typically around the 1st or 2nd significant decimal point) for a
 substantial improvement in estimation time for large datasets. The default
 behaviour ("auto") is to automatically collapse if the original dataset
 has more than 500,000 rows. Users can override by setting either FALSE or
-TRUE. Note that collapsing by group is only valid if the preceding `etwfe`
+TRUE. Note that collapsing by group is only valid if the preceding \code{etwfe}
 call was run with "ivar = NULL" (the default). See the section on
 Performance tips below.}
 
@@ -42,91 +42,87 @@ pre-treatment effects will be zero as a mechanical result of ETWFE's
 estimation setup, so the default is to drop these nuisance rows from the
 dataset. But you may want to keep them for presentation reasons (e.g.,
 plotting an event-study); though be warned that this is strictly
-performative. This argument will only be evaluated if `type = "event"`.}
+performative. This argument will only be evaluated if \code{type = "event"}.}
 
 \item{...}{Additional arguments passed to
-[`marginaleffects::marginaleffects`]. For example, you can pass `vcov =
-FALSE` to dramatically speed up estimation times of the main marginal
+\code{\link[marginaleffects:marginaleffects]{marginaleffects::marginaleffects}}. For example, you can pass \code{vcov = FALSE} to dramatically speed up estimation times of the main marginal
 effects (but at the cost of not getting any information about standard
 errors; see Performance tips below). Another potentially useful
 application is testing whether heterogeneous treatment effects (i.e. the
-levels of any `xvar` covariate) are equal by invoking the `hypothesis`
-argument, e.g. `hypothesis = "b1 = b2"`.}
+levels of any \code{xvar} covariate) are equal by invoking the \code{hypothesis}
+argument, e.g. \code{hypothesis = "b1 = b2"}.}
 }
 \value{
-A `slopes` object from the `marginaleffects` package.
+A \code{slopes} object from the \code{marginaleffects} package.
 }
 \description{
 Post-estimation treatment effects for an ETWFE regressions.
 }
 \section{Performance tips}{
- 
 
-  Under most situations, `etwfe` should complete very quickly. For its part,
-  `emfx` is quite performant too and should take a few seconds or less for 
-  datasets under 100k rows. However, `emfx`'s computation time does tend to
-  scale non-linearly with the size of the original data, as well as the
-  number of interactions from the underlying `etwfe` model. Without getting
-  too deep into the weeds, the numerical delta method used to recover the
-  ATEs of interest has to estimate two prediction models for *each*
-  coefficient in the model and then compute their standard errors. So, it's
-  a potentially expensive operation that can push the computation time for
-  large datasets (> 1m rows) up to several minutes or longer.
-  
-  Fortunately, there are two complementary strategies that you can use to
-  speed things up. The first is to turn off the most expensive part of the
-  whole procedure---standard error calculation---by calling `emfx(..., vcov
-  = FALSE)`. Doing so should bring the estimation time back down to a few
-  seconds or less, even for datasets in excess of a million rows. While the
-  loss of standard errors might not be an acceptable trade-off for projects
-  where statistical inference is critical, the good news is this first
-  strategy can still be combined our second strategy. It turns out that
-  collapsing the data by groups prior to estimating the marginal effects can
-  yield substantial speed gains of its own. Users can do this by invoking
-  the `emfx(..., collapse = TRUE)` argument. While the effect here is not as
-  dramatic as the first strategy, our second strategy does have the virtue
-  of retaining information about the standard errors. The trade-off this
-  time, however, is that collapsing our data does lead to a loss in accuracy
-  for our estimated parameters. On the other hand, testing suggests that
-  this loss in accuracy tends to be relatively minor, with results
-  equivalent up to the 1st or 2nd significant decimal place (or even
-  better).
-  
-  Summarizing, here's a quick plan of attack for you to try if you are
-  worried about the estimation time for large datasets and models:
-  
-  0. Estimate `mod = etwfe(...)` as per usual.
-  
-  1. Run `emfx(mod, vcov = FALSE, ...)`. 
-  
-  2. Run `emfx(mod, vcov = FALSE, collapse = TRUE, ...)`. 
-  
-  3. Compare the point estimates from steps 1 and 2. If they are are similar
-  enough to your satisfaction, get the approximate standard errors by
-  running `emfx(mod, collapse = TRUE, ...)`.
+
+Under most situations, \code{etwfe} should complete very quickly. For its part,
+\code{emfx} is quite performant too and should take a few seconds or less for
+datasets under 100k rows. However, \code{emfx}'s computation time does tend to
+scale non-linearly with the size of the original data, as well as the
+number of interactions from the underlying \code{etwfe} model. Without getting
+too deep into the weeds, the numerical delta method used to recover the
+ATEs of interest has to estimate two prediction models for \emph{each}
+coefficient in the model and then compute their standard errors. So, it's
+a potentially expensive operation that can push the computation time for
+large datasets (> 1m rows) up to several minutes or longer.
+
+Fortunately, there are two complementary strategies that you can use to
+speed things up. The first is to turn off the most expensive part of the
+whole procedure---standard error calculation---by calling \code{emfx(..., vcov = FALSE)}. Doing so should bring the estimation time back down to a few
+seconds or less, even for datasets in excess of a million rows. While the
+loss of standard errors might not be an acceptable trade-off for projects
+where statistical inference is critical, the good news is this first
+strategy can still be combined our second strategy. It turns out that
+collapsing the data by groups prior to estimating the marginal effects can
+yield substantial speed gains of its own. Users can do this by invoking
+the \code{emfx(..., collapse = TRUE)} argument. While the effect here is not as
+dramatic as the first strategy, our second strategy does have the virtue
+of retaining information about the standard errors. The trade-off this
+time, however, is that collapsing our data does lead to a loss in accuracy
+for our estimated parameters. On the other hand, testing suggests that
+this loss in accuracy tends to be relatively minor, with results
+equivalent up to the 1st or 2nd significant decimal place (or even
+better).
+
+Summarizing, here's a quick plan of attack for you to try if you are
+worried about the estimation time for large datasets and models:
+\enumerate{
+\item Estimate \code{mod = etwfe(...)} as per usual.
+\item Run \code{emfx(mod, vcov = FALSE, ...)}.
+\item Run \code{emfx(mod, vcov = FALSE, collapse = TRUE, ...)}.
+\item Compare the point estimates from steps 1 and 2. If they are are similar
+enough to your satisfaction, get the approximate standard errors by
+running \code{emfx(mod, collapse = TRUE, ...)}.
+}
 }
 
 \section{Heterogeneous treatment effects}{
 
 
-  Specifying `etwfe(..., xvar = <xvar>)` will generate interaction effects
-  for all levels of `<xvar>` as part of the main regression model. The
-  reason that this is useful (as opposed to a regular, non-interacted
-  covariate in the formula RHS) is that it allows us to estimate
-  heterogeneous treatment effects as part of the larger ETWFE framework.
-  Specifically, we can recover heterogeneous treatment effects for each
-  level of `<xvar>` by passing the resulting `etwfe` model object on to 
-  `emfx()`.
-  
-  For example, imagine that we have a categorical variable called "age" in
-  our dataset, with two distinct levels "adult" and "child". Running
-  `emfx(etwfe(..., xvar = age))` will tell us how the efficacy of treatment 
-  varies across adults and children. We can then also leverage the in-built 
-  hypothesis testing infrastructure of `marginaleffects` to test whether
-  the treatment effect is statistically different across these two age
-  groups; see Examples below. Note the same principles carry over to 
-  categorical variables with multiple levels, or even continuous variables
-  (although continuous variables are not as well supported yet).
+Specifying \verb{etwfe(..., xvar = <xvar>)} will generate interaction effects
+for all levels of \verb{<xvar>} as part of the main regression model. The
+reason that this is useful (as opposed to a regular, non-interacted
+covariate in the formula RHS) is that it allows us to estimate
+heterogeneous treatment effects as part of the larger ETWFE framework.
+Specifically, we can recover heterogeneous treatment effects for each
+level of \verb{<xvar>} by passing the resulting \code{etwfe} model object on to
+\code{emfx()}.
+
+For example, imagine that we have a categorical variable called "age" in
+our dataset, with two distinct levels "adult" and "child". Running
+\code{emfx(etwfe(..., xvar = age))} will tell us how the efficacy of treatment
+varies across adults and children. We can then also leverage the in-built
+hypothesis testing infrastructure of \code{marginaleffects} to test whether
+the treatment effect is statistically different across these two age
+groups; see Examples below. Note the same principles carry over to
+categorical variables with multiple levels, or even continuous variables
+(although continuous variables are not as well supported yet).
 }
 
 \examples{
@@ -209,5 +205,5 @@ etwfe(
 
 }
 \seealso{
-[marginaleffects::slopes()]
+\code{\link[marginaleffects:slopes]{marginaleffects::slopes()}}
 }
