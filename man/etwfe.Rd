@@ -21,8 +21,8 @@ etwfe(
 }
 \arguments{
 \item{fml}{A two-side formula representing the outcome (lhs) and any control
-variables (rhs), e.g. `y ~ x1 + x2`. If no controls are required, the rhs
-must take the value of 0 or 1, e.g. `y ~ 0`.}
+variables (rhs), e.g. \code{y ~ x1 + x2}. If no controls are required, the rhs
+must take the value of 0 or 1, e.g. \code{y ~ 0}.}
 
 \item{tvar}{Time variable. Can be a string (e.g., "year") or an expression
 (e.g., year).}
@@ -36,21 +36,21 @@ the group variable typically denotes treatment cohort.}
 \item{ivar}{Optional index variable. Can be a string (e.g., "country") or an
 expression (e.g., country). Leaving as NULL (the default) will result in
 group-level fixed effects being used, which is more efficient and
-necessary for nonlinear models (see `family` argument below). However, you
+necessary for nonlinear models (see \code{family} argument below). However, you
 may still want to cluster your standard errors by your index variable
-through the `vcov` argument. See Examples below.}
+through the \code{vcov} argument. See Examples below.}
 
 \item{xvar}{Optional interacted categorical covariate for estimating
 heterogeneous treatment effects. Enables recovery of the marginal
-treatment effect for distinct levels of `xvar`, e.g. "child", "teenager",
+treatment effect for distinct levels of \code{xvar}, e.g. "child", "teenager",
 or "adult". Note that the "x" prefix in "xvar" represents a covariate that
-is *interacted* with treatment, as opposed to a regular control variable.}
+is \emph{interacted} with treatment, as opposed to a regular control variable.}
 
-\item{tref}{Optional reference value for `tvar`. Defaults to its minimum
+\item{tref}{Optional reference value for \code{tvar}. Defaults to its minimum
 value (i.e., the first time period observed in the dataset).}
 
-\item{gref}{Optional reference value for `gvar`. You shouldn't need to
-provide this if your `gvar` variable is well specified. But providing an
+\item{gref}{Optional reference value for \code{gvar}. You shouldn't need to
+provide this if your \code{gvar} variable is well specified. But providing an
 explicit reference value can be useful/necessary if the desired control
 group takes an unusual value.}
 
@@ -65,14 +65,14 @@ efficiency for additional information on other (nuisance) model
 parameters. Note that the primary treatment parameters of interest should
 remain unchanged regardless of choice.}
 
-\item{family}{Which [`family`] to use for the estimation. Defaults to NULL,
-in which case [`fixest::feols`] is used. Otherwise passed to
-[`fixest::feglm`], so that valid entries include "logit", "poisson", and
-"negbin". Note that if a non-NULL family entry is detected, `ivar` will
+\item{family}{Which \code{\link{family}} to use for the estimation. Defaults to NULL,
+in which case \code{\link[fixest:feols]{fixest::feols}} is used. Otherwise passed to
+\code{\link[fixest:feglm]{fixest::feglm}}, so that valid entries include "logit", "poisson", and
+"negbin". Note that if a non-NULL family entry is detected, \code{ivar} will
 automatically be set to NULL.}
 
-\item{...}{Additional arguments passed to [`fixest::feols`] (or
-[`fixest::feglm`]). The most common example would be a `vcov` argument.}
+\item{...}{Additional arguments passed to \code{\link[fixest:feols]{fixest::feols}} (or
+\code{\link[fixest:feglm]{fixest::feglm}}). The most common example would be a \code{vcov} argument.}
 }
 \value{
 A fixest object with fully saturated interaction effects.
@@ -83,71 +83,68 @@ Extended two-way fixed effects
 \section{Heterogeneous treatment effects}{
 
 
-  Specifying `etwfe(..., xvar = <xvar>)` will generate interaction effects
-  for all levels of `<xvar>` as part of the main regression model. The
-  reason that this is useful (as opposed to a regular, non-interacted
-  covariate in the formula RHS) is that it allows us to estimate
-  heterogeneous treatment effects as part of the larger ETWFE framework.
-  Specifically, we can recover heterogeneous treatment effects for each
-  level of `<xvar>` by passing the resulting `etwfe` model object on to 
-  `emfx()`.
-  
-  For example, imagine that we have a categorical variable called "age" in
-  our dataset, with two distinct levels "adult" and "child". Running
-  `emfx(etwfe(..., xvar = age))` will tell us how the efficacy of treatment 
-  varies across adults and children. We can then also leverage the in-built 
-  hypothesis testing infrastructure of `marginaleffects` to test whether
-  the treatment effect is statistically different across these two age
-  groups; see Examples below. Note the same principles carry over to 
-  categorical variables with multiple levels, or even continuous variables
-  (although continuous variables are not as well supported yet).
+Specifying \verb{etwfe(..., xvar = <xvar>)} will generate interaction effects
+for all levels of \verb{<xvar>} as part of the main regression model. The
+reason that this is useful (as opposed to a regular, non-interacted
+covariate in the formula RHS) is that it allows us to estimate
+heterogeneous treatment effects as part of the larger ETWFE framework.
+Specifically, we can recover heterogeneous treatment effects for each
+level of \verb{<xvar>} by passing the resulting \code{etwfe} model object on to
+\code{emfx()}.
+
+For example, imagine that we have a categorical variable called "age" in
+our dataset, with two distinct levels "adult" and "child". Running
+\code{emfx(etwfe(..., xvar = age))} will tell us how the efficacy of treatment
+varies across adults and children. We can then also leverage the in-built
+hypothesis testing infrastructure of \code{marginaleffects} to test whether
+the treatment effect is statistically different across these two age
+groups; see Examples below. Note the same principles carry over to
+categorical variables with multiple levels, or even continuous variables
+(although continuous variables are not as well supported yet).
 }
 
 \section{Performance tips}{
- 
 
-  Under most situations, `etwfe` should complete very quickly. For its part,
-  `emfx` is quite performant too and should take a few seconds or less for 
-  datasets under 100k rows. However, `emfx`'s computation time does tend to
-  scale non-linearly with the size of the original data, as well as the
-  number of interactions from the underlying `etwfe` model. Without getting
-  too deep into the weeds, the numerical delta method used to recover the
-  ATEs of interest has to estimate two prediction models for *each*
-  coefficient in the model and then compute their standard errors. So, it's
-  a potentially expensive operation that can push the computation time for
-  large datasets (> 1m rows) up to several minutes or longer.
-  
-  Fortunately, there are two complementary strategies that you can use to
-  speed things up. The first is to turn off the most expensive part of the
-  whole procedure---standard error calculation---by calling `emfx(..., vcov
-  = FALSE)`. Doing so should bring the estimation time back down to a few
-  seconds or less, even for datasets in excess of a million rows. While the
-  loss of standard errors might not be an acceptable trade-off for projects
-  where statistical inference is critical, the good news is this first
-  strategy can still be combined our second strategy. It turns out that
-  collapsing the data by groups prior to estimating the marginal effects can
-  yield substantial speed gains of its own. Users can do this by invoking
-  the `emfx(..., collapse = TRUE)` argument. While the effect here is not as
-  dramatic as the first strategy, our second strategy does have the virtue
-  of retaining information about the standard errors. The trade-off this
-  time, however, is that collapsing our data does lead to a loss in accuracy
-  for our estimated parameters. On the other hand, testing suggests that
-  this loss in accuracy tends to be relatively minor, with results
-  equivalent up to the 1st or 2nd significant decimal place (or even
-  better).
-  
-  Summarizing, here's a quick plan of attack for you to try if you are
-  worried about the estimation time for large datasets and models:
-  
-  0. Estimate `mod = etwfe(...)` as per usual.
-  
-  1. Run `emfx(mod, vcov = FALSE, ...)`. 
-  
-  2. Run `emfx(mod, vcov = FALSE, collapse = TRUE, ...)`. 
-  
-  3. Compare the point estimates from steps 1 and 2. If they are are similar
-  enough to your satisfaction, get the approximate standard errors by
-  running `emfx(mod, collapse = TRUE, ...)`.
+
+Under most situations, \code{etwfe} should complete very quickly. For its part,
+\code{emfx} is quite performant too and should take a few seconds or less for
+datasets under 100k rows. However, \code{emfx}'s computation time does tend to
+scale non-linearly with the size of the original data, as well as the
+number of interactions from the underlying \code{etwfe} model. Without getting
+too deep into the weeds, the numerical delta method used to recover the
+ATEs of interest has to estimate two prediction models for \emph{each}
+coefficient in the model and then compute their standard errors. So, it's
+a potentially expensive operation that can push the computation time for
+large datasets (> 1m rows) up to several minutes or longer.
+
+Fortunately, there are two complementary strategies that you can use to
+speed things up. The first is to turn off the most expensive part of the
+whole procedure---standard error calculation---by calling \code{emfx(..., vcov = FALSE)}. Doing so should bring the estimation time back down to a few
+seconds or less, even for datasets in excess of a million rows. While the
+loss of standard errors might not be an acceptable trade-off for projects
+where statistical inference is critical, the good news is this first
+strategy can still be combined our second strategy. It turns out that
+collapsing the data by groups prior to estimating the marginal effects can
+yield substantial speed gains of its own. Users can do this by invoking
+the \code{emfx(..., collapse = TRUE)} argument. While the effect here is not as
+dramatic as the first strategy, our second strategy does have the virtue
+of retaining information about the standard errors. The trade-off this
+time, however, is that collapsing our data does lead to a loss in accuracy
+for our estimated parameters. On the other hand, testing suggests that
+this loss in accuracy tends to be relatively minor, with results
+equivalent up to the 1st or 2nd significant decimal place (or even
+better).
+
+Summarizing, here's a quick plan of attack for you to try if you are
+worried about the estimation time for large datasets and models:
+\enumerate{
+\item Estimate \code{mod = etwfe(...)} as per usual.
+\item Run \code{emfx(mod, vcov = FALSE, ...)}.
+\item Run \code{emfx(mod, vcov = FALSE, collapse = TRUE, ...)}.
+\item Compare the point estimates from steps 1 and 2. If they are are similar
+enough to your satisfaction, get the approximate standard errors by
+running \code{emfx(mod, collapse = TRUE, ...)}.
+}
 }
 
 \examples{
@@ -230,9 +227,9 @@ etwfe(
 
 }
 \references{
-Wooldridge, Jeffrey M. (2021). \cite{Two-Way Fixed Effects, the 
+Wooldridge, Jeffrey M. (2021). \cite{Two-Way Fixed Effects, the
 Two-Way Mundlak Regression, and Difference-in-Differences Estimators}.
-Working paper (version: August 16, 2021). Available: 
+Working paper (version: August 16, 2021). Available:
 http://dx.doi.org/10.2139/ssrn.3906345
 
 Wooldridge, Jeffrey M. (2022). \cite{Simple Approaches to Nonlinear
@@ -240,5 +237,5 @@ Difference-in-Differences with Panel Data}. The Econometrics Journal
 (forthcoming). Available: http://dx.doi.org/10.2139/ssrn.4183726
 }
 \seealso{
-[fixest::feols()], [fixest::feglm()]
+\code{\link[fixest:feols]{fixest::feols()}}, \code{\link[fixest:feglm]{fixest::feglm()}}
 }

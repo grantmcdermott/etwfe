@@ -38,3 +38,4 @@ RoxygenNote: 7.2.3
 URL: https://grantmcdermott.com/etwfe/
 BugReports: https://github.com/grantmcdermott/etwfe/issues
 VignetteBuilder: knitr
+Roxygen: list(markdown = TRUE)
