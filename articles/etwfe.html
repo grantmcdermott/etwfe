@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">etwfe</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5.9001</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -336,6 +336,21 @@ below; these are optional but help to make the output look a bit
 nicer.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://modelsummary.com" class="external-link">modelsummary</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt; Version 2.0.0 of `modelsummary`, to be released soon, will introduce a</span></span>
+<span><span class="co">#&gt;   breaking change: The default table-drawing package will be `tinytable`</span></span>
+<span><span class="co">#&gt;   instead of `kableExtra`. All currently supported table-drawing packages</span></span>
+<span><span class="co">#&gt;   will continue to be supported for the foreseeable future, including</span></span>
+<span><span class="co">#&gt;   `kableExtra`, `gt`, `huxtable`, `flextable, and `DT`.</span></span>
+<span><span class="co">#&gt;   </span></span>
+<span><span class="co">#&gt;   You can always call the `config_modelsummary()` function to change the</span></span>
+<span><span class="co">#&gt;   default table-drawing package in persistent fashion. To try `tinytable`</span></span>
+<span><span class="co">#&gt;   now:</span></span>
+<span><span class="co">#&gt;   </span></span>
+<span><span class="co">#&gt;   config_modelsummary(factory_default = 'tinytable')</span></span>
+<span><span class="co">#&gt;   </span></span>
+<span><span class="co">#&gt;   To set the default back to `kableExtra`:</span></span>
+<span><span class="co">#&gt;   </span></span>
+<span><span class="co">#&gt;   config_modelsummary(factory_default = 'kableExtra')</span></span>
 <span></span>
 <span><span class="co"># Quick renaming function to replace ".Dtreat" with something more meaningful</span></span>
 <span><span class="va">rename_fn</span> <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">old_names</span><span class="op">)</span> <span class="op">{</span></span>
@@ -343,7 +358,7 @@ nicer.</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/setNames.html" class="external-link">setNames</a></span><span class="op">(</span><span class="va">new_names</span>, <span class="va">old_names</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/modelsummary/man/modelsummary.html" class="external-link">modelsummary</a></span><span class="op">(</span></span>
+<span><span class="fu"><a href="https://modelsummary.com/reference/modelsummary.html" class="external-link">modelsummary</a></span><span class="op">(</span></span>
 <span>  <span class="va">mod_es</span>,</span>
 <span>  shape       <span class="op">=</span> <span class="va">term</span><span class="op">:</span><span class="va">event</span><span class="op">:</span><span class="va">statistic</span> <span class="op">~</span> <span class="va">model</span>,</span>
 <span>  coef_rename <span class="op">=</span> <span class="va">rename_fn</span>,</span>
@@ -351,23 +366,23 @@ nicer.</p>
 <span>  title       <span class="op">=</span> <span class="st">"Event study"</span>,</span>
 <span>  notes       <span class="op">=</span> <span class="st">"Std. errors are clustered at the county level"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<div id="xkelcztxyg" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#xkelcztxyg table {
+<div id="lopbexqoou" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#lopbexqoou table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#xkelcztxyg thead, #xkelcztxyg tbody, #xkelcztxyg tfoot, #xkelcztxyg tr, #xkelcztxyg td, #xkelcztxyg th {
+#lopbexqoou thead, #lopbexqoou tbody, #lopbexqoou tfoot, #lopbexqoou tr, #lopbexqoou td, #lopbexqoou th {
   border-style: none;
 }
 
-#xkelcztxyg p {
+#lopbexqoou p {
   margin: 0;
   padding: 0;
 }
 
-#xkelcztxyg .gt_table {
+#lopbexqoou .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -393,12 +408,12 @@ nicer.</p>
   border-left-color: #D3D3D3;
 }
 
-#xkelcztxyg .gt_caption {
+#lopbexqoou .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#xkelcztxyg .gt_title {
+#lopbexqoou .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -410,7 +425,7 @@ nicer.</p>
   border-bottom-width: 0;
 }
 
-#xkelcztxyg .gt_subtitle {
+#lopbexqoou .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -422,7 +437,7 @@ nicer.</p>
   border-top-width: 0;
 }
 
-#xkelcztxyg .gt_heading {
+#lopbexqoou .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -434,13 +449,13 @@ nicer.</p>
   border-right-color: #D3D3D3;
 }
 
-#xkelcztxyg .gt_bottom_border {
+#lopbexqoou .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#xkelcztxyg .gt_col_headings {
+#lopbexqoou .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -455,7 +470,7 @@ nicer.</p>
   border-right-color: #D3D3D3;
 }
 
-#xkelcztxyg .gt_col_heading {
+#lopbexqoou .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -475,7 +490,7 @@ nicer.</p>
   overflow-x: hidden;
 }
 
-#xkelcztxyg .gt_column_spanner_outer {
+#lopbexqoou .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -487,15 +502,15 @@ nicer.</p>
   padding-right: 4px;
 }
 
-#xkelcztxyg .gt_column_spanner_outer:first-child {
+#lopbexqoou .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#xkelcztxyg .gt_column_spanner_outer:last-child {
+#lopbexqoou .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#xkelcztxyg .gt_column_spanner {
+#lopbexqoou .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -507,11 +522,11 @@ nicer.</p>
   width: 100%;
 }
 
-#xkelcztxyg .gt_spanner_row {
+#lopbexqoou .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#xkelcztxyg .gt_group_heading {
+#lopbexqoou .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -537,7 +552,7 @@ nicer.</p>
   text-align: left;
 }
 
-#xkelcztxyg .gt_empty_group_heading {
+#lopbexqoou .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -552,15 +567,15 @@ nicer.</p>
   vertical-align: middle;
 }
 
-#xkelcztxyg .gt_from_md > :first-child {
+#lopbexqoou .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#xkelcztxyg .gt_from_md > :last-child {
+#lopbexqoou .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#xkelcztxyg .gt_row {
+#lopbexqoou .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -579,7 +594,7 @@ nicer.</p>
   overflow-x: hidden;
 }
 
-#xkelcztxyg .gt_stub {
+#lopbexqoou .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -592,7 +607,7 @@ nicer.</p>
   padding-right: 5px;
 }
 
-#xkelcztxyg .gt_stub_row_group {
+#lopbexqoou .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -606,15 +621,15 @@ nicer.</p>
   vertical-align: top;
 }
 
-#xkelcztxyg .gt_row_group_first td {
+#lopbexqoou .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#xkelcztxyg .gt_row_group_first th {
+#lopbexqoou .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#xkelcztxyg .gt_summary_row {
+#lopbexqoou .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -624,16 +639,16 @@ nicer.</p>
   padding-right: 5px;
 }
 
-#xkelcztxyg .gt_first_summary_row {
+#lopbexqoou .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#xkelcztxyg .gt_first_summary_row.thick {
+#lopbexqoou .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#xkelcztxyg .gt_last_summary_row {
+#lopbexqoou .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -643,7 +658,7 @@ nicer.</p>
   border-bottom-color: #D3D3D3;
 }
 
-#xkelcztxyg .gt_grand_summary_row {
+#lopbexqoou .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -653,7 +668,7 @@ nicer.</p>
   padding-right: 5px;
 }
 
-#xkelcztxyg .gt_first_grand_summary_row {
+#lopbexqoou .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -663,7 +678,7 @@ nicer.</p>
   border-top-color: #D3D3D3;
 }
 
-#xkelcztxyg .gt_last_grand_summary_row_top {
+#lopbexqoou .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -673,11 +688,11 @@ nicer.</p>
   border-bottom-color: #D3D3D3;
 }
 
-#xkelcztxyg .gt_striped {
+#lopbexqoou .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#xkelcztxyg .gt_table_body {
+#lopbexqoou .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -686,7 +701,7 @@ nicer.</p>
   border-bottom-color: #D3D3D3;
 }
 
-#xkelcztxyg .gt_footnotes {
+#lopbexqoou .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -700,7 +715,7 @@ nicer.</p>
   border-right-color: #D3D3D3;
 }
 
-#xkelcztxyg .gt_footnote {
+#lopbexqoou .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -709,7 +724,7 @@ nicer.</p>
   padding-right: 5px;
 }
 
-#xkelcztxyg .gt_sourcenotes {
+#lopbexqoou .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -723,7 +738,7 @@ nicer.</p>
   border-right-color: #D3D3D3;
 }
 
-#xkelcztxyg .gt_sourcenote {
+#lopbexqoou .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -731,63 +746,63 @@ nicer.</p>
   padding-right: 5px;
 }
 
-#xkelcztxyg .gt_left {
+#lopbexqoou .gt_left {
   text-align: left;
 }
 
-#xkelcztxyg .gt_center {
+#lopbexqoou .gt_center {
   text-align: center;
 }
 
-#xkelcztxyg .gt_right {
+#lopbexqoou .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#xkelcztxyg .gt_font_normal {
+#lopbexqoou .gt_font_normal {
   font-weight: normal;
 }
 
-#xkelcztxyg .gt_font_bold {
+#lopbexqoou .gt_font_bold {
   font-weight: bold;
 }
 
-#xkelcztxyg .gt_font_italic {
+#lopbexqoou .gt_font_italic {
   font-style: italic;
 }
 
-#xkelcztxyg .gt_super {
+#lopbexqoou .gt_super {
   font-size: 65%;
 }
 
-#xkelcztxyg .gt_footnote_marks {
+#lopbexqoou .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#xkelcztxyg .gt_asterisk {
+#lopbexqoou .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#xkelcztxyg .gt_indent_1 {
+#lopbexqoou .gt_indent_1 {
   text-indent: 5px;
 }
 
-#xkelcztxyg .gt_indent_2 {
+#lopbexqoou .gt_indent_2 {
   text-indent: 10px;
 }
 
-#xkelcztxyg .gt_indent_3 {
+#lopbexqoou .gt_indent_3 {
   text-indent: 15px;
 }
 
-#xkelcztxyg .gt_indent_4 {
+#lopbexqoou .gt_indent_4 {
   text-indent: 20px;
 }
 
-#xkelcztxyg .gt_indent_5 {
+#lopbexqoou .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -799,51 +814,51 @@ nicer.</p>
     </tr></thead>
 <tbody class="gt_table_body">
 <tr>
-<td headers="" class="gt_row gt_left">Years post treatment = 0</td>
+<td headers=" " class="gt_row gt_left">Years post treatment = 0</td>
 <td headers="(1)" class="gt_row gt_center">-0.033</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="(1)" class="gt_row gt_center">(0.013)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">Years post treatment = 1</td>
+<td headers=" " class="gt_row gt_left">Years post treatment = 1</td>
 <td headers="(1)" class="gt_row gt_center">-0.057</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="(1)" class="gt_row gt_center">(0.017)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">Years post treatment = 2</td>
+<td headers=" " class="gt_row gt_left">Years post treatment = 2</td>
 <td headers="(1)" class="gt_row gt_center">-0.138</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="(1)" class="gt_row gt_center">(0.031)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">Years post treatment = 3</td>
+<td headers=" " class="gt_row gt_left">Years post treatment = 3</td>
 <td headers="(1)" class="gt_row gt_center">-0.110</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left" style="border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: #000000;"></td>
+<td headers=" " class="gt_row gt_left" style="border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: #000000;"></td>
 <td headers="(1)" class="gt_row gt_center" style="border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: #000000;">(0.032)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">Num.Obs.</td>
+<td headers=" " class="gt_row gt_left">Num.Obs.</td>
 <td headers="(1)" class="gt_row gt_center">2500</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">R2</td>
+<td headers=" " class="gt_row gt_left">R2</td>
 <td headers="(1)" class="gt_row gt_center">0.873</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">FE..first.treat</td>
+<td headers=" " class="gt_row gt_left">FE..first.treat</td>
 <td headers="(1)" class="gt_row gt_center">X</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">FE..year</td>
+<td headers=" " class="gt_row gt_left">FE..year</td>
 <td headers="(1)" class="gt_row gt_center">X</td>
 </tr>
 </tbody>
@@ -965,30 +980,30 @@ heterogeneous treatment effects in plot or table form. Here’s an example
 of the latter, where we again make use of the
 <code>modelsummary(..., shape = ...)</code> argument.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/modelsummary/man/modelsummary.html" class="external-link">modelsummary</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://modelsummary.com/reference/modelsummary.html" class="external-link">modelsummary</a></span><span class="op">(</span></span>
 <span>    models      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"GLS county"</span> <span class="op">=</span> <span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="va">hmod</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>    shape       <span class="op">=</span> <span class="va">term</span> <span class="op">+</span> <span class="va">statistic</span> <span class="op">~</span> <span class="va">model</span> <span class="op">+</span> <span class="va">gls</span>, <span class="co"># add xvar variable (here: gls)</span></span>
 <span>    coef_map    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">".Dtreat"</span> <span class="op">=</span> <span class="st">"ATT"</span><span class="op">)</span>,</span>
 <span>    gof_map     <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>    title       <span class="op">=</span> <span class="st">"Comparing the ATT on GLS and non-GLS counties"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<div id="ushdfivyhh" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#ushdfivyhh table {
+<div id="bketxwdpoj" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#bketxwdpoj table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#ushdfivyhh thead, #ushdfivyhh tbody, #ushdfivyhh tfoot, #ushdfivyhh tr, #ushdfivyhh td, #ushdfivyhh th {
+#bketxwdpoj thead, #bketxwdpoj tbody, #bketxwdpoj tfoot, #bketxwdpoj tr, #bketxwdpoj td, #bketxwdpoj th {
   border-style: none;
 }
 
-#ushdfivyhh p {
+#bketxwdpoj p {
   margin: 0;
   padding: 0;
 }
 
-#ushdfivyhh .gt_table {
+#bketxwdpoj .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1014,12 +1029,12 @@ of the latter, where we again make use of the
   border-left-color: #D3D3D3;
 }
 
-#ushdfivyhh .gt_caption {
+#bketxwdpoj .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#ushdfivyhh .gt_title {
+#bketxwdpoj .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1031,7 +1046,7 @@ of the latter, where we again make use of the
   border-bottom-width: 0;
 }
 
-#ushdfivyhh .gt_subtitle {
+#bketxwdpoj .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1043,7 +1058,7 @@ of the latter, where we again make use of the
   border-top-width: 0;
 }
 
-#ushdfivyhh .gt_heading {
+#bketxwdpoj .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1055,13 +1070,13 @@ of the latter, where we again make use of the
   border-right-color: #D3D3D3;
 }
 
-#ushdfivyhh .gt_bottom_border {
+#bketxwdpoj .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#ushdfivyhh .gt_col_headings {
+#bketxwdpoj .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1076,7 +1091,7 @@ of the latter, where we again make use of the
   border-right-color: #D3D3D3;
 }
 
-#ushdfivyhh .gt_col_heading {
+#bketxwdpoj .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1096,7 +1111,7 @@ of the latter, where we again make use of the
   overflow-x: hidden;
 }
 
-#ushdfivyhh .gt_column_spanner_outer {
+#bketxwdpoj .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1108,15 +1123,15 @@ of the latter, where we again make use of the
   padding-right: 4px;
 }
 
-#ushdfivyhh .gt_column_spanner_outer:first-child {
+#bketxwdpoj .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#ushdfivyhh .gt_column_spanner_outer:last-child {
+#bketxwdpoj .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#ushdfivyhh .gt_column_spanner {
+#bketxwdpoj .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1128,11 +1143,11 @@ of the latter, where we again make use of the
   width: 100%;
 }
 
-#ushdfivyhh .gt_spanner_row {
+#bketxwdpoj .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#ushdfivyhh .gt_group_heading {
+#bketxwdpoj .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1158,7 +1173,7 @@ of the latter, where we again make use of the
   text-align: left;
 }
 
-#ushdfivyhh .gt_empty_group_heading {
+#bketxwdpoj .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1173,15 +1188,15 @@ of the latter, where we again make use of the
   vertical-align: middle;
 }
 
-#ushdfivyhh .gt_from_md > :first-child {
+#bketxwdpoj .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#ushdfivyhh .gt_from_md > :last-child {
+#bketxwdpoj .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#ushdfivyhh .gt_row {
+#bketxwdpoj .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1200,7 +1215,7 @@ of the latter, where we again make use of the
   overflow-x: hidden;
 }
 
-#ushdfivyhh .gt_stub {
+#bketxwdpoj .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1213,7 +1228,7 @@ of the latter, where we again make use of the
   padding-right: 5px;
 }
 
-#ushdfivyhh .gt_stub_row_group {
+#bketxwdpoj .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1227,15 +1242,15 @@ of the latter, where we again make use of the
   vertical-align: top;
 }
 
-#ushdfivyhh .gt_row_group_first td {
+#bketxwdpoj .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#ushdfivyhh .gt_row_group_first th {
+#bketxwdpoj .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#ushdfivyhh .gt_summary_row {
+#bketxwdpoj .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1245,16 +1260,16 @@ of the latter, where we again make use of the
   padding-right: 5px;
 }
 
-#ushdfivyhh .gt_first_summary_row {
+#bketxwdpoj .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#ushdfivyhh .gt_first_summary_row.thick {
+#bketxwdpoj .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#ushdfivyhh .gt_last_summary_row {
+#bketxwdpoj .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1264,7 +1279,7 @@ of the latter, where we again make use of the
   border-bottom-color: #D3D3D3;
 }
 
-#ushdfivyhh .gt_grand_summary_row {
+#bketxwdpoj .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1274,7 +1289,7 @@ of the latter, where we again make use of the
   padding-right: 5px;
 }
 
-#ushdfivyhh .gt_first_grand_summary_row {
+#bketxwdpoj .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1284,7 +1299,7 @@ of the latter, where we again make use of the
   border-top-color: #D3D3D3;
 }
 
-#ushdfivyhh .gt_last_grand_summary_row_top {
+#bketxwdpoj .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1294,11 +1309,11 @@ of the latter, where we again make use of the
   border-bottom-color: #D3D3D3;
 }
 
-#ushdfivyhh .gt_striped {
+#bketxwdpoj .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#ushdfivyhh .gt_table_body {
+#bketxwdpoj .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1307,7 +1322,7 @@ of the latter, where we again make use of the
   border-bottom-color: #D3D3D3;
 }
 
-#ushdfivyhh .gt_footnotes {
+#bketxwdpoj .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1321,7 +1336,7 @@ of the latter, where we again make use of the
   border-right-color: #D3D3D3;
 }
 
-#ushdfivyhh .gt_footnote {
+#bketxwdpoj .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1330,7 +1345,7 @@ of the latter, where we again make use of the
   padding-right: 5px;
 }
 
-#ushdfivyhh .gt_sourcenotes {
+#bketxwdpoj .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1344,7 +1359,7 @@ of the latter, where we again make use of the
   border-right-color: #D3D3D3;
 }
 
-#ushdfivyhh .gt_sourcenote {
+#bketxwdpoj .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1352,63 +1367,63 @@ of the latter, where we again make use of the
   padding-right: 5px;
 }
 
-#ushdfivyhh .gt_left {
+#bketxwdpoj .gt_left {
   text-align: left;
 }
 
-#ushdfivyhh .gt_center {
+#bketxwdpoj .gt_center {
   text-align: center;
 }
 
-#ushdfivyhh .gt_right {
+#bketxwdpoj .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#ushdfivyhh .gt_font_normal {
+#bketxwdpoj .gt_font_normal {
   font-weight: normal;
 }
 
-#ushdfivyhh .gt_font_bold {
+#bketxwdpoj .gt_font_bold {
   font-weight: bold;
 }
 
-#ushdfivyhh .gt_font_italic {
+#bketxwdpoj .gt_font_italic {
   font-style: italic;
 }
 
-#ushdfivyhh .gt_super {
+#bketxwdpoj .gt_super {
   font-size: 65%;
 }
 
-#ushdfivyhh .gt_footnote_marks {
+#bketxwdpoj .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#ushdfivyhh .gt_asterisk {
+#bketxwdpoj .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#ushdfivyhh .gt_indent_1 {
+#bketxwdpoj .gt_indent_1 {
   text-indent: 5px;
 }
 
-#ushdfivyhh .gt_indent_2 {
+#bketxwdpoj .gt_indent_2 {
   text-indent: 10px;
 }
 
-#ushdfivyhh .gt_indent_3 {
+#bketxwdpoj .gt_indent_3 {
   text-indent: 15px;
 }
 
-#ushdfivyhh .gt_indent_4 {
+#bketxwdpoj .gt_indent_4 {
   text-indent: 20px;
 }
 
-#ushdfivyhh .gt_indent_5 {
+#bketxwdpoj .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -1428,12 +1443,12 @@ of the latter, where we again make use of the
 </thead>
 <tbody class="gt_table_body">
 <tr>
-<td headers="" class="gt_row gt_left">ATT</td>
+<td headers=" " class="gt_row gt_left">ATT</td>
 <td headers="FALSE" class="gt_row gt_center">-0.064</td>
 <td headers="TRUE" class="gt_row gt_center">-0.047</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="FALSE" class="gt_row gt_center">(0.038)</td>
 <td headers="TRUE" class="gt_row gt_center">(0.027)</td>
 </tr>
@@ -1566,7 +1581,7 @@ workflow.</p>
 study with the collapsed estimates and see that the results are indeed
 very similar.</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/modelsummary/man/modelsummary.html" class="external-link">modelsummary</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://modelsummary.com/reference/modelsummary.html" class="external-link">modelsummary</a></span><span class="op">(</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"Original"</span> <span class="op">=</span> <span class="va">mod_es</span>, <span class="st">"Collapsed"</span> <span class="op">=</span> <span class="va">mod_es2</span><span class="op">)</span>,</span>
 <span>    shape       <span class="op">=</span> <span class="va">term</span><span class="op">:</span><span class="va">event</span><span class="op">:</span><span class="va">statistic</span> <span class="op">~</span> <span class="va">model</span>,</span>
 <span>    coef_rename <span class="op">=</span> <span class="va">rename_fn</span>,</span>
@@ -1574,23 +1589,23 @@ very similar.</p>
 <span>    title       <span class="op">=</span> <span class="st">"Event study"</span>,</span>
 <span>    notes       <span class="op">=</span> <span class="st">"Std. errors are clustered at the county level"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<div id="mosekhmeut" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#mosekhmeut table {
+<div id="titpvpckay" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#titpvpckay table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#mosekhmeut thead, #mosekhmeut tbody, #mosekhmeut tfoot, #mosekhmeut tr, #mosekhmeut td, #mosekhmeut th {
+#titpvpckay thead, #titpvpckay tbody, #titpvpckay tfoot, #titpvpckay tr, #titpvpckay td, #titpvpckay th {
   border-style: none;
 }
 
-#mosekhmeut p {
+#titpvpckay p {
   margin: 0;
   padding: 0;
 }
 
-#mosekhmeut .gt_table {
+#titpvpckay .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1616,12 +1631,12 @@ very similar.</p>
   border-left-color: #D3D3D3;
 }
 
-#mosekhmeut .gt_caption {
+#titpvpckay .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#mosekhmeut .gt_title {
+#titpvpckay .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1633,7 +1648,7 @@ very similar.</p>
   border-bottom-width: 0;
 }
 
-#mosekhmeut .gt_subtitle {
+#titpvpckay .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1645,7 +1660,7 @@ very similar.</p>
   border-top-width: 0;
 }
 
-#mosekhmeut .gt_heading {
+#titpvpckay .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1657,13 +1672,13 @@ very similar.</p>
   border-right-color: #D3D3D3;
 }
 
-#mosekhmeut .gt_bottom_border {
+#titpvpckay .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#mosekhmeut .gt_col_headings {
+#titpvpckay .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1678,7 +1693,7 @@ very similar.</p>
   border-right-color: #D3D3D3;
 }
 
-#mosekhmeut .gt_col_heading {
+#titpvpckay .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1698,7 +1713,7 @@ very similar.</p>
   overflow-x: hidden;
 }
 
-#mosekhmeut .gt_column_spanner_outer {
+#titpvpckay .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1710,15 +1725,15 @@ very similar.</p>
   padding-right: 4px;
 }
 
-#mosekhmeut .gt_column_spanner_outer:first-child {
+#titpvpckay .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#mosekhmeut .gt_column_spanner_outer:last-child {
+#titpvpckay .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#mosekhmeut .gt_column_spanner {
+#titpvpckay .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1730,11 +1745,11 @@ very similar.</p>
   width: 100%;
 }
 
-#mosekhmeut .gt_spanner_row {
+#titpvpckay .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#mosekhmeut .gt_group_heading {
+#titpvpckay .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1760,7 +1775,7 @@ very similar.</p>
   text-align: left;
 }
 
-#mosekhmeut .gt_empty_group_heading {
+#titpvpckay .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1775,15 +1790,15 @@ very similar.</p>
   vertical-align: middle;
 }
 
-#mosekhmeut .gt_from_md > :first-child {
+#titpvpckay .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#mosekhmeut .gt_from_md > :last-child {
+#titpvpckay .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#mosekhmeut .gt_row {
+#titpvpckay .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1802,7 +1817,7 @@ very similar.</p>
   overflow-x: hidden;
 }
 
-#mosekhmeut .gt_stub {
+#titpvpckay .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1815,7 +1830,7 @@ very similar.</p>
   padding-right: 5px;
 }
 
-#mosekhmeut .gt_stub_row_group {
+#titpvpckay .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1829,15 +1844,15 @@ very similar.</p>
   vertical-align: top;
 }
 
-#mosekhmeut .gt_row_group_first td {
+#titpvpckay .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#mosekhmeut .gt_row_group_first th {
+#titpvpckay .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#mosekhmeut .gt_summary_row {
+#titpvpckay .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1847,16 +1862,16 @@ very similar.</p>
   padding-right: 5px;
 }
 
-#mosekhmeut .gt_first_summary_row {
+#titpvpckay .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#mosekhmeut .gt_first_summary_row.thick {
+#titpvpckay .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#mosekhmeut .gt_last_summary_row {
+#titpvpckay .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1866,7 +1881,7 @@ very similar.</p>
   border-bottom-color: #D3D3D3;
 }
 
-#mosekhmeut .gt_grand_summary_row {
+#titpvpckay .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1876,7 +1891,7 @@ very similar.</p>
   padding-right: 5px;
 }
 
-#mosekhmeut .gt_first_grand_summary_row {
+#titpvpckay .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1886,7 +1901,7 @@ very similar.</p>
   border-top-color: #D3D3D3;
 }
 
-#mosekhmeut .gt_last_grand_summary_row_top {
+#titpvpckay .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1896,11 +1911,11 @@ very similar.</p>
   border-bottom-color: #D3D3D3;
 }
 
-#mosekhmeut .gt_striped {
+#titpvpckay .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#mosekhmeut .gt_table_body {
+#titpvpckay .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1909,7 +1924,7 @@ very similar.</p>
   border-bottom-color: #D3D3D3;
 }
 
-#mosekhmeut .gt_footnotes {
+#titpvpckay .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1923,7 +1938,7 @@ very similar.</p>
   border-right-color: #D3D3D3;
 }
 
-#mosekhmeut .gt_footnote {
+#titpvpckay .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1932,7 +1947,7 @@ very similar.</p>
   padding-right: 5px;
 }
 
-#mosekhmeut .gt_sourcenotes {
+#titpvpckay .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1946,7 +1961,7 @@ very similar.</p>
   border-right-color: #D3D3D3;
 }
 
-#mosekhmeut .gt_sourcenote {
+#titpvpckay .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1954,63 +1969,63 @@ very similar.</p>
   padding-right: 5px;
 }
 
-#mosekhmeut .gt_left {
+#titpvpckay .gt_left {
   text-align: left;
 }
 
-#mosekhmeut .gt_center {
+#titpvpckay .gt_center {
   text-align: center;
 }
 
-#mosekhmeut .gt_right {
+#titpvpckay .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#mosekhmeut .gt_font_normal {
+#titpvpckay .gt_font_normal {
   font-weight: normal;
 }
 
-#mosekhmeut .gt_font_bold {
+#titpvpckay .gt_font_bold {
   font-weight: bold;
 }
 
-#mosekhmeut .gt_font_italic {
+#titpvpckay .gt_font_italic {
   font-style: italic;
 }
 
-#mosekhmeut .gt_super {
+#titpvpckay .gt_super {
   font-size: 65%;
 }
 
-#mosekhmeut .gt_footnote_marks {
+#titpvpckay .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#mosekhmeut .gt_asterisk {
+#titpvpckay .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#mosekhmeut .gt_indent_1 {
+#titpvpckay .gt_indent_1 {
   text-indent: 5px;
 }
 
-#mosekhmeut .gt_indent_2 {
+#titpvpckay .gt_indent_2 {
   text-indent: 10px;
 }
 
-#mosekhmeut .gt_indent_3 {
+#titpvpckay .gt_indent_3 {
   text-indent: 15px;
 }
 
-#mosekhmeut .gt_indent_4 {
+#titpvpckay .gt_indent_4 {
   text-indent: 20px;
 }
 
-#mosekhmeut .gt_indent_5 {
+#titpvpckay .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -2023,62 +2038,62 @@ very similar.</p>
     </tr></thead>
 <tbody class="gt_table_body">
 <tr>
-<td headers="" class="gt_row gt_left">Years post treatment = 0</td>
+<td headers=" " class="gt_row gt_left">Years post treatment = 0</td>
 <td headers="Original" class="gt_row gt_center">-0.033</td>
 <td headers="Collapsed" class="gt_row gt_center">-0.033</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="Original" class="gt_row gt_center">(0.013)</td>
 <td headers="Collapsed" class="gt_row gt_center">(0.013)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">Years post treatment = 1</td>
+<td headers=" " class="gt_row gt_left">Years post treatment = 1</td>
 <td headers="Original" class="gt_row gt_center">-0.057</td>
 <td headers="Collapsed" class="gt_row gt_center">-0.057</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="Original" class="gt_row gt_center">(0.017)</td>
 <td headers="Collapsed" class="gt_row gt_center">(0.017)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">Years post treatment = 2</td>
+<td headers=" " class="gt_row gt_left">Years post treatment = 2</td>
 <td headers="Original" class="gt_row gt_center">-0.138</td>
 <td headers="Collapsed" class="gt_row gt_center">-0.138</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="Original" class="gt_row gt_center">(0.031)</td>
 <td headers="Collapsed" class="gt_row gt_center">(0.031)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">Years post treatment = 3</td>
+<td headers=" " class="gt_row gt_left">Years post treatment = 3</td>
 <td headers="Original" class="gt_row gt_center">-0.110</td>
 <td headers="Collapsed" class="gt_row gt_center">-0.110</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left" style="border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: #000000;"></td>
+<td headers=" " class="gt_row gt_left" style="border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: #000000;"></td>
 <td headers="Original" class="gt_row gt_center" style="border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: #000000;">(0.032)</td>
 <td headers="Collapsed" class="gt_row gt_center" style="border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: #000000;">(0.032)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">Num.Obs.</td>
+<td headers=" " class="gt_row gt_left">Num.Obs.</td>
 <td headers="Original" class="gt_row gt_center">2500</td>
 <td headers="Collapsed" class="gt_row gt_center">2500</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">R2</td>
+<td headers=" " class="gt_row gt_left">R2</td>
 <td headers="Original" class="gt_row gt_center">0.873</td>
 <td headers="Collapsed" class="gt_row gt_center">0.873</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">FE..first.treat</td>
+<td headers=" " class="gt_row gt_left">FE..first.treat</td>
 <td headers="Original" class="gt_row gt_center">X</td>
 <td headers="Collapsed" class="gt_row gt_center">X</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">FE..year</td>
+<td headers=" " class="gt_row gt_left">FE..year</td>
 <td headers="Original" class="gt_row gt_center">X</td>
 <td headers="Collapsed" class="gt_row gt_center">X</td>
 </tr>
@@ -2108,7 +2123,7 @@ the formula of an estimated model to see for yourself.</p>
 <code class="sourceCode R"><span><span class="va">mod</span><span class="op">$</span><span class="va">fml_all</span></span>
 <span><span class="co">#&gt; $linear</span></span>
 <span><span class="co">#&gt; lemp ~ .Dtreat:i(first.treat, i.year, ref = 0, ref2 = 2003)/lpop_dm</span></span>
-<span><span class="co">#&gt; &lt;environment: 0x559d1e264ea0&gt;</span></span>
+<span><span class="co">#&gt; &lt;environment: 0x55aa83712938&gt;</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $fixef</span></span>
 <span><span class="co">#&gt; ~first.treat + first.treat[[lpop]] + year + year[[lpop]]</span></span></code></pre></div>
@@ -2141,27 +2156,27 @@ original etwfe regression. I’ll use <strong>modelsummary</strong> to do
 that here, since I’ve already loaded it above.<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content='&lt;p&gt;Another option would be to use
 &lt;code&gt;&lt;a href="https://lrberge.github.io/fixest/reference/etable.html" class="external-link"&gt;fixest::etable()&lt;/a&gt;&lt;/code&gt;&lt;/p&gt;'><sup>4</sup></a>.</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/modelsummary/man/modelsummary.html" class="external-link">modelsummary</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://modelsummary.com/reference/modelsummary.html" class="external-link">modelsummary</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"etwfe"</span> <span class="op">=</span> <span class="va">mod</span>, <span class="st">"manual"</span> <span class="op">=</span> <span class="va">mod2</span><span class="op">)</span>,</span>
 <span>  gof_map <span class="op">=</span> <span class="cn">NA</span> <span class="co"># drop all goodness-of-fit info for brevity</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<div id="pkgpvhdcpg" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#pkgpvhdcpg table {
+<div id="feszvnrdbu" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#feszvnrdbu table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#pkgpvhdcpg thead, #pkgpvhdcpg tbody, #pkgpvhdcpg tfoot, #pkgpvhdcpg tr, #pkgpvhdcpg td, #pkgpvhdcpg th {
+#feszvnrdbu thead, #feszvnrdbu tbody, #feszvnrdbu tfoot, #feszvnrdbu tr, #feszvnrdbu td, #feszvnrdbu th {
   border-style: none;
 }
 
-#pkgpvhdcpg p {
+#feszvnrdbu p {
   margin: 0;
   padding: 0;
 }
 
-#pkgpvhdcpg .gt_table {
+#feszvnrdbu .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -2187,12 +2202,12 @@ that here, since I’ve already loaded it above.<a class="footnote-ref" tabindex
   border-left-color: #D3D3D3;
 }
 
-#pkgpvhdcpg .gt_caption {
+#feszvnrdbu .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#pkgpvhdcpg .gt_title {
+#feszvnrdbu .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -2204,7 +2219,7 @@ that here, since I’ve already loaded it above.<a class="footnote-ref" tabindex
   border-bottom-width: 0;
 }
 
-#pkgpvhdcpg .gt_subtitle {
+#feszvnrdbu .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -2216,7 +2231,7 @@ that here, since I’ve already loaded it above.<a class="footnote-ref" tabindex
   border-top-width: 0;
 }
 
-#pkgpvhdcpg .gt_heading {
+#feszvnrdbu .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -2228,13 +2243,13 @@ that here, since I’ve already loaded it above.<a class="footnote-ref" tabindex
   border-right-color: #D3D3D3;
 }
 
-#pkgpvhdcpg .gt_bottom_border {
+#feszvnrdbu .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#pkgpvhdcpg .gt_col_headings {
+#feszvnrdbu .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2249,7 +2264,7 @@ that here, since I’ve already loaded it above.<a class="footnote-ref" tabindex
   border-right-color: #D3D3D3;
 }
 
-#pkgpvhdcpg .gt_col_heading {
+#feszvnrdbu .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2269,7 +2284,7 @@ that here, since I’ve already loaded it above.<a class="footnote-ref" tabindex
   overflow-x: hidden;
 }
 
-#pkgpvhdcpg .gt_column_spanner_outer {
+#feszvnrdbu .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2281,15 +2296,15 @@ that here, since I’ve already loaded it above.<a class="footnote-ref" tabindex
   padding-right: 4px;
 }
 
-#pkgpvhdcpg .gt_column_spanner_outer:first-child {
+#feszvnrdbu .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#pkgpvhdcpg .gt_column_spanner_outer:last-child {
+#feszvnrdbu .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#pkgpvhdcpg .gt_column_spanner {
+#feszvnrdbu .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -2301,11 +2316,11 @@ that here, since I’ve already loaded it above.<a class="footnote-ref" tabindex
   width: 100%;
 }
 
-#pkgpvhdcpg .gt_spanner_row {
+#feszvnrdbu .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#pkgpvhdcpg .gt_group_heading {
+#feszvnrdbu .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2331,7 +2346,7 @@ that here, since I’ve already loaded it above.<a class="footnote-ref" tabindex
   text-align: left;
 }
 
-#pkgpvhdcpg .gt_empty_group_heading {
+#feszvnrdbu .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -2346,15 +2361,15 @@ that here, since I’ve already loaded it above.<a class="footnote-ref" tabindex
   vertical-align: middle;
 }
 
-#pkgpvhdcpg .gt_from_md > :first-child {
+#feszvnrdbu .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#pkgpvhdcpg .gt_from_md > :last-child {
+#feszvnrdbu .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#pkgpvhdcpg .gt_row {
+#feszvnrdbu .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2373,7 +2388,7 @@ that here, since I’ve already loaded it above.<a class="footnote-ref" tabindex
   overflow-x: hidden;
 }
 
-#pkgpvhdcpg .gt_stub {
+#feszvnrdbu .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2386,7 +2401,7 @@ that here, since I’ve already loaded it above.<a class="footnote-ref" tabindex
   padding-right: 5px;
 }
 
-#pkgpvhdcpg .gt_stub_row_group {
+#feszvnrdbu .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2400,15 +2415,15 @@ that here, since I’ve already loaded it above.<a class="footnote-ref" tabindex
   vertical-align: top;
 }
 
-#pkgpvhdcpg .gt_row_group_first td {
+#feszvnrdbu .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#pkgpvhdcpg .gt_row_group_first th {
+#feszvnrdbu .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#pkgpvhdcpg .gt_summary_row {
+#feszvnrdbu .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2418,16 +2433,16 @@ that here, since I’ve already loaded it above.<a class="footnote-ref" tabindex
   padding-right: 5px;
 }
 
-#pkgpvhdcpg .gt_first_summary_row {
+#feszvnrdbu .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#pkgpvhdcpg .gt_first_summary_row.thick {
+#feszvnrdbu .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#pkgpvhdcpg .gt_last_summary_row {
+#feszvnrdbu .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2437,7 +2452,7 @@ that here, since I’ve already loaded it above.<a class="footnote-ref" tabindex
   border-bottom-color: #D3D3D3;
 }
 
-#pkgpvhdcpg .gt_grand_summary_row {
+#feszvnrdbu .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2447,7 +2462,7 @@ that here, since I’ve already loaded it above.<a class="footnote-ref" tabindex
   padding-right: 5px;
 }
 
-#pkgpvhdcpg .gt_first_grand_summary_row {
+#feszvnrdbu .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2457,7 +2472,7 @@ that here, since I’ve already loaded it above.<a class="footnote-ref" tabindex
   border-top-color: #D3D3D3;
 }
 
-#pkgpvhdcpg .gt_last_grand_summary_row_top {
+#feszvnrdbu .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2467,11 +2482,11 @@ that here, since I’ve already loaded it above.<a class="footnote-ref" tabindex
   border-bottom-color: #D3D3D3;
 }
 
-#pkgpvhdcpg .gt_striped {
+#feszvnrdbu .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#pkgpvhdcpg .gt_table_body {
+#feszvnrdbu .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2480,7 +2495,7 @@ that here, since I’ve already loaded it above.<a class="footnote-ref" tabindex
   border-bottom-color: #D3D3D3;
 }
 
-#pkgpvhdcpg .gt_footnotes {
+#feszvnrdbu .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2494,7 +2509,7 @@ that here, since I’ve already loaded it above.<a class="footnote-ref" tabindex
   border-right-color: #D3D3D3;
 }
 
-#pkgpvhdcpg .gt_footnote {
+#feszvnrdbu .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -2503,7 +2518,7 @@ that here, since I’ve already loaded it above.<a class="footnote-ref" tabindex
   padding-right: 5px;
 }
 
-#pkgpvhdcpg .gt_sourcenotes {
+#feszvnrdbu .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2517,7 +2532,7 @@ that here, since I’ve already loaded it above.<a class="footnote-ref" tabindex
   border-right-color: #D3D3D3;
 }
 
-#pkgpvhdcpg .gt_sourcenote {
+#feszvnrdbu .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -2525,63 +2540,63 @@ that here, since I’ve already loaded it above.<a class="footnote-ref" tabindex
   padding-right: 5px;
 }
 
-#pkgpvhdcpg .gt_left {
+#feszvnrdbu .gt_left {
   text-align: left;
 }
 
-#pkgpvhdcpg .gt_center {
+#feszvnrdbu .gt_center {
   text-align: center;
 }
 
-#pkgpvhdcpg .gt_right {
+#feszvnrdbu .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#pkgpvhdcpg .gt_font_normal {
+#feszvnrdbu .gt_font_normal {
   font-weight: normal;
 }
 
-#pkgpvhdcpg .gt_font_bold {
+#feszvnrdbu .gt_font_bold {
   font-weight: bold;
 }
 
-#pkgpvhdcpg .gt_font_italic {
+#feszvnrdbu .gt_font_italic {
   font-style: italic;
 }
 
-#pkgpvhdcpg .gt_super {
+#feszvnrdbu .gt_super {
   font-size: 65%;
 }
 
-#pkgpvhdcpg .gt_footnote_marks {
+#feszvnrdbu .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#pkgpvhdcpg .gt_asterisk {
+#feszvnrdbu .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#pkgpvhdcpg .gt_indent_1 {
+#feszvnrdbu .gt_indent_1 {
   text-indent: 5px;
 }
 
-#pkgpvhdcpg .gt_indent_2 {
+#feszvnrdbu .gt_indent_2 {
   text-indent: 10px;
 }
 
-#pkgpvhdcpg .gt_indent_3 {
+#feszvnrdbu .gt_indent_3 {
   text-indent: 15px;
 }
 
-#pkgpvhdcpg .gt_indent_4 {
+#feszvnrdbu .gt_indent_4 {
   text-indent: 20px;
 }
 
-#pkgpvhdcpg .gt_indent_5 {
+#feszvnrdbu .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -2593,142 +2608,142 @@ that here, since I’ve already loaded it above.<a class="footnote-ref" tabindex
     </tr></thead>
 <tbody class="gt_table_body">
 <tr>
-<td headers="" class="gt_row gt_left">.Dtreat × first.treat = 2004 × year = 2004</td>
+<td headers=" " class="gt_row gt_left">.Dtreat × first.treat = 2004 × year = 2004</td>
 <td headers="etwfe" class="gt_row gt_center">-0.021</td>
 <td headers="manual" class="gt_row gt_center">-0.021</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="etwfe" class="gt_row gt_center">(0.022)</td>
 <td headers="manual" class="gt_row gt_center">(0.022)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">.Dtreat × first.treat = 2004 × year = 2005</td>
+<td headers=" " class="gt_row gt_left">.Dtreat × first.treat = 2004 × year = 2005</td>
 <td headers="etwfe" class="gt_row gt_center">-0.082</td>
 <td headers="manual" class="gt_row gt_center">-0.082</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="etwfe" class="gt_row gt_center">(0.027)</td>
 <td headers="manual" class="gt_row gt_center">(0.027)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">.Dtreat × first.treat = 2004 × year = 2006</td>
+<td headers=" " class="gt_row gt_left">.Dtreat × first.treat = 2004 × year = 2006</td>
 <td headers="etwfe" class="gt_row gt_center">-0.138</td>
 <td headers="manual" class="gt_row gt_center">-0.138</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="etwfe" class="gt_row gt_center">(0.031)</td>
 <td headers="manual" class="gt_row gt_center">(0.031)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">.Dtreat × first.treat = 2004 × year = 2007</td>
+<td headers=" " class="gt_row gt_left">.Dtreat × first.treat = 2004 × year = 2007</td>
 <td headers="etwfe" class="gt_row gt_center">-0.110</td>
 <td headers="manual" class="gt_row gt_center">-0.110</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="etwfe" class="gt_row gt_center">(0.032)</td>
 <td headers="manual" class="gt_row gt_center">(0.032)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">.Dtreat × first.treat = 2006 × year = 2006</td>
+<td headers=" " class="gt_row gt_left">.Dtreat × first.treat = 2006 × year = 2006</td>
 <td headers="etwfe" class="gt_row gt_center">0.003</td>
 <td headers="manual" class="gt_row gt_center">0.003</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="etwfe" class="gt_row gt_center">(0.019)</td>
 <td headers="manual" class="gt_row gt_center">(0.019)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">.Dtreat × first.treat = 2006 × year = 2007</td>
+<td headers=" " class="gt_row gt_left">.Dtreat × first.treat = 2006 × year = 2007</td>
 <td headers="etwfe" class="gt_row gt_center">-0.045</td>
 <td headers="manual" class="gt_row gt_center">-0.045</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="etwfe" class="gt_row gt_center">(0.022)</td>
 <td headers="manual" class="gt_row gt_center">(0.022)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">.Dtreat × first.treat = 2007 × year = 2007</td>
+<td headers=" " class="gt_row gt_left">.Dtreat × first.treat = 2007 × year = 2007</td>
 <td headers="etwfe" class="gt_row gt_center">-0.046</td>
 <td headers="manual" class="gt_row gt_center">-0.046</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="etwfe" class="gt_row gt_center">(0.018)</td>
 <td headers="manual" class="gt_row gt_center">(0.018)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">.Dtreat × first.treat = 2004 × year = 2004 × lpop_dm</td>
+<td headers=" " class="gt_row gt_left">.Dtreat × first.treat = 2004 × year = 2004 × lpop_dm</td>
 <td headers="etwfe" class="gt_row gt_center">0.005</td>
 <td headers="manual" class="gt_row gt_center">0.005</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="etwfe" class="gt_row gt_center">(0.018)</td>
 <td headers="manual" class="gt_row gt_center">(0.018)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">.Dtreat × first.treat = 2004 × year = 2005 × lpop_dm</td>
+<td headers=" " class="gt_row gt_left">.Dtreat × first.treat = 2004 × year = 2005 × lpop_dm</td>
 <td headers="etwfe" class="gt_row gt_center">0.025</td>
 <td headers="manual" class="gt_row gt_center">0.025</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="etwfe" class="gt_row gt_center">(0.018)</td>
 <td headers="manual" class="gt_row gt_center">(0.018)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">.Dtreat × first.treat = 2004 × year = 2006 × lpop_dm</td>
+<td headers=" " class="gt_row gt_left">.Dtreat × first.treat = 2004 × year = 2006 × lpop_dm</td>
 <td headers="etwfe" class="gt_row gt_center">0.051</td>
 <td headers="manual" class="gt_row gt_center">0.051</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="etwfe" class="gt_row gt_center">(0.021)</td>
 <td headers="manual" class="gt_row gt_center">(0.021)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">.Dtreat × first.treat = 2004 × year = 2007 × lpop_dm</td>
+<td headers=" " class="gt_row gt_left">.Dtreat × first.treat = 2004 × year = 2007 × lpop_dm</td>
 <td headers="etwfe" class="gt_row gt_center">0.011</td>
 <td headers="manual" class="gt_row gt_center">0.011</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="etwfe" class="gt_row gt_center">(0.027)</td>
 <td headers="manual" class="gt_row gt_center">(0.027)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">.Dtreat × first.treat = 2006 × year = 2006 × lpop_dm</td>
+<td headers=" " class="gt_row gt_left">.Dtreat × first.treat = 2006 × year = 2006 × lpop_dm</td>
 <td headers="etwfe" class="gt_row gt_center">0.039</td>
 <td headers="manual" class="gt_row gt_center">0.039</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="etwfe" class="gt_row gt_center">(0.016)</td>
 <td headers="manual" class="gt_row gt_center">(0.016)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">.Dtreat × first.treat = 2006 × year = 2007 × lpop_dm</td>
+<td headers=" " class="gt_row gt_left">.Dtreat × first.treat = 2006 × year = 2007 × lpop_dm</td>
 <td headers="etwfe" class="gt_row gt_center">0.038</td>
 <td headers="manual" class="gt_row gt_center">0.038</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="etwfe" class="gt_row gt_center">(0.022)</td>
 <td headers="manual" class="gt_row gt_center">(0.022)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">.Dtreat × first.treat = 2007 × year = 2007 × lpop_dm</td>
+<td headers=" " class="gt_row gt_left">.Dtreat × first.treat = 2007 × year = 2007 × lpop_dm</td>
 <td headers="etwfe" class="gt_row gt_center">-0.020</td>
 <td headers="manual" class="gt_row gt_center">-0.020</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="etwfe" class="gt_row gt_center">(0.016)</td>
 <td headers="manual" class="gt_row gt_center">(0.016)</td>
 </tr>
@@ -2841,24 +2856,24 @@ all return the same raw coefficients.</p>
 <span>  <span class="st">"manual (none)"</span> <span class="op">=</span> <span class="va">mod_none2</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/modelsummary/man/modelsummary.html" class="external-link">modelsummary</a></span><span class="op">(</span><span class="va">mods</span>, gof_map <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span></span></code></pre></div>
-<div id="tcjltrhomi" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#tcjltrhomi table {
+<span><span class="fu"><a href="https://modelsummary.com/reference/modelsummary.html" class="external-link">modelsummary</a></span><span class="op">(</span><span class="va">mods</span>, gof_map <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span></span></code></pre></div>
+<div id="mpdpnzmlkd" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#mpdpnzmlkd table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#tcjltrhomi thead, #tcjltrhomi tbody, #tcjltrhomi tfoot, #tcjltrhomi tr, #tcjltrhomi td, #tcjltrhomi th {
+#mpdpnzmlkd thead, #mpdpnzmlkd tbody, #mpdpnzmlkd tfoot, #mpdpnzmlkd tr, #mpdpnzmlkd td, #mpdpnzmlkd th {
   border-style: none;
 }
 
-#tcjltrhomi p {
+#mpdpnzmlkd p {
   margin: 0;
   padding: 0;
 }
 
-#tcjltrhomi .gt_table {
+#mpdpnzmlkd .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -2884,12 +2899,12 @@ all return the same raw coefficients.</p>
   border-left-color: #D3D3D3;
 }
 
-#tcjltrhomi .gt_caption {
+#mpdpnzmlkd .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#tcjltrhomi .gt_title {
+#mpdpnzmlkd .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -2901,7 +2916,7 @@ all return the same raw coefficients.</p>
   border-bottom-width: 0;
 }
 
-#tcjltrhomi .gt_subtitle {
+#mpdpnzmlkd .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -2913,7 +2928,7 @@ all return the same raw coefficients.</p>
   border-top-width: 0;
 }
 
-#tcjltrhomi .gt_heading {
+#mpdpnzmlkd .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -2925,13 +2940,13 @@ all return the same raw coefficients.</p>
   border-right-color: #D3D3D3;
 }
 
-#tcjltrhomi .gt_bottom_border {
+#mpdpnzmlkd .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#tcjltrhomi .gt_col_headings {
+#mpdpnzmlkd .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2946,7 +2961,7 @@ all return the same raw coefficients.</p>
   border-right-color: #D3D3D3;
 }
 
-#tcjltrhomi .gt_col_heading {
+#mpdpnzmlkd .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2966,7 +2981,7 @@ all return the same raw coefficients.</p>
   overflow-x: hidden;
 }
 
-#tcjltrhomi .gt_column_spanner_outer {
+#mpdpnzmlkd .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2978,15 +2993,15 @@ all return the same raw coefficients.</p>
   padding-right: 4px;
 }
 
-#tcjltrhomi .gt_column_spanner_outer:first-child {
+#mpdpnzmlkd .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#tcjltrhomi .gt_column_spanner_outer:last-child {
+#mpdpnzmlkd .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#tcjltrhomi .gt_column_spanner {
+#mpdpnzmlkd .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -2998,11 +3013,11 @@ all return the same raw coefficients.</p>
   width: 100%;
 }
 
-#tcjltrhomi .gt_spanner_row {
+#mpdpnzmlkd .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#tcjltrhomi .gt_group_heading {
+#mpdpnzmlkd .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3028,7 +3043,7 @@ all return the same raw coefficients.</p>
   text-align: left;
 }
 
-#tcjltrhomi .gt_empty_group_heading {
+#mpdpnzmlkd .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -3043,15 +3058,15 @@ all return the same raw coefficients.</p>
   vertical-align: middle;
 }
 
-#tcjltrhomi .gt_from_md > :first-child {
+#mpdpnzmlkd .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#tcjltrhomi .gt_from_md > :last-child {
+#mpdpnzmlkd .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#tcjltrhomi .gt_row {
+#mpdpnzmlkd .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3070,7 +3085,7 @@ all return the same raw coefficients.</p>
   overflow-x: hidden;
 }
 
-#tcjltrhomi .gt_stub {
+#mpdpnzmlkd .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3083,7 +3098,7 @@ all return the same raw coefficients.</p>
   padding-right: 5px;
 }
 
-#tcjltrhomi .gt_stub_row_group {
+#mpdpnzmlkd .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3097,15 +3112,15 @@ all return the same raw coefficients.</p>
   vertical-align: top;
 }
 
-#tcjltrhomi .gt_row_group_first td {
+#mpdpnzmlkd .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#tcjltrhomi .gt_row_group_first th {
+#mpdpnzmlkd .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#tcjltrhomi .gt_summary_row {
+#mpdpnzmlkd .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -3115,16 +3130,16 @@ all return the same raw coefficients.</p>
   padding-right: 5px;
 }
 
-#tcjltrhomi .gt_first_summary_row {
+#mpdpnzmlkd .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#tcjltrhomi .gt_first_summary_row.thick {
+#mpdpnzmlkd .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#tcjltrhomi .gt_last_summary_row {
+#mpdpnzmlkd .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3134,7 +3149,7 @@ all return the same raw coefficients.</p>
   border-bottom-color: #D3D3D3;
 }
 
-#tcjltrhomi .gt_grand_summary_row {
+#mpdpnzmlkd .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -3144,7 +3159,7 @@ all return the same raw coefficients.</p>
   padding-right: 5px;
 }
 
-#tcjltrhomi .gt_first_grand_summary_row {
+#mpdpnzmlkd .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3154,7 +3169,7 @@ all return the same raw coefficients.</p>
   border-top-color: #D3D3D3;
 }
 
-#tcjltrhomi .gt_last_grand_summary_row_top {
+#mpdpnzmlkd .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3164,11 +3179,11 @@ all return the same raw coefficients.</p>
   border-bottom-color: #D3D3D3;
 }
 
-#tcjltrhomi .gt_striped {
+#mpdpnzmlkd .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#tcjltrhomi .gt_table_body {
+#mpdpnzmlkd .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -3177,7 +3192,7 @@ all return the same raw coefficients.</p>
   border-bottom-color: #D3D3D3;
 }
 
-#tcjltrhomi .gt_footnotes {
+#mpdpnzmlkd .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -3191,7 +3206,7 @@ all return the same raw coefficients.</p>
   border-right-color: #D3D3D3;
 }
 
-#tcjltrhomi .gt_footnote {
+#mpdpnzmlkd .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -3200,7 +3215,7 @@ all return the same raw coefficients.</p>
   padding-right: 5px;
 }
 
-#tcjltrhomi .gt_sourcenotes {
+#mpdpnzmlkd .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -3214,7 +3229,7 @@ all return the same raw coefficients.</p>
   border-right-color: #D3D3D3;
 }
 
-#tcjltrhomi .gt_sourcenote {
+#mpdpnzmlkd .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -3222,63 +3237,63 @@ all return the same raw coefficients.</p>
   padding-right: 5px;
 }
 
-#tcjltrhomi .gt_left {
+#mpdpnzmlkd .gt_left {
   text-align: left;
 }
 
-#tcjltrhomi .gt_center {
+#mpdpnzmlkd .gt_center {
   text-align: center;
 }
 
-#tcjltrhomi .gt_right {
+#mpdpnzmlkd .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#tcjltrhomi .gt_font_normal {
+#mpdpnzmlkd .gt_font_normal {
   font-weight: normal;
 }
 
-#tcjltrhomi .gt_font_bold {
+#mpdpnzmlkd .gt_font_bold {
   font-weight: bold;
 }
 
-#tcjltrhomi .gt_font_italic {
+#mpdpnzmlkd .gt_font_italic {
   font-style: italic;
 }
 
-#tcjltrhomi .gt_super {
+#mpdpnzmlkd .gt_super {
   font-size: 65%;
 }
 
-#tcjltrhomi .gt_footnote_marks {
+#mpdpnzmlkd .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#tcjltrhomi .gt_asterisk {
+#mpdpnzmlkd .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#tcjltrhomi .gt_indent_1 {
+#mpdpnzmlkd .gt_indent_1 {
   text-indent: 5px;
 }
 
-#tcjltrhomi .gt_indent_2 {
+#mpdpnzmlkd .gt_indent_2 {
   text-indent: 10px;
 }
 
-#tcjltrhomi .gt_indent_3 {
+#mpdpnzmlkd .gt_indent_3 {
   text-indent: 15px;
 }
 
-#tcjltrhomi .gt_indent_4 {
+#mpdpnzmlkd .gt_indent_4 {
   text-indent: 20px;
 }
 
-#tcjltrhomi .gt_indent_5 {
+#mpdpnzmlkd .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -3294,7 +3309,7 @@ all return the same raw coefficients.</p>
     </tr></thead>
 <tbody class="gt_table_body">
 <tr>
-<td headers="" class="gt_row gt_left">.Dtreat × first.treat = 2004 × year = 2004</td>
+<td headers=" " class="gt_row gt_left">.Dtreat × first.treat = 2004 × year = 2004</td>
 <td headers="etwfe" class="gt_row gt_center">-0.021</td>
 <td headers="manual" class="gt_row gt_center">-0.021</td>
 <td headers="etwfe (feo)" class="gt_row gt_center">-0.021</td>
@@ -3303,7 +3318,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">-0.021</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="etwfe" class="gt_row gt_center">(0.022)</td>
 <td headers="manual" class="gt_row gt_center">(0.022)</td>
 <td headers="etwfe (feo)" class="gt_row gt_center">(0.022)</td>
@@ -3312,7 +3327,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">(0.022)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">.Dtreat × first.treat = 2004 × year = 2005</td>
+<td headers=" " class="gt_row gt_left">.Dtreat × first.treat = 2004 × year = 2005</td>
 <td headers="etwfe" class="gt_row gt_center">-0.082</td>
 <td headers="manual" class="gt_row gt_center">-0.082</td>
 <td headers="etwfe (feo)" class="gt_row gt_center">-0.082</td>
@@ -3321,7 +3336,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">-0.082</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="etwfe" class="gt_row gt_center">(0.027)</td>
 <td headers="manual" class="gt_row gt_center">(0.027)</td>
 <td headers="etwfe (feo)" class="gt_row gt_center">(0.027)</td>
@@ -3330,7 +3345,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">(0.027)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">.Dtreat × first.treat = 2004 × year = 2006</td>
+<td headers=" " class="gt_row gt_left">.Dtreat × first.treat = 2004 × year = 2006</td>
 <td headers="etwfe" class="gt_row gt_center">-0.138</td>
 <td headers="manual" class="gt_row gt_center">-0.138</td>
 <td headers="etwfe (feo)" class="gt_row gt_center">-0.138</td>
@@ -3339,7 +3354,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">-0.138</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="etwfe" class="gt_row gt_center">(0.031)</td>
 <td headers="manual" class="gt_row gt_center">(0.031)</td>
 <td headers="etwfe (feo)" class="gt_row gt_center">(0.031)</td>
@@ -3348,7 +3363,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">(0.031)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">.Dtreat × first.treat = 2004 × year = 2007</td>
+<td headers=" " class="gt_row gt_left">.Dtreat × first.treat = 2004 × year = 2007</td>
 <td headers="etwfe" class="gt_row gt_center">-0.110</td>
 <td headers="manual" class="gt_row gt_center">-0.110</td>
 <td headers="etwfe (feo)" class="gt_row gt_center">-0.110</td>
@@ -3357,7 +3372,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">-0.110</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="etwfe" class="gt_row gt_center">(0.032)</td>
 <td headers="manual" class="gt_row gt_center">(0.032)</td>
 <td headers="etwfe (feo)" class="gt_row gt_center">(0.032)</td>
@@ -3366,7 +3381,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">(0.032)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">.Dtreat × first.treat = 2006 × year = 2006</td>
+<td headers=" " class="gt_row gt_left">.Dtreat × first.treat = 2006 × year = 2006</td>
 <td headers="etwfe" class="gt_row gt_center">0.003</td>
 <td headers="manual" class="gt_row gt_center">0.003</td>
 <td headers="etwfe (feo)" class="gt_row gt_center">0.003</td>
@@ -3375,7 +3390,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">0.003</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="etwfe" class="gt_row gt_center">(0.019)</td>
 <td headers="manual" class="gt_row gt_center">(0.019)</td>
 <td headers="etwfe (feo)" class="gt_row gt_center">(0.019)</td>
@@ -3384,7 +3399,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">(0.019)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">.Dtreat × first.treat = 2006 × year = 2007</td>
+<td headers=" " class="gt_row gt_left">.Dtreat × first.treat = 2006 × year = 2007</td>
 <td headers="etwfe" class="gt_row gt_center">-0.045</td>
 <td headers="manual" class="gt_row gt_center">-0.045</td>
 <td headers="etwfe (feo)" class="gt_row gt_center">-0.045</td>
@@ -3393,7 +3408,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">-0.045</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="etwfe" class="gt_row gt_center">(0.022)</td>
 <td headers="manual" class="gt_row gt_center">(0.022)</td>
 <td headers="etwfe (feo)" class="gt_row gt_center">(0.022)</td>
@@ -3402,7 +3417,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">(0.022)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">.Dtreat × first.treat = 2007 × year = 2007</td>
+<td headers=" " class="gt_row gt_left">.Dtreat × first.treat = 2007 × year = 2007</td>
 <td headers="etwfe" class="gt_row gt_center">-0.046</td>
 <td headers="manual" class="gt_row gt_center">-0.046</td>
 <td headers="etwfe (feo)" class="gt_row gt_center">-0.046</td>
@@ -3411,7 +3426,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">-0.046</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="etwfe" class="gt_row gt_center">(0.018)</td>
 <td headers="manual" class="gt_row gt_center">(0.018)</td>
 <td headers="etwfe (feo)" class="gt_row gt_center">(0.018)</td>
@@ -3420,7 +3435,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">(0.018)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">.Dtreat × first.treat = 2004 × year = 2004 × lpop_dm</td>
+<td headers=" " class="gt_row gt_left">.Dtreat × first.treat = 2004 × year = 2004 × lpop_dm</td>
 <td headers="etwfe" class="gt_row gt_center">0.005</td>
 <td headers="manual" class="gt_row gt_center">0.005</td>
 <td headers="etwfe (feo)" class="gt_row gt_center">0.005</td>
@@ -3429,7 +3444,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">0.005</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="etwfe" class="gt_row gt_center">(0.018)</td>
 <td headers="manual" class="gt_row gt_center">(0.018)</td>
 <td headers="etwfe (feo)" class="gt_row gt_center">(0.018)</td>
@@ -3438,7 +3453,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">(0.018)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">.Dtreat × first.treat = 2004 × year = 2005 × lpop_dm</td>
+<td headers=" " class="gt_row gt_left">.Dtreat × first.treat = 2004 × year = 2005 × lpop_dm</td>
 <td headers="etwfe" class="gt_row gt_center">0.025</td>
 <td headers="manual" class="gt_row gt_center">0.025</td>
 <td headers="etwfe (feo)" class="gt_row gt_center">0.025</td>
@@ -3447,7 +3462,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">0.025</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="etwfe" class="gt_row gt_center">(0.018)</td>
 <td headers="manual" class="gt_row gt_center">(0.018)</td>
 <td headers="etwfe (feo)" class="gt_row gt_center">(0.018)</td>
@@ -3456,7 +3471,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">(0.018)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">.Dtreat × first.treat = 2004 × year = 2006 × lpop_dm</td>
+<td headers=" " class="gt_row gt_left">.Dtreat × first.treat = 2004 × year = 2006 × lpop_dm</td>
 <td headers="etwfe" class="gt_row gt_center">0.051</td>
 <td headers="manual" class="gt_row gt_center">0.051</td>
 <td headers="etwfe (feo)" class="gt_row gt_center">0.051</td>
@@ -3465,7 +3480,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">0.051</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="etwfe" class="gt_row gt_center">(0.021)</td>
 <td headers="manual" class="gt_row gt_center">(0.021)</td>
 <td headers="etwfe (feo)" class="gt_row gt_center">(0.021)</td>
@@ -3474,7 +3489,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">(0.021)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">.Dtreat × first.treat = 2004 × year = 2007 × lpop_dm</td>
+<td headers=" " class="gt_row gt_left">.Dtreat × first.treat = 2004 × year = 2007 × lpop_dm</td>
 <td headers="etwfe" class="gt_row gt_center">0.011</td>
 <td headers="manual" class="gt_row gt_center">0.011</td>
 <td headers="etwfe (feo)" class="gt_row gt_center">0.011</td>
@@ -3483,7 +3498,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">0.011</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="etwfe" class="gt_row gt_center">(0.027)</td>
 <td headers="manual" class="gt_row gt_center">(0.027)</td>
 <td headers="etwfe (feo)" class="gt_row gt_center">(0.027)</td>
@@ -3492,7 +3507,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">(0.027)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">.Dtreat × first.treat = 2006 × year = 2006 × lpop_dm</td>
+<td headers=" " class="gt_row gt_left">.Dtreat × first.treat = 2006 × year = 2006 × lpop_dm</td>
 <td headers="etwfe" class="gt_row gt_center">0.039</td>
 <td headers="manual" class="gt_row gt_center">0.039</td>
 <td headers="etwfe (feo)" class="gt_row gt_center">0.039</td>
@@ -3501,7 +3516,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">0.039</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="etwfe" class="gt_row gt_center">(0.016)</td>
 <td headers="manual" class="gt_row gt_center">(0.016)</td>
 <td headers="etwfe (feo)" class="gt_row gt_center">(0.016)</td>
@@ -3510,7 +3525,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">(0.016)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">.Dtreat × first.treat = 2006 × year = 2007 × lpop_dm</td>
+<td headers=" " class="gt_row gt_left">.Dtreat × first.treat = 2006 × year = 2007 × lpop_dm</td>
 <td headers="etwfe" class="gt_row gt_center">0.038</td>
 <td headers="manual" class="gt_row gt_center">0.038</td>
 <td headers="etwfe (feo)" class="gt_row gt_center">0.038</td>
@@ -3519,7 +3534,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">0.038</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="etwfe" class="gt_row gt_center">(0.022)</td>
 <td headers="manual" class="gt_row gt_center">(0.022)</td>
 <td headers="etwfe (feo)" class="gt_row gt_center">(0.022)</td>
@@ -3528,7 +3543,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">(0.022)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">.Dtreat × first.treat = 2007 × year = 2007 × lpop_dm</td>
+<td headers=" " class="gt_row gt_left">.Dtreat × first.treat = 2007 × year = 2007 × lpop_dm</td>
 <td headers="etwfe" class="gt_row gt_center">-0.020</td>
 <td headers="manual" class="gt_row gt_center">-0.020</td>
 <td headers="etwfe (feo)" class="gt_row gt_center">-0.020</td>
@@ -3537,7 +3552,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">-0.020</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="etwfe" class="gt_row gt_center">(0.016)</td>
 <td headers="manual" class="gt_row gt_center">(0.016)</td>
 <td headers="etwfe (feo)" class="gt_row gt_center">(0.016)</td>
@@ -3546,7 +3561,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">(0.016)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">lpop</td>
+<td headers=" " class="gt_row gt_left">lpop</td>
 <td headers="etwfe" class="gt_row gt_center"></td>
 <td headers="manual" class="gt_row gt_center"></td>
 <td headers="etwfe (feo)" class="gt_row gt_center">1.065</td>
@@ -3555,7 +3570,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">1.065</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="etwfe" class="gt_row gt_center"></td>
 <td headers="manual" class="gt_row gt_center"></td>
 <td headers="etwfe (feo)" class="gt_row gt_center">(0.022)</td>
@@ -3564,7 +3579,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">(0.022)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">first.treat = 2004 × lpop</td>
+<td headers=" " class="gt_row gt_left">first.treat = 2004 × lpop</td>
 <td headers="etwfe" class="gt_row gt_center"></td>
 <td headers="manual" class="gt_row gt_center"></td>
 <td headers="etwfe (feo)" class="gt_row gt_center">0.051</td>
@@ -3573,7 +3588,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">0.051</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="etwfe" class="gt_row gt_center"></td>
 <td headers="manual" class="gt_row gt_center"></td>
 <td headers="etwfe (feo)" class="gt_row gt_center">(0.038)</td>
@@ -3582,7 +3597,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">(0.038)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">first.treat = 2006 × lpop</td>
+<td headers=" " class="gt_row gt_left">first.treat = 2006 × lpop</td>
 <td headers="etwfe" class="gt_row gt_center"></td>
 <td headers="manual" class="gt_row gt_center"></td>
 <td headers="etwfe (feo)" class="gt_row gt_center">-0.041</td>
@@ -3591,7 +3606,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">-0.041</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="etwfe" class="gt_row gt_center"></td>
 <td headers="manual" class="gt_row gt_center"></td>
 <td headers="etwfe (feo)" class="gt_row gt_center">(0.047)</td>
@@ -3600,7 +3615,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">(0.047)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">first.treat = 2007 × lpop</td>
+<td headers=" " class="gt_row gt_left">first.treat = 2007 × lpop</td>
 <td headers="etwfe" class="gt_row gt_center"></td>
 <td headers="manual" class="gt_row gt_center"></td>
 <td headers="etwfe (feo)" class="gt_row gt_center">0.056</td>
@@ -3609,7 +3624,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">0.056</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="etwfe" class="gt_row gt_center"></td>
 <td headers="manual" class="gt_row gt_center"></td>
 <td headers="etwfe (feo)" class="gt_row gt_center">(0.039)</td>
@@ -3618,7 +3633,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">(0.039)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">year = 2004 × lpop</td>
+<td headers=" " class="gt_row gt_left">year = 2004 × lpop</td>
 <td headers="etwfe" class="gt_row gt_center"></td>
 <td headers="manual" class="gt_row gt_center"></td>
 <td headers="etwfe (feo)" class="gt_row gt_center">0.011</td>
@@ -3627,7 +3642,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">0.011</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="etwfe" class="gt_row gt_center"></td>
 <td headers="manual" class="gt_row gt_center"></td>
 <td headers="etwfe (feo)" class="gt_row gt_center">(0.008)</td>
@@ -3636,7 +3651,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">(0.008)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">year = 2005 × lpop</td>
+<td headers=" " class="gt_row gt_left">year = 2005 × lpop</td>
 <td headers="etwfe" class="gt_row gt_center"></td>
 <td headers="manual" class="gt_row gt_center"></td>
 <td headers="etwfe (feo)" class="gt_row gt_center">0.021</td>
@@ -3645,7 +3660,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">0.021</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="etwfe" class="gt_row gt_center"></td>
 <td headers="manual" class="gt_row gt_center"></td>
 <td headers="etwfe (feo)" class="gt_row gt_center">(0.008)</td>
@@ -3654,7 +3669,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">(0.008)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">year = 2006 × lpop</td>
+<td headers=" " class="gt_row gt_left">year = 2006 × lpop</td>
 <td headers="etwfe" class="gt_row gt_center"></td>
 <td headers="manual" class="gt_row gt_center"></td>
 <td headers="etwfe (feo)" class="gt_row gt_center">0.011</td>
@@ -3663,7 +3678,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">0.011</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="etwfe" class="gt_row gt_center"></td>
 <td headers="manual" class="gt_row gt_center"></td>
 <td headers="etwfe (feo)" class="gt_row gt_center">(0.011)</td>
@@ -3672,7 +3687,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">(0.011)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">year = 2007 × lpop</td>
+<td headers=" " class="gt_row gt_left">year = 2007 × lpop</td>
 <td headers="etwfe" class="gt_row gt_center"></td>
 <td headers="manual" class="gt_row gt_center"></td>
 <td headers="etwfe (feo)" class="gt_row gt_center">0.021</td>
@@ -3681,7 +3696,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">0.021</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="etwfe" class="gt_row gt_center"></td>
 <td headers="manual" class="gt_row gt_center"></td>
 <td headers="etwfe (feo)" class="gt_row gt_center">(0.012)</td>
@@ -3690,7 +3705,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">(0.012)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">(Intercept)</td>
+<td headers=" " class="gt_row gt_left">(Intercept)</td>
 <td headers="etwfe" class="gt_row gt_center"></td>
 <td headers="manual" class="gt_row gt_center"></td>
 <td headers="etwfe (feo)" class="gt_row gt_center"></td>
@@ -3699,7 +3714,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">2.260</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="etwfe" class="gt_row gt_center"></td>
 <td headers="manual" class="gt_row gt_center"></td>
 <td headers="etwfe (feo)" class="gt_row gt_center"></td>
@@ -3708,7 +3723,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">(0.088)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">first.treat = 2004</td>
+<td headers=" " class="gt_row gt_left">first.treat = 2004</td>
 <td headers="etwfe" class="gt_row gt_center"></td>
 <td headers="manual" class="gt_row gt_center"></td>
 <td headers="etwfe (feo)" class="gt_row gt_center"></td>
@@ -3717,7 +3732,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">0.038</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="etwfe" class="gt_row gt_center"></td>
 <td headers="manual" class="gt_row gt_center"></td>
 <td headers="etwfe (feo)" class="gt_row gt_center"></td>
@@ -3726,7 +3741,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">(0.154)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">first.treat = 2006</td>
+<td headers=" " class="gt_row gt_left">first.treat = 2006</td>
 <td headers="etwfe" class="gt_row gt_center"></td>
 <td headers="manual" class="gt_row gt_center"></td>
 <td headers="etwfe (feo)" class="gt_row gt_center"></td>
@@ -3735,7 +3750,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">0.461</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="etwfe" class="gt_row gt_center"></td>
 <td headers="manual" class="gt_row gt_center"></td>
 <td headers="etwfe (feo)" class="gt_row gt_center"></td>
@@ -3744,7 +3759,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">(0.213)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">first.treat = 2007</td>
+<td headers=" " class="gt_row gt_left">first.treat = 2007</td>
 <td headers="etwfe" class="gt_row gt_center"></td>
 <td headers="manual" class="gt_row gt_center"></td>
 <td headers="etwfe (feo)" class="gt_row gt_center"></td>
@@ -3753,7 +3768,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">-0.286</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="etwfe" class="gt_row gt_center"></td>
 <td headers="manual" class="gt_row gt_center"></td>
 <td headers="etwfe (feo)" class="gt_row gt_center"></td>
@@ -3762,7 +3777,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">(0.167)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">year = 2004</td>
+<td headers=" " class="gt_row gt_left">year = 2004</td>
 <td headers="etwfe" class="gt_row gt_center"></td>
 <td headers="manual" class="gt_row gt_center"></td>
 <td headers="etwfe (feo)" class="gt_row gt_center"></td>
@@ -3771,7 +3786,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">-0.090</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="etwfe" class="gt_row gt_center"></td>
 <td headers="manual" class="gt_row gt_center"></td>
 <td headers="etwfe (feo)" class="gt_row gt_center"></td>
@@ -3780,7 +3795,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">(0.031)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">year = 2005</td>
+<td headers=" " class="gt_row gt_left">year = 2005</td>
 <td headers="etwfe" class="gt_row gt_center"></td>
 <td headers="manual" class="gt_row gt_center"></td>
 <td headers="etwfe (feo)" class="gt_row gt_center"></td>
@@ -3789,7 +3804,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">-0.110</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="etwfe" class="gt_row gt_center"></td>
 <td headers="manual" class="gt_row gt_center"></td>
 <td headers="etwfe (feo)" class="gt_row gt_center"></td>
@@ -3798,7 +3813,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">(0.033)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">year = 2006</td>
+<td headers=" " class="gt_row gt_left">year = 2006</td>
 <td headers="etwfe" class="gt_row gt_center"></td>
 <td headers="manual" class="gt_row gt_center"></td>
 <td headers="etwfe (feo)" class="gt_row gt_center"></td>
@@ -3807,7 +3822,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">-0.052</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="etwfe" class="gt_row gt_center"></td>
 <td headers="manual" class="gt_row gt_center"></td>
 <td headers="etwfe (feo)" class="gt_row gt_center"></td>
@@ -3816,7 +3831,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">(0.040)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">year = 2007</td>
+<td headers=" " class="gt_row gt_left">year = 2007</td>
 <td headers="etwfe" class="gt_row gt_center"></td>
 <td headers="manual" class="gt_row gt_center"></td>
 <td headers="etwfe (feo)" class="gt_row gt_center"></td>
@@ -3825,7 +3840,7 @@ all return the same raw coefficients.</p>
 <td headers="manual (none)" class="gt_row gt_center">-0.057</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="etwfe" class="gt_row gt_center"></td>
 <td headers="manual" class="gt_row gt_center"></td>
 <td headers="etwfe (feo)" class="gt_row gt_center"></td>
@@ -3857,29 +3872,29 @@ slightly different).</p>
 <span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="st">"event"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/modelsummary/man/modelsummary.html" class="external-link">modelsummary</a></span><span class="op">(</span></span>
+<span><span class="fu"><a href="https://modelsummary.com/reference/modelsummary.html" class="external-link">modelsummary</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"Group-level FEs (default)"</span> <span class="op">=</span> <span class="va">mod_es</span>, <span class="st">"Unit-level FEs"</span> <span class="op">=</span> <span class="va">mod_es_i</span><span class="op">)</span>,</span>
 <span>  shape       <span class="op">=</span> <span class="va">term</span><span class="op">:</span><span class="va">event</span><span class="op">:</span><span class="va">statistic</span> <span class="op">~</span> <span class="va">model</span>,</span>
 <span>  coef_rename <span class="op">=</span> <span class="va">rename_fn</span>,</span>
 <span>  gof_omit    <span class="op">=</span> <span class="st">"Adj|Within|IC|RMSE"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<div id="qzxhenebyy" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#qzxhenebyy table {
+<div id="relahoqhhe" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#relahoqhhe table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#qzxhenebyy thead, #qzxhenebyy tbody, #qzxhenebyy tfoot, #qzxhenebyy tr, #qzxhenebyy td, #qzxhenebyy th {
+#relahoqhhe thead, #relahoqhhe tbody, #relahoqhhe tfoot, #relahoqhhe tr, #relahoqhhe td, #relahoqhhe th {
   border-style: none;
 }
 
-#qzxhenebyy p {
+#relahoqhhe p {
   margin: 0;
   padding: 0;
 }
 
-#qzxhenebyy .gt_table {
+#relahoqhhe .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -3905,12 +3920,12 @@ slightly different).</p>
   border-left-color: #D3D3D3;
 }
 
-#qzxhenebyy .gt_caption {
+#relahoqhhe .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#qzxhenebyy .gt_title {
+#relahoqhhe .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -3922,7 +3937,7 @@ slightly different).</p>
   border-bottom-width: 0;
 }
 
-#qzxhenebyy .gt_subtitle {
+#relahoqhhe .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -3934,7 +3949,7 @@ slightly different).</p>
   border-top-width: 0;
 }
 
-#qzxhenebyy .gt_heading {
+#relahoqhhe .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -3946,13 +3961,13 @@ slightly different).</p>
   border-right-color: #D3D3D3;
 }
 
-#qzxhenebyy .gt_bottom_border {
+#relahoqhhe .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#qzxhenebyy .gt_col_headings {
+#relahoqhhe .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -3967,7 +3982,7 @@ slightly different).</p>
   border-right-color: #D3D3D3;
 }
 
-#qzxhenebyy .gt_col_heading {
+#relahoqhhe .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3987,7 +4002,7 @@ slightly different).</p>
   overflow-x: hidden;
 }
 
-#qzxhenebyy .gt_column_spanner_outer {
+#relahoqhhe .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3999,15 +4014,15 @@ slightly different).</p>
   padding-right: 4px;
 }
 
-#qzxhenebyy .gt_column_spanner_outer:first-child {
+#relahoqhhe .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#qzxhenebyy .gt_column_spanner_outer:last-child {
+#relahoqhhe .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#qzxhenebyy .gt_column_spanner {
+#relahoqhhe .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -4019,11 +4034,11 @@ slightly different).</p>
   width: 100%;
 }
 
-#qzxhenebyy .gt_spanner_row {
+#relahoqhhe .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#qzxhenebyy .gt_group_heading {
+#relahoqhhe .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -4049,7 +4064,7 @@ slightly different).</p>
   text-align: left;
 }
 
-#qzxhenebyy .gt_empty_group_heading {
+#relahoqhhe .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -4064,15 +4079,15 @@ slightly different).</p>
   vertical-align: middle;
 }
 
-#qzxhenebyy .gt_from_md > :first-child {
+#relahoqhhe .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#qzxhenebyy .gt_from_md > :last-child {
+#relahoqhhe .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#qzxhenebyy .gt_row {
+#relahoqhhe .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -4091,7 +4106,7 @@ slightly different).</p>
   overflow-x: hidden;
 }
 
-#qzxhenebyy .gt_stub {
+#relahoqhhe .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -4104,7 +4119,7 @@ slightly different).</p>
   padding-right: 5px;
 }
 
-#qzxhenebyy .gt_stub_row_group {
+#relahoqhhe .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -4118,15 +4133,15 @@ slightly different).</p>
   vertical-align: top;
 }
 
-#qzxhenebyy .gt_row_group_first td {
+#relahoqhhe .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#qzxhenebyy .gt_row_group_first th {
+#relahoqhhe .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#qzxhenebyy .gt_summary_row {
+#relahoqhhe .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -4136,16 +4151,16 @@ slightly different).</p>
   padding-right: 5px;
 }
 
-#qzxhenebyy .gt_first_summary_row {
+#relahoqhhe .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#qzxhenebyy .gt_first_summary_row.thick {
+#relahoqhhe .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#qzxhenebyy .gt_last_summary_row {
+#relahoqhhe .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -4155,7 +4170,7 @@ slightly different).</p>
   border-bottom-color: #D3D3D3;
 }
 
-#qzxhenebyy .gt_grand_summary_row {
+#relahoqhhe .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -4165,7 +4180,7 @@ slightly different).</p>
   padding-right: 5px;
 }
 
-#qzxhenebyy .gt_first_grand_summary_row {
+#relahoqhhe .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -4175,7 +4190,7 @@ slightly different).</p>
   border-top-color: #D3D3D3;
 }
 
-#qzxhenebyy .gt_last_grand_summary_row_top {
+#relahoqhhe .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -4185,11 +4200,11 @@ slightly different).</p>
   border-bottom-color: #D3D3D3;
 }
 
-#qzxhenebyy .gt_striped {
+#relahoqhhe .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#qzxhenebyy .gt_table_body {
+#relahoqhhe .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -4198,7 +4213,7 @@ slightly different).</p>
   border-bottom-color: #D3D3D3;
 }
 
-#qzxhenebyy .gt_footnotes {
+#relahoqhhe .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -4212,7 +4227,7 @@ slightly different).</p>
   border-right-color: #D3D3D3;
 }
 
-#qzxhenebyy .gt_footnote {
+#relahoqhhe .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -4221,7 +4236,7 @@ slightly different).</p>
   padding-right: 5px;
 }
 
-#qzxhenebyy .gt_sourcenotes {
+#relahoqhhe .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -4235,7 +4250,7 @@ slightly different).</p>
   border-right-color: #D3D3D3;
 }
 
-#qzxhenebyy .gt_sourcenote {
+#relahoqhhe .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -4243,63 +4258,63 @@ slightly different).</p>
   padding-right: 5px;
 }
 
-#qzxhenebyy .gt_left {
+#relahoqhhe .gt_left {
   text-align: left;
 }
 
-#qzxhenebyy .gt_center {
+#relahoqhhe .gt_center {
   text-align: center;
 }
 
-#qzxhenebyy .gt_right {
+#relahoqhhe .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#qzxhenebyy .gt_font_normal {
+#relahoqhhe .gt_font_normal {
   font-weight: normal;
 }
 
-#qzxhenebyy .gt_font_bold {
+#relahoqhhe .gt_font_bold {
   font-weight: bold;
 }
 
-#qzxhenebyy .gt_font_italic {
+#relahoqhhe .gt_font_italic {
   font-style: italic;
 }
 
-#qzxhenebyy .gt_super {
+#relahoqhhe .gt_super {
   font-size: 65%;
 }
 
-#qzxhenebyy .gt_footnote_marks {
+#relahoqhhe .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#qzxhenebyy .gt_asterisk {
+#relahoqhhe .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#qzxhenebyy .gt_indent_1 {
+#relahoqhhe .gt_indent_1 {
   text-indent: 5px;
 }
 
-#qzxhenebyy .gt_indent_2 {
+#relahoqhhe .gt_indent_2 {
   text-indent: 10px;
 }
 
-#qzxhenebyy .gt_indent_3 {
+#relahoqhhe .gt_indent_3 {
   text-indent: 15px;
 }
 
-#qzxhenebyy .gt_indent_4 {
+#relahoqhhe .gt_indent_4 {
   text-indent: 20px;
 }
 
-#qzxhenebyy .gt_indent_5 {
+#relahoqhhe .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -4311,67 +4326,67 @@ slightly different).</p>
     </tr></thead>
 <tbody class="gt_table_body">
 <tr>
-<td headers="" class="gt_row gt_left">Years post treatment = 0</td>
+<td headers=" " class="gt_row gt_left">Years post treatment = 0</td>
 <td headers="Group-level FEs (default)" class="gt_row gt_center">-0.033</td>
 <td headers="Unit-level FEs" class="gt_row gt_center">-0.033</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="Group-level FEs (default)" class="gt_row gt_center">(0.013)</td>
 <td headers="Unit-level FEs" class="gt_row gt_center">(0.015)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">Years post treatment = 1</td>
+<td headers=" " class="gt_row gt_left">Years post treatment = 1</td>
 <td headers="Group-level FEs (default)" class="gt_row gt_center">-0.057</td>
 <td headers="Unit-level FEs" class="gt_row gt_center">-0.057</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="Group-level FEs (default)" class="gt_row gt_center">(0.017)</td>
 <td headers="Unit-level FEs" class="gt_row gt_center">(0.019)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">Years post treatment = 2</td>
+<td headers=" " class="gt_row gt_left">Years post treatment = 2</td>
 <td headers="Group-level FEs (default)" class="gt_row gt_center">-0.138</td>
 <td headers="Unit-level FEs" class="gt_row gt_center">-0.138</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left"></td>
+<td headers=" " class="gt_row gt_left"></td>
 <td headers="Group-level FEs (default)" class="gt_row gt_center">(0.031)</td>
 <td headers="Unit-level FEs" class="gt_row gt_center">(0.034)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">Years post treatment = 3</td>
+<td headers=" " class="gt_row gt_left">Years post treatment = 3</td>
 <td headers="Group-level FEs (default)" class="gt_row gt_center">-0.110</td>
 <td headers="Unit-level FEs" class="gt_row gt_center">-0.110</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left" style="border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: #000000;"></td>
+<td headers=" " class="gt_row gt_left" style="border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: #000000;"></td>
 <td headers="Group-level FEs (default)" class="gt_row gt_center" style="border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: #000000;">(0.032)</td>
 <td headers="Unit-level FEs" class="gt_row gt_center" style="border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: #000000;">(0.036)</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">Num.Obs.</td>
+<td headers=" " class="gt_row gt_left">Num.Obs.</td>
 <td headers="Group-level FEs (default)" class="gt_row gt_center">2500</td>
 <td headers="Unit-level FEs" class="gt_row gt_center">2500</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">R2</td>
+<td headers=" " class="gt_row gt_left">R2</td>
 <td headers="Group-level FEs (default)" class="gt_row gt_center">0.873</td>
 <td headers="Unit-level FEs" class="gt_row gt_center">0.993</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">FE..year</td>
+<td headers=" " class="gt_row gt_left">FE..year</td>
 <td headers="Group-level FEs (default)" class="gt_row gt_center">X</td>
 <td headers="Unit-level FEs" class="gt_row gt_center">X</td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">FE..first.treat</td>
+<td headers=" " class="gt_row gt_left">FE..first.treat</td>
 <td headers="Group-level FEs (default)" class="gt_row gt_center">X</td>
 <td headers="Unit-level FEs" class="gt_row gt_center"></td>
 </tr>
 <tr>
-<td headers="" class="gt_row gt_left">FE..countyreal</td>
+<td headers=" " class="gt_row gt_left">FE..countyreal</td>
 <td headers="Group-level FEs (default)" class="gt_row gt_center"></td>
 <td headers="Unit-level FEs" class="gt_row gt_center">X</td>
 </tr>
