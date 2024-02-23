@@ -77,6 +77,7 @@ emfx = function(
   if (by_xvar=="auto") by_xvar = !is.null(xvar)
   
   dat = data.table::as.data.table(eval(object$call$data, object$call_env))
+  if ("group" %in% names(dat)) dat[["group"]] = NULL
   
   # check collapse argument
   nrows = NULL

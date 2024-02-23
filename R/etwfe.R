@@ -238,10 +238,27 @@ etwfe = function(
   if (is.null(gvar)) stop("A non-NULL `gvar` argument is required.\n")
   if (is.null(tvar)) stop("A non-NULL `tvar` argument is required.\n")
   if (!is.null(family)) ivar = NULL
+
+  if ("group" %in% c(xvar, gvar, tvar, ivar)) {
+    stop(
+      "A variable called 'group' was detected in your model formula.",
+      "This is a reserved name within etwfe.",
+      "Please rename the 'group' column in your dataset, or use a different variable (a copy of 'group' is fine)."
+    )
+  }
   
   fml_paste = paste(fml)
   lhs = fml_paste[2]
   ctrls = fml_paste[3]
+  
+  if ("group" %in% c(xvar, gvar, tvar, ivar, lhs, ctrls)) {
+    stop(
+      "A variable called 'group' was detected in your model formula.",
+      "This is a reserved name within etwfe.",
+      "Please rename the 'group' column in your dataset, or use a different variable (a copy of 'group' is fine)."
+    )
+  }
+  
   if (length(ctrls) == 0) {
     ctrls = NULL
   } else if (ctrls %in% c("0", "1")) {
