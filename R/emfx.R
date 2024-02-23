@@ -26,7 +26,7 @@
 ##'   plotting an event-study); though be warned that this is strictly
 ##'   performative. This argument will only be evaluated if `type = "event"`.
 ##' @param ... Additional arguments passed to
-##'   [`marginaleffects::marginaleffects`]. For example, you can pass `vcov =
+##'   [`marginaleffects::slopes`]. For example, you can pass `vcov =
 ##'   FALSE` to dramatically speed up estimation times of the main marginal
 ##'   effects (but at the cost of not getting any information about standard
 ##'   errors; see Performance tips below). Another potentially useful
@@ -38,7 +38,8 @@
 ##' @inherit etwfe return examples 
 ##' @inheritSection etwfe Performance tips
 ##' @inheritSection etwfe Heterogeneous treatment effects
-##' @importFrom data.table .N .SD
+##' @importFrom data.table as.data.table setDT .N .SD
+##' @importFrom marginaleffects slopes
 ##' @export
 emfx = function(
     object,
@@ -76,7 +77,7 @@ emfx = function(
 
   if (by_xvar=="auto") by_xvar = !is.null(xvar)
   
-  dat = data.table::as.data.table(eval(object$call$data, object$call_env))
+  dat = as.data.table(eval(object$call$data, object$call_env))
   if ("group" %in% names(dat)) dat[["group"]] = NULL
   
   # check collapse argument
@@ -116,7 +117,7 @@ emfx = function(
     
     # collapse the data
     dat = dat[(.Dtreat)][, lapply(.SD, mean), by = c(gvar, tvar, xvar, ".Dtreat")] # collapse data
-    dat = data.table::setDT(dat)[, merge(.SD, dat_weights, all.x = TRUE)] # add weights
+    dat = setDT(dat)[, merge(.SD, dat_weights, all.x = TRUE)] # add weights
     
     
   } else if (collapse & !is.null(ivar)) {
@@ -141,7 +142,7 @@ emfx = function(
   
   if (by_xvar) by_var = c(by_var, xvar)
 
-  mfx = marginaleffects::slopes(
+  mfx = slopes(
     object,
     newdata = dat,   
     wts = "N",

@@ -45,7 +45,7 @@ plotting an event-study); though be warned that this is strictly
 performative. This argument will only be evaluated if \code{type = "event"}.}
 
 \item{...}{Additional arguments passed to
-\code{\link[marginaleffects:marginaleffects]{marginaleffects::marginaleffects}}. For example, you can pass \code{vcov = FALSE} to dramatically speed up estimation times of the main marginal
+\code{\link[marginaleffects:slopes]{marginaleffects::slopes}}. For example, you can pass \code{vcov = FALSE} to dramatically speed up estimation times of the main marginal
 effects (but at the cost of not getting any information about standard
 errors; see Performance tips below). Another potentially useful
 application is testing whether heterogeneous treatment effects (i.e. the
