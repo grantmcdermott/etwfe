@@ -1,3 +1,15 @@
+# etwfe 0.3.5.9001 (development version)
+
+## Bug fixes
+
+- Avoid (where possible) or error out if user supplies reserved "group" variable
+in formula (#41).
+
+## Documentation
+
+- Fix missing autolinks in documentation due to markdown formatting (#44
+etiennebacher).
+
 # etwfe 0.3.5
 
 ## Internal
