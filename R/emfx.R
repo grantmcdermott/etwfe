@@ -19,12 +19,17 @@
 ##'   TRUE. Note that collapsing by group is only valid if the preceding `etwfe`
 ##'   call was run with "ivar = NULL" (the default). See the section on
 ##'   Performance tips below.
-##' @param post_only Logical. Only keep post-treatment effects. All
-##'   pre-treatment effects will be zero as a mechanical result of ETWFE's
-##'   estimation setup, so the default is to drop these nuisance rows from the
-##'   dataset. But you may want to keep them for presentation reasons (e.g.,
-##'   plotting an event-study); though be warned that this is strictly
-##'   performative. This argument will only be evaluated if `type = "event"`.
+##' @param post_only Logical. Drop pre-treatment ATTs? Only evaluated if (a)
+##'   `type = "event"` and (b) the original `etwfe` model object was estimated
+##'   using the default "notyet" treated control group. If conditions (a) and
+##'   (b) are met then the pre-treatment effects will be zero as a mechanical
+##'   result of ETWFE's estimation setup. The default behaviour (`FALSE`) is
+##'   thus to drop these nuisance rows from the dataset. The `post_only` argument
+##'   recognises that you may still want to keep them for presentation purposes
+##'   (e.g., plotting an event-study). Nevertheless, be forewarned that enabling
+##'   that behaviour via `TRUE` is _strictly_ performative: the "zero" treatment
+##'   effects for any pre-treatment periods is purely an artefact of the
+##'   estimation setup.
 ##' @param ... Additional arguments passed to
 ##'   [`marginaleffects::slopes`]. For example, you can pass `vcov =
 ##'   FALSE` to dramatically speed up estimation times of the main marginal
@@ -54,12 +59,14 @@ emfx = function(
 
   .Dtreat = NULL
   type = match.arg(type)
-  gvar = attributes(object)[["etwfe"]][["gvar"]]
-  tvar = attributes(object)[["etwfe"]][["tvar"]]
-  ivar = attributes(object)[["etwfe"]][["ivar"]]
-  xvar = attributes(object)[["etwfe"]][["xvar"]]
-  gref = attributes(object)[["etwfe"]][["gref"]]
-  tref = attributes(object)[["etwfe"]][["tref"]]
+  etwfe_attr = attr(object, "etwfe")
+  gvar = etwfe_attr[["gvar"]]
+  tvar = etwfe_attr[["tvar"]]
+  ivar = etwfe_attr[["ivar"]]
+  xvar = etwfe_attr[["xvar"]]
+  gref = etwfe_attr[["gref"]]
+  tref = etwfe_attr[["tref"]]
+  cgroup = etwfe_attr[["cgroup"]]
   if (!by_xvar %in% c("auto", TRUE, FALSE)) stop("\"by_xvar\" has to be \"auto\", TRUE, or FALSE.")
   if (!collapse %in% c("auto", TRUE, FALSE)) stop("\"collapse\" has to be \"auto\", TRUE, or FALSE.")
   
@@ -92,10 +99,17 @@ emfx = function(
     }
   }
   
-  if (type=="event" & !post_only) {
+  if (cgroup == "never") {
+    dat = dat[dat[[gvar]] != gref, , drop = FALSE] # Drop never treated reference group
+    if (type != "event") {
+      # For non-event studies, we want to calculated ATTs for post-treatment only
+      dat = dat[dat[[".Dtreat"]], , drop = FALSE]
+      dat = dat[dat[[tvar]] >= dat[[gvar]], , drop = FALSE]
+    }
+  } else if (type=="event" & isFALSE(post_only)) {
     dat = dat[dat[[gvar]] != gref, , drop = FALSE]
-  } else {
-    if (".Dtreat" %in% names(dat)) dat = dat[dat[[".Dtreat"]], , drop = FALSE]
+  } else if (".Dtreat" %in% names(dat)) {
+    dat = dat[dat[[".Dtreat"]], , drop = FALSE]
   }
   
   # define formulas and calculate weights

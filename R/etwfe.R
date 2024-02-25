@@ -307,9 +307,9 @@ etwfe = function(
       tref = min(tref, na.rm = TRUE) ## placeholder. could do something a bit smarter here like bin post periods.
       ## also: what about NA vals?
   }
-  ref_string = paste0(ref_string, ", ref2 = ", tref)
   
   if (cgroup == "notyet") {
+    ref_string = paste0(ref_string, ", ref2 = ", tref)
     data[[".Dtreat"]] = data[[tvar]] >= data[[gvar]] & data[[gvar]] != gref
     if (!gref_min_flag) {
       data[[".Dtreat"]] = ifelse(data[[tvar]] < gref, data[[".Dtreat"]], NA)
@@ -318,7 +318,9 @@ etwfe = function(
     }
   } else {
     ## Placeholder .Dtreat for never treated group
-    data[[".Dtreat"]] = TRUE
+    # data[[".Dtreat"]] = TRUE
+    ## Force reference group to be the year before treatment if cgroup == "never"
+    data[[".Dtreat"]] = data[[tvar]] != data[[gvar]] - 1L
   }
   rhs = paste0(".Dtreat : ", rhs)
   
@@ -435,7 +437,8 @@ etwfe = function(
       xvar = xvar,
       ivar = ivar,
       gref = gref,
-      tref = tref
+      tref = tref,
+      cgroup = cgroup
       )
 
   ## Return ----

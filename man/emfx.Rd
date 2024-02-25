@@ -37,12 +37,17 @@ TRUE. Note that collapsing by group is only valid if the preceding \code{etwfe}
 call was run with "ivar = NULL" (the default). See the section on
 Performance tips below.}
 
-\item{post_only}{Logical. Only keep post-treatment effects. All
-pre-treatment effects will be zero as a mechanical result of ETWFE's
-estimation setup, so the default is to drop these nuisance rows from the
-dataset. But you may want to keep them for presentation reasons (e.g.,
-plotting an event-study); though be warned that this is strictly
-performative. This argument will only be evaluated if \code{type = "event"}.}
+\item{post_only}{Logical. Drop pre-treatment ATTs? Only evaluated if (a)
+\code{type = "event"} and (b) the original \code{etwfe} model object was estimated
+using the default "notyet" treated control group. If conditions (a) and
+(b) are met then the pre-treatment effects will be zero as a mechanical
+result of ETWFE's estimation setup. The default behaviour (\code{FALSE}) is
+thus to drop these nuisance rows from the dataset. The \code{post_only} argument
+recognises that you may still want to keep them for presentation purposes
+(e.g., plotting an event-study). Nevertheless, be forewarned that enabling
+that behaviour via \code{TRUE} is \emph{strictly} performative: the "zero" treatment
+effects for any pre-treatment periods is purely an artefact of the
+estimation setup.}
 
 \item{...}{Additional arguments passed to
 \code{\link[marginaleffects:slopes]{marginaleffects::slopes}}. For example, you can pass \code{vcov = FALSE} to dramatically speed up estimation times of the main marginal
