@@ -1,4 +1,4 @@
-# etwfe 0.3.5.9002 (development version)
+# etwfe 0.4.0
 
 ## Bug fixes
 

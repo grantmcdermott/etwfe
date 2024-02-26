@@ -1,8 +1,6 @@
 ## Overview
 
-`etwfe` 0.3.5 is a patch release that addresses a test failure due to an
-upstream changes in `fixest`. In addition, I have updated the maintainer email
-address to reflect my new institutional affiliation.
+`etwfe` 0.4.0 is a minor release with several bug fixes.
 
 ## Test environments
 
