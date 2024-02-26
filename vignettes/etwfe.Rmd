@@ -28,10 +28,16 @@ fixest::setFixest_notes(FALSE)
 ## Background
 
 A canonical research design for social scientists is the so-called
-"differences-in-differences" (DiD) design.^[Good textbook introductions to DiD
+"difference-in-differences" (DiD) design. The essential idea behind DiD is that
+we can estimate the causal impact of an intervention ("treatment") by comparing
+the pre- and post-intervention outcomes of indivduals that received treatment
+("treated" group) against the outcomes of comparable indivduals that didn't
+receive treatment ("control" group).^[Good textbook introductions to DiD
 are available [here](https://theeffectbook.net/ch-DifferenceinDifference.html)
 and [here](https://mixtape.scunning.com/09-difference_in_differences), among
-many other places.] In the classic 2x2 DiD case (two units, two periods), a
+many other places.]
+
+In the classic 2x2 DiD case (two units, two periods), a
 simple interaction effect between two dummy variables suffices to recover the 
 treatment effect. In base R this might look something like:
 
@@ -181,7 +187,7 @@ dimension of interest
 aggregations is by recovering the appropriate marginal effects. The **etwfe**
 package provides another convenience function for doing so: `emfx()`, which is a
 thin(ish) wrapper around
-[`marginaleffects::slopes()`](https://marginaleffects.com/vignettes/slopes/).
+[`marginaleffects::slopes()`](https://marginaleffects.com/vignettes/slopes.html).
 
 For example, we can recover the average treatment effect on the treated (ATT) as
 follows.
@@ -322,7 +328,7 @@ emfx(hmod)
 The above point estimates might tempt us to think that minimum wage hikes caused
 less teen disemployment in GLS counties than in the rest of the US on average.
 However, to test this formally we can invoke the powerful
-[`hypothesis`](https://marginaleffects.com/vignettes/hypothesis/)
+[`hypothesis`](https://marginaleffects.com/vignettes/hypothesis.html)
 infrastructure of the underlying **marginaleffects** package. Probably the
 easiest way to do this is by using `b[i]`-style positional arguments, where
 "`[i]`" denotes the row of the `emfx()` return object. Thus, by specifying

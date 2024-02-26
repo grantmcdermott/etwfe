@@ -82,9 +82,9 @@ mod =
 # This gives us a regression model with fully saturated interactions
 mod
 #> OLS estimation, Dep. Var.: lemp
-#> Observations: 2,500 
+#> Observations: 2,500
 #> Fixed-effects: first.treat: 4,  year: 5
-#> Varying slopes: lpop (first.treat: 4),  lpop (year: 5)
+#> Varying slopes: lpop (first.treat): 4,  lpop (year): 5
 #> Standard-errors: Clustered (countyreal) 
 #>                                               Estimate Std. Error   t value   Pr(>|t|)    
 #> .Dtreat:first.treat::2004:year::2004         -0.021248   0.021728 -0.977890 3.2860e-01    
@@ -122,8 +122,9 @@ emfx(mod, type = "event")
 
 ## Acknowledgements
 
-- [Jeffrey Wooldridge](http://econ.msu.edu/faculty/wooldridge/) for the
-  underlying [ETWFE](https://dx.doi.org/10.2139/ssrn.3906345)
+- [Jeffrey
+  Wooldridge](https://econ.msu.edu/about/directory/Wooldridge-Jeffrey)
+  for the underlying [ETWFE](https://dx.doi.org/10.2139/ssrn.3906345)
   [theory](https://dx.doi.org/10.2139/ssrn.4183726).
 - [Laurent Bergé](https://sites.google.com/site/laurentrberge/)
   ([**fixest**](https://lrberge.github.io/fixest/)) and [Vincent
