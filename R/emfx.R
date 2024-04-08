@@ -52,6 +52,7 @@ emfx = function(
     by_xvar = "auto",
     collapse = "auto",
     post_only = TRUE,
+    max_e = NULL,
     ...
 ) {
   
@@ -69,7 +70,7 @@ emfx = function(
   cgroup = etwfe_attr[["cgroup"]]
   if (!by_xvar %in% c("auto", TRUE, FALSE)) stop("\"by_xvar\" has to be \"auto\", TRUE, or FALSE.")
   if (!collapse %in% c("auto", TRUE, FALSE)) stop("\"collapse\" has to be \"auto\", TRUE, or FALSE.")
-  
+
   # sanity check
   if (isTRUE(by_xvar)) {
     if(is.null(xvar)){
@@ -112,6 +113,9 @@ emfx = function(
     dat = dat[dat[[".Dtreat"]], , drop = FALSE]
   }
   
+  if (is.null(max_e)==FALSE){ #if user specifies max_e, calculate group average or overall effect only for post treatment periods 0 - max_e
+    dat = dat[dat[[tvar]] <= (dat[[gvar]]+max_e), , drop = FALSE]
+  }
   # define formulas and calculate weights
   if(collapse & is.null(ivar)){
     if(by_xvar){
