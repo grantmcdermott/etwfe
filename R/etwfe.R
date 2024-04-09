@@ -215,6 +215,7 @@ etwfe = function(
     cgroup = c("notyet", "never"),
     fe = c("vs", "feo", "none"),
     family = NULL,
+    max_e = NULL,
     ...
 ) {
   
