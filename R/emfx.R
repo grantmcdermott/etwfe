@@ -33,10 +33,10 @@
 ##' @param predict Character. The type (scale) of prediction used to compute the
 ##'   marginal effects. If `"response"` (the default), then the output is at the
 ##'   level of the response variable, i.e. it is the expected predictor
-##'   \eqn{E(Y|X)}. If `type = "link"`, the value returned is the linear
-##'   predictor of the fitted model, i.e. \eqn{X\cdot \beta}. The difference
-##'   should only matter for nonlinear models. (Note: This argument is typically
-##'   called `type` when use in \code{\link[stats]{predict}} or
+##'   \eqn{E(Y|X)}. If `"link"`, the value returned is the linear predictor of
+##'   the fitted model, i.e. \eqn{X\cdot \beta}. The difference should only
+##'   matter for nonlinear models. (Note: This argument is typically called
+##'   `type` when use in \code{\link[stats]{predict}} or
 ##'   \code{\link[marginaleffects]{slopes}}, but we rename it here to avoid a
 ##'   clash with the top-level `type` argument above.)
 ##' @param ... Additional arguments passed to
