@@ -27,8 +27,7 @@ Imports:
   marginaleffects (>= 0.10.0)
 Suggests:
   did,
-  modelsummary,
-  gt,
+  modelsummary (>= 2.0.0),
   ggplot2,
   knitr,
   rmarkdown,
