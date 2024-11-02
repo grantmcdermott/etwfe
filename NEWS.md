@@ -1,3 +1,12 @@
+# etwfe 0.4.0.99 (development version)
+
+## New features
+
+- New argument `emfx(..., predict = c("response", "link"))`, where the latter
+allows for obtaining the linear prediction for non-linear models. Internally
+passed as `marginaleffects::slopes(..., type = predict)`, thus avoiding a clash
+with the topline `emfx(..., type = <aggregration_type>)` argument. (#49)
+
 # etwfe 0.4.0
 
 ## Bug fixes
