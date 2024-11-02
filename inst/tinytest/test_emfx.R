@@ -135,6 +135,26 @@ event_pois_known =
     model_type = "etwfe"
   )
 
+event_pois_link_known = structure(
+  list(
+    term = c(".Dtreat", ".Dtreat", ".Dtreat", ".Dtreat"),
+    contrast = c("mean(TRUE) - mean(FALSE)", "mean(TRUE) - mean(FALSE)", "mean(TRUE) - mean(FALSE)", "mean(TRUE) - mean(FALSE)"),
+    event = c(0, 1, 2, 3),
+    estimate = c(-0.0325653634932165, -0.0675071047000078, -0.13297134493384, -0.117022779216551),
+    std.error = c(0.012852983394089, 0.018400421028425, 0.0237301206925325, 0.0225051243923356),
+    statistic = c(-2.53368128587118, -3.6687804369108, -5.60348371829748, -5.19982814475821),
+    p.value = c(0.0112871339541832, 0.000243710265677802, 2.10085859293411e-08, 1.99472873101063e-07),
+    s.value = c(6.46917698842941, 12.002545357333, 25.5044457004379, 22.2573041007391),
+    conf.low = c(-0.0577567480395224, -0.103571267216094, -0.179481526839992, -0.161132012493123),
+    conf.high = c(-0.00737397894691056, -0.0314429421839213, -0.0864611630276877, -0.0729135459399795),
+    predicted_lo = c(8.59999694263988, 6.24569002837391, 5.68530511263303, 5.70993143759263),
+    predicted_hi = c(8.53326519229116, 6.15518645002986, 5.52751652841592, 5.57772190861547),
+    predicted = c(8.53326519229116, 6.15518645002986, 5.52751652841592, 5.57772190861547)
+  ),
+  row.names = c(NA, -4L),
+  class = c("slopes", "marginaleffects", "data.frame")
+)
+
 # Tests ----
 
 e1 = emfx(m3)
@@ -144,6 +164,7 @@ e4 = emfx(m3, type = "group")
 e5 = emfx(m3, type = "event")
 e6 = emfx(m3, type = "event", post_only = FALSE)
 e7 = emfx(m3p, type = "event")
+e8 = emfx(m3p, type = "event", predict = "link")
 
 # match order
 e3 = e3[order(e3$year),]
@@ -157,4 +178,5 @@ for (col in c("estimate", "std.error", "conf.low", "conf.high")) {
   expect_equivalent(e5[[col]], event_known[[col]], tolerance = tol)
   expect_equivalent(e6[[col]], event_pre_known[[col]], tolerance = tol)
   expect_equivalent(e7[[col]], event_pois_known[[col]], tolerance = tol)
+  expect_equivalent(e8[[col]], event_pois_link_known[[col]], tolerance = tol)
 }

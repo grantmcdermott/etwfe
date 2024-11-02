@@ -10,6 +10,7 @@ emfx(
   by_xvar = "auto",
   collapse = "auto",
   post_only = TRUE,
+  predict = c("response", "link"),
   ...
 )
 }
@@ -48,6 +49,16 @@ recognises that you may still want to keep them for presentation purposes
 that behaviour via \code{TRUE} is \emph{strictly} performative: the "zero" treatment
 effects for any pre-treatment periods is purely an artefact of the
 estimation setup.}
+
+\item{predict}{Character. The type (scale) of prediction used to compute the
+marginal effects. If \code{"response"} (the default), then the output is at the
+level of the response variable, i.e. it is the expected predictor
+\eqn{E(Y|X)}. If \code{type = "link"}, the value returned is the linear
+predictor of the fitted model, i.e. \eqn{X\cdot \beta}. The difference
+should only matter for nonlinear models. (Note: This argument is typically
+called \code{type} when use in \code{\link[stats]{predict}} or
+\code{\link[marginaleffects]{slopes}}, but we rename it here to avoid a
+clash with the top-level \code{type} argument above.)}
 
 \item{...}{Additional arguments passed to
 \code{\link[marginaleffects:slopes]{marginaleffects::slopes}}. For example, you can pass \code{vcov = FALSE} to dramatically speed up estimation times of the main marginal
