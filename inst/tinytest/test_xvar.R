@@ -34,7 +34,8 @@ hmod_att_known = structure(
   class = "data.frame", row.names = c(NA, -2L)
 )
 
-for (col in intersect(colnames(hmod_att), colnames(hmod_att_known))) {
+cols = c("estimate", "std.error", "statistic", "p.value", "conf.low", "conf.high")
+for (col in cols) {
   expect_equal(hmod_att[[col]], hmod_att_known[[col]], tolerance = tol)
 }
 
