@@ -20,15 +20,14 @@ downloads](https://cranlogs.r-pkg.org/badges/etwfe)](https://cran.r-project.org/
 <!-- badges: end -->
 
 The goal of **etwfe** is to estimate extended two-way fixed effects *a
-la* Wooldridge
-([2021](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3906345),
-[2022](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4183726)).
-Briefly, Wooldridge proposes a set of saturated interaction effects to
-overcome the potential bias problems of vanilla TWFE in
-difference-in-differences designs. The Wooldridge solution is intuitive
-and elegant, but rather tedious and error prone to code up manually. The
-**etwfe** package aims to simplify the process by providing convenience
-functions that do the work for you.
+la* Wooldridge ([2021](https://dx.doi.org/10.2139/ssrn.3906345),
+[2023](https://doi.org/10.1093/ectj/utad016)). Briefly, Wooldridge
+proposes a set of saturated interaction effects to overcome the
+potential bias problems of vanilla TWFE in difference-in-differences
+designs. The Wooldridge solution is intuitive and elegant, but rather
+tedious and error prone to code up manually. The **etwfe** package aims
+to simplify the process by providing convenience functions that do the
+work for you.
 
 Documentation is available on the package
 [homepage](https://grantmcdermott.com/etwfe/).
@@ -110,24 +109,24 @@ mod
 # Pass to emfx() to recover the ATTs of interest. Here's an event-study example.
 emfx(mod, type = "event")
 #> 
-#>  event Estimate Std. Error     z Pr(>|z|)    S   2.5 %   97.5 %
-#>      0  -0.0332     0.0134 -2.48    0.013  6.3 -0.0594 -0.00701
-#>      1  -0.0573     0.0172 -3.34   <0.001 10.2 -0.0910 -0.02373
-#>      2  -0.1379     0.0308 -4.48   <0.001 17.0 -0.1982 -0.07751
-#>      3  -0.1095     0.0323 -3.39   <0.001 10.5 -0.1729 -0.04619
+#>     Term event Estimate Std. Error     z Pr(>|z|)    S   2.5 %   97.5 %
+#>  .Dtreat     0  -0.0332     0.0134 -2.48    0.013  6.3 -0.0594 -0.00701
+#>  .Dtreat     1  -0.0573     0.0172 -3.34   <0.001 10.2 -0.0910 -0.02373
+#>  .Dtreat     2  -0.1379     0.0308 -4.48   <0.001 17.0 -0.1982 -0.07751
+#>  .Dtreat     3  -0.1095     0.0323 -3.39   <0.001 10.5 -0.1729 -0.04619
 #> 
-#> Term: .Dtreat
 #> Type:  response 
-#> Comparison: mean(TRUE) - mean(FALSE)
-#> Columns: term, contrast, event, estimate, std.error, statistic, p.value, s.value, conf.low, conf.high, predicted_lo, predicted_hi, predicted
+#> Comparison: TRUE - FALSE
+#> Columns: term, contrast, event, estimate, std.error, statistic, p.value, s.value, conf.low, conf.high
 ```
 
 ## Acknowledgements
 
 - [Jeffrey
   Wooldridge](https://econ.msu.edu/about/directory/Wooldridge-Jeffrey)
-  for the underlying [ETWFE](https://dx.doi.org/10.2139/ssrn.3906345)
-  [theory](https://dx.doi.org/10.2139/ssrn.4183726).
+  for the underlying ETWFE theory
+  ([1](https://dx.doi.org/10.2139/ssrn.3906345),
+  [2](https://doi.org/10.1093/ectj/utad016)).
 - [Laurent Bergé](https://sites.google.com/site/laurentrberge/)
   ([**fixest**](https://lrberge.github.io/fixest/)) and [Vincent
   Arel-Bundock](https://arelbundock.com/)
@@ -135,6 +134,6 @@ emfx(mod, type = "event")
   the two wonderful R packages that do most of the heavy lifting under
   the hood here.
 - [Fernando Rios-Avila](https://friosavila.github.io/) for the
-  [`JWDID`](https://ideas.repec.org/c/boc/bocode/s459114.html) Stata
+  [`jwdid`](https://ideas.repec.org/c/boc/bocode/s459114.html) Stata
   module, which has provided a welcome foil for unit testing and whose
   elegant design helped inform my own choices for this R equivalent.

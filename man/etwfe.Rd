@@ -232,9 +232,9 @@ Two-Way Mundlak Regression, and Difference-in-Differences Estimators}.
 Working paper (version: August 16, 2021). Available:
 http://dx.doi.org/10.2139/ssrn.3906345
 
-Wooldridge, Jeffrey M. (2022). \cite{Simple Approaches to Nonlinear
-Difference-in-Differences with Panel Data}. The Econometrics Journal
-(forthcoming). Available: http://dx.doi.org/10.2139/ssrn.4183726
+Wooldridge, Jeffrey M. (2023). \cite{Simple Approaches to Nonlinear
+Difference-in-Differences with Panel Data}. The Econometrics Journal,
+26(3), C31-C66. Available: https://doi.org/10.1093/ectj/utad016
 }
 \seealso{
 \code{\link[fixest:feols]{fixest::feols()}}, \code{\link[fixest:feglm]{fixest::feglm()}}

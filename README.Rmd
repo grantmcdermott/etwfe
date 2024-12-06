@@ -27,8 +27,8 @@ knitr::opts_chunk$set(
 <!-- badges: end -->
 
 The goal of **etwfe** is to estimate extended two-way fixed effects _a la_
-Wooldridge ([2021](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3906345),
-[2022](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4183726)).  Briefly,
+Wooldridge ([2021](https://dx.doi.org/10.2139/ssrn.3906345),
+[2023](https://doi.org/10.1093/ectj/utad016)).  Briefly,
 Wooldridge proposes a set of saturated interaction effects to overcome the
 potential bias problems of vanilla TWFE in difference-in-differences designs.
 The Wooldridge solution is intuitive and elegant, but rather tedious and error
@@ -84,6 +84,6 @@ emfx(mod, type = "event")
 
 ## Acknowledgements
 
-- [Jeffrey Wooldridge](https://econ.msu.edu/about/directory/Wooldridge-Jeffrey) for the underlying [ETWFE](https://dx.doi.org/10.2139/ssrn.3906345) [theory](https://dx.doi.org/10.2139/ssrn.4183726).
+- [Jeffrey Wooldridge](https://econ.msu.edu/about/directory/Wooldridge-Jeffrey) for the underlying ETWFE theory ([1](https://dx.doi.org/10.2139/ssrn.3906345), [2](https://doi.org/10.1093/ectj/utad016)).
 - [Laurent Bergé](https://sites.google.com/site/laurentrberge/) ([**fixest**](https://lrberge.github.io/fixest/)) and [Vincent Arel-Bundock](https://arelbundock.com/) ([**marginaleffects**](https://marginaleffects.com/)) for maintaining the two wonderful R packages that do most of the heavy lifting under the hood here.
-- [Fernando Rios-Avila](https://friosavila.github.io/) for the [`JWDID`](https://ideas.repec.org/c/boc/bocode/s459114.html) Stata module, which has provided a welcome foil for unit testing and whose elegant design helped inform my own choices for this R equivalent. 
+- [Fernando Rios-Avila](https://friosavila.github.io/) for the [`jwdid`](https://ideas.repec.org/c/boc/bocode/s459114.html) Stata module, which has provided a welcome foil for unit testing and whose elegant design helped inform my own choices for this R equivalent. 

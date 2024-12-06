@@ -20,6 +20,7 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 options(rmarkdown.html_vignette.check_title = FALSE)
+options(marginaleffects_safe = FALSE)
 
 fixest::setFixest_notes(FALSE)
 ```
@@ -83,7 +84,7 @@ Fortunately, just as econometricians were taking away one of our
 favourite tools, they were kind enough to replace it with some new ones. 
 Among these, the proposed approach by 
 Wooldridge ([2021](https://dx.doi.org/10.2139/ssrn.3906345),
-[2022](https://dx.doi.org/10.2139/ssrn.4183726))
+[2023](https://doi.org/10.1093/ectj/utad016))
 is noteworthy. His idea might be paraphrased as stating that the problem 
 with TWFE is not that we were doing it in the first place. Rather, it's that we
 weren't doing it enough. Instead of only including a single treatment × time
@@ -125,9 +126,11 @@ population (`lpop`) as a potential control variable.
 
 ## Basic usage
 
-Let's load **etwfe** and work through its basic functionality. As we'll see,
-the core workflow of the package involves two consecutive function calls: 1)
-`etwfe()` and 2) `emfx()`.
+Let's load **etwfe** and work through its basic functionality. As we shall see,
+the core workflow of the package involves two consecutive function calls:
+
+1. `etwfe()`, and
+2. `emfx()`
 
 ### `etwfe`
 
