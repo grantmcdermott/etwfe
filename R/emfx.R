@@ -5,7 +5,7 @@
 ##' Companion function to `etwfe`, enabling the recovery of aggregate treatment
 ##' effects along different dimensions of interest (e.g, an event study of
 ##' dynamic average treatment effects). `emfx` is a light wrapper around the
-##' \code{\link[marginaleffects]{slopes}} function from the `marginaleffects`
+##' \code{\link[marginaleffects]{slopes}} function from the **marginaleffects**
 ##' package.
 ##' 
 ##' @param object An `etwfe` model object.
@@ -79,7 +79,9 @@
 ##'   - `s.value`
 ##'   - `conf.low`
 ##'   - `conf.high`
-##' @seealso [marginaleffects::slopes] which does the heavily lifting behind the scenes.
+##' @seealso [marginaleffects::slopes] which does the heavily lifting behind the
+##' scenes. [`etwfe`] is the companion estimating function that should be run
+##' before `emfx`.
 ##' @inherit etwfe examples
 ##' @inheritSection etwfe Performance tips
 ##' @inheritSection etwfe Heterogeneous treatment effects

@@ -101,7 +101,7 @@ usually include:
 Companion function to \code{etwfe}, enabling the recovery of aggregate treatment
 effects along different dimensions of interest (e.g, an event study of
 dynamic average treatment effects). \code{emfx} is a light wrapper around the
-\code{\link[marginaleffects]{slopes}} function from the \code{marginaleffects}
+\code{\link[marginaleffects]{slopes}} function from the \strong{marginaleffects}
 package.
 }
 \section{Performance tips}{
@@ -183,9 +183,10 @@ data("mpdta", package = "did")
 # Basic example
 #
 
-# The basic ETWFE workflow involves two steps:
+# The basic ETWFE workflow involves two consecutive function calls:
+# 1) `etwfe` and 2) `emfx`
 
-# 1) Estimate the main regression model with etwfe().
+# 1) `etwfe`: Estimate a regression model with saturated interaction terms.
 
 mod = etwfe(
     fml  = lemp ~ lpop, # outcome ~ controls (use 0 or 1 if none)
@@ -197,7 +198,7 @@ mod = etwfe(
 
 # mod ## A fixest model object with fully saturated interaction effects.
 
-# 2) Recover the treatment effects of interest with emfx().
+# 2) `emfx`: Recover the treatment effects of interest.
 
 emfx(mod, type = "event") # dynamic ATE a la an event study
 
@@ -251,5 +252,7 @@ etwfe(
 
 }
 \seealso{
-\link[marginaleffects:slopes]{marginaleffects::slopes} which does the heavily lifting behind the scenes.
+\link[marginaleffects:slopes]{marginaleffects::slopes} which does the heavily lifting behind the
+scenes. \code{\link{etwfe}} is the companion estimating function that should be run
+before \code{emfx}.
 }

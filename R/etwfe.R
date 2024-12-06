@@ -1,5 +1,15 @@
 ##' Extended two-way fixed effects
 ##'
+##' @md
+##' @description
+##' Estimates an "extended" two-way fixed effects regression, with fully
+##' saturated interaction effects _a la_ Wooldridge (2021, 2023). At its heart,
+##' `etwfe` is a convenience function that automates a number of tedious and
+##' error prone preparation steps involving both the data and model formulae.
+##' Computation is passed on to the \code{\link[fixest]{feols}} (linear) /
+##' \code{\link[fixest]{feglm}} (nonlinear) functions from the **fixest**
+##' package. `etwfe` should be paired with its companion [`emfx`] function.
+##' 
 ##' @param fml A two-side formula representing the outcome (lhs) and any control
 ##'   variables (rhs), e.g. `y ~ x1 + x2`. If no controls are required, the rhs
 ##'   must take the value of 0 or 1, e.g. `y ~ 0`.
@@ -42,7 +52,9 @@
 ##'   automatically be set to NULL.
 ##' @param ... Additional arguments passed to [`fixest::feols`] (or
 ##'   [`fixest::feglm`]). The most common example would be a `vcov` argument.
-##' @return A fixest object with fully saturated interaction effects.
+##' @return A \code{\link[fixest]{fixest}} object with fully saturated
+##' interaction effects, and a few additional attributes used for
+##' post-estimation in `emfx`.
 ##' 
 ##' @importFrom fixest demean feols feglm
 ##' @importFrom stats reformulate setNames
@@ -123,7 +135,9 @@
 ##' Wooldridge, Jeffrey M. (2023). \cite{Simple Approaches to Nonlinear
 ##' Difference-in-Differences with Panel Data}. The Econometrics Journal,
 ##' 26(3), C31-C66. Available: https://doi.org/10.1093/ectj/utad016
-##' @seealso [fixest::feols()], [fixest::feglm()]
+##' @seealso [fixest::feols()], [fixest::feglm()] which power the underlying
+##' estimation routines. [`emfx`] is a companion function that handles
+##' post-estimation aggregation to extract quantities of interest.
 ##' @examples
 ##' \dontrun{
 ##' # We’ll use the mpdta dataset from the did package (which you’ll need to 
@@ -136,9 +150,10 @@
 ##' # Basic example
 ##' #
 ##' 
-##' # The basic ETWFE workflow involves two steps:
+##' # The basic ETWFE workflow involves two consecutive function calls:
+##' # 1) `etwfe` and 2) `emfx`
 ##' 
-##' # 1) Estimate the main regression model with etwfe().
+##' # 1) `etwfe`: Estimate a regression model with saturated interaction terms.
 ##' 
 ##' mod = etwfe(
 ##'     fml  = lemp ~ lpop, # outcome ~ controls (use 0 or 1 if none)
@@ -150,7 +165,7 @@
 ##' 
 ##' # mod ## A fixest model object with fully saturated interaction effects.
 ##' 
-##' # 2) Recover the treatment effects of interest with emfx().
+##' # 2) `emfx`: Recover the treatment effects of interest.
 ##' 
 ##' emfx(mod, type = "event") # dynamic ATE a la an event study
 ##' 
