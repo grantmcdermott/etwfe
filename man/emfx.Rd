@@ -2,15 +2,16 @@
 % Please edit documentation in R/emfx.R
 \name{emfx}
 \alias{emfx}
-\title{Post-estimation treatment effects for an ETWFE regressions.}
+\title{Post-estimation aggregation of ETWFE results}
 \usage{
 emfx(
   object,
   type = c("simple", "group", "calendar", "event"),
   by_xvar = "auto",
   collapse = "auto",
-  post_only = TRUE,
   predict = c("response", "link"),
+  post_only = TRUE,
+  lean = TRUE,
   ...
 )
 }
@@ -22,33 +23,21 @@ emfx(
 \item{by_xvar}{Logical. Should the results account for heterogeneous
 treatment effects? Only relevant if the preceding \code{etwfe} call included a
 specified \code{xvar} argument, i.e. interacted categorical covariate. The
-default behaviour ("auto") is to automatically estimate heterogeneous
+default behaviour (\code{"auto"}) is to automatically estimate heterogeneous
 treatment effects for each level of \code{xvar} if these are detected as part
 of the underlying \code{etwfe} model object. Users can override by setting to
-either FALSE or TRUE. See the section on Heterogeneous treatment effects
-below.}
+either \code{FALSE} or \code{TRUE.} See the "Heterogeneous treatment effects"
+section below.}
 
 \item{collapse}{Logical. Collapse the data by (period by cohort) groups
 before calculating marginal effects? This trades off a loss in estimate
 accuracy (typically around the 1st or 2nd significant decimal point) for a
 substantial improvement in estimation time for large datasets. The default
-behaviour ("auto") is to automatically collapse if the original dataset
-has more than 500,000 rows. Users can override by setting either FALSE or
-TRUE. Note that collapsing by group is only valid if the preceding \code{etwfe}
-call was run with "ivar = NULL" (the default). See the section on
-Performance tips below.}
-
-\item{post_only}{Logical. Drop pre-treatment ATTs? Only evaluated if (a)
-\code{type = "event"} and (b) the original \code{etwfe} model object was estimated
-using the default "notyet" treated control group. If conditions (a) and
-(b) are met then the pre-treatment effects will be zero as a mechanical
-result of ETWFE's estimation setup. The default behaviour (\code{FALSE}) is
-thus to drop these nuisance rows from the dataset. The \code{post_only} argument
-recognises that you may still want to keep them for presentation purposes
-(e.g., plotting an event-study). Nevertheless, be forewarned that enabling
-that behaviour via \code{TRUE} is \emph{strictly} performative: the "zero" treatment
-effects for any pre-treatment periods is purely an artefact of the
-estimation setup.}
+behaviour (\code{"auto"}) is to automatically collapse if the original dataset
+has more than 500,000 rows. Users can override by setting either \code{FALSE} or
+\code{TRUE}. Note that collapsing by group is only valid if the preceding \code{etwfe}
+call was run with \code{"ivar = NULL"} (the default). See the "Performance
+tips" section below.}
 
 \item{predict}{Character. The type (scale) of prediction used to compute the
 marginal effects. If \code{"response"} (the default), then the output is at the
@@ -60,19 +49,58 @@ matter for nonlinear models. (Note: This argument is typically called
 \code{\link[marginaleffects]{slopes}}, but we rename it here to avoid a
 clash with the top-level \code{type} argument above.)}
 
+\item{post_only}{Logical. Drop pre-treatment ATTs? Only evaluated if (a)
+\code{type = "event"} and (b) the original \code{etwfe} model object was estimated
+using the default \code{"notyet"} treated control group. If conditions (a) and
+(b) are met then the pre-treatment effects will be zero as a mechanical
+result of ETWFE's estimation setup. The default behaviour (\code{TRUE}) is
+thus to drop these nuisance rows from the dataset. The \code{post_only} argument
+recognises that you may still want to keep them for presentation purposes
+(e.g., plotting an event study). Nevertheless, be forewarned that enabling
+that behaviour via \code{FALSE} is \emph{strictly} performative: the "zero" treatment
+effects for any pre-treatment periods is purely an artefact of the
+estimation setup.}
+
+\item{lean}{Logical. Enforces a lean return object; namely a simple
+data.frame of the main results, stripped of ancillary attributes. Defaults
+to \code{TRUE}, in which case \code{options(marginaleffects_lean = TRUE)} is set
+internally at the start of the \code{emfx} call, before being reverted upon
+exit. Note that this will disable some advanced \code{marginaleffects}
+post-processing features, but those are unlikely to be used in the \code{emfx}
+context and means that we can dramatically reduce the size of the return
+object.}
+
 \item{...}{Additional arguments passed to
 \code{\link[marginaleffects:slopes]{marginaleffects::slopes}}. For example, you can pass \code{vcov = FALSE} to dramatically speed up estimation times of the main marginal
 effects (but at the cost of not getting any information about standard
 errors; see Performance tips below). Another potentially useful
-application is testing whether heterogeneous treatment effects (i.e. the
+application is testing whether heterogeneous treatment effects (i.e., the
 levels of any \code{xvar} covariate) are equal by invoking the \code{hypothesis}
 argument, e.g. \code{hypothesis = "b1 = b2"}.}
 }
 \value{
-A \code{slopes} object from the \code{marginaleffects} package.
+A \code{data.frame} with one row per observation (per term/group) and several columns:
+\itemize{
+\item \code{rowid}: row number of the \code{newdata} data frame
+\item \code{type}: prediction type, as defined by the \code{type} argument
+\item \code{group}: (optional) value of the grouped outcome (e.g., categorical outcome models)
+\item \code{term}: the variable whose marginal effect is computed
+\item \code{dydx}: slope of the outcome with respect to the term, for a given combination of predictor values
+\item \code{std.error}: standard errors computed by via the delta method.
+\item \code{p.value}: p value associated to the \code{estimate} column. The null is determined by the \code{hypothesis} argument (0 by default), and p values are computed before applying the \code{transform} argument. For models of class \code{feglm}, \code{Gam}, \code{glm} and \code{negbin}, p values are computed on the link scale by default unless the \code{type} argument is specified explicitly.
+\item \code{s.value}: Shannon information transforms of p values. How many consecutive "heads" tosses would provide the same amount of evidence (or "surprise") against the null hypothesis that the coin is fair? The purpose of S is to calibrate the analyst's intuition about the strength of evidence encoded in p against a well-known physical phenomenon. See Greenland (2019) and Cole et al. (2020).
+\item \code{conf.low}: lower bound of the confidence interval (or equal-tailed interval for bayesian models)
+\item \code{conf.high}: upper bound of the confidence interval (or equal-tailed interval for bayesian models)
+}
+
+See \code{?print.marginaleffects} for printing options.
 }
 \description{
-Post-estimation treatment effects for an ETWFE regressions.
+Companion function to \code{etwfe}, enabling the recovery of aggregate treatment
+effects along different dimensions of interest (e.g, an event study of
+dynamic average treatment effects). \code{emfx} is a light wrapper around the
+\code{\link[marginaleffects]{slopes}} function from the \code{marginaleffects}
+package.
 }
 \section{Performance tips}{
 
@@ -221,5 +249,5 @@ etwfe(
 
 }
 \seealso{
-\code{\link[marginaleffects:slopes]{marginaleffects::slopes()}}
+\link[marginaleffects:slopes]{marginaleffects::slopes} which does the heavily lifting behind the scenes.
 }
