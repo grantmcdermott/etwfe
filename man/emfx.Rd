@@ -79,21 +79,23 @@ levels of any \code{xvar} covariate) are equal by invoking the \code{hypothesis}
 argument, e.g. \code{hypothesis = "b1 = b2"}.}
 }
 \value{
-A \code{data.frame} with one row per observation (per term/group) and several columns:
+A \code{data.frame} of aggregated treatment effects along the
+dimension(s) of interested. Note that this data.frame will have been
+overloaded with the \code{\link[marginaleffects]{slopes}} class, and so
+will come with a special print method. But the underlying columns will
+usually include:
 \itemize{
-\item \code{rowid}: row number of the \code{newdata} data frame
-\item \code{type}: prediction type, as defined by the \code{type} argument
-\item \code{group}: (optional) value of the grouped outcome (e.g., categorical outcome models)
-\item \code{term}: the variable whose marginal effect is computed
-\item \code{dydx}: slope of the outcome with respect to the term, for a given combination of predictor values
-\item \code{std.error}: standard errors computed by via the delta method.
-\item \code{p.value}: p value associated to the \code{estimate} column. The null is determined by the \code{hypothesis} argument (0 by default), and p values are computed before applying the \code{transform} argument. For models of class \code{feglm}, \code{Gam}, \code{glm} and \code{negbin}, p values are computed on the link scale by default unless the \code{type} argument is specified explicitly.
-\item \code{s.value}: Shannon information transforms of p values. How many consecutive "heads" tosses would provide the same amount of evidence (or "surprise") against the null hypothesis that the coin is fair? The purpose of S is to calibrate the analyst's intuition about the strength of evidence encoded in p against a well-known physical phenomenon. See Greenland (2019) and Cole et al. (2020).
-\item \code{conf.low}: lower bound of the confidence interval (or equal-tailed interval for bayesian models)
-\item \code{conf.high}: upper bound of the confidence interval (or equal-tailed interval for bayesian models)
+\item \code{term}
+\item \code{contrast}
+\item \verb{<type>} (i.e., the name of your \code{type} string)
+\item \code{estimate}
+\item \code{std.error}
+\item \code{statistic}
+\item \code{p.value}
+\item \code{s.value}
+\item \code{conf.low}
+\item \code{conf.high}
 }
-
-See \code{?print.marginaleffects} for printing options.
 }
 \description{
 Companion function to \code{etwfe}, enabling the recovery of aggregate treatment

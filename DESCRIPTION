@@ -34,7 +34,7 @@ Suggests:
   tinytest
 Encoding: UTF-8
 RoxygenNote: 7.3.2
-URL: https://grantmcdermott.com/etwfe/
+URL: https://grantmcdermott.com/etwfe
 BugReports: https://github.com/grantmcdermott/etwfe/issues
 VignetteBuilder: knitr
 Roxygen: list(markdown = TRUE)

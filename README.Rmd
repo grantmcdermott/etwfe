@@ -58,27 +58,31 @@ A detailed walkthrough of **etwfe** is provided in the introductory vignette
 by typing `vignette("etwfe")` in your R console). But here's a quickstart
 example to demonstrate the basic syntax.
 
+Start by loading the package and some data.
+
 ```{r mpdta}
 library(etwfe)
 
 # install.packages("did")
 data("mpdta", package = "did")
-head(mpdta)
+head(mpdta, 2)
+```
 
-# Estimate the model
-mod =
-  etwfe(
-    fml  = lemp ~ lpop, # outcome ~ controls
-    tvar = year,        # time variable
-    gvar = first.treat, # group variable
-    data = mpdta,       # dataset
-    vcov = ~countyreal  # vcov adjustment (here: clustered)
-    )
-
-# This gives us a regression model with fully saturated interactions
+**Step 1:** Run `etwfe()` to estimate a model with full saturated interactions.
+```{r etwfe}
+mod = etwfe(
+  fml  = lemp ~ lpop, # outcome ~ controls
+  tvar = year,        # time variable
+  gvar = first.treat, # group variable
+  data = mpdta,       # dataset
+  vcov = ~countyreal  # vcov adjustment (here: clustered)
+)
 mod
+```
 
-# Pass to emfx() to recover the ATTs of interest. Here's an event-study example.
+**Step 2:** Pass to `emfx()` to recover the ATTs of interest. In this case, an
+event-study example.
+```{r emfx}
 emfx(mod, type = "event")
 ```
 

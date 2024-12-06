@@ -54,31 +54,30 @@ vignette (available
 typing `vignette("etwfe")` in your R console). But here’s a quickstart
 example to demonstrate the basic syntax.
 
+Start by loading the package and some data.
+
 ``` r
 library(etwfe)
 
 # install.packages("did")
 data("mpdta", package = "did")
-head(mpdta)
+head(mpdta, 2)
 #>     year countyreal     lpop     lemp first.treat treat
 #> 866 2003       8001 5.896761 8.461469        2007     1
 #> 841 2004       8001 5.896761 8.336870        2007     1
-#> 842 2005       8001 5.896761 8.340217        2007     1
-#> 819 2006       8001 5.896761 8.378161        2007     1
-#> 827 2007       8001 5.896761 8.487352        2007     1
-#> 937 2003       8019 2.232377 4.997212        2007     1
+```
 
-# Estimate the model
-mod =
-  etwfe(
-    fml  = lemp ~ lpop, # outcome ~ controls
-    tvar = year,        # time variable
-    gvar = first.treat, # group variable
-    data = mpdta,       # dataset
-    vcov = ~countyreal  # vcov adjustment (here: clustered)
-    )
+**Step 1:** Run `etwfe()` to estimate a model with full saturated
+interactions.
 
-# This gives us a regression model with fully saturated interactions
+``` r
+mod = etwfe(
+  fml  = lemp ~ lpop, # outcome ~ controls
+  tvar = year,        # time variable
+  gvar = first.treat, # group variable
+  data = mpdta,       # dataset
+  vcov = ~countyreal  # vcov adjustment (here: clustered)
+)
 mod
 #> OLS estimation, Dep. Var.: lemp
 #> Observations: 2,500
@@ -105,8 +104,12 @@ mod
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> RMSE: 0.537131     Adj. R2: 0.87167 
 #>                  Within R2: 8.449e-4
+```
 
-# Pass to emfx() to recover the ATTs of interest. Here's an event-study example.
+**Step 2:** Pass to `emfx()` to recover the ATTs of interest. In this
+case, an event-study example.
+
+``` r
 emfx(mod, type = "event")
 #> 
 #>     Term event Estimate Std. Error     z Pr(>|z|)    S   2.5 %   97.5 %

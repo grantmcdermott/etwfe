@@ -1,5 +1,6 @@
 ##' Post-estimation aggregation of ETWFE results
 ##'
+##' @md
 ##' @description
 ##' Companion function to `etwfe`, enabling the recovery of aggregate treatment
 ##' effects along different dimensions of interest (e.g, an event study of
@@ -62,7 +63,22 @@
 ##'   application is testing whether heterogeneous treatment effects (i.e., the
 ##'   levels of any `xvar` covariate) are equal by invoking the `hypothesis`
 ##'   argument, e.g. `hypothesis = "b1 = b2"`.
-##' @inherit marginaleffects::slopes return
+##' @return A `data.frame` of aggregated treatment effects along the
+##'   dimension(s) of interested. Note that this data.frame will have been
+##'   overloaded with the \code{\link[marginaleffects]{slopes}} class, and so
+##'   will come with a special print method. But the underlying columns will
+##'   usually include:
+##'
+##'   - `term`
+##'   - `contrast`
+##'   - `<type>` (i.e., the name of your `type` string)
+##'   - `estimate`
+##'   - `std.error`
+##'   - `statistic`
+##'   - `p.value`
+##'   - `s.value`
+##'   - `conf.low`
+##'   - `conf.high`
 ##' @seealso [marginaleffects::slopes] which does the heavily lifting behind the scenes.
 ##' @inherit etwfe examples
 ##' @inheritSection etwfe Performance tips
