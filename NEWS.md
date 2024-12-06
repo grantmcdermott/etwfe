@@ -2,10 +2,20 @@
 
 ## New features
 
-- New argument `emfx(..., predict = c("response", "link"))`, where the latter
+- New `emfx` arguments:
+  - `emfx(..., predict = c("response", "link"))`, where the latter
 allows for obtaining the linear prediction for non-linear models. Internally
 passed as `marginaleffects::slopes(..., type = predict)`, thus avoiding a clash
 with the topline `emfx(..., type = <aggregration_type>)` argument. (#49)
+- `emfx(..., lean = TRUE)` ensures a light return object by default, by
+stripping away data-heavy attributes that are unlikely to be needed afterwards.
+(#51)
+
+## Documentation
+
+- Various documentation improvements, including the addition of a "never"
+treated control group example in the vignette and fixing some confusing typos
+(e.g., refering to wrong default arguments).
 
 # etwfe 0.4.0
 
