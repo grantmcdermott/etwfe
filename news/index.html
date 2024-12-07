@@ -37,7 +37,16 @@
 <h2 class="pkg-version" data-toc-text="0.4.0.99" id="etwfe-04099-development-version">etwfe 0.4.0.99 (development version)<a class="anchor" aria-label="anchor" href="#etwfe-04099-development-version"></a></h2>
 <div class="section level3">
 <h3 id="new-features-0-4-0-99">New features<a class="anchor" aria-label="anchor" href="#new-features-0-4-0-99"></a></h3>
-<ul><li>New argument <code>emfx(..., predict = c("response", "link"))</code>, where the latter allows for obtaining the linear prediction for non-linear models. Internally passed as <code>marginaleffects::slopes(..., type = predict)</code>, thus avoiding a clash with the topline <code>emfx(..., type = &lt;aggregration_type&gt;)</code> argument. (<a href="https://github.com/grantmcdermott/etwfe/issues/49" class="external-link">#49</a>)</li>
+<ul><li>New <code>emfx</code> arguments:
+<ul><li>
+<code>emfx(..., predict = c("response", "link"))</code>, where the latter allows for obtaining the linear prediction for non-linear models. Internally passed as <code>marginaleffects::slopes(..., type = predict)</code>, thus avoiding a clash with the topline <code>emfx(..., type = &lt;aggregration_type&gt;)</code> argument. (<a href="https://github.com/grantmcdermott/etwfe/issues/49" class="external-link">#49</a>)</li>
+</ul></li>
+<li>
+<code>emfx(..., lean = TRUE)</code> ensures a light return object by default, by stripping away data-heavy attributes that are unlikely to be needed afterwards. (<a href="https://github.com/grantmcdermott/etwfe/issues/51" class="external-link">#51</a>)</li>
+</ul></div>
+<div class="section level3">
+<h3 id="documentation-0-4-0-99">Documentation<a class="anchor" aria-label="anchor" href="#documentation-0-4-0-99"></a></h3>
+<ul><li>Various documentation improvements, including the addition of a “never” treated control group example in the vignette and fixing some confusing typos (e.g., refering to wrong default arguments).</li>
 </ul></div>
 </div>
     <div class="section level2">
