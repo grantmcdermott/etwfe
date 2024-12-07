@@ -19,7 +19,9 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+options(width = 100)
 options(rmarkdown.html_vignette.check_title = FALSE)
+options(marginaleffects_safe = FALSE)
 
 fixest::setFixest_notes(FALSE)
 ```
@@ -83,7 +85,7 @@ Fortunately, just as econometricians were taking away one of our
 favourite tools, they were kind enough to replace it with some new ones. 
 Among these, the proposed approach by 
 Wooldridge ([2021](https://dx.doi.org/10.2139/ssrn.3906345),
-[2022](https://dx.doi.org/10.2139/ssrn.4183726))
+[2023](https://doi.org/10.1093/ectj/utad016))
 is noteworthy. His idea might be paraphrased as stating that the problem 
 with TWFE is not that we were doing it in the first place. Rather, it's that we
 weren't doing it enough. Instead of only including a single treatment × time
@@ -125,9 +127,11 @@ population (`lpop`) as a potential control variable.
 
 ## Basic usage
 
-Let's load **etwfe** and work through its basic functionality. As we'll see,
-the core workflow of the package involves two consecutive function calls: 1)
-`etwfe()` and 2) `emfx()`.
+Let's load **etwfe** and work through its basic functionality. As we shall see,
+the core workflow of the package involves two consecutive function calls:
+
+1. `etwfe()`
+2. `emfx()`
 
 ### `etwfe`
 
@@ -137,14 +141,13 @@ function is `etwfe()`. Here's how it would look for our example dataset.
 ```{r}
 library(etwfe)
 
-mod =
-  etwfe(
-    fml  = lemp ~ lpop, # outcome ~ controls
-    tvar = year,        # time variable
-    gvar = first.treat, # group variable
-    data = mpdta,       # dataset
-    vcov = ~countyreal  # vcov adjustment (here: clustered)
-    )
+mod = etwfe(
+  fml  = lemp ~ lpop, # outcome ~ controls
+  tvar = year,        # time variable
+  gvar = first.treat, # group variable
+  data = mpdta,       # dataset
+  vcov = ~countyreal  # vcov adjustment (here: clustered)
+)
 ```
 
 There are a few things to say about our `etwfe()` argument choices and other
@@ -258,27 +261,34 @@ ggplot(mod_es, aes(x = event, y = estimate, ymin = conf.low, ymax = conf.high)) 
   labs(x = "Years post treatment", y = "Effect on log teen employment")
 ```
 
-Note that `emfx` only reports post-treatment effects. All pre-treatment effects
-are swept out of the estimation because of the way that ETWFE is set up. In
-fact, all pre-treatment effects are mechanistically set to zero. This means that
-ETWFE cannot be used for interrogating pre-treatment fit (say, a visual
-inspection for parallel pre-trends). Still, you can get these zero
-pre-treatment effects by changing the `post_only` argument.  I emphasize that
-doing so is strictly performative---again, pre-treatment effects are zero by
-estimation design---but it might make your event study plot more aesthetically
-pleasing.
+Note that `emfx` only reports post-treatment effects here. That's because all
+pre-treatment effects have been swept out of the estimation as a result of the
+ETWFE setup. Specifically, under the default setting where the control group
+comprises the "not-yet" treated units, all pre-treatment effects are
+mechanistically set to zero.^[This obviously means that our ETWFE result here
+cannot be used for interrogating pre-treatment fit (say, a visual inspection for
+parallel pre-trends). To force return these "zero" pre-treatment effects, you
+can invoke the `emfx(..., post_only = TRUE)` argument. But it should be
+emphasized that doing so is _strictly_ performative. Again, pre-treatment
+effects are zero by estimation design if the not-yet treated units are used as
+the control group.] Alternatively, you can specify the "never" treated units as
+the control group by first calling `etwfe(..., cgroup = "never")`. This _does_
+return pre-treatment effects, albeit with the potential trade-off of yielding
+less precise estimates from not using all available information.
 
-```{r}
-# Use post_only = FALSE to get the "zero" pre-treatment effects
-mod_es2 = emfx(mod, type = "event", post_only = FALSE)
+```{r, warning=FALSE}
+mod_es2 = etwfe(
+  lemp ~ lpop, tvar = year, gvar = first.treat, data = mpdta, vcov = ~countyreal,
+  cgroup = "never" # <= use never treated as control group
+  ) |>
+  emfx(type = "event")
 
 ggplot(mod_es2, aes(x = event, y = estimate, ymin = conf.low, ymax = conf.high)) +
   geom_hline(yintercept = 0) +
-  geom_vline(xintercept = -1, lty = 2) +
   geom_pointrange(col = "darkcyan") +
   labs(
     x = "Years post treatment", y = "Effect on log teen employment",
-    caption = "Note: Zero pre-treatment effects for illustrative purposes only."
+    caption = "Note: Using never-treated as control group"
   )
 ```
 
@@ -315,10 +325,10 @@ distinct groups.
 
 ```{r}
 hmod = etwfe(
-   lemp ~ lpop, tvar = year, gvar = first.treat, data = mpdta, 
-   vcov = ~countyreal,
-   xvar = gls           ## <= het. TEs by gls
-   )
+  lemp ~ lpop, tvar = year, gvar = first.treat, data = mpdta,
+  vcov = ~countyreal,
+  xvar = gls           ## <= het. TEs by gls
+)
 
 # Heterogeneous ATTs (could also specify `type = "event"`, etc.) 
 emfx(hmod)
@@ -347,11 +357,11 @@ we again make use of the `modelsummary(..., shape = ...)` argument.
 
 ```{r}
 modelsummary(
-    models      = list("GLS county" = emfx(hmod)),
-    shape       = term + statistic ~ model + gls, # add xvar variable (here: gls)
-    coef_map    = c(".Dtreat" = "ATT"),
-    gof_map     = NA,
-    title       = "Comparing the ATT on GLS and non-GLS counties"
+  models      = list("GLS county" = emfx(hmod)),
+  shape       = term + statistic ~ model + gls, # add xvar variable (here: gls)
+  coef_map    = c(".Dtreat" = "ATT"),
+  gof_map     = NA,
+  title       = "Comparing the ATT on GLS and non-GLS counties"
 )
 ```
 
@@ -449,12 +459,12 @@ collapsed estimates and see that the results are indeed very similar.
 
 ```{r}
 modelsummary(
-    list("Original" = mod_es, "Collapsed" = mod_es2),
-    shape       = term:event:statistic ~ model,
-    coef_rename = rename_fn,
-    gof_omit    = "Adj|Within|IC|RMSE",
-    title       = "Event study",
-    notes       = "Std. errors are clustered at the county level"
+  list("Original" = mod_es, "Collapsed" = mod_es2),
+  shape       = term:event:statistic ~ model,
+  coef_rename = rename_fn,
+  gof_omit    = "Adj|Within|IC|RMSE",
+  title       = "Event study",
+  notes       = "Std. errors are clustered at the county level"
 )
 ```
 
@@ -526,7 +536,7 @@ slopes(
   newdata   = subset(mpdta2, .Dtreat), # we only want rows where .Dtreat is TRUE
   variables = ".Dtreat", 
   by        = ".Dtreat"
-  )
+)
 
 # Event study
 slopes(
@@ -534,7 +544,7 @@ slopes(
   newdata   = transform(subset(mpdta2, .Dtreat), event = year - first.treat),
   variables = ".Dtreat", 
   by        = "event"
-  )
+)
 ```
 
 ### Regarding fixed effects

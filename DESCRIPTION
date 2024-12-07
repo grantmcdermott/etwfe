@@ -16,25 +16,25 @@ Authors@R:
             email = "frederic.kluser@unibe.ch")
             )
 Description: Convenience functions for implementing extended two-way 
-  fixed effect regressions a la Wooldridge (2021, 2022)
-  <doi:10.2139/ssrn.3906345>, <doi:10.2139/ssrn.4183726>.
+  fixed effect regressions a la Wooldridge (2021, 2023)
+  <doi:10.2139/ssrn.3906345>, <doi:10.1093/ectj/utad016>.
 License: MIT + file LICENSE
 Imports:
   fixest (>= 0.11.2),
   stats,
   data.table,
   Formula,
-  marginaleffects (>= 0.10.0)
+  marginaleffects (>= 0.24.0)
 Suggests:
   did,
-  modelsummary (>= 2.0.0),
+  modelsummary (>= 2.2.0),
   ggplot2,
   knitr,
   rmarkdown,
   tinytest
 Encoding: UTF-8
 RoxygenNote: 7.3.2
-URL: https://grantmcdermott.com/etwfe/
+URL: https://grantmcdermott.com/etwfe
 BugReports: https://github.com/grantmcdermott/etwfe/issues
 VignetteBuilder: knitr
 Roxygen: list(markdown = TRUE)
