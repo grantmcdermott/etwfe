@@ -227,6 +227,9 @@ emfx = function(
     for (a in setdiff(atts, c("names", "row.names", "class", "by", "conf_level", "lean"))) attr(mfx, a) = NULL
   }
   
+  class(mfx) = c("emfx", class(mfx))
+  attr(mfx, "yvar") = object$fml[[2]]
+  
   return(mfx)
 }
 
