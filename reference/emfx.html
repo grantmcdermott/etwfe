@@ -60,7 +60,7 @@ package.</p>
 <span>  collapse <span class="op">=</span> <span class="va">compress</span>,</span>
 <span>  predict <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"response"</span>, <span class="st">"link"</span><span class="op">)</span>,</span>
 <span>  post_only <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  lean <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  lean <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -134,14 +134,13 @@ estimation setup.</p></dd>
 
 
 <dt id="arg-lean">lean<a class="anchor" aria-label="anchor" href="#arg-lean"></a></dt>
-<dd><p>Logical. Enforces a lean return object; namely a simple
-data.frame of the main results, stripped of ancillary attributes. Defaults
-to <code>TRUE</code>, in which case <code>options(marginaleffects_lean = TRUE)</code> is set
-internally at the start of the <code>emfx</code> call, before being reverted upon
-exit. Note that this will disable some advanced <code>marginaleffects</code>
-post-processing features, but those are unlikely to be used in the <code>emfx</code>
-context and means that we can dramatically reduce the size of the return
-object.</p></dd>
+<dd><p>Logical. Default is <code>FALSE</code>. Switching to <code>TRUE</code> enforces a lean
+return object; namely a simple data.frame of the main results, stripped of
+ancillary attributes. Note that this will disable some advanced
+<code>marginaleffects</code> post-processing features, but those are unlikely to be
+used in the <code>emfx</code> context. The upside is a potentially dramatic reduction
+in the size of the return object. Consequently, we may change the default
+to <code>TRUE</code> in a future version of <strong>etwfe</strong>.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -285,6 +284,7 @@ before <code>emfx</code>.</p></div>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat     2  -0.1379     0.0308 -4.48   &lt;0.001 17.0 -0.1982 -0.07751</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat     3  -0.1095     0.0323 -3.39   &lt;0.001 10.5 -0.1729 -0.04619</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Type:  response </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Comparison: TRUE - FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Columns: term, contrast, event, estimate, std.error, statistic, p.value, s.value, conf.low, conf.high </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -334,6 +334,7 @@ before <code>emfx</code>.</p></div>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat    TRUE FALSE  -0.0637     0.0376 -1.69   0.0906 3.5 -0.137 0.01007</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat    TRUE  TRUE  -0.0472     0.0271 -1.74   0.0817 3.6 -0.100 0.00594</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Type:  response </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Comparison: TRUE - FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Columns: term, contrast, .Dtreat, gls, estimate, std.error, statistic, p.value, s.value, conf.low, conf.high </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -364,6 +365,7 @@ before <code>emfx</code>.</p></div>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Term Estimate Std. Error      z Pr(&gt;|z|)   S  2.5 % 97.5 %</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  b1=b2  -0.0164     0.0559 -0.294    0.769 0.4 -0.126  0.093</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Type:  response </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Columns: term, estimate, std.error, statistic, p.value, s.value, conf.low, conf.high </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
@@ -392,6 +394,7 @@ before <code>emfx</code>.</p></div>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat     2   -75.12       22.3 -3.3696   &lt;0.001 10.4 -118.8 -31.43</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat     3  -101.82       28.1 -3.6234   &lt;0.001 11.7 -156.9 -46.75</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Type:  response </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Comparison: TRUE - FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Columns: term, contrast, event, estimate, std.error, statistic, p.value, s.value, conf.low, conf.high </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
