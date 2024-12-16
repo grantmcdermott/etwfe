@@ -18,15 +18,19 @@
 #'   of the underlying `etwfe` model object. Users can override by setting to
 #'   either `FALSE` or `TRUE.` See the "Heterogeneous treatment effects"
 #'   section below.
-#' @param collapse Logical. Collapse the data by (period by cohort) groups
+#' @param compress Logical. Compress the data by (period by cohort) groups
 #'   before calculating marginal effects? This trades off a slight loss in
 #'   precision (typically around the 1st or 2nd significant decimal point) for a
 #'   substantial improvement in estimation time for large datasets. The default
-#'   behaviour (`"auto"`) is to automatically collapse if the original dataset
+#'   behaviour (`"auto"`) is to automatically compress if the original dataset
 #'   has more than 500,000 rows. Users can override by setting either `FALSE` or
 #'   `TRUE`. Note that collapsing by group is only valid if the preceding `etwfe`
 #'   call was run with `"ivar = NULL"` (the default). See the "Performance
 #'   tips" section below.
+#' @param collapse Logical. An alias for `compress` (only used for backwards
+#'   compatability and ignored if both arguments are provided). The behaviour is
+#'   identical, but it will trigger a message nudging users to rather use the
+#'   `compress` argument. 
 #' @param predict Character. The type (scale) of prediction used to compute the
 #'   marginal effects. If `"response"` (the default), then the output is at the
 #'   level of the response variable, i.e. it is the expected predictor
@@ -79,6 +83,11 @@
 #'   - `s.value`
 #'   - `conf.low`
 #'   - `conf.high`
+#' @references 
+#' Wong, Jeffrey _et al._ (2021). \cite{You Only Compress Once: Optimal Data
+#' Compression for Estimating Linear Models}. Working paper (version: March 16,
+#' 2021). Available: 
+#' https://doi.org/10.48550/arXiv.2102.11297
 #' @seealso [marginaleffects::slopes] which does the heavily lifting behind the
 #' scenes. [`etwfe`] is the companion estimating function that should be run
 #' before `emfx`.
@@ -92,7 +101,8 @@ emfx = function(
     object,
     type = c("simple", "group", "calendar", "event"),
     by_xvar = "auto",
-    collapse = "auto",
+    compress = "auto",
+    collapse = compress,
     predict = c("response", "link"),
     post_only = TRUE,
     lean = TRUE,
@@ -142,15 +152,22 @@ emfx = function(
   dat = as.data.table(eval(object$call$data, object$call_env))
   if ("group" %in% names(dat)) dat[["group"]] = NULL
   
-  # check collapse argument
+  # check compress argument
   nrows = NULL
-  if (collapse == "auto") {
+  if (compress == "auto" && collapse != compress) {
+    compress = collapse
+    message(
+      "\nPlease note that the `collapse` argument has been superseded by `compress`. ",
+      "Both arguments have the identical effect, but we encourage users to use `compress` going forward.\n"
+    )
+  }
+  if (compress == "auto") {
     nrows = nrow(dat)
 
     if (nrows >= 5e5) {
-      collapse = TRUE
+      compress = TRUE
     } else {
-      collapse = FALSE
+      compress = FALSE
     }
   }
   
@@ -168,7 +185,7 @@ emfx = function(
   }
   
   # define formulas and calculate weights
-  if(collapse & is.null(ivar)){
+  if(compress & is.null(ivar)){
     if(by_xvar){
       dat_weights = dat[(.Dtreat)][, .N, by = c(gvar, tvar, xvar)]
     } else {
@@ -177,19 +194,19 @@ emfx = function(
     
    if (!is.null(nrows) && nrows > 5e5) warning(
     "\nNote: Dataset larger than 500k rows detected. The data will be ",
-    "collapsed by period-cohort groups to reduce estimation times. ", 
+    "compressed by period-cohort groups to reduce estimation times. ", 
     "However, this shortcut can reduce the accuracy of the reported ",
     "marginal effects. ",
     "To override this default behaviour, specify: ",
-    "`emfx(..., collapse = FALSE)`\n"
+    "`emfx(..., compress = FALSE)`\n"
     ) 
     
-    # collapse the data
-    dat = dat[(.Dtreat)][, lapply(.SD, mean), by = c(gvar, tvar, xvar, ".Dtreat")] # collapse data
+    # compress the data
+    dat = dat[(.Dtreat)][, lapply(.SD, mean), by = c(gvar, tvar, xvar, ".Dtreat")] # compress data
     dat = setDT(dat)[, merge(.SD, dat_weights, all.x = TRUE)] # add weights
     
     
-  } else if (collapse & !is.null(ivar)) {
+  } else if (compress & !is.null(ivar)) {
     warning("\"ivar\" is not NULL. Marginal effects are calculated without collapsing.")
     dat$N = 1L
     
@@ -197,7 +214,7 @@ emfx = function(
     dat$N = 1L
   }
   
-  # collapse the data 
+  # compress the data 
   if (type=="simple") {
       by_var = ".Dtreat"
   } else if (type=="group") {
