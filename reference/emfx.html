@@ -89,8 +89,8 @@ section below.</p></dd>
 
 <dt id="arg-collapse">collapse<a class="anchor" aria-label="anchor" href="#arg-collapse"></a></dt>
 <dd><p>Logical. Collapse the data by (period by cohort) groups
-before calculating marginal effects? This trades off a loss in estimate
-accuracy (typically around the 1st or 2nd significant decimal point) for a
+before calculating marginal effects? This trades off a slight loss in
+precision (typically around the 1st or 2nd significant decimal point) for a
 substantial improvement in estimation time for large datasets. The default
 behaviour (<code>"auto"</code>) is to automatically collapse if the original dataset
 has more than 500,000 rows. Users can override by setting either <code>FALSE</code> or
@@ -250,20 +250,19 @@ before <code>emfx</code>.</p></div>
 <span class="r-in"><span><span class="co"># 1) `etwfe` and 2) `emfx`</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># 1) `etwfe`: Estimate a regression model with saturated interaction terms.</span></span></span>
-<span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">mod</span> <span class="op">=</span> <span class="fu"><a href="etwfe.html">etwfe</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>    fml  <span class="op">=</span> <span class="va">lemp</span> <span class="op">~</span> <span class="va">lpop</span>, <span class="co"># outcome ~ controls (use 0 or 1 if none)</span></span></span>
-<span class="r-in"><span>    tvar <span class="op">=</span> <span class="va">year</span>,        <span class="co"># time variable</span></span></span>
-<span class="r-in"><span>    gvar <span class="op">=</span> <span class="va">first.treat</span>, <span class="co"># group variable</span></span></span>
-<span class="r-in"><span>    data <span class="op">=</span> <span class="va">mpdta</span>,       <span class="co"># dataset</span></span></span>
-<span class="r-in"><span>    vcov <span class="op">=</span> <span class="op">~</span><span class="va">countyreal</span>  <span class="co"># vcov adjustment (here: clustered by county)</span></span></span>
-<span class="r-in"><span>    <span class="op">)</span></span></span>
+<span class="r-in"><span>  fml  <span class="op">=</span> <span class="va">lemp</span> <span class="op">~</span> <span class="va">lpop</span>, <span class="co"># outcome ~ controls (use 0 or 1 if none)</span></span></span>
+<span class="r-in"><span>  tvar <span class="op">=</span> <span class="va">year</span>,        <span class="co"># time variable</span></span></span>
+<span class="r-in"><span>  gvar <span class="op">=</span> <span class="va">first.treat</span>, <span class="co"># group variable</span></span></span>
+<span class="r-in"><span>  data <span class="op">=</span> <span class="va">mpdta</span>,       <span class="co"># dataset</span></span></span>
+<span class="r-in"><span>  vcov <span class="op">=</span> <span class="op">~</span><span class="va">countyreal</span>  <span class="co"># vcov adjustment (here: clustered by county)</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># mod ## A fixest model object with fully saturated interaction effects.</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># 2) `emfx`: Recover the treatment effects of interest.</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu">emfx</span><span class="op">(</span><span class="va">mod</span>, type <span class="op">=</span> <span class="st">"event"</span><span class="op">)</span> <span class="co"># dynamic ATE a la an event study</span></span></span>
+<span class="r-in"><span><span class="op">(</span><span class="va">mod_es</span> <span class="op">=</span> <span class="fu">emfx</span><span class="op">(</span><span class="va">mod</span>, type <span class="op">=</span> <span class="st">"event"</span><span class="op">)</span><span class="op">)</span> <span class="co"># dynamic ATE a la an event study</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     Term event Estimate Std. Error     z Pr(&gt;|z|)    S   2.5 %   97.5 %</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat     0  -0.0332     0.0134 -2.48    0.013  6.3 -0.0594 -0.00701</span>
@@ -278,6 +277,21 @@ before <code>emfx</code>.</p></div>
 <span class="r-in"><span><span class="co"># Etc. Other aggregation type options are "simple" (the default), "group"</span></span></span>
 <span class="r-in"><span><span class="co"># and "calendar"</span></span></span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># To visualize results, use the native plot method (see `?plot.emfx`)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mod_es</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="emfx-1.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Notice that we don't get any pre-treatment effects with the default</span></span></span>
+<span class="r-in"><span><span class="co"># "notyet" treated control group. Switch to the "never" treated control</span></span></span>
+<span class="r-in"><span><span class="co"># group if you want this.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="etwfe.html">etwfe</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">lemp</span> <span class="op">~</span> <span class="va">lpop</span>, tvar <span class="op">=</span> <span class="va">year</span>, gvar <span class="op">=</span> <span class="va">first.treat</span>, data <span class="op">=</span> <span class="va">mpdta</span>,</span></span>
+<span class="r-in"><span>  vcov <span class="op">=</span> <span class="op">~</span><span class="va">countyreal</span>,</span></span>
+<span class="r-in"><span>  cgroup <span class="op">=</span> <span class="st">"never"</span>    <span class="co">## &lt;= use never treated group as control</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">emfx</span><span class="op">(</span><span class="st">"event"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="emfx-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">#</span></span></span>
 <span class="r-in"><span><span class="co"># Heterogeneous treatment effects</span></span></span>
@@ -292,10 +306,10 @@ before <code>emfx</code>.</p></div>
 <span class="r-in"><span><span class="va">mpdta</span><span class="op">$</span><span class="va">gls</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/substr.html" class="external-link">substr</a></span><span class="op">(</span><span class="va">mpdta</span><span class="op">$</span><span class="va">countyreal</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">gls</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">hmod</span> <span class="op">=</span> <span class="fu"><a href="etwfe.html">etwfe</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>   <span class="va">lemp</span> <span class="op">~</span> <span class="va">lpop</span>, tvar <span class="op">=</span> <span class="va">year</span>, gvar <span class="op">=</span> <span class="va">first.treat</span>, data <span class="op">=</span> <span class="va">mpdta</span>, </span></span>
-<span class="r-in"><span>   vcov <span class="op">=</span> <span class="op">~</span><span class="va">countyreal</span>,</span></span>
-<span class="r-in"><span>   xvar <span class="op">=</span> <span class="va">gls</span>           <span class="co">## &lt;= het. TEs by gls</span></span></span>
-<span class="r-in"><span>   <span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">lemp</span> <span class="op">~</span> <span class="va">lpop</span>, tvar <span class="op">=</span> <span class="va">year</span>, gvar <span class="op">=</span> <span class="va">first.treat</span>, data <span class="op">=</span> <span class="va">mpdta</span>, </span></span>
+<span class="r-in"><span>  vcov <span class="op">=</span> <span class="op">~</span><span class="va">countyreal</span>,</span></span>
+<span class="r-in"><span>  xvar <span class="op">=</span> <span class="va">gls</span>           <span class="co">## &lt;= het. TEs by gls</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Heterogeneous ATEs (could also specify "event", etc.) </span></span></span>
 <span class="r-in"><span></span></span>
@@ -338,6 +352,8 @@ before <code>emfx</code>.</p></div>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Columns: term, estimate, std.error, statistic, p.value, s.value, conf.low, conf.high </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu">emfx</span><span class="op">(</span><span class="va">hmod</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="emfx-3.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">#</span></span></span>
 <span class="r-in"><span><span class="co"># Nonlinear model (distribution / link) families</span></span></span>
@@ -348,11 +364,11 @@ before <code>emfx</code>.</p></div>
 <span class="r-in"><span><span class="va">mpdta</span><span class="op">$</span><span class="va">emp</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">mpdta</span><span class="op">$</span><span class="va">lemp</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="etwfe.html">etwfe</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>   <span class="va">emp</span> <span class="op">~</span> <span class="va">lpop</span>, tvar <span class="op">=</span> <span class="va">year</span>, gvar <span class="op">=</span> <span class="va">first.treat</span>, data <span class="op">=</span> <span class="va">mpdta</span>, </span></span>
-<span class="r-in"><span>   vcov <span class="op">=</span> <span class="op">~</span><span class="va">countyreal</span>,</span></span>
-<span class="r-in"><span>   family <span class="op">=</span> <span class="st">"poisson"</span>   <span class="co">## &lt;= family arg for nonlinear options</span></span></span>
-<span class="r-in"><span>   <span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>   <span class="fu">emfx</span><span class="op">(</span><span class="st">"event"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">emp</span> <span class="op">~</span> <span class="va">lpop</span>, tvar <span class="op">=</span> <span class="va">year</span>, gvar <span class="op">=</span> <span class="va">first.treat</span>, data <span class="op">=</span> <span class="va">mpdta</span>, </span></span>
+<span class="r-in"><span>  vcov <span class="op">=</span> <span class="op">~</span><span class="va">countyreal</span>,</span></span>
+<span class="r-in"><span>  family <span class="op">=</span> <span class="st">"poisson"</span>   <span class="co">## &lt;= family arg for nonlinear options</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">emfx</span><span class="op">(</span><span class="st">"event"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> The variables '.Dtreat:first.treat::2006:year::2004', '.Dtreat:first.treat::2006:year::2005', '.Dtreat:first.treat::2007:year::2004', '.Dtreat:first.treat::2007:year::2005', '.Dtreat:first.treat::2007:year::2006', '.Dtreat:first.treat::2006:year::2004:lpop_dm' and 4 others have been removed because of collinearity (see $collin.var).</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     Term event Estimate Std. Error       z Pr(&gt;|z|)    S  2.5 % 97.5 %</span>
