@@ -12,7 +12,7 @@ emfx(
   collapse = compress,
   predict = c("response", "link"),
   post_only = TRUE,
-  lean = TRUE,
+  lean = FALSE,
   ...
 )
 }
@@ -67,14 +67,13 @@ that behaviour via \code{FALSE} is \emph{strictly} performative: the "zero" trea
 effects for any pre-treatment periods is purely an artefact of the
 estimation setup.}
 
-\item{lean}{Logical. Enforces a lean return object; namely a simple
-data.frame of the main results, stripped of ancillary attributes. Defaults
-to \code{TRUE}, in which case \code{options(marginaleffects_lean = TRUE)} is set
-internally at the start of the \code{emfx} call, before being reverted upon
-exit. Note that this will disable some advanced \code{marginaleffects}
-post-processing features, but those are unlikely to be used in the \code{emfx}
-context and means that we can dramatically reduce the size of the return
-object.}
+\item{lean}{Logical. Default is \code{FALSE}. Switching to \code{TRUE} enforces a lean
+return object; namely a simple data.frame of the main results, stripped of
+ancillary attributes. Note that this will disable some advanced
+\code{marginaleffects} post-processing features, but those are unlikely to be
+used in the \code{emfx} context. The upside is a potentially dramatic reduction
+in the size of the return object. Consequently, we may change the default
+to \code{TRUE} in a future version of \strong{etwfe}.}
 
 \item{...}{Additional arguments passed to
 \code{\link[marginaleffects:slopes]{marginaleffects::slopes}}. For example, you can pass \code{vcov = FALSE} to dramatically speed up estimation times of the main marginal
