@@ -30,8 +30,16 @@ plot.emfx = function(
     ...) {
   dots = list(...)
   type = match.arg(type)
+  etwfe_attr = attr(x, "etwfe")
   byvar = attr(x, "by")
-  fml = reformulate(byvar, response = "estimate")
+  xvar = etwfe_attr[["xvar"]]
+  if (is.null(xvar)) {
+    fml = reformulate(byvar, response = "estimate")
+  } else {
+    byvar = setdiff(byvar, xvar)
+    fml = reformulate(paste(byvar, "|", xvar), response = "estimate")
+  }
+  
   if (isTRUE(zero)) {
     if (is.null(dots[["ylim"]])) {
       dots$ylim = range(c(x$conf.low, x$conf.high, x$estimate, 0), na.rm = TRUE)
@@ -48,7 +56,7 @@ plot.emfx = function(
   }
   xlab = ylab = main = NULL
   # ensure nice x axis ticks
-  if (byvar==".Dtreat" && nrow(x)==1) {
+  if (etwfe_attr[["type"]]=="simple") {
     x[[byvar]] = ".Dtreat==TRUE"
   } else {
     olab = par("lab")
@@ -59,8 +67,17 @@ plot.emfx = function(
       on.exit(par(op), add = TRUE)
     }
   }
+  # dodge CIs if heterogenous groups
+  if (!is.null(xvar) && type!="ribbon") {
+    uxvar = unique(x[[xvar]])
+    xbmp = scale(uxvar, scale = FALSE)[, 1] / 10 * 1.5
+    for (ux in seq_along(uxvar)) {
+      idx = x[[xvar]]==uxvar[ux] 
+      x[[byvar]][idx] = x[[byvar]][idx] + xbmp[ux] 
+    }
+  }
   if (byvar=="event") xlab = "Time since treatment"
-  main = paste("Effect on", attr(x, "yvar"))
+  main = paste("Effect on", etwfe_attr[["yvar"]])
   pargs = list(
     x = fml,
     data = x,

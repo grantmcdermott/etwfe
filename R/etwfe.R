@@ -446,15 +446,16 @@ etwfe = function(
   
   ## Overload class and new attributes (for post-estimation) ----
   class(est) = c("etwfe", class(est))
-    attr(est, "etwfe") = list(
-      gvar = gvar,
-      tvar = tvar,
-      xvar = xvar,
-      ivar = ivar,
-      gref = gref,
-      tref = tref,
-      cgroup = cgroup
-      )
+  attr(est, "etwfe") = list(
+    yvar = lhs,
+    gvar = gvar,
+    tvar = tvar,
+    xvar = xvar,
+    ivar = ivar,
+    gref = gref,
+    tref = tref,
+    cgroup = cgroup
+    )
 
   ## Return ----
   return(est)

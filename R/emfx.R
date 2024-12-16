@@ -114,6 +114,7 @@ emfx = function(
   type = match.arg(type)
   predict = match.arg(predict)
   etwfe_attr = attr(object, "etwfe")
+  etwfe_attr[["type"]] = type
   gvar = etwfe_attr[["gvar"]]
   tvar = etwfe_attr[["tvar"]]
   ivar = etwfe_attr[["ivar"]]
@@ -228,7 +229,7 @@ emfx = function(
   }
   
   class(mfx) = c("emfx", class(mfx))
-  attr(mfx, "yvar") = object$fml[[2]]
+  attr(mfx, "etwfe") = etwfe_attr
   
   return(mfx)
 }
