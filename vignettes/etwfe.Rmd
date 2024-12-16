@@ -22,7 +22,7 @@ knitr::opts_chunk$set(
 options(width = 100)
 options(rmarkdown.html_vignette.check_title = FALSE)
 options(marginaleffects_safe = FALSE)
-config_modelsummary(startup_message = FALSE)
+modelsummary::config_modelsummary(startup_message = FALSE)
 
 fixest::setFixest_notes(FALSE)
 ```
