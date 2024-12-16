@@ -24,9 +24,11 @@ Imports:
   stats,
   data.table,
   Formula,
-  marginaleffects (>= 0.24.0)
+  marginaleffects (>= 0.24.0),
+  tinyplot (>= 0.2.0)
 Suggests:
   did,
+  broom,
   modelsummary (>= 2.2.0),
   ggplot2,
   knitr,

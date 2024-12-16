@@ -10,6 +10,8 @@ with the topline `emfx(..., type = <aggregration_type>)` argument. (#49)
 - `emfx(..., lean = TRUE)` ensures a light return object by default, by
 stripping away data-heavy attributes that are unlikely to be needed afterwards.
 (#51)
+- Native `plot.emfx()` method (via a **tinyplot** backend) for visualizing
+`emfx` objects. (#54) 
 
 ## Documentation
 

@@ -3,10 +3,9 @@ template:
   bootstrap: 5
 reference:
 - title: "Estimation"
-  # desc: "Estimating functions"
   contents: 
   - etwfe
-- title: "Post-estimation"
-  # desc: "Post-estimation functions"
-  contents: 
   - emfx
+- title: "Methods"
+  contents: 
+  - plot.emfx

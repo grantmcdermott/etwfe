@@ -30,8 +30,8 @@ either \code{FALSE} or \code{TRUE.} See the "Heterogeneous treatment effects"
 section below.}
 
 \item{collapse}{Logical. Collapse the data by (period by cohort) groups
-before calculating marginal effects? This trades off a loss in estimate
-accuracy (typically around the 1st or 2nd significant decimal point) for a
+before calculating marginal effects? This trades off a slight loss in
+precision (typically around the 1st or 2nd significant decimal point) for a
 substantial improvement in estimation time for large datasets. The default
 behaviour (\code{"auto"}) is to automatically collapse if the original dataset
 has more than 500,000 rows. Users can override by setting either \code{FALSE} or
@@ -187,24 +187,36 @@ data("mpdta", package = "did")
 # 1) `etwfe` and 2) `emfx`
 
 # 1) `etwfe`: Estimate a regression model with saturated interaction terms.
-
 mod = etwfe(
-    fml  = lemp ~ lpop, # outcome ~ controls (use 0 or 1 if none)
-    tvar = year,        # time variable
-    gvar = first.treat, # group variable
-    data = mpdta,       # dataset
-    vcov = ~countyreal  # vcov adjustment (here: clustered by county)
-    )
+  fml  = lemp ~ lpop, # outcome ~ controls (use 0 or 1 if none)
+  tvar = year,        # time variable
+  gvar = first.treat, # group variable
+  data = mpdta,       # dataset
+  vcov = ~countyreal  # vcov adjustment (here: clustered by county)
+  )
 
 # mod ## A fixest model object with fully saturated interaction effects.
 
 # 2) `emfx`: Recover the treatment effects of interest.
 
-emfx(mod, type = "event") # dynamic ATE a la an event study
+(mod_es = emfx(mod, type = "event")) # dynamic ATE a la an event study
 
 # Etc. Other aggregation type options are "simple" (the default), "group"
 # and "calendar"
 
+# To visualize results, use the native plot method (see `?plot.emfx`)
+plot(mod_es)
+
+# Notice that we don't get any pre-treatment effects with the default
+# "notyet" treated control group. Switch to the "never" treated control
+# group if you want this.
+etwfe(
+  lemp ~ lpop, tvar = year, gvar = first.treat, data = mpdta,
+  vcov = ~countyreal,
+  cgroup = "never"    ## <= use never treated group as control
+  ) |>
+  emfx("event") |>
+  plot()
 
 #
 # Heterogeneous treatment effects
@@ -219,10 +231,10 @@ gls = c("IL" = 17, "IN" = 18, "MI" = 26, "MN" = 27,
 mpdta$gls = substr(mpdta$countyreal, 1, 2) \%in\% gls
 
 hmod = etwfe(
-   lemp ~ lpop, tvar = year, gvar = first.treat, data = mpdta, 
-   vcov = ~countyreal,
-   xvar = gls           ## <= het. TEs by gls
-   )
+  lemp ~ lpop, tvar = year, gvar = first.treat, data = mpdta, 
+  vcov = ~countyreal,
+  xvar = gls           ## <= het. TEs by gls
+  )
 
 # Heterogeneous ATEs (could also specify "event", etc.) 
 
@@ -233,6 +245,7 @@ emfx(hmod)
 
 emfx(hmod, hypothesis = "b1 = b2")
 
+plot(emfx(hmod))
 
 #
 # Nonlinear model (distribution / link) families
@@ -243,11 +256,11 @@ emfx(hmod, hypothesis = "b1 = b2")
 mpdta$emp = exp(mpdta$lemp)
 
 etwfe(
-   emp ~ lpop, tvar = year, gvar = first.treat, data = mpdta, 
-   vcov = ~countyreal,
-   family = "poisson"   ## <= family arg for nonlinear options
-   ) |>
-   emfx("event")
+  emp ~ lpop, tvar = year, gvar = first.treat, data = mpdta, 
+  vcov = ~countyreal,
+  family = "poisson"   ## <= family arg for nonlinear options
+  ) |>
+  emfx("event")
 }
 
 }
