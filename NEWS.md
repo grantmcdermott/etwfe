@@ -11,7 +11,17 @@ with the topline `emfx(..., type = <aggregration_type>)` argument. (#49)
 stripping away data-heavy attributes that are unlikely to be needed afterwards.
 (#51)
 - Native `plot.emfx()` method (via a **tinyplot** backend) for visualizing
-`emfx` objects. (#54) 
+`emfx` objects. (#54)
+
+## Superseded arguments
+
+- The `collapse` argument in `emfx()` is superseded by `compress`. The older
+argument is retained as an alias for backwards compatibility, but will now
+trigger a message, nudging users to switch to `compress` instead. The end result
+will be identical, though. This cosmetic change was motivated by a desire to be
+more consistent with the phrasing used in the literature (i.e., on
+performance-boosting within group compression and weighting). See Wong _et al._
+([2021](https://doi.org/10.48550/arXiv.2102.11297)), for example. (#57)
 
 ## Documentation
 
