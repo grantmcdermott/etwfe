@@ -376,18 +376,6 @@ help to make the event-study output look a bit cleaner.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("modelsummary")</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://modelsummary.com" class="external-link">modelsummary</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; `modelsummary` 2.0.0 now uses `tinytable` as its default table-drawing backend. Learn more</span></span>
-<span><span class="co">#&gt;   at: https://vincentarelbundock.github.io/tinytable/</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Revert to `kableExtra` for one session:</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;   options(modelsummary_factory_default = 'kableExtra')</span></span>
-<span><span class="co">#&gt;   options(modelsummary_factory_latex = 'kableExtra')</span></span>
-<span><span class="co">#&gt;   options(modelsummary_factory_html = 'kableExtra')</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Silence this message forever:</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;   config_modelsummary(startup_message = FALSE)</span></span>
 <span></span>
 <span><span class="co"># Quick renaming function to replace ".Dtreat" with something more meaningful</span></span>
 <span><span class="va">rename_fn</span> <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">old_names</span><span class="op">)</span> <span class="op">{</span></span>
@@ -830,30 +818,31 @@ pretty performant. If your data has less than 100k rows, it’s unlikely
 that you’ll have to wait more than a few seconds to obtain results.
 However, <code>emfx</code>’s computation time does tend to scale
 non-linearly with the size of the original data, as well as the number
-of interactions from the underlying <code>etwfe</code> model object.
-Without getting too deep into the weeds, we are relying on a numerical
-delta method of the (excellent) <strong>marginaleffects</strong> package
-underneath the hood to recover the ATTs of interest. This method
-requires estimating two prediction models for <em>each</em> coefficient
-in the model and then computing their standard errors. So it’s a
-potentially expensive operation that can push the computation time for
-large datasets (&gt; 1m rows) up to several minutes or longer.</p>
+of interactions from the underlying <code>etwfe</code> model object.<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;Without getting too deep into the weeds, we are relying
+on a numerical delta method of the (excellent)
+&lt;strong&gt;marginaleffects&lt;/strong&gt; package underneath the hood to recover
+the ATTs of interest. This method requires estimating two prediction
+models for &lt;em&gt;each&lt;/em&gt; coefficient in the model and then computing
+their standard errors. So it’s a potentially expensive operation that
+can push the computation time for large datasets (&amp;gt; 1m rows) up to
+several minutes or longer.&lt;/p&gt;"><sup>5</sup></a></p>
 <p>Fortunately, there are two complementary strategies that you can use
 to speed things up. The first is to turn off the most expensive part of
 the whole procedure—standard error calculation—by calling
-<code>emfx(..., vcov = FALSE)</code>. Doing so should bring the
-estimation time back down to a few seconds or less, even for datasets in
-excess of a million rows. Of course, the loss of standard errors might
-not be an acceptable trade-off for projects where statistical inference
-is critical. But the good news is this first strategy can still be
-combined our second strategy: it turns out that collapsing the data by
-groups prior to estimating the marginal effects can yield substantial
-speed gains on its own. Users can do this by invoking the
-<code>emfx(..., collapse = TRUE)</code> argument. While the effect here
+<code>emfx(..., vcov = FALSE)</code>. This should bring the estimation
+time back down to a few seconds or less, even for datasets in excess of
+a million rows. Of course, the loss of standard errors might not be an
+acceptable trade-off for projects where statistical inference is
+critical. But the good news is that we “combine” turning off standard
+errors with a second strategy. Specially, it turns out that compressing
+the data by groups prior to estimation can yield substantial speed gains
+on its own; see Wong <em>et al.</em> (<a href="https://doi.org/10.48550/arXiv.2102.11297" class="external-link">2021</a>) on this.
+Users can do this by invoking the
+<code>emfx(..., compress = TRUE)</code> argument. While the effect here
 is not as dramatic as the first strategy, collapsing the data does have
 the virtue of retaining information about the standard errors. The
-trade-off this time, however, is that collapsing our data does lead to a
-loss in accuracy for our estimated parameters. On the other hand,
+trade-off this time, however, is that compressing our data does lead to
+a loss in accuracy for our estimated parameters. On the other hand,
 testing suggests that this loss in accuracy tends to be relatively
 minor, with results equivalent up to the 1st or 2nd significant decimal
 place (or even better).</p>
@@ -862,10 +851,10 @@ worried about the estimation time for large datasets and models:</p>
 <ol start="0" style="list-style-type: decimal">
 <li>Estimate <code>mod = etwfe(...)</code> as per usual.</li>
 <li>Run <code>emfx(mod, vcov = FALSE, ...)</code>.</li>
-<li>Run <code>emfx(mod, vcov = FALSE, collapse = TRUE, ...)</code>.</li>
+<li>Run <code>emfx(mod, vcov = FALSE, compress = TRUE, ...)</code>.</li>
 <li>Compare the point estimates from steps 1 and 2. If they are are
 similar enough to your satisfaction, get the approximate standard errors
-by running <code>emfx(mod, collapse = TRUE, ...)</code>.</li>
+by running <code>emfx(mod, compress = TRUE, ...)</code>.</li>
 </ol>
 <p>It’s a bit of performance art, since all of the examples in this
 vignette complete very quickly anyway. But here is a reworking of our
@@ -887,7 +876,7 @@ workflow.</p>
 <span><span class="co">#&gt; Columns: term, contrast, event, estimate</span></span>
 <span></span>
 <span><span class="co"># Step 2</span></span>
-<span><span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="va">mod</span>, type <span class="op">=</span> <span class="st">"event"</span>, vcov <span class="op">=</span> <span class="cn">FALSE</span>, collapse <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="va">mod</span>, type <span class="op">=</span> <span class="st">"event"</span>, vcov <span class="op">=</span> <span class="cn">FALSE</span>, compress <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;     Term event Estimate</span></span>
 <span><span class="co">#&gt;  .Dtreat     0  -0.0332</span></span>
@@ -899,13 +888,13 @@ workflow.</p>
 <span><span class="co">#&gt; Columns: term, contrast, event, estimate</span></span>
 <span></span>
 <span><span class="co"># Step 3: Results from 1 and 2 are similar enough, so get approx. SEs</span></span>
-<span><span class="va">mod_es2</span> <span class="op">=</span> <span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="va">mod</span>, type <span class="op">=</span> <span class="st">"event"</span>, collapse <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">mod_es_compressed</span> <span class="op">=</span> <span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="va">mod</span>, type <span class="op">=</span> <span class="st">"event"</span>, compress <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p>To put a fine point on it, we can can compare our original event
-study with the collapsed estimates and see that the results are indeed
+study with the compressed estimates and see that the results are indeed
 very similar.</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://modelsummary.com/man/modelsummary.html" class="external-link">modelsummary</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"Original"</span> <span class="op">=</span> <span class="va">mod_es</span>, <span class="st">"Collapsed"</span> <span class="op">=</span> <span class="va">mod_es2</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"Original"</span> <span class="op">=</span> <span class="va">mod_es</span>, <span class="st">"Compressed"</span> <span class="op">=</span> <span class="va">mod_es_compressed</span><span class="op">)</span>,</span>
 <span>  shape       <span class="op">=</span> <span class="va">term</span><span class="op">:</span><span class="va">event</span><span class="op">:</span><span class="va">statistic</span> <span class="op">~</span> <span class="va">model</span>,</span>
 <span>  coef_rename <span class="op">=</span> <span class="va">rename_fn</span>,</span>
 <span>  gof_omit    <span class="op">=</span> <span class="st">"Adj|Within|IC|RMSE"</span>,</span>
@@ -997,7 +986,7 @@ very similar.</p>
               <tr>
 <th scope="col"> </th>
                 <th scope="col">Original</th>
-                <th scope="col">Collapsed</th>
+                <th scope="col">Compressed</th>
               </tr>
 </thead>
 <tfoot><tr><td colspan="3">Std. errors are clustered at the county level</td></tr></tfoot>
@@ -1066,7 +1055,7 @@ the formula of an estimated model to see for yourself.</p>
 <code class="sourceCode R"><span><span class="va">mod</span><span class="op">$</span><span class="va">fml_all</span></span>
 <span><span class="co">#&gt; $linear</span></span>
 <span><span class="co">#&gt; lemp ~ .Dtreat:i(first.treat, i.year, ref = 0, ref2 = 2003)/lpop_dm</span></span>
-<span><span class="co">#&gt; &lt;environment: 0x55815c88a448&gt;</span></span>
+<span><span class="co">#&gt; &lt;environment: 0x5588e020ff88&gt;</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $fixef</span></span>
 <span><span class="co">#&gt; ~first.treat + first.treat[[lpop]] + year + year[[lpop]]</span></span></code></pre></div>
@@ -1097,7 +1086,7 @@ regression manually:</p>
 <p>We can confirm that the manual approach yields the same output as our
 original etwfe regression. I’ll use <strong>modelsummary</strong> to do
 that here, since I’ve already loaded it above.<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content='&lt;p&gt;Another option would be to use
-&lt;code&gt;&lt;a href="https://lrberge.github.io/fixest/reference/etable.html" class="external-link"&gt;fixest::etable()&lt;/a&gt;&lt;/code&gt;&lt;/p&gt;'><sup>5</sup></a>.</p>
+&lt;code&gt;&lt;a href="https://lrberge.github.io/fixest/reference/etable.html" class="external-link"&gt;fixest::etable()&lt;/a&gt;&lt;/code&gt;&lt;/p&gt;'><sup>6</sup></a>.</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://modelsummary.com/man/modelsummary.html" class="external-link">modelsummary</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"etwfe"</span> <span class="op">=</span> <span class="va">mod</span>, <span class="st">"manual"</span> <span class="op">=</span> <span class="va">mod2</span><span class="op">)</span>,</span>
@@ -1386,7 +1375,7 @@ for this is part practical, part philosophical. From a practical
 perspective, <code>factor_var[numeric_var]</code> is equivalent to base
 R’s <code>factor_var/numeric_var</code> “nesting” syntax but is much
 faster for high-dimensional factors.<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;We won’t see a speed-up for this small dataset, but it
-can make a significant difference for large datasets.&lt;/p&gt;"><sup>6</sup></a> From a philosophical perspective,
+can make a significant difference for large datasets.&lt;/p&gt;"><sup>7</sup></a> From a philosophical perspective,
 <strong>etwfe</strong> tries to limit the amount of extraneous
 information that it reports to users. Most of the interaction effects in
 the ETWFE framework are just acting as controls. By relegating them to

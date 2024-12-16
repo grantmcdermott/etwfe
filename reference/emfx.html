@@ -56,7 +56,8 @@ package.</p>
 <span>  <span class="va">object</span>,</span>
 <span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"simple"</span>, <span class="st">"group"</span>, <span class="st">"calendar"</span>, <span class="st">"event"</span><span class="op">)</span>,</span>
 <span>  by_xvar <span class="op">=</span> <span class="st">"auto"</span>,</span>
-<span>  collapse <span class="op">=</span> <span class="st">"auto"</span>,</span>
+<span>  compress <span class="op">=</span> <span class="st">"auto"</span>,</span>
+<span>  collapse <span class="op">=</span> <span class="va">compress</span>,</span>
 <span>  predict <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"response"</span>, <span class="st">"link"</span><span class="op">)</span>,</span>
 <span>  post_only <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  lean <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -87,16 +88,23 @@ either <code>FALSE</code> or <code>TRUE.</code> See the "Heterogeneous treatment
 section below.</p></dd>
 
 
-<dt id="arg-collapse">collapse<a class="anchor" aria-label="anchor" href="#arg-collapse"></a></dt>
-<dd><p>Logical. Collapse the data by (period by cohort) groups
+<dt id="arg-compress">compress<a class="anchor" aria-label="anchor" href="#arg-compress"></a></dt>
+<dd><p>Logical. Compress the data by (period by cohort) groups
 before calculating marginal effects? This trades off a slight loss in
 precision (typically around the 1st or 2nd significant decimal point) for a
 substantial improvement in estimation time for large datasets. The default
-behaviour (<code>"auto"</code>) is to automatically collapse if the original dataset
+behaviour (<code>"auto"</code>) is to automatically compress if the original dataset
 has more than 500,000 rows. Users can override by setting either <code>FALSE</code> or
 <code>TRUE</code>. Note that collapsing by group is only valid if the preceding <code>etwfe</code>
 call was run with <code>"ivar = NULL"</code> (the default). See the "Performance
 tips" section below.</p></dd>
+
+
+<dt id="arg-collapse">collapse<a class="anchor" aria-label="anchor" href="#arg-collapse"></a></dt>
+<dd><p>Logical. An alias for <code>compress</code> (only used for backwards
+compatability and ignored if both arguments are provided). The behaviour is
+identical, but it will trigger a message nudging users to rather use the
+<code>compress</code> argument.</p></dd>
 
 
 <dt id="arg-predict">predict<a class="anchor" aria-label="anchor" href="#arg-predict"></a></dt>
@@ -225,6 +233,13 @@ the treatment effect is statistically different across these two age
 groups; see Examples below. Note the same principles carry over to
 categorical variables with multiple levels, or even continuous variables
 (although continuous variables are not as well supported yet).</p>
+    </div>
+    <div class="section level2">
+    <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
+    <p>Wong, Jeffrey <em>et al.</em> (2021). <cite>You Only Compress Once: Optimal Data
+Compression for Estimating Linear Models</cite>. Working paper (version: March 16,
+2021). Available:
+https://doi.org/10.48550/arXiv.2102.11297</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
