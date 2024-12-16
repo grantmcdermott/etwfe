@@ -51,14 +51,13 @@
 #'   that behaviour via `FALSE` is _strictly_ performative: the "zero" treatment
 #'   effects for any pre-treatment periods is purely an artefact of the
 #'   estimation setup.
-#' @param lean Logical. Enforces a lean return object; namely a simple
-#'   data.frame of the main results, stripped of ancillary attributes. Defaults
-#'   to `TRUE`, in which case `options(marginaleffects_lean = TRUE)` is set
-#'   internally at the start of the `emfx` call, before being reverted upon
-#'   exit. Note that this will disable some advanced `marginaleffects`
-#'   post-processing features, but those are unlikely to be used in the `emfx`
-#'   context and means that we can dramatically reduce the size of the return
-#'   object.
+#' @param lean Logical. Default is `FALSE`. Switching to `TRUE` enforces a lean
+#'   return object; namely a simple data.frame of the main results, stripped of
+#'   ancillary attributes. Note that this will disable some advanced
+#'   `marginaleffects` post-processing features, but those are unlikely to be
+#'   used in the `emfx` context. The upside is a potentially dramatic reduction
+#'   in the size of the return object. Consequently, we may change the default
+#'   to `TRUE` in a future version of **etwfe**.
 #' @param ... Additional arguments passed to
 #'   [`marginaleffects::slopes`]. For example, you can pass `vcov =
 #'   FALSE` to dramatically speed up estimation times of the main marginal
@@ -105,7 +104,7 @@ emfx = function(
     collapse = compress,
     predict = c("response", "link"),
     post_only = TRUE,
-    lean = TRUE,
+    lean = FALSE,
     ...
 ) {
   
