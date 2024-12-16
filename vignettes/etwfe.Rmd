@@ -220,45 +220,13 @@ finding to your audience.
 
 ### Presentation
 
-Since `emfx()` produces a standard `marginaleffects` object, we can pass it on to
-other supported methods and packages. For example, we can pass it on to
-[**modelsummary**](https://modelsummary.com/index.html)
-to get a nice regression table of the event study coefficients. Note the use of
-the `shape` and `coef_rename` arguments below; these are optional but help to
-make the output look a bit nicer.
+#### Plots
+
+As of **etwfe** v0.5.0, we provide a native `plot.emfx` method for convenient
+visualization.
 
 ```{r}
-library(modelsummary)
-
-# Quick renaming function to replace ".Dtreat" with something more meaningful
-rename_fn = function(old_names) {
-  new_names = gsub(".Dtreat", "Years post treatment =", old_names)
-  setNames(new_names, old_names)
-}
-
-modelsummary(
-  mod_es,
-  shape       = term:event:statistic ~ model,
-  coef_rename = rename_fn,
-  gof_omit    = "Adj|Within|IC|RMSE",
-  title       = "Event study",
-  notes       = "Std. errors are clustered at the county level"
-)
-```
-
-For visualization, you can pass it on to your preferred plotting method. For
-example:
-
-```{r}
-library(ggplot2)
-theme_set(
-  theme_minimal() + theme(panel.grid.minor = element_blank())
-)
-
-ggplot(mod_es, aes(x = event, y = estimate, ymin = conf.low, ymax = conf.high)) +
-  geom_hline(yintercept = 0) +
-  geom_pointrange(col = "darkcyan") +
-  labs(x = "Years post treatment", y = "Effect on log teen employment")
+plot(mod_es)
 ```
 
 Note that `emfx` only reports post-treatment effects here. That's because all
@@ -276,20 +244,82 @@ the control group by first calling `etwfe(..., cgroup = "never")`. This _does_
 return pre-treatment effects, albeit with the potential trade-off of yielding
 less precise estimates from not using all available information.
 
-```{r, warning=FALSE}
+```{r}
 mod_es2 = etwfe(
   lemp ~ lpop, tvar = year, gvar = first.treat, data = mpdta, vcov = ~countyreal,
   cgroup = "never" # <= use never treated as control group
   ) |>
   emfx(type = "event")
 
+plot(mod_es2)
+```
+
+Two final points about visualizing `emfx` objects. First, you can customize
+your plots by overriding default arguments. We use
+[**tinyplot**](https://grantmcdermott.com/tinyplot/)
+as a backend and you should be able to pass through any valid argument that
+`tinyplot()` understands. For example:
+
+```{r}
+plot(
+  mod_es2,
+  type = "ribbon",
+  col  = "darkcyan",
+  xlab = "Years post treatment",
+  main = "Minimum wage effect on (log) teen employment",
+  sub  = "Note: Using never-treated as control group",
+  # file = "event-study.png", width = 8, height = 5. ## uncomment to save file
+)
+```
+
+Second, since `emfx` objects are essentially just data.frames with additional
+attributes, you can easily use another plot engine if you'd prefer. For example,
+assuming that you have **ggplot2** installed: 
+
+```{r, warning=FALSE, message=FALSE}
+# install.packages("ggplot2")
+library(ggplot2)
+theme_set(
+  theme_linedraw() + theme(panel.grid = element_blank())
+)
 ggplot(mod_es2, aes(x = event, y = estimate, ymin = conf.low, ymax = conf.high)) +
-  geom_hline(yintercept = 0) +
+  geom_hline(yintercept = 0, lty = 2, col = "grey50") +
+  geom_vline(xintercept = -1, lty = 2, col = "grey50") +
   geom_pointrange(col = "darkcyan") +
   labs(
-    x = "Years post treatment", y = "Effect on log teen employment",
+    x = "Years post treatment",
+    y = "ATT",
+    title = "Effect on log teen employment",
     caption = "Note: Using never-treated as control group"
   )
+```
+
+#### Tables
+
+We recommend the excellent
+[**modelsummary**](https://modelsummary.com/index.html) package for transforming
+your results into a nice regression table. (You will need to install it first.)
+Note the use of the `shape` and `coef_rename` arguments below; these are
+optional, but help to make the event-study output look a bit cleaner.
+
+```{r}
+# install.packages("modelsummary")
+library(modelsummary)
+
+# Quick renaming function to replace ".Dtreat" with something more meaningful
+rename_fn = function(old_names) {
+  new_names = gsub(".Dtreat", "Years post treatment =", old_names)
+  setNames(new_names, old_names)
+}
+
+modelsummary(
+  list(mod_es2, mod_es),
+  shape       = term:event:statistic ~ model,
+  coef_rename = rename_fn,
+  stars       = TRUE,
+  title       = "Event study",
+  notes       = "Std. errors are clustered at the county level"
+)
 ```
 
 ## Heterogeneous treatment effects
@@ -326,12 +356,13 @@ distinct groups.
 ```{r}
 hmod = etwfe(
   lemp ~ lpop, tvar = year, gvar = first.treat, data = mpdta,
+  cgroup = "never",
   vcov = ~countyreal,
   xvar = gls           ## <= het. TEs by gls
 )
 
-# Heterogeneous ATTs (could also specify `type = "event"`, etc.) 
-emfx(hmod)
+# Simple heterogeneous ATTs (could also specify `type = "event"`, etc.) 
+(hmod_mfx = emfx(hmod))
 ```
 
 The above point estimates might tempt us to think that minimum wage hikes caused
@@ -344,20 +375,37 @@ easiest way to do this is by using `b[i]`-style positional arguments, where
 `hypothesis = "b1 = b2"`, we can test whether the ATTs from row 1 (non-GLS) and
 row 2 (GLS) are different from one another.
 
-```{r}
+```{r, warning=FALSE}
 emfx(hmod, hypothesis = "b1 = b2")
 ```
 
 Here we see that there is actually no statistical difference in the average
-disemployment effect between GLS and non-GLS counties.
+disemployment effect between GLS and non-GLS counties. We can also confirm this
+with a quick visual inspection (note that we get an automatic legend, as well as
+dodged pointrange bars).
+
+```{r}
+plot(hmod_mfx)
+```
+
+Interesting enough, however, the full event study reveals a more complex
+picture. Would the non-GLS counties have recorded a larger employment drop-off
+had we been able to collect more post-treatment data? We'll let the the reader
+decide...
+
+```{r}
+hmod |>
+  emfx("event") |>
+  plot(type = "ribbon")
+```
 
 One final aside is that you can easily display the results of heterogeneous 
-treatment effects in plot or table form. Here's an example of the latter, where
-we again make use of the `modelsummary(..., shape = ...)` argument.
+treatment effects in table form too. Here's a quick example, where we again make
+use of the `modelsummary(..., shape = ...)` argument.
 
 ```{r}
 modelsummary(
-  models      = list("GLS county" = emfx(hmod)),
+  models      = list("GLS county" = hmod_mfx),
   shape       = term + statistic ~ model + gls, # add xvar variable (here: gls)
   coef_map    = c(".Dtreat" = "ATT"),
   gof_map     = NA,
