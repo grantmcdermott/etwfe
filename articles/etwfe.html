@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">etwfe</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0.99</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -181,7 +181,7 @@ involves two consecutive function calls:</p>
 estimating function is <code><a href="../reference/etwfe.html">etwfe()</a></code>. Here’s how it would look
 for our example dataset.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://grantmcdermott.com/etwfe" class="external-link">etwfe</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://grantmcdermott.com/etwfe/" class="external-link">etwfe</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">mod</span> <span class="op">=</span> <span class="fu"><a href="../reference/etwfe.html">etwfe</a></span><span class="op">(</span></span>
 <span>  fml  <span class="op">=</span> <span class="va">lemp</span> <span class="op">~</span> <span class="va">lpop</span>, <span class="co"># outcome ~ controls</span></span>
@@ -253,7 +253,7 @@ to aggregate them along some dimension of interest (e.g., by groups or
 time, or as an event study). A natural way to perform these aggregations
 is by recovering the appropriate marginal effects. The
 <strong>etwfe</strong> package provides another convenience function for
-doing so: <code><a href="../reference/emfx.html">emfx()</a></code>, which is a thin(ish) wrapper around <a href="https://marginaleffects.com/vignettes/slopes.html" class="external-link"><code>marginaleffects::slopes()</code></a>.</p>
+doing so: <code><a href="../reference/emfx.html">emfx()</a></code>, which is a thin(ish) wrapper around <a href="https://marginaleffects.com/r/man/slopes.html" class="external-link"><code>marginaleffects::slopes()</code></a>.</p>
 <p>For example, we can recover the average treatment effect on the
 treated (ATT) as follows.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
@@ -643,7 +643,7 @@ treatment effects by these two distinct groups.</p>
 <p>The above point estimates might tempt us to think that minimum wage
 hikes caused less teen disemployment in GLS counties than in the rest of
 the US on average. However, to test this formally we can invoke the
-powerful <a href="https://marginaleffects.com/vignettes/hypothesis.html" class="external-link"><code>hypothesis</code></a>
+powerful <a href="https://marginaleffects.com/r/man/hypotheses.html" class="external-link"><code>hypotheses</code></a>
 infrastructure of the underlying <strong>marginaleffects</strong>
 package. Probably the easiest way to do this is by using
 <code>b[i]</code>-style positional arguments, where “<code>[i]</code>”
@@ -1111,7 +1111,7 @@ the formula of an estimated model to see for yourself.</p>
 <code class="sourceCode R"><span><span class="va">mod</span><span class="op">$</span><span class="va">fml_all</span></span>
 <span><span class="co">#&gt; $linear</span></span>
 <span><span class="co">#&gt; lemp ~ .Dtreat:i(first.treat, i.year, ref = 0, ref2 = 2003)/lpop_dm</span></span>
-<span><span class="co">#&gt; &lt;environment: 0x560118f6c800&gt;</span></span>
+<span><span class="co">#&gt; &lt;environment: 0x5597cffe6200&gt;</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $fixef</span></span>
 <span><span class="co">#&gt; ~first.treat + first.treat[[lpop]] + year + year[[lpop]]</span></span></code></pre></div>
