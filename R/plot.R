@@ -17,7 +17,8 @@
 ##'   `TRUE`.
 ##' @param ... Additional arguments passed to [`tinyplot::tinyplot`].
 ##' @inherit tinyplot::tinyplot return
-##' @importFrom graphics plot
+##' @importFrom graphics abline par plot
+##' @importFrom utils modifyList
 ##' @importFrom tinyplot tinyplot
 ##' @export
 plot.emfx = function(

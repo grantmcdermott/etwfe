@@ -28,6 +28,7 @@ Imports:
   tinyplot (>= 0.2.0)
 Suggests:
   did,
+  broom,
   modelsummary (>= 2.2.0),
   ggplot2,
   knitr,
