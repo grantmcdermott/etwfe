@@ -317,6 +317,7 @@ modelsummary(
   list(mod_es2, mod_es),
   shape       = term:event:statistic ~ model,
   coef_rename = rename_fn,
+  gof_omit    = "Adj|Within|IC|RMSE",
   stars       = TRUE,
   title       = "Event study",
   notes       = "Std. errors are clustered at the county level"
