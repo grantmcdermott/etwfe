@@ -31,7 +31,7 @@ circle). Ignored if \code{type = "ribbon"}.}
 
 \item{ref}{Integer. Reference line marker for event-study plot. Default is
 \code{-1} (i.e., the period immediately preceding treatment). To remove
-completely, set to any one of \code{NA}, \code{NULL}, or \code{FALSE}. Only used if the
+completely, set to \code{NA}, \code{NULL}, or \code{FALSE}. Only used if the
 underlying object was computed using \code{emfx(..., type = "event")}.}
 
 \item{...}{Additional arguments passed to \code{\link[tinyplot:tinyplot]{tinyplot::tinyplot}}.}
@@ -40,5 +40,98 @@ underlying object was computed using \code{emfx(..., type = "event")}.}
 No return value, called for side effect of producing a plot.
 }
 \description{
-Plot method for emfx objects
+Visualize the results of an \code{\link{emfx}} call.
+}
+\examples{
+\dontrun{
+# We’ll use the mpdta dataset from the did package (which you’ll need to 
+# install separately).
+
+# install.packages("did")
+data("mpdta", package = "did")
+
+#
+# Basic example
+#
+
+# The basic ETWFE workflow involves two consecutive function calls:
+# 1) `etwfe` and 2) `emfx`
+
+# 1) `etwfe`: Estimate a regression model with saturated interaction terms.
+mod = etwfe(
+  fml  = lemp ~ lpop, # outcome ~ controls (use 0 or 1 if none)
+  tvar = year,        # time variable
+  gvar = first.treat, # group variable
+  data = mpdta,       # dataset
+  vcov = ~countyreal  # vcov adjustment (here: clustered by county)
+  )
+
+# mod ## A fixest model object with fully saturated interaction effects.
+
+# 2) `emfx`: Recover the treatment effects of interest.
+
+(mod_es = emfx(mod, type = "event")) # dynamic ATE a la an event study
+
+# Etc. Other aggregation type options are "simple" (the default), "group"
+# and "calendar"
+
+# To visualize results, use the native plot method (see `?plot.emfx`)
+plot(mod_es)
+
+# Notice that we don't get any pre-treatment effects with the default
+# "notyet" treated control group. Switch to the "never" treated control
+# group if you want this.
+etwfe(
+  lemp ~ lpop, tvar = year, gvar = first.treat, data = mpdta,
+  vcov = ~countyreal,
+  cgroup = "never"    ## <= use never treated group as control
+  ) |>
+  emfx("event") |>
+  plot()
+
+#
+# Heterogeneous treatment effects
+#
+
+# Example where we estimate heterogeneous treatment effects for counties 
+# within the 8 US Great Lake states (versus all other counties). 
+
+gls = c("IL" = 17, "IN" = 18, "MI" = 26, "MN" = 27,
+        "NY" = 36, "OH" = 39, "PA" = 42, "WI" = 55)
+
+mpdta$gls = substr(mpdta$countyreal, 1, 2) \%in\% gls
+
+hmod = etwfe(
+  lemp ~ lpop, tvar = year, gvar = first.treat, data = mpdta, 
+  vcov = ~countyreal,
+  xvar = gls           ## <= het. TEs by gls
+  )
+
+# Heterogeneous ATEs (could also specify "event", etc.) 
+
+emfx(hmod)
+
+# To test whether the ATEs across these two groups (non-GLS vs GLS) are 
+# statistically different, simply pass an appropriate "hypothesis" argument.
+
+emfx(hmod, hypothesis = "b1 = b2")
+
+plot(emfx(hmod))
+
+#
+# Nonlinear model (distribution / link) families
+#
+
+# Poisson example
+
+mpdta$emp = exp(mpdta$lemp)
+
+etwfe(
+  emp ~ lpop, tvar = year, gvar = first.treat, data = mpdta, 
+  vcov = ~countyreal,
+  family = "poisson"   ## <= family arg for nonlinear options
+  ) |>
+  emfx("event")
+}
+
 }

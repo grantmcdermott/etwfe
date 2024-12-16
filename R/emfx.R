@@ -1,93 +1,93 @@
-##' Post-estimation aggregation of ETWFE results
-##'
-##' @md
-##' @description
-##' Companion function to `etwfe`, enabling the recovery of aggregate treatment
-##' effects along different dimensions of interest (e.g, an event study of
-##' dynamic average treatment effects). `emfx` is a light wrapper around the
-##' \code{\link[marginaleffects]{slopes}} function from the **marginaleffects**
-##' package.
-##' 
-##' @param object An `etwfe` model object.
-##' @param type Character. The desired type of post-estimation aggregation.
-##' @param by_xvar Logical. Should the results account for heterogeneous
-##'   treatment effects? Only relevant if the preceding `etwfe` call included a
-##'   specified `xvar` argument, i.e. interacted categorical covariate. The
-##'   default behaviour (`"auto"`) is to automatically estimate heterogeneous
-##'   treatment effects for each level of `xvar` if these are detected as part
-##'   of the underlying `etwfe` model object. Users can override by setting to
-##'   either `FALSE` or `TRUE.` See the "Heterogeneous treatment effects"
-##'   section below.
-##' @param collapse Logical. Collapse the data by (period by cohort) groups
-##'   before calculating marginal effects? This trades off a loss in estimate
-##'   accuracy (typically around the 1st or 2nd significant decimal point) for a
-##'   substantial improvement in estimation time for large datasets. The default
-##'   behaviour (`"auto"`) is to automatically collapse if the original dataset
-##'   has more than 500,000 rows. Users can override by setting either `FALSE` or
-##'   `TRUE`. Note that collapsing by group is only valid if the preceding `etwfe`
-##'   call was run with `"ivar = NULL"` (the default). See the "Performance
-##'   tips" section below.
-##' @param predict Character. The type (scale) of prediction used to compute the
-##'   marginal effects. If `"response"` (the default), then the output is at the
-##'   level of the response variable, i.e. it is the expected predictor
-##'   \eqn{E(Y|X)}. If `"link"`, the value returned is the linear predictor of
-##'   the fitted model, i.e. \eqn{X\cdot \beta}. The difference should only
-##'   matter for nonlinear models. (Note: This argument is typically called
-##'   `type` when use in \code{\link[stats]{predict}} or
-##'   \code{\link[marginaleffects]{slopes}}, but we rename it here to avoid a
-##'   clash with the top-level `type` argument above.)
-##' @param post_only Logical. Drop pre-treatment ATTs? Only evaluated if (a)
-##'   `type = "event"` and (b) the original `etwfe` model object was estimated
-##'   using the default `"notyet"` treated control group. If conditions (a) and
-##'   (b) are met then the pre-treatment effects will be zero as a mechanical
-##'   result of ETWFE's estimation setup. The default behaviour (`TRUE`) is
-##'   thus to drop these nuisance rows from the dataset. The `post_only` argument
-##'   recognises that you may still want to keep them for presentation purposes
-##'   (e.g., plotting an event study). Nevertheless, be forewarned that enabling
-##'   that behaviour via `FALSE` is _strictly_ performative: the "zero" treatment
-##'   effects for any pre-treatment periods is purely an artefact of the
-##'   estimation setup.
-##' @param lean Logical. Enforces a lean return object; namely a simple
-##'   data.frame of the main results, stripped of ancillary attributes. Defaults
-##'   to `TRUE`, in which case `options(marginaleffects_lean = TRUE)` is set
-##'   internally at the start of the `emfx` call, before being reverted upon
-##'   exit. Note that this will disable some advanced `marginaleffects`
-##'   post-processing features, but those are unlikely to be used in the `emfx`
-##'   context and means that we can dramatically reduce the size of the return
-##'   object.
-##' @param ... Additional arguments passed to
-##'   [`marginaleffects::slopes`]. For example, you can pass `vcov =
-##'   FALSE` to dramatically speed up estimation times of the main marginal
-##'   effects (but at the cost of not getting any information about standard
-##'   errors; see Performance tips below). Another potentially useful
-##'   application is testing whether heterogeneous treatment effects (i.e., the
-##'   levels of any `xvar` covariate) are equal by invoking the `hypothesis`
-##'   argument, e.g. `hypothesis = "b1 = b2"`.
-##' @return A `data.frame` of aggregated treatment effects along the
-##'   dimension(s) of interested. Note that this data.frame will have been
-##'   overloaded with the \code{\link[marginaleffects]{slopes}} class, and so
-##'   will come with a special print method. But the underlying columns will
-##'   usually include:
-##'
-##'   - `term`
-##'   - `contrast`
-##'   - `<type>` (i.e., the name of your `type` string)
-##'   - `estimate`
-##'   - `std.error`
-##'   - `statistic`
-##'   - `p.value`
-##'   - `s.value`
-##'   - `conf.low`
-##'   - `conf.high`
-##' @seealso [marginaleffects::slopes] which does the heavily lifting behind the
-##' scenes. [`etwfe`] is the companion estimating function that should be run
-##' before `emfx`.
-##' @inherit etwfe examples
-##' @inheritSection etwfe Performance tips
-##' @inheritSection etwfe Heterogeneous treatment effects
-##' @importFrom data.table as.data.table setDT .N .SD
-##' @importFrom marginaleffects slopes
-##' @export
+#' Post-estimation aggregation of ETWFE results
+#'
+#' @md
+#' @description
+#' Companion function to `etwfe`, enabling the recovery of aggregate treatment
+#' effects along different dimensions of interest (e.g, an event study of
+#' dynamic average treatment effects). `emfx` is a light wrapper around the
+#' \code{\link[marginaleffects]{slopes}} function from the **marginaleffects**
+#' package.
+#' 
+#' @param object An `etwfe` model object.
+#' @param type Character. The desired type of post-estimation aggregation.
+#' @param by_xvar Logical. Should the results account for heterogeneous
+#'   treatment effects? Only relevant if the preceding `etwfe` call included a
+#'   specified `xvar` argument, i.e. interacted categorical covariate. The
+#'   default behaviour (`"auto"`) is to automatically estimate heterogeneous
+#'   treatment effects for each level of `xvar` if these are detected as part
+#'   of the underlying `etwfe` model object. Users can override by setting to
+#'   either `FALSE` or `TRUE.` See the "Heterogeneous treatment effects"
+#'   section below.
+#' @param collapse Logical. Collapse the data by (period by cohort) groups
+#'   before calculating marginal effects? This trades off a slight loss in
+#'   precision (typically around the 1st or 2nd significant decimal point) for a
+#'   substantial improvement in estimation time for large datasets. The default
+#'   behaviour (`"auto"`) is to automatically collapse if the original dataset
+#'   has more than 500,000 rows. Users can override by setting either `FALSE` or
+#'   `TRUE`. Note that collapsing by group is only valid if the preceding `etwfe`
+#'   call was run with `"ivar = NULL"` (the default). See the "Performance
+#'   tips" section below.
+#' @param predict Character. The type (scale) of prediction used to compute the
+#'   marginal effects. If `"response"` (the default), then the output is at the
+#'   level of the response variable, i.e. it is the expected predictor
+#'   \eqn{E(Y|X)}. If `"link"`, the value returned is the linear predictor of
+#'   the fitted model, i.e. \eqn{X\cdot \beta}. The difference should only
+#'   matter for nonlinear models. (Note: This argument is typically called
+#'   `type` when use in \code{\link[stats]{predict}} or
+#'   \code{\link[marginaleffects]{slopes}}, but we rename it here to avoid a
+#'   clash with the top-level `type` argument above.)
+#' @param post_only Logical. Drop pre-treatment ATTs? Only evaluated if (a)
+#'   `type = "event"` and (b) the original `etwfe` model object was estimated
+#'   using the default `"notyet"` treated control group. If conditions (a) and
+#'   (b) are met then the pre-treatment effects will be zero as a mechanical
+#'   result of ETWFE's estimation setup. The default behaviour (`TRUE`) is
+#'   thus to drop these nuisance rows from the dataset. The `post_only` argument
+#'   recognises that you may still want to keep them for presentation purposes
+#'   (e.g., plotting an event study). Nevertheless, be forewarned that enabling
+#'   that behaviour via `FALSE` is _strictly_ performative: the "zero" treatment
+#'   effects for any pre-treatment periods is purely an artefact of the
+#'   estimation setup.
+#' @param lean Logical. Enforces a lean return object; namely a simple
+#'   data.frame of the main results, stripped of ancillary attributes. Defaults
+#'   to `TRUE`, in which case `options(marginaleffects_lean = TRUE)` is set
+#'   internally at the start of the `emfx` call, before being reverted upon
+#'   exit. Note that this will disable some advanced `marginaleffects`
+#'   post-processing features, but those are unlikely to be used in the `emfx`
+#'   context and means that we can dramatically reduce the size of the return
+#'   object.
+#' @param ... Additional arguments passed to
+#'   [`marginaleffects::slopes`]. For example, you can pass `vcov =
+#'   FALSE` to dramatically speed up estimation times of the main marginal
+#'   effects (but at the cost of not getting any information about standard
+#'   errors; see Performance tips below). Another potentially useful
+#'   application is testing whether heterogeneous treatment effects (i.e., the
+#'   levels of any `xvar` covariate) are equal by invoking the `hypothesis`
+#'   argument, e.g. `hypothesis = "b1 = b2"`.
+#' @return A `data.frame` of aggregated treatment effects along the
+#'   dimension(s) of interested. Note that this data.frame will have been
+#'   overloaded with the \code{\link[marginaleffects]{slopes}} class, and so
+#'   will come with a special print method. But the underlying columns will
+#'   usually include:
+#'
+#'   - `term`
+#'   - `contrast`
+#'   - `<type>` (i.e., the name of your `type` string)
+#'   - `estimate`
+#'   - `std.error`
+#'   - `statistic`
+#'   - `p.value`
+#'   - `s.value`
+#'   - `conf.low`
+#'   - `conf.high`
+#' @seealso [marginaleffects::slopes] which does the heavily lifting behind the
+#' scenes. [`etwfe`] is the companion estimating function that should be run
+#' before `emfx`.
+#' @inherit etwfe examples
+#' @inheritSection etwfe Performance tips
+#' @inheritSection etwfe Heterogeneous treatment effects
+#' @importFrom data.table as.data.table setDT .N .SD
+#' @importFrom marginaleffects slopes
+#' @export
 emfx = function(
     object,
     type = c("simple", "group", "calendar", "event"),

@@ -1,26 +1,28 @@
-##' Plot method for emfx objects
-##'
-##' @md
-##' 
-##' @param x An `emfx` object.
-##' @param type Character. The type of plot display. One of `"pointrange"`
-##'   (default), `"errorbar"`, or `"ribbon"`.
-##' @param pch Integer or character. Which plotting character or symbol to use
-##'   (see \code{\link[graphics]{points}}). Defaults to 16 (i.e., small solid
-##'   circle). Ignored if `type = "ribbon"`.
-##' @param zero Logical. Should 0-zero line be emphasized? Default is `TRUE`.
-##' @param ref Integer. Reference line marker for event-study plot. Default is
-##'   `-1` (i.e., the period immediately preceding treatment). To remove
-##'   completely, set to any one of `NA`, `NULL`, or `FALSE`. Only used if the
-##'   underlying object was computed using `emfx(..., type = "event")`.
-##' @param grid Logical. Should a background grid be displayed? Default is
-##'   `TRUE`.
-##' @param ... Additional arguments passed to [`tinyplot::tinyplot`].
-##' @inherit tinyplot::tinyplot return
-##' @importFrom graphics abline par plot
-##' @importFrom utils modifyList
-##' @importFrom tinyplot tinyplot
-##' @export
+#' Plot method for emfx objects
+#'
+#' @md
+#' @description Visualize the results of an [`emfx`] call.
+#' 
+#' @param x An `emfx` object.
+#' @param type Character. The type of plot display. One of `"pointrange"`
+#'   (default), `"errorbar"`, or `"ribbon"`.
+#' @param pch Integer or character. Which plotting character or symbol to use
+#'   (see \code{\link[graphics]{points}}). Defaults to 16 (i.e., small solid
+#'   circle). Ignored if `type = "ribbon"`.
+#' @param zero Logical. Should 0-zero line be emphasized? Default is `TRUE`.
+#' @param ref Integer. Reference line marker for event-study plot. Default is
+#'   `-1` (i.e., the period immediately preceding treatment). To remove
+#'   completely, set to `NA`, `NULL`, or `FALSE`. Only used if the
+#'   underlying object was computed using `emfx(..., type = "event")`.
+#' @param grid Logical. Should a background grid be displayed? Default is
+#'   `TRUE`.
+#' @param ... Additional arguments passed to [`tinyplot::tinyplot`].
+#' @inherit tinyplot::tinyplot return
+#' @importFrom graphics abline par plot
+#' @importFrom utils modifyList
+#' @importFrom tinyplot tinyplot
+#' @inherit etwfe examples
+#' @export
 plot.emfx = function(
     x,
     type = c("pointrange", "errorbar", "ribbon"),
