@@ -8,7 +8,8 @@ emfx(
   object,
   type = c("simple", "group", "calendar", "event"),
   by_xvar = "auto",
-  collapse = "auto",
+  compress = "auto",
+  collapse = compress,
   predict = c("response", "link"),
   post_only = TRUE,
   lean = TRUE,
@@ -29,15 +30,20 @@ of the underlying \code{etwfe} model object. Users can override by setting to
 either \code{FALSE} or \code{TRUE.} See the "Heterogeneous treatment effects"
 section below.}
 
-\item{collapse}{Logical. Collapse the data by (period by cohort) groups
+\item{compress}{Logical. Compress the data by (period by cohort) groups
 before calculating marginal effects? This trades off a slight loss in
 precision (typically around the 1st or 2nd significant decimal point) for a
 substantial improvement in estimation time for large datasets. The default
-behaviour (\code{"auto"}) is to automatically collapse if the original dataset
+behaviour (\code{"auto"}) is to automatically compress if the original dataset
 has more than 500,000 rows. Users can override by setting either \code{FALSE} or
 \code{TRUE}. Note that collapsing by group is only valid if the preceding \code{etwfe}
 call was run with \code{"ivar = NULL"} (the default). See the "Performance
 tips" section below.}
+
+\item{collapse}{Logical. An alias for \code{compress} (only used for backwards
+compatability and ignored if both arguments are provided). The behaviour is
+identical, but it will trigger a message nudging users to rather use the
+\code{compress} argument.}
 
 \item{predict}{Character. The type (scale) of prediction used to compute the
 marginal effects. If \code{"response"} (the default), then the output is at the
@@ -263,6 +269,12 @@ etwfe(
   emfx("event")
 }
 
+}
+\references{
+Wong, Jeffrey \emph{et al.} (2021). \cite{You Only Compress Once: Optimal Data
+Compression for Estimating Linear Models}. Working paper (version: March 16,
+2021). Available:
+https://doi.org/10.48550/arXiv.2102.11297
 }
 \seealso{
 \link[marginaleffects:slopes]{marginaleffects::slopes} which does the heavily lifting behind the
