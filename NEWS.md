@@ -1,4 +1,4 @@
-# etwfe 0.4.0.99 (development version)
+# etwfe 0.5.0
 
 ## New features
 

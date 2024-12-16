@@ -1,11 +1,12 @@
 ## Overview
 
-`etwfe` 0.4.0 is a minor release with several bug fixes.
+`etwfe` 0.5.0 is a minor release that addresses some CRAN check failures due to
+an upstream dependency, and also adds some new features (e.g, a native
+`plot.emfx` method).
 
 ## Test environments
 
-* Local: Arch Linux
-* GitHub Actions (ubuntu-22.04): oldrel-1, release, devel
+* GitHub Actions (ubuntu-24.04): oldrel-1, release, devel
 * GitHub Actions (windows): release
 * Github Actions (macOS): release
 * Win Builder
