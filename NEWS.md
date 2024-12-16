@@ -7,9 +7,11 @@
 allows for obtaining the linear prediction for non-linear models. Internally
 passed as `marginaleffects::slopes(..., type = predict)`, thus avoiding a clash
 with the topline `emfx(..., type = <aggregration_type>)` argument. (#49)
-- `emfx(..., lean = TRUE)` ensures a light return object by default, by
-stripping away data-heavy attributes that are unlikely to be needed afterwards.
-(#51)
+- `emfx(..., lean = <logical>)`. Default value is `FALSE`, but switching to
+`TRUE` will ensure a light return object that strips away data-heavy attributes
+(e.g., copies of the original model). These attributes are unlikely to be needed
+as part of the `emfx()` workflow, so we may change the default to `lean = TRUE`
+in a future version of **etwfe**. (#51, #58)
 - Native `plot.emfx()` method (via a **tinyplot** backend) for visualizing
 `emfx` objects. (#54)
 
