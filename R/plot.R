@@ -29,8 +29,12 @@ plot.emfx = function(
     ref = -1,
     ...) {
   dots = list(...)
-  type = match.arg(type)
   etwfe_attr = attr(x, "etwfe")
+  type = match.arg(type)
+  if (type=="ribbon" && etwfe_attr[["type"]]=="simple") {
+    warning('\nRibbon plots are not allowed for `emfx(..., type = "simple")` objects. Reverting to pointrange.\n')
+    type = "pointrange"
+  }
   byvar = attr(x, "by")
   xvar = etwfe_attr[["xvar"]]
   if (is.null(xvar)) {
@@ -57,7 +61,9 @@ plot.emfx = function(
   xlab = ylab = main = NULL
   # ensure nice x axis ticks
   if (etwfe_attr[["type"]]=="simple") {
-    x[[byvar]] = ".Dtreat==TRUE"
+    x[[byvar]] = TRUE
+    x[[byvar]] = as.factor(x[[byvar]])
+    xlab = "Treated?"
   } else {
     olab = par("lab")
     nxticks = if (!is.null(dots$xlim)) diff(range(dots$xlim)) else diff(range(x[[byvar]]))
@@ -70,7 +76,17 @@ plot.emfx = function(
   # dodge CIs if heterogenous groups
   if (!is.null(xvar) && type!="ribbon") {
     uxvar = unique(x[[xvar]])
-    xbmp = scale(uxvar, scale = FALSE)[, 1] / 10 * 1.5
+    xbmp = scale(seq_along(uxvar), scale = FALSE)[, 1] / 10 * 1.5
+    # edge case
+    if (etwfe_attr[["type"]]=="simple") {
+      x[[byvar]] = as.numeric(x[[byvar]])
+      xlab = "Treated? (1 == TRUE)"
+      olab = par("lab")
+      olab[1] = 1
+      op = par(lab = olab)
+      on.exit(par(op), add = TRUE)
+      dots$xlim = c(0.5, 1.5)
+    }
     for (ux in seq_along(uxvar)) {
       idx = x[[xvar]]==uxvar[ux] 
       x[[byvar]][idx] = x[[byvar]][idx] + xbmp[ux] 
