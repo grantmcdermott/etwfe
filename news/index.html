@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">etwfe</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0.99</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -30,11 +30,18 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/grantmcdermott/etwfe/blob/v0.5.0/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/grantmcdermott/etwfe/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.5.0" id="etwfe-050">etwfe 0.5.0<a class="anchor" aria-label="anchor" href="#etwfe-050"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.5.0.99" id="etwfe-05099-dev-version">etwfe 0.5.0.99 (dev version)<a class="anchor" aria-label="anchor" href="#etwfe-05099-dev-version"></a></h2>
+<div class="section level3">
+<h3 id="internals-0-5-0-99">Internals<a class="anchor" aria-label="anchor" href="#internals-0-5-0-99"></a></h3>
+<ul><li>Bump <strong>tinyplot</strong> depencency to v0.3.0.</li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.5.0" id="etwfe-050">etwfe 0.5.0<a class="anchor" aria-label="anchor" href="#etwfe-050"></a></h2><p class="text-muted">CRAN release: 2024-12-16</p>
 <div class="section level3">
 <h3 id="new-features-0-5-0">New features<a class="anchor" aria-label="anchor" href="#new-features-0-5-0"></a></h3>
 <ul><li>New <code>emfx</code> arguments:
@@ -131,7 +138,7 @@
 <h2 class="pkg-version" data-toc-text="0.2.0" id="etwfe-020">etwfe 0.2.0<a class="anchor" aria-label="anchor" href="#etwfe-020"></a></h2><p class="text-muted">CRAN release: 2023-01-11</p>
 <div class="section level3">
 <h3 id="bug-fixes-and-breaking-changes-0-2-0">Bug fixes and breaking changes<a class="anchor" aria-label="anchor" href="#bug-fixes-and-breaking-changes-0-2-0"></a></h3>
-<ul><li><p>The <code>.Dtreat</code> indicator variable created during the <code>etwfe</code> call is now logical instead of integer (<a href="https://github.com/grantmcdermott/etwfe/issues/14" class="external-link">#14</a>). This fix yields slightly different effect sizes for <code>emfx</code> output when applied to non-linear model families (e.g., <code>etwfe(..., family = "poisson")</code>. The reason is that we are now implicitly calling <code><a href="https://rdrr.io/pkg/marginaleffects/man/comparisons.html" class="external-link">marginaleffects::comparisons</a></code> under the hood rather than <code><a href="https://rdrr.io/pkg/marginaleffects/man/marginaleffects.html" class="external-link">marginaleffects::marginaleffects</a></code>. Note that the main <code>etwfe</code> coefficients (for any family) are unaffected, and the same is also true for <code>emfx</code> when applied to a linear model (i.e., the default).</p></li>
+<ul><li><p>The <code>.Dtreat</code> indicator variable created during the <code>etwfe</code> call is now logical instead of integer (<a href="https://github.com/grantmcdermott/etwfe/issues/14" class="external-link">#14</a>). This fix yields slightly different effect sizes for <code>emfx</code> output when applied to non-linear model families (e.g., <code>etwfe(..., family = "poisson")</code>. The reason is that we are now implicitly calling <code><a href="https://marginaleffects.com/man/r/comparisons.html" class="external-link">marginaleffects::comparisons</a></code> under the hood rather than <code>marginaleffects::marginaleffects</code>. Note that the main <code>etwfe</code> coefficients (for any family) are unaffected, and the same is also true for <code>emfx</code> when applied to a linear model (i.e., the default).</p></li>
 <li><p>The (optional) <code>ivar</code> argument of <code><a href="../reference/etwfe.html">etwfe()</a></code> has been moved down the argument order list from second position to fifth (i.e., after the <code>data</code> argument). This means that the four required arguments of function now occupy the top positions, which could enable shorter, unnamed notation like <code>etwfe(y ~ x, year, cohort, dat)</code>.</p></li>
 </ul></div>
 <div class="section level3">

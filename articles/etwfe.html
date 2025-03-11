@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">etwfe</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0.99</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,7 +54,7 @@
       <h1>Introduction to etwfe</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/grantmcdermott/etwfe/blob/v0.5.0/vignettes/etwfe.Rmd" class="external-link"><code>vignettes/etwfe.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/grantmcdermott/etwfe/blob/main/vignettes/etwfe.Rmd" class="external-link"><code>vignettes/etwfe.Rmd</code></a></small>
       <div class="d-none name"><code>etwfe.Rmd</code></div>
     </div>
 
@@ -259,12 +259,12 @@ treated (ATT) as follows.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="va">mod</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     Term .Dtreat Estimate Std. Error     z Pr(&gt;|z|)    S   2.5 %  97.5 %</span></span>
-<span><span class="co">#&gt;  .Dtreat    TRUE  -0.0506     0.0125 -4.05   &lt;0.001 14.3 -0.0751 -0.0261</span></span>
+<span><span class="co">#&gt;  .Dtreat Estimate Std. Error     z Pr(&gt;|z|)    S   2.5 %  97.5 %</span></span>
+<span><span class="co">#&gt;     TRUE  -0.0506     0.0125 -4.05   &lt;0.001 14.3 -0.0751 -0.0261</span></span>
 <span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Term: .Dtreat</span></span>
 <span><span class="co">#&gt; Type:  response </span></span>
-<span><span class="co">#&gt; Comparison: TRUE - FALSE</span></span>
-<span><span class="co">#&gt; Columns: term, contrast, .Dtreat, estimate, std.error, statistic, p.value, s.value, conf.low, conf.high, predicted_lo, predicted_hi, predicted</span></span></code></pre></div>
+<span><span class="co">#&gt; Comparison: TRUE - FALSE</span></span></code></pre></div>
 <p>In other words, our model is telling us that an increase in the
 minimum wage leads to an approximate 5 percent decrease in teen
 employment.</p>
@@ -280,15 +280,15 @@ the resulting object, since I plan to reuse it in a moment.</p>
 <code class="sourceCode R"><span><span class="va">mod_es</span> <span class="op">=</span> <span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="va">mod</span>, type <span class="op">=</span> <span class="st">"event"</span><span class="op">)</span></span>
 <span><span class="va">mod_es</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     Term event Estimate Std. Error     z Pr(&gt;|z|)    S   2.5 %   97.5 %</span></span>
-<span><span class="co">#&gt;  .Dtreat     0  -0.0332     0.0134 -2.48    0.013  6.3 -0.0594 -0.00701</span></span>
-<span><span class="co">#&gt;  .Dtreat     1  -0.0573     0.0172 -3.34   &lt;0.001 10.2 -0.0910 -0.02373</span></span>
-<span><span class="co">#&gt;  .Dtreat     2  -0.1379     0.0308 -4.48   &lt;0.001 17.0 -0.1982 -0.07751</span></span>
-<span><span class="co">#&gt;  .Dtreat     3  -0.1095     0.0323 -3.39   &lt;0.001 10.5 -0.1729 -0.04619</span></span>
+<span><span class="co">#&gt;  event Estimate Std. Error     z Pr(&gt;|z|)    S   2.5 %   97.5 %</span></span>
+<span><span class="co">#&gt;      0  -0.0332     0.0134 -2.48    0.013  6.3 -0.0594 -0.00701</span></span>
+<span><span class="co">#&gt;      1  -0.0573     0.0172 -3.34   &lt;0.001 10.2 -0.0910 -0.02373</span></span>
+<span><span class="co">#&gt;      2  -0.1379     0.0308 -4.48   &lt;0.001 17.0 -0.1982 -0.07751</span></span>
+<span><span class="co">#&gt;      3  -0.1095     0.0323 -3.39   &lt;0.001 10.5 -0.1729 -0.04619</span></span>
 <span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Term: .Dtreat</span></span>
 <span><span class="co">#&gt; Type:  response </span></span>
-<span><span class="co">#&gt; Comparison: TRUE - FALSE</span></span>
-<span><span class="co">#&gt; Columns: term, contrast, event, estimate, std.error, statistic, p.value, s.value, conf.low, conf.high</span></span></code></pre></div>
+<span><span class="co">#&gt; Comparison: TRUE - FALSE</span></span></code></pre></div>
 <p>Our event study suggests that the teen disemployment effect of a
 minimum wage hike is fairly modest at first (3%), but increases over the
 next few years (&gt;10%). In the next section, we’ll look at ways to
@@ -493,98 +493,98 @@ help to make the event-study output look a bit cleaner.</p>
 <tbody>
 <tr>
 <td>Years post treatment = -4</td>
-                  <td>0.007    </td>
-                  <td>         </td>
+                  <td>0.007</td>
+                  <td></td>
                 </tr>
 <tr>
-<td>                         </td>
-                  <td>(0.025)  </td>
-                  <td>         </td>
+<td></td>
+                  <td>(0.025)</td>
+                  <td></td>
                 </tr>
 <tr>
 <td>Years post treatment = -3</td>
-                  <td>0.028    </td>
-                  <td>         </td>
+                  <td>0.028</td>
+                  <td></td>
                 </tr>
 <tr>
-<td>                         </td>
-                  <td>(0.018)  </td>
-                  <td>         </td>
+<td></td>
+                  <td>(0.018)</td>
+                  <td></td>
                 </tr>
 <tr>
 <td>Years post treatment = -2</td>
-                  <td>0.023    </td>
-                  <td>         </td>
+                  <td>0.023</td>
+                  <td></td>
                 </tr>
 <tr>
-<td>                         </td>
-                  <td>(0.015)  </td>
-                  <td>         </td>
+<td></td>
+                  <td>(0.015)</td>
+                  <td></td>
                 </tr>
 <tr>
 <td>Years post treatment = -1</td>
-                  <td>0.000    </td>
-                  <td>         </td>
+                  <td>0.000</td>
+                  <td></td>
                 </tr>
 <tr>
-<td>Years post treatment = 0 </td>
-                  <td>-0.021+  </td>
-                  <td>-0.033*  </td>
+<td>Years post treatment = 0</td>
+                  <td>-0.021+</td>
+                  <td>-0.033*</td>
                 </tr>
 <tr>
-<td>                         </td>
-                  <td>(0.011)  </td>
-                  <td>(0.013)  </td>
+<td></td>
+                  <td>(0.011)</td>
+                  <td>(0.013)</td>
                 </tr>
 <tr>
-<td>Years post treatment = 1 </td>
+<td>Years post treatment = 1</td>
                   <td>-0.053***</td>
                   <td>-0.057***</td>
                 </tr>
 <tr>
-<td>                         </td>
-                  <td>(0.016)  </td>
-                  <td>(0.017)  </td>
+<td></td>
+                  <td>(0.016)</td>
+                  <td>(0.017)</td>
                 </tr>
 <tr>
-<td>Years post treatment = 2 </td>
+<td>Years post treatment = 2</td>
                   <td>-0.141***</td>
                   <td>-0.138***</td>
                 </tr>
 <tr>
-<td>                         </td>
-                  <td>(0.032)  </td>
-                  <td>(0.031)  </td>
+<td></td>
+                  <td>(0.032)</td>
+                  <td>(0.031)</td>
                 </tr>
 <tr>
-<td>Years post treatment = 3 </td>
-                  <td>-0.108** </td>
+<td>Years post treatment = 3</td>
+                  <td>-0.108**</td>
                   <td>-0.110***</td>
                 </tr>
 <tr>
-<td>                         </td>
-                  <td>(0.033)  </td>
-                  <td>(0.032)  </td>
+<td></td>
+                  <td>(0.033)</td>
+                  <td>(0.032)</td>
                 </tr>
 <tr>
-<td>Num.Obs.                 </td>
-                  <td>2500     </td>
-                  <td>2500     </td>
+<td>Num.Obs.</td>
+                  <td>2500</td>
+                  <td>2500</td>
                 </tr>
 <tr>
-<td>R2                       </td>
-                  <td>0.873    </td>
-                  <td>0.873    </td>
+<td>R2</td>
+                  <td>0.873</td>
+                  <td>0.873</td>
                 </tr>
 <tr>
-<td>FE..first.treat          </td>
-                  <td>X        </td>
-                  <td>X        </td>
+<td>FE..first.treat</td>
+                  <td>X</td>
+                  <td>X</td>
                 </tr>
 <tr>
-<td>FE..year                 </td>
-                  <td>X        </td>
-                  <td>X        </td>
+<td>FE..year</td>
+                  <td>X</td>
+                  <td>X</td>
                 </tr>
 </tbody>
 </table>
@@ -633,13 +633,13 @@ treatment effects by these two distinct groups.</p>
 <span><span class="co"># Simple heterogeneous ATTs (could also specify `type = "event"`, etc.) </span></span>
 <span><span class="op">(</span><span class="va">hmod_mfx</span> <span class="op">=</span> <span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="va">hmod</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     Term .Dtreat   gls Estimate Std. Error     z Pr(&gt;|z|)   S  2.5 %  97.5 %</span></span>
-<span><span class="co">#&gt;  .Dtreat    TRUE FALSE  -0.0519     0.0346 -1.50    0.134 2.9 -0.120 0.01598</span></span>
-<span><span class="co">#&gt;  .Dtreat    TRUE  TRUE  -0.0394     0.0243 -1.62    0.105 3.3 -0.087 0.00823</span></span>
+<span><span class="co">#&gt;  .Dtreat   gls Estimate Std. Error     z Pr(&gt;|z|)   S  2.5 %  97.5 %</span></span>
+<span><span class="co">#&gt;     TRUE FALSE  -0.0519     0.0346 -1.50    0.134 2.9 -0.120 0.01598</span></span>
+<span><span class="co">#&gt;     TRUE  TRUE  -0.0394     0.0243 -1.62    0.105 3.3 -0.087 0.00823</span></span>
 <span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Term: .Dtreat</span></span>
 <span><span class="co">#&gt; Type:  response </span></span>
-<span><span class="co">#&gt; Comparison: TRUE - FALSE</span></span>
-<span><span class="co">#&gt; Columns: term, contrast, .Dtreat, gls, estimate, std.error, statistic, p.value, s.value, conf.low, conf.high</span></span></code></pre></div>
+<span><span class="co">#&gt; Comparison: TRUE - FALSE</span></span></code></pre></div>
 <p>The above point estimates might tempt us to think that minimum wage
 hikes caused less teen disemployment in GLS counties than in the rest of
 the US on average. However, to test this formally we can invoke the
@@ -654,11 +654,10 @@ another.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="va">hmod</span>, hypothesis <span class="op">=</span> <span class="st">"b1 = b2"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;   Term Estimate Std. Error      z Pr(&gt;|z|)   S  2.5 % 97.5 %</span></span>
-<span><span class="co">#&gt;  b1=b2  -0.0125     0.0528 -0.237    0.813 0.3 -0.116  0.091</span></span>
+<span><span class="co">#&gt;  Hypothesis Estimate Std. Error      z Pr(&gt;|z|)   S  2.5 % 97.5 %</span></span>
+<span><span class="co">#&gt;       b1=b2  -0.0125     0.0528 -0.237    0.813 0.3 -0.116  0.091</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Type:  response </span></span>
-<span><span class="co">#&gt; Columns: term, estimate, std.error, statistic, p.value, s.value, conf.low, conf.high</span></span></code></pre></div>
+<span><span class="co">#&gt; Type:  response</span></span></code></pre></div>
 <p>Here we see that there is actually no statistical difference in the
 average disemployment effect between GLS and non-GLS counties. We can
 also confirm this with a quick visual inspection (note that we get an
@@ -788,11 +787,11 @@ example, where we again make use of the
 <tbody>
 <tr>
 <td>ATT</td>
-                  <td>-0.052 </td>
-                  <td>-0.039 </td>
+                  <td>-0.052</td>
+                  <td>-0.039</td>
                 </tr>
 <tr>
-<td>   </td>
+<td></td>
                   <td>(0.035)</td>
                   <td>(0.024)</td>
                 </tr>
@@ -824,15 +823,15 @@ recast our earlier event-study as a Poisson regression.</p>
 <span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="st">"event"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     Term event Estimate Std. Error       z Pr(&gt;|z|)    S  2.5 % 97.5 %</span></span>
-<span><span class="co">#&gt;  .Dtreat     0   -25.35       15.9 -1.5942    0.111  3.2  -56.5   5.82</span></span>
-<span><span class="co">#&gt;  .Dtreat     1     1.09       41.8  0.0261    0.979  0.0  -80.9  83.09</span></span>
-<span><span class="co">#&gt;  .Dtreat     2   -75.12       22.3 -3.3696   &lt;0.001 10.4 -118.8 -31.43</span></span>
-<span><span class="co">#&gt;  .Dtreat     3  -101.82       28.1 -3.6234   &lt;0.001 11.7 -156.9 -46.75</span></span>
+<span><span class="co">#&gt;  event Estimate Std. Error       z Pr(&gt;|z|)    S  2.5 % 97.5 %</span></span>
+<span><span class="co">#&gt;      0   -25.35       15.9 -1.5942    0.111  3.2  -56.5   5.82</span></span>
+<span><span class="co">#&gt;      1     1.09       41.8  0.0261    0.979  0.0  -80.9  83.09</span></span>
+<span><span class="co">#&gt;      2   -75.12       22.3 -3.3696   &lt;0.001 10.4 -118.8 -31.43</span></span>
+<span><span class="co">#&gt;      3  -101.82       28.1 -3.6234   &lt;0.001 11.7 -156.9 -46.75</span></span>
 <span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Term: .Dtreat</span></span>
 <span><span class="co">#&gt; Type:  response </span></span>
-<span><span class="co">#&gt; Comparison: TRUE - FALSE</span></span>
-<span><span class="co">#&gt; Columns: term, contrast, event, estimate, std.error, statistic, p.value, s.value, conf.low, conf.high</span></span></code></pre></div>
+<span><span class="co">#&gt; Comparison: TRUE - FALSE</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="performance-tips">Performance tips<a class="anchor" aria-label="anchor" href="#performance-tips"></a>
@@ -896,28 +895,28 @@ workflow.</p>
 <span><span class="co"># Step 1</span></span>
 <span><span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="va">mod</span>, type <span class="op">=</span> <span class="st">"event"</span>, vcov <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     Term event Estimate</span></span>
-<span><span class="co">#&gt;  .Dtreat     0  -0.0332</span></span>
-<span><span class="co">#&gt;  .Dtreat     1  -0.0573</span></span>
-<span><span class="co">#&gt;  .Dtreat     2  -0.1379</span></span>
-<span><span class="co">#&gt;  .Dtreat     3  -0.1095</span></span>
+<span><span class="co">#&gt;  event Estimate</span></span>
+<span><span class="co">#&gt;      0  -0.0332</span></span>
+<span><span class="co">#&gt;      1  -0.0573</span></span>
+<span><span class="co">#&gt;      2  -0.1379</span></span>
+<span><span class="co">#&gt;      3  -0.1095</span></span>
 <span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Term: .Dtreat</span></span>
 <span><span class="co">#&gt; Type:  response </span></span>
 <span><span class="co">#&gt; Comparison: TRUE - FALSE</span></span>
-<span><span class="co">#&gt; Columns: term, contrast, event, estimate</span></span>
 <span></span>
 <span><span class="co"># Step 2</span></span>
 <span><span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="va">mod</span>, type <span class="op">=</span> <span class="st">"event"</span>, vcov <span class="op">=</span> <span class="cn">FALSE</span>, compress <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     Term event Estimate</span></span>
-<span><span class="co">#&gt;  .Dtreat     0  -0.0332</span></span>
-<span><span class="co">#&gt;  .Dtreat     1  -0.0573</span></span>
-<span><span class="co">#&gt;  .Dtreat     2  -0.1379</span></span>
-<span><span class="co">#&gt;  .Dtreat     3  -0.1095</span></span>
+<span><span class="co">#&gt;  event Estimate</span></span>
+<span><span class="co">#&gt;      0  -0.0332</span></span>
+<span><span class="co">#&gt;      1  -0.0573</span></span>
+<span><span class="co">#&gt;      2  -0.1379</span></span>
+<span><span class="co">#&gt;      3  -0.1095</span></span>
 <span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Term: .Dtreat</span></span>
 <span><span class="co">#&gt; Type:  response </span></span>
 <span><span class="co">#&gt; Comparison: TRUE - FALSE</span></span>
-<span><span class="co">#&gt; Columns: term, contrast, event, estimate</span></span>
 <span></span>
 <span><span class="co"># Step 3: Results from 1 and 2 are similar enough, so get approx. SEs</span></span>
 <span><span class="va">mod_es_compressed</span> <span class="op">=</span> <span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="va">mod</span>, type <span class="op">=</span> <span class="st">"event"</span>, compress <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
@@ -1029,63 +1028,63 @@ very similar.</p>
 <tbody>
 <tr>
 <td>Years post treatment = 0</td>
-                  <td>-0.033 </td>
-                  <td>-0.033 </td>
+                  <td>-0.033</td>
+                  <td>-0.033</td>
                 </tr>
 <tr>
-<td>                        </td>
+<td></td>
                   <td>(0.013)</td>
                   <td>(0.013)</td>
                 </tr>
 <tr>
 <td>Years post treatment = 1</td>
-                  <td>-0.057 </td>
-                  <td>-0.057 </td>
+                  <td>-0.057</td>
+                  <td>-0.057</td>
                 </tr>
 <tr>
-<td>                        </td>
+<td></td>
                   <td>(0.017)</td>
                   <td>(0.017)</td>
                 </tr>
 <tr>
 <td>Years post treatment = 2</td>
-                  <td>-0.138 </td>
-                  <td>-0.138 </td>
+                  <td>-0.138</td>
+                  <td>-0.138</td>
                 </tr>
 <tr>
-<td>                        </td>
+<td></td>
                   <td>(0.031)</td>
                   <td>(0.031)</td>
                 </tr>
 <tr>
 <td>Years post treatment = 3</td>
-                  <td>-0.110 </td>
-                  <td>-0.110 </td>
+                  <td>-0.110</td>
+                  <td>-0.110</td>
                 </tr>
 <tr>
-<td>                        </td>
+<td></td>
                   <td>(0.032)</td>
                   <td>(0.032)</td>
                 </tr>
 <tr>
-<td>Num.Obs.                </td>
-                  <td>2500   </td>
-                  <td>2500   </td>
+<td>Num.Obs.</td>
+                  <td>2500</td>
+                  <td>2500</td>
                 </tr>
 <tr>
-<td>R2                      </td>
-                  <td>0.873  </td>
-                  <td>0.873  </td>
+<td>R2</td>
+                  <td>0.873</td>
+                  <td>0.873</td>
                 </tr>
 <tr>
-<td>FE..first.treat         </td>
-                  <td>X      </td>
-                  <td>X      </td>
+<td>FE..first.treat</td>
+                  <td>X</td>
+                  <td>X</td>
                 </tr>
 <tr>
-<td>FE..year                </td>
-                  <td>X      </td>
-                  <td>X      </td>
+<td>FE..year</td>
+                  <td>X</td>
+                  <td>X</td>
                 </tr>
 </tbody>
 </table>
@@ -1111,7 +1110,7 @@ the formula of an estimated model to see for yourself.</p>
 <code class="sourceCode R"><span><span class="va">mod</span><span class="op">$</span><span class="va">fml_all</span></span>
 <span><span class="co">#&gt; $linear</span></span>
 <span><span class="co">#&gt; lemp ~ .Dtreat:i(first.treat, i.year, ref = 0, ref2 = 2003)/lpop_dm</span></span>
-<span><span class="co">#&gt; &lt;environment: 0x55f6a12852a8&gt;</span></span>
+<span><span class="co">#&gt; &lt;environment: 0x5607e9935bb8&gt;</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $fixef</span></span>
 <span><span class="co">#&gt; ~first.treat + first.treat[[lpop]] + year + year[[lpop]]</span></span></code></pre></div>
@@ -1235,142 +1234,142 @@ that here, since I’ve already loaded it above.<a class="footnote-ref" tabindex
               </tr></thead>
 <tbody>
 <tr>
-<td>.Dtreat × first.treat = 2004 × year = 2004          </td>
-                  <td>-0.021 </td>
-                  <td>-0.021 </td>
+<td>.Dtreat × first.treat = 2004 × year = 2004</td>
+                  <td>-0.021</td>
+                  <td>-0.021</td>
                 </tr>
 <tr>
-<td>                                                    </td>
+<td></td>
                   <td>(0.022)</td>
                   <td>(0.022)</td>
                 </tr>
 <tr>
-<td>.Dtreat × first.treat = 2004 × year = 2005          </td>
-                  <td>-0.082 </td>
-                  <td>-0.082 </td>
+<td>.Dtreat × first.treat = 2004 × year = 2005</td>
+                  <td>-0.082</td>
+                  <td>-0.082</td>
                 </tr>
 <tr>
-<td>                                                    </td>
+<td></td>
                   <td>(0.027)</td>
                   <td>(0.027)</td>
                 </tr>
 <tr>
-<td>.Dtreat × first.treat = 2004 × year = 2006          </td>
-                  <td>-0.138 </td>
-                  <td>-0.138 </td>
+<td>.Dtreat × first.treat = 2004 × year = 2006</td>
+                  <td>-0.138</td>
+                  <td>-0.138</td>
                 </tr>
 <tr>
-<td>                                                    </td>
+<td></td>
                   <td>(0.031)</td>
                   <td>(0.031)</td>
                 </tr>
 <tr>
-<td>.Dtreat × first.treat = 2004 × year = 2007          </td>
-                  <td>-0.110 </td>
-                  <td>-0.110 </td>
+<td>.Dtreat × first.treat = 2004 × year = 2007</td>
+                  <td>-0.110</td>
+                  <td>-0.110</td>
                 </tr>
 <tr>
-<td>                                                    </td>
+<td></td>
                   <td>(0.032)</td>
                   <td>(0.032)</td>
                 </tr>
 <tr>
-<td>.Dtreat × first.treat = 2006 × year = 2006          </td>
-                  <td>0.003  </td>
-                  <td>0.003  </td>
+<td>.Dtreat × first.treat = 2006 × year = 2006</td>
+                  <td>0.003</td>
+                  <td>0.003</td>
                 </tr>
 <tr>
-<td>                                                    </td>
+<td></td>
                   <td>(0.019)</td>
                   <td>(0.019)</td>
                 </tr>
 <tr>
-<td>.Dtreat × first.treat = 2006 × year = 2007          </td>
-                  <td>-0.045 </td>
-                  <td>-0.045 </td>
+<td>.Dtreat × first.treat = 2006 × year = 2007</td>
+                  <td>-0.045</td>
+                  <td>-0.045</td>
                 </tr>
 <tr>
-<td>                                                    </td>
+<td></td>
                   <td>(0.022)</td>
                   <td>(0.022)</td>
                 </tr>
 <tr>
-<td>.Dtreat × first.treat = 2007 × year = 2007          </td>
-                  <td>-0.046 </td>
-                  <td>-0.046 </td>
+<td>.Dtreat × first.treat = 2007 × year = 2007</td>
+                  <td>-0.046</td>
+                  <td>-0.046</td>
                 </tr>
 <tr>
-<td>                                                    </td>
+<td></td>
                   <td>(0.018)</td>
                   <td>(0.018)</td>
                 </tr>
 <tr>
 <td>.Dtreat × first.treat = 2004 × year = 2004 × lpop_dm</td>
-                  <td>0.005  </td>
-                  <td>0.005  </td>
+                  <td>0.005</td>
+                  <td>0.005</td>
                 </tr>
 <tr>
-<td>                                                    </td>
+<td></td>
                   <td>(0.018)</td>
                   <td>(0.018)</td>
                 </tr>
 <tr>
 <td>.Dtreat × first.treat = 2004 × year = 2005 × lpop_dm</td>
-                  <td>0.025  </td>
-                  <td>0.025  </td>
+                  <td>0.025</td>
+                  <td>0.025</td>
                 </tr>
 <tr>
-<td>                                                    </td>
+<td></td>
                   <td>(0.018)</td>
                   <td>(0.018)</td>
                 </tr>
 <tr>
 <td>.Dtreat × first.treat = 2004 × year = 2006 × lpop_dm</td>
-                  <td>0.051  </td>
-                  <td>0.051  </td>
+                  <td>0.051</td>
+                  <td>0.051</td>
                 </tr>
 <tr>
-<td>                                                    </td>
+<td></td>
                   <td>(0.021)</td>
                   <td>(0.021)</td>
                 </tr>
 <tr>
 <td>.Dtreat × first.treat = 2004 × year = 2007 × lpop_dm</td>
-                  <td>0.011  </td>
-                  <td>0.011  </td>
+                  <td>0.011</td>
+                  <td>0.011</td>
                 </tr>
 <tr>
-<td>                                                    </td>
+<td></td>
                   <td>(0.027)</td>
                   <td>(0.027)</td>
                 </tr>
 <tr>
 <td>.Dtreat × first.treat = 2006 × year = 2006 × lpop_dm</td>
-                  <td>0.039  </td>
-                  <td>0.039  </td>
+                  <td>0.039</td>
+                  <td>0.039</td>
                 </tr>
 <tr>
-<td>                                                    </td>
+<td></td>
                   <td>(0.016)</td>
                   <td>(0.016)</td>
                 </tr>
 <tr>
 <td>.Dtreat × first.treat = 2006 × year = 2007 × lpop_dm</td>
-                  <td>0.038  </td>
-                  <td>0.038  </td>
+                  <td>0.038</td>
+                  <td>0.038</td>
                 </tr>
 <tr>
-<td>                                                    </td>
+<td></td>
                   <td>(0.022)</td>
                   <td>(0.022)</td>
                 </tr>
 <tr>
 <td>.Dtreat × first.treat = 2007 × year = 2007 × lpop_dm</td>
-                  <td>-0.020 </td>
-                  <td>-0.020 </td>
+                  <td>-0.020</td>
+                  <td>-0.020</td>
                 </tr>
 <tr>
-<td>                                                    </td>
+<td></td>
                   <td>(0.016)</td>
                   <td>(0.016)</td>
                 </tr>
@@ -1387,37 +1386,37 @@ behind the scenes.</p>
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://marginaleffects.com/" class="external-link">marginaleffects</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Simple ATT</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/marginaleffects/man/slopes.html" class="external-link">slopes</a></span><span class="op">(</span></span>
+<span><span class="fu"><a href="https://marginaleffects.com/man/r/slopes.html" class="external-link">slopes</a></span><span class="op">(</span></span>
 <span>  <span class="va">mod2</span>, </span>
 <span>  newdata   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">mpdta2</span>, <span class="va">.Dtreat</span><span class="op">)</span>, <span class="co"># we only want rows where .Dtreat is TRUE</span></span>
 <span>  variables <span class="op">=</span> <span class="st">".Dtreat"</span>, </span>
 <span>  by        <span class="op">=</span> <span class="st">".Dtreat"</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     Term .Dtreat Estimate Std. Error     z Pr(&gt;|z|)    S   2.5 %  97.5 %</span></span>
-<span><span class="co">#&gt;  .Dtreat    TRUE  -0.0506     0.0125 -4.05   &lt;0.001 14.3 -0.0751 -0.0261</span></span>
+<span><span class="co">#&gt;  .Dtreat Estimate Std. Error     z Pr(&gt;|z|)    S   2.5 %  97.5 %</span></span>
+<span><span class="co">#&gt;     TRUE  -0.0506     0.0125 -4.05   &lt;0.001 14.3 -0.0751 -0.0261</span></span>
 <span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Term: .Dtreat</span></span>
 <span><span class="co">#&gt; Type:  response </span></span>
 <span><span class="co">#&gt; Comparison: TRUE - FALSE</span></span>
-<span><span class="co">#&gt; Columns: term, contrast, .Dtreat, estimate, std.error, statistic, p.value, s.value, conf.low, conf.high, predicted_lo, predicted_hi, predicted</span></span>
 <span></span>
 <span><span class="co"># Event study</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/marginaleffects/man/slopes.html" class="external-link">slopes</a></span><span class="op">(</span></span>
+<span><span class="fu"><a href="https://marginaleffects.com/man/r/slopes.html" class="external-link">slopes</a></span><span class="op">(</span></span>
 <span>  <span class="va">mod2</span>, </span>
 <span>  newdata   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">mpdta2</span>, <span class="va">.Dtreat</span><span class="op">)</span>, event <span class="op">=</span> <span class="va">year</span> <span class="op">-</span> <span class="va">first.treat</span><span class="op">)</span>,</span>
 <span>  variables <span class="op">=</span> <span class="st">".Dtreat"</span>, </span>
 <span>  by        <span class="op">=</span> <span class="st">"event"</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     Term event Estimate Std. Error     z Pr(&gt;|z|)    S   2.5 %   97.5 %</span></span>
-<span><span class="co">#&gt;  .Dtreat     0  -0.0332     0.0134 -2.48    0.013  6.3 -0.0594 -0.00701</span></span>
-<span><span class="co">#&gt;  .Dtreat     1  -0.0573     0.0172 -3.34   &lt;0.001 10.2 -0.0910 -0.02373</span></span>
-<span><span class="co">#&gt;  .Dtreat     2  -0.1379     0.0308 -4.48   &lt;0.001 17.0 -0.1982 -0.07751</span></span>
-<span><span class="co">#&gt;  .Dtreat     3  -0.1095     0.0323 -3.39   &lt;0.001 10.5 -0.1729 -0.04619</span></span>
+<span><span class="co">#&gt;  event Estimate Std. Error     z Pr(&gt;|z|)    S   2.5 %   97.5 %</span></span>
+<span><span class="co">#&gt;      0  -0.0332     0.0134 -2.48    0.013  6.3 -0.0594 -0.00701</span></span>
+<span><span class="co">#&gt;      1  -0.0573     0.0172 -3.34   &lt;0.001 10.2 -0.0910 -0.02373</span></span>
+<span><span class="co">#&gt;      2  -0.1379     0.0308 -4.48   &lt;0.001 17.0 -0.1982 -0.07751</span></span>
+<span><span class="co">#&gt;      3  -0.1095     0.0323 -3.39   &lt;0.001 10.5 -0.1729 -0.04619</span></span>
 <span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Term: .Dtreat</span></span>
 <span><span class="co">#&gt; Type:  response </span></span>
-<span><span class="co">#&gt; Comparison: TRUE - FALSE</span></span>
-<span><span class="co">#&gt; Columns: term, contrast, event, estimate, std.error, statistic, p.value, s.value, conf.low, conf.high</span></span></code></pre></div>
+<span><span class="co">#&gt; Comparison: TRUE - FALSE</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="regarding-fixed-effects">Regarding fixed effects<a class="anchor" aria-label="anchor" href="#regarding-fixed-effects"></a>
@@ -1571,16 +1570,16 @@ all return the same raw coefficients.</p>
               </tr></thead>
 <tbody>
 <tr>
-<td>.Dtreat × first.treat = 2004 × year = 2004          </td>
-                  <td>-0.021 </td>
-                  <td>-0.021 </td>
-                  <td>-0.021 </td>
-                  <td>-0.021 </td>
-                  <td>-0.021 </td>
-                  <td>-0.021 </td>
+<td>.Dtreat × first.treat = 2004 × year = 2004</td>
+                  <td>-0.021</td>
+                  <td>-0.021</td>
+                  <td>-0.021</td>
+                  <td>-0.021</td>
+                  <td>-0.021</td>
+                  <td>-0.021</td>
                 </tr>
 <tr>
-<td>                                                    </td>
+<td></td>
                   <td>(0.022)</td>
                   <td>(0.022)</td>
                   <td>(0.022)</td>
@@ -1589,16 +1588,16 @@ all return the same raw coefficients.</p>
                   <td>(0.022)</td>
                 </tr>
 <tr>
-<td>.Dtreat × first.treat = 2004 × year = 2005          </td>
-                  <td>-0.082 </td>
-                  <td>-0.082 </td>
-                  <td>-0.082 </td>
-                  <td>-0.082 </td>
-                  <td>-0.082 </td>
-                  <td>-0.082 </td>
+<td>.Dtreat × first.treat = 2004 × year = 2005</td>
+                  <td>-0.082</td>
+                  <td>-0.082</td>
+                  <td>-0.082</td>
+                  <td>-0.082</td>
+                  <td>-0.082</td>
+                  <td>-0.082</td>
                 </tr>
 <tr>
-<td>                                                    </td>
+<td></td>
                   <td>(0.027)</td>
                   <td>(0.027)</td>
                   <td>(0.027)</td>
@@ -1607,16 +1606,16 @@ all return the same raw coefficients.</p>
                   <td>(0.027)</td>
                 </tr>
 <tr>
-<td>.Dtreat × first.treat = 2004 × year = 2006          </td>
-                  <td>-0.138 </td>
-                  <td>-0.138 </td>
-                  <td>-0.138 </td>
-                  <td>-0.138 </td>
-                  <td>-0.138 </td>
-                  <td>-0.138 </td>
+<td>.Dtreat × first.treat = 2004 × year = 2006</td>
+                  <td>-0.138</td>
+                  <td>-0.138</td>
+                  <td>-0.138</td>
+                  <td>-0.138</td>
+                  <td>-0.138</td>
+                  <td>-0.138</td>
                 </tr>
 <tr>
-<td>                                                    </td>
+<td></td>
                   <td>(0.031)</td>
                   <td>(0.031)</td>
                   <td>(0.031)</td>
@@ -1625,16 +1624,16 @@ all return the same raw coefficients.</p>
                   <td>(0.031)</td>
                 </tr>
 <tr>
-<td>.Dtreat × first.treat = 2004 × year = 2007          </td>
-                  <td>-0.110 </td>
-                  <td>-0.110 </td>
-                  <td>-0.110 </td>
-                  <td>-0.110 </td>
-                  <td>-0.110 </td>
-                  <td>-0.110 </td>
+<td>.Dtreat × first.treat = 2004 × year = 2007</td>
+                  <td>-0.110</td>
+                  <td>-0.110</td>
+                  <td>-0.110</td>
+                  <td>-0.110</td>
+                  <td>-0.110</td>
+                  <td>-0.110</td>
                 </tr>
 <tr>
-<td>                                                    </td>
+<td></td>
                   <td>(0.032)</td>
                   <td>(0.032)</td>
                   <td>(0.032)</td>
@@ -1643,16 +1642,16 @@ all return the same raw coefficients.</p>
                   <td>(0.032)</td>
                 </tr>
 <tr>
-<td>.Dtreat × first.treat = 2006 × year = 2006          </td>
-                  <td>0.003  </td>
-                  <td>0.003  </td>
-                  <td>0.003  </td>
-                  <td>0.003  </td>
-                  <td>0.003  </td>
-                  <td>0.003  </td>
+<td>.Dtreat × first.treat = 2006 × year = 2006</td>
+                  <td>0.003</td>
+                  <td>0.003</td>
+                  <td>0.003</td>
+                  <td>0.003</td>
+                  <td>0.003</td>
+                  <td>0.003</td>
                 </tr>
 <tr>
-<td>                                                    </td>
+<td></td>
                   <td>(0.019)</td>
                   <td>(0.019)</td>
                   <td>(0.019)</td>
@@ -1661,16 +1660,16 @@ all return the same raw coefficients.</p>
                   <td>(0.019)</td>
                 </tr>
 <tr>
-<td>.Dtreat × first.treat = 2006 × year = 2007          </td>
-                  <td>-0.045 </td>
-                  <td>-0.045 </td>
-                  <td>-0.045 </td>
-                  <td>-0.045 </td>
-                  <td>-0.045 </td>
-                  <td>-0.045 </td>
+<td>.Dtreat × first.treat = 2006 × year = 2007</td>
+                  <td>-0.045</td>
+                  <td>-0.045</td>
+                  <td>-0.045</td>
+                  <td>-0.045</td>
+                  <td>-0.045</td>
+                  <td>-0.045</td>
                 </tr>
 <tr>
-<td>                                                    </td>
+<td></td>
                   <td>(0.022)</td>
                   <td>(0.022)</td>
                   <td>(0.022)</td>
@@ -1679,16 +1678,16 @@ all return the same raw coefficients.</p>
                   <td>(0.022)</td>
                 </tr>
 <tr>
-<td>.Dtreat × first.treat = 2007 × year = 2007          </td>
-                  <td>-0.046 </td>
-                  <td>-0.046 </td>
-                  <td>-0.046 </td>
-                  <td>-0.046 </td>
-                  <td>-0.046 </td>
-                  <td>-0.046 </td>
+<td>.Dtreat × first.treat = 2007 × year = 2007</td>
+                  <td>-0.046</td>
+                  <td>-0.046</td>
+                  <td>-0.046</td>
+                  <td>-0.046</td>
+                  <td>-0.046</td>
+                  <td>-0.046</td>
                 </tr>
 <tr>
-<td>                                                    </td>
+<td></td>
                   <td>(0.018)</td>
                   <td>(0.018)</td>
                   <td>(0.018)</td>
@@ -1698,15 +1697,15 @@ all return the same raw coefficients.</p>
                 </tr>
 <tr>
 <td>.Dtreat × first.treat = 2004 × year = 2004 × lpop_dm</td>
-                  <td>0.005  </td>
-                  <td>0.005  </td>
-                  <td>0.005  </td>
-                  <td>0.005  </td>
-                  <td>0.005  </td>
-                  <td>0.005  </td>
+                  <td>0.005</td>
+                  <td>0.005</td>
+                  <td>0.005</td>
+                  <td>0.005</td>
+                  <td>0.005</td>
+                  <td>0.005</td>
                 </tr>
 <tr>
-<td>                                                    </td>
+<td></td>
                   <td>(0.018)</td>
                   <td>(0.018)</td>
                   <td>(0.018)</td>
@@ -1716,15 +1715,15 @@ all return the same raw coefficients.</p>
                 </tr>
 <tr>
 <td>.Dtreat × first.treat = 2004 × year = 2005 × lpop_dm</td>
-                  <td>0.025  </td>
-                  <td>0.025  </td>
-                  <td>0.025  </td>
-                  <td>0.025  </td>
-                  <td>0.025  </td>
-                  <td>0.025  </td>
+                  <td>0.025</td>
+                  <td>0.025</td>
+                  <td>0.025</td>
+                  <td>0.025</td>
+                  <td>0.025</td>
+                  <td>0.025</td>
                 </tr>
 <tr>
-<td>                                                    </td>
+<td></td>
                   <td>(0.018)</td>
                   <td>(0.018)</td>
                   <td>(0.018)</td>
@@ -1734,15 +1733,15 @@ all return the same raw coefficients.</p>
                 </tr>
 <tr>
 <td>.Dtreat × first.treat = 2004 × year = 2006 × lpop_dm</td>
-                  <td>0.051  </td>
-                  <td>0.051  </td>
-                  <td>0.051  </td>
-                  <td>0.051  </td>
-                  <td>0.051  </td>
-                  <td>0.051  </td>
+                  <td>0.051</td>
+                  <td>0.051</td>
+                  <td>0.051</td>
+                  <td>0.051</td>
+                  <td>0.051</td>
+                  <td>0.051</td>
                 </tr>
 <tr>
-<td>                                                    </td>
+<td></td>
                   <td>(0.021)</td>
                   <td>(0.021)</td>
                   <td>(0.021)</td>
@@ -1752,15 +1751,15 @@ all return the same raw coefficients.</p>
                 </tr>
 <tr>
 <td>.Dtreat × first.treat = 2004 × year = 2007 × lpop_dm</td>
-                  <td>0.011  </td>
-                  <td>0.011  </td>
-                  <td>0.011  </td>
-                  <td>0.011  </td>
-                  <td>0.011  </td>
-                  <td>0.011  </td>
+                  <td>0.011</td>
+                  <td>0.011</td>
+                  <td>0.011</td>
+                  <td>0.011</td>
+                  <td>0.011</td>
+                  <td>0.011</td>
                 </tr>
 <tr>
-<td>                                                    </td>
+<td></td>
                   <td>(0.027)</td>
                   <td>(0.027)</td>
                   <td>(0.027)</td>
@@ -1770,15 +1769,15 @@ all return the same raw coefficients.</p>
                 </tr>
 <tr>
 <td>.Dtreat × first.treat = 2006 × year = 2006 × lpop_dm</td>
-                  <td>0.039  </td>
-                  <td>0.039  </td>
-                  <td>0.039  </td>
-                  <td>0.039  </td>
-                  <td>0.039  </td>
-                  <td>0.039  </td>
+                  <td>0.039</td>
+                  <td>0.039</td>
+                  <td>0.039</td>
+                  <td>0.039</td>
+                  <td>0.039</td>
+                  <td>0.039</td>
                 </tr>
 <tr>
-<td>                                                    </td>
+<td></td>
                   <td>(0.016)</td>
                   <td>(0.016)</td>
                   <td>(0.016)</td>
@@ -1788,15 +1787,15 @@ all return the same raw coefficients.</p>
                 </tr>
 <tr>
 <td>.Dtreat × first.treat = 2006 × year = 2007 × lpop_dm</td>
-                  <td>0.038  </td>
-                  <td>0.038  </td>
-                  <td>0.038  </td>
-                  <td>0.038  </td>
-                  <td>0.038  </td>
-                  <td>0.038  </td>
+                  <td>0.038</td>
+                  <td>0.038</td>
+                  <td>0.038</td>
+                  <td>0.038</td>
+                  <td>0.038</td>
+                  <td>0.038</td>
                 </tr>
 <tr>
-<td>                                                    </td>
+<td></td>
                   <td>(0.022)</td>
                   <td>(0.022)</td>
                   <td>(0.022)</td>
@@ -1806,15 +1805,15 @@ all return the same raw coefficients.</p>
                 </tr>
 <tr>
 <td>.Dtreat × first.treat = 2007 × year = 2007 × lpop_dm</td>
-                  <td>-0.020 </td>
-                  <td>-0.020 </td>
-                  <td>-0.020 </td>
-                  <td>-0.020 </td>
-                  <td>-0.020 </td>
-                  <td>-0.020 </td>
+                  <td>-0.020</td>
+                  <td>-0.020</td>
+                  <td>-0.020</td>
+                  <td>-0.020</td>
+                  <td>-0.020</td>
+                  <td>-0.020</td>
                 </tr>
 <tr>
-<td>                                                    </td>
+<td></td>
                   <td>(0.016)</td>
                   <td>(0.016)</td>
                   <td>(0.016)</td>
@@ -1823,290 +1822,290 @@ all return the same raw coefficients.</p>
                   <td>(0.016)</td>
                 </tr>
 <tr>
-<td>lpop                                                </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>1.065  </td>
-                  <td>1.065  </td>
-                  <td>1.065  </td>
-                  <td>1.065  </td>
+<td>lpop</td>
+                  <td></td>
+                  <td></td>
+                  <td>1.065</td>
+                  <td>1.065</td>
+                  <td>1.065</td>
+                  <td>1.065</td>
                 </tr>
 <tr>
-<td>                                                    </td>
-                  <td>       </td>
-                  <td>       </td>
+<td></td>
+                  <td></td>
+                  <td></td>
                   <td>(0.022)</td>
                   <td>(0.022)</td>
                   <td>(0.022)</td>
                   <td>(0.022)</td>
                 </tr>
 <tr>
-<td>first.treat = 2004 × lpop                           </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>0.051  </td>
-                  <td>0.051  </td>
-                  <td>0.051  </td>
-                  <td>0.051  </td>
+<td>first.treat = 2004 × lpop</td>
+                  <td></td>
+                  <td></td>
+                  <td>0.051</td>
+                  <td>0.051</td>
+                  <td>0.051</td>
+                  <td>0.051</td>
                 </tr>
 <tr>
-<td>                                                    </td>
-                  <td>       </td>
-                  <td>       </td>
+<td></td>
+                  <td></td>
+                  <td></td>
                   <td>(0.038)</td>
                   <td>(0.038)</td>
                   <td>(0.038)</td>
                   <td>(0.038)</td>
                 </tr>
 <tr>
-<td>first.treat = 2006 × lpop                           </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>-0.041 </td>
-                  <td>-0.041 </td>
-                  <td>-0.041 </td>
-                  <td>-0.041 </td>
+<td>first.treat = 2006 × lpop</td>
+                  <td></td>
+                  <td></td>
+                  <td>-0.041</td>
+                  <td>-0.041</td>
+                  <td>-0.041</td>
+                  <td>-0.041</td>
                 </tr>
 <tr>
-<td>                                                    </td>
-                  <td>       </td>
-                  <td>       </td>
+<td></td>
+                  <td></td>
+                  <td></td>
                   <td>(0.047)</td>
                   <td>(0.047)</td>
                   <td>(0.047)</td>
                   <td>(0.047)</td>
                 </tr>
 <tr>
-<td>first.treat = 2007 × lpop                           </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>0.056  </td>
-                  <td>0.056  </td>
-                  <td>0.056  </td>
-                  <td>0.056  </td>
+<td>first.treat = 2007 × lpop</td>
+                  <td></td>
+                  <td></td>
+                  <td>0.056</td>
+                  <td>0.056</td>
+                  <td>0.056</td>
+                  <td>0.056</td>
                 </tr>
 <tr>
-<td>                                                    </td>
-                  <td>       </td>
-                  <td>       </td>
+<td></td>
+                  <td></td>
+                  <td></td>
                   <td>(0.039)</td>
                   <td>(0.039)</td>
                   <td>(0.039)</td>
                   <td>(0.039)</td>
                 </tr>
 <tr>
-<td>year = 2004 × lpop                                  </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>0.011  </td>
-                  <td>0.011  </td>
-                  <td>0.011  </td>
-                  <td>0.011  </td>
+<td>year = 2004 × lpop</td>
+                  <td></td>
+                  <td></td>
+                  <td>0.011</td>
+                  <td>0.011</td>
+                  <td>0.011</td>
+                  <td>0.011</td>
                 </tr>
 <tr>
-<td>                                                    </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>(0.008)</td>
-                  <td>(0.008)</td>
-                  <td>(0.008)</td>
-                  <td>(0.008)</td>
-                </tr>
-<tr>
-<td>year = 2005 × lpop                                  </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>0.021  </td>
-                  <td>0.021  </td>
-                  <td>0.021  </td>
-                  <td>0.021  </td>
-                </tr>
-<tr>
-<td>                                                    </td>
-                  <td>       </td>
-                  <td>       </td>
+<td></td>
+                  <td></td>
+                  <td></td>
                   <td>(0.008)</td>
                   <td>(0.008)</td>
                   <td>(0.008)</td>
                   <td>(0.008)</td>
                 </tr>
 <tr>
-<td>year = 2006 × lpop                                  </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>0.011  </td>
-                  <td>0.011  </td>
-                  <td>0.011  </td>
-                  <td>0.011  </td>
+<td>year = 2005 × lpop</td>
+                  <td></td>
+                  <td></td>
+                  <td>0.021</td>
+                  <td>0.021</td>
+                  <td>0.021</td>
+                  <td>0.021</td>
                 </tr>
 <tr>
-<td>                                                    </td>
-                  <td>       </td>
-                  <td>       </td>
+<td></td>
+                  <td></td>
+                  <td></td>
+                  <td>(0.008)</td>
+                  <td>(0.008)</td>
+                  <td>(0.008)</td>
+                  <td>(0.008)</td>
+                </tr>
+<tr>
+<td>year = 2006 × lpop</td>
+                  <td></td>
+                  <td></td>
+                  <td>0.011</td>
+                  <td>0.011</td>
+                  <td>0.011</td>
+                  <td>0.011</td>
+                </tr>
+<tr>
+<td></td>
+                  <td></td>
+                  <td></td>
                   <td>(0.011)</td>
                   <td>(0.011)</td>
                   <td>(0.011)</td>
                   <td>(0.011)</td>
                 </tr>
 <tr>
-<td>year = 2007 × lpop                                  </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>0.021  </td>
-                  <td>0.021  </td>
-                  <td>0.021  </td>
-                  <td>0.021  </td>
+<td>year = 2007 × lpop</td>
+                  <td></td>
+                  <td></td>
+                  <td>0.021</td>
+                  <td>0.021</td>
+                  <td>0.021</td>
+                  <td>0.021</td>
                 </tr>
 <tr>
-<td>                                                    </td>
-                  <td>       </td>
-                  <td>       </td>
+<td></td>
+                  <td></td>
+                  <td></td>
                   <td>(0.012)</td>
                   <td>(0.012)</td>
                   <td>(0.012)</td>
                   <td>(0.012)</td>
                 </tr>
 <tr>
-<td>(Intercept)                                         </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>2.260  </td>
-                  <td>2.260  </td>
+<td>(Intercept)</td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td>2.260</td>
+                  <td>2.260</td>
                 </tr>
 <tr>
-<td>                                                    </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>       </td>
+<td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
                   <td>(0.088)</td>
                   <td>(0.088)</td>
                 </tr>
 <tr>
-<td>first.treat = 2004                                  </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>0.038  </td>
-                  <td>0.038  </td>
+<td>first.treat = 2004</td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td>0.038</td>
+                  <td>0.038</td>
                 </tr>
 <tr>
-<td>                                                    </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>       </td>
+<td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
                   <td>(0.154)</td>
                   <td>(0.154)</td>
                 </tr>
 <tr>
-<td>first.treat = 2006                                  </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>0.461  </td>
-                  <td>0.461  </td>
+<td>first.treat = 2006</td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td>0.461</td>
+                  <td>0.461</td>
                 </tr>
 <tr>
-<td>                                                    </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>       </td>
+<td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
                   <td>(0.213)</td>
                   <td>(0.213)</td>
                 </tr>
 <tr>
-<td>first.treat = 2007                                  </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>-0.286 </td>
-                  <td>-0.286 </td>
+<td>first.treat = 2007</td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td>-0.286</td>
+                  <td>-0.286</td>
                 </tr>
 <tr>
-<td>                                                    </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>       </td>
+<td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
                   <td>(0.167)</td>
                   <td>(0.167)</td>
                 </tr>
 <tr>
-<td>year = 2004                                         </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>-0.090 </td>
-                  <td>-0.090 </td>
+<td>year = 2004</td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td>-0.090</td>
+                  <td>-0.090</td>
                 </tr>
 <tr>
-<td>                                                    </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>       </td>
+<td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
                   <td>(0.031)</td>
                   <td>(0.031)</td>
                 </tr>
 <tr>
-<td>year = 2005                                         </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>-0.110 </td>
-                  <td>-0.110 </td>
+<td>year = 2005</td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td>-0.110</td>
+                  <td>-0.110</td>
                 </tr>
 <tr>
-<td>                                                    </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>       </td>
+<td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
                   <td>(0.033)</td>
                   <td>(0.033)</td>
                 </tr>
 <tr>
-<td>year = 2006                                         </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>-0.052 </td>
-                  <td>-0.052 </td>
+<td>year = 2006</td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td>-0.052</td>
+                  <td>-0.052</td>
                 </tr>
 <tr>
-<td>                                                    </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>       </td>
+<td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
                   <td>(0.040)</td>
                   <td>(0.040)</td>
                 </tr>
 <tr>
-<td>year = 2007                                         </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>-0.057 </td>
-                  <td>-0.057 </td>
+<td>year = 2007</td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td>-0.057</td>
+                  <td>-0.057</td>
                 </tr>
 <tr>
-<td>                                                    </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>       </td>
+<td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
                   <td>(0.045)</td>
                   <td>(0.045)</td>
                 </tr>
@@ -2233,68 +2232,68 @@ slightly different).</p>
 <tbody>
 <tr>
 <td>Years post treatment = 0</td>
-                  <td>-0.033 </td>
-                  <td>-0.033 </td>
+                  <td>-0.033</td>
+                  <td>-0.033</td>
                 </tr>
 <tr>
-<td>                        </td>
+<td></td>
                   <td>(0.013)</td>
                   <td>(0.015)</td>
                 </tr>
 <tr>
 <td>Years post treatment = 1</td>
-                  <td>-0.057 </td>
-                  <td>-0.057 </td>
+                  <td>-0.057</td>
+                  <td>-0.057</td>
                 </tr>
 <tr>
-<td>                        </td>
+<td></td>
                   <td>(0.017)</td>
                   <td>(0.019)</td>
                 </tr>
 <tr>
 <td>Years post treatment = 2</td>
-                  <td>-0.138 </td>
-                  <td>-0.138 </td>
+                  <td>-0.138</td>
+                  <td>-0.138</td>
                 </tr>
 <tr>
-<td>                        </td>
+<td></td>
                   <td>(0.031)</td>
                   <td>(0.034)</td>
                 </tr>
 <tr>
 <td>Years post treatment = 3</td>
-                  <td>-0.110 </td>
-                  <td>-0.110 </td>
+                  <td>-0.110</td>
+                  <td>-0.110</td>
                 </tr>
 <tr>
-<td>                        </td>
+<td></td>
                   <td>(0.032)</td>
                   <td>(0.036)</td>
                 </tr>
 <tr>
-<td>Num.Obs.                </td>
-                  <td>2500   </td>
-                  <td>2500   </td>
+<td>Num.Obs.</td>
+                  <td>2500</td>
+                  <td>2500</td>
                 </tr>
 <tr>
-<td>R2                      </td>
-                  <td>0.873  </td>
-                  <td>0.993  </td>
+<td>R2</td>
+                  <td>0.873</td>
+                  <td>0.993</td>
                 </tr>
 <tr>
-<td>FE..year                </td>
-                  <td>X      </td>
-                  <td>X      </td>
+<td>FE..year</td>
+                  <td>X</td>
+                  <td>X</td>
                 </tr>
 <tr>
-<td>FE..first.treat         </td>
-                  <td>X      </td>
-                  <td>       </td>
+<td>FE..first.treat</td>
+                  <td>X</td>
+                  <td></td>
                 </tr>
 <tr>
-<td>FE..countyreal          </td>
-                  <td>       </td>
-                  <td>X      </td>
+<td>FE..countyreal</td>
+                  <td></td>
+                  <td>X</td>
                 </tr>
 </tbody>
 </table>

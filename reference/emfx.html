@@ -15,7 +15,7 @@ package."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">etwfe</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0.99</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,7 +38,7 @@ package."></head><body>
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Post-estimation aggregation of ETWFE results</h1>
-      <small class="dont-index">Source: <a href="https://github.com/grantmcdermott/etwfe/blob/v0.5.0/R/emfx.R" class="external-link"><code>R/emfx.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/grantmcdermott/etwfe/blob/main/R/emfx.R" class="external-link"><code>R/emfx.R</code></a></small>
       <div class="d-none name"><code>emfx.Rd</code></div>
     </div>
 
@@ -46,7 +46,7 @@ package."></head><body>
     <p>Companion function to <code>etwfe</code>, enabling the recovery of aggregate treatment
 effects along different dimensions of interest (e.g, an event study of
 dynamic average treatment effects). <code>emfx</code> is a light wrapper around the
-<code><a href="https://rdrr.io/pkg/marginaleffects/man/slopes.html" class="external-link">slopes</a></code> function from the <strong>marginaleffects</strong>
+<code><a href="https://marginaleffects.com/man/r/slopes.html" class="external-link">slopes</a></code> function from the <strong>marginaleffects</strong>
 package.</p>
     </div>
 
@@ -115,7 +115,7 @@ level of the response variable, i.e. it is the expected predictor
 the fitted model, i.e. \(X\cdot \beta\). The difference should only
 matter for nonlinear models. (Note: This argument is typically called
 <code>type</code> when use in <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></code> or
-<code><a href="https://rdrr.io/pkg/marginaleffects/man/slopes.html" class="external-link">slopes</a></code>, but we rename it here to avoid a
+<code><a href="https://marginaleffects.com/man/r/slopes.html" class="external-link">slopes</a></code>, but we rename it here to avoid a
 clash with the top-level <code>type</code> argument above.)</p></dd>
 
 
@@ -145,7 +145,7 @@ to <code>TRUE</code> in a future version of <strong>etwfe</strong>.</p></dd>
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Additional arguments passed to
-<code><a href="https://rdrr.io/pkg/marginaleffects/man/slopes.html" class="external-link">marginaleffects::slopes</a></code>. For example, you can pass <code>vcov = FALSE</code> to dramatically speed up estimation times of the main marginal
+<code><a href="https://marginaleffects.com/man/r/slopes.html" class="external-link">marginaleffects::slopes</a></code>. For example, you can pass <code>vcov = FALSE</code> to dramatically speed up estimation times of the main marginal
 effects (but at the cost of not getting any information about standard
 errors; see Performance tips below). Another potentially useful
 application is testing whether heterogeneous treatment effects (i.e., the
@@ -157,7 +157,7 @@ argument, e.g. <code>hypothesis = "b1 = b2"</code>.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A <code>data.frame</code> of aggregated treatment effects along the
 dimension(s) of interested. Note that this data.frame will have been
-overloaded with the <code><a href="https://rdrr.io/pkg/marginaleffects/man/slopes.html" class="external-link">slopes</a></code> class, and so
+overloaded with the <code><a href="https://marginaleffects.com/man/r/slopes.html" class="external-link">slopes</a></code> class, and so
 will come with a special print method. But the underlying columns will
 usually include:</p><ul><li><p><code>term</code></p></li>
 <li><p><code>contrast</code></p></li>
@@ -242,7 +242,7 @@ https://doi.org/10.48550/arXiv.2102.11297</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><a href="https://rdrr.io/pkg/marginaleffects/man/slopes.html" class="external-link">marginaleffects::slopes</a> which does the heavily lifting behind the
+    <div class="dont-index"><p><a href="https://marginaleffects.com/man/r/slopes.html" class="external-link">marginaleffects::slopes</a> which does the heavily lifting behind the
 scenes. <code><a href="etwfe.html">etwfe</a></code> is the companion estimating function that should be run
 before <code>emfx</code>.</p></div>
     </div>
@@ -278,15 +278,15 @@ before <code>emfx</code>.</p></div>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="op">(</span><span class="va">mod_es</span> <span class="op">=</span> <span class="fu">emfx</span><span class="op">(</span><span class="va">mod</span>, type <span class="op">=</span> <span class="st">"event"</span><span class="op">)</span><span class="op">)</span> <span class="co"># dynamic ATE a la an event study</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Term event Estimate Std. Error     z Pr(&gt;|z|)    S   2.5 %   97.5 %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat     0  -0.0332     0.0134 -2.48    0.013  6.3 -0.0594 -0.00701</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat     1  -0.0573     0.0172 -3.34   &lt;0.001 10.2 -0.0910 -0.02373</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat     2  -0.1379     0.0308 -4.48   &lt;0.001 17.0 -0.1982 -0.07751</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat     3  -0.1095     0.0323 -3.39   &lt;0.001 10.5 -0.1729 -0.04619</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  event Estimate Std. Error     z Pr(&gt;|z|)    S   2.5 %   97.5 %</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      0  -0.0332     0.0134 -2.48    0.013  6.3 -0.0594 -0.00701</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      1  -0.0573     0.0172 -3.34   &lt;0.001 10.2 -0.0910 -0.02373</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      2  -0.1379     0.0308 -4.48   &lt;0.001 17.0 -0.1982 -0.07751</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      3  -0.1095     0.0323 -3.39   &lt;0.001 10.5 -0.1729 -0.04619</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Term: .Dtreat</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Type:  response </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Comparison: TRUE - FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Columns: term, contrast, event, estimate, std.error, statistic, p.value, s.value, conf.low, conf.high </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Etc. Other aggregation type options are "simple" (the default), "group"</span></span></span>
@@ -330,13 +330,13 @@ before <code>emfx</code>.</p></div>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">emfx</span><span class="op">(</span><span class="va">hmod</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Term .Dtreat   gls Estimate Std. Error     z Pr(&gt;|z|)   S  2.5 %  97.5 %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat    TRUE FALSE  -0.0637     0.0376 -1.69   0.0906 3.5 -0.137 0.01007</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat    TRUE  TRUE  -0.0472     0.0271 -1.74   0.0817 3.6 -0.100 0.00594</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat   gls Estimate Std. Error     z Pr(&gt;|z|)   S  2.5 %  97.5 %</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     TRUE FALSE  -0.0637     0.0376 -1.69   0.0906 3.5 -0.137 0.01007</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     TRUE  TRUE  -0.0472     0.0271 -1.74   0.0817 3.6 -0.100 0.00594</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Term: .Dtreat</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Type:  response </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Comparison: TRUE - FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Columns: term, contrast, .Dtreat, gls, estimate, std.error, statistic, p.value, s.value, conf.low, conf.high </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># To test whether the ATEs across these two groups (non-GLS vs GLS) are </span></span></span>
@@ -344,7 +344,7 @@ before <code>emfx</code>.</p></div>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">emfx</span><span class="op">(</span><span class="va">hmod</span>, hypothesis <span class="op">=</span> <span class="st">"b1 = b2"</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> It is essential to check the order of estimates when specifying hypothesis tests using positional indices like b1, b2, etc. The indices of estimates can change depending on the order of rows in the original dataset, user-supplied arguments, model-fitting package, and version of `marginaleffects`. </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> It is essential to check the order of estimates when specifying hypothesis tests using positional indices like b1, b2, etc. The indices of estimates can change depending on the order of rows in the original dataset, user-supplied arguments, model-fitting package, and version of `marginaleffects`.</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> It is also good practice to use assertions that ensure the order of estimates is consistent across different runs of the same code. Example:</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> </span>
@@ -360,13 +360,12 @@ before <code>emfx</code>.</p></div>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> ```</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> Disable this warning with: `options(marginaleffects_safe = FALSE)`</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> This warning appears once per session.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>  This warning appears once per session.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Term Estimate Std. Error      z Pr(&gt;|z|)   S  2.5 % 97.5 %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  b1=b2  -0.0164     0.0559 -0.294    0.769 0.4 -0.126  0.093</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Hypothesis Estimate Std. Error      z Pr(&gt;|z|)   S  2.5 % 97.5 %</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       b1=b2  -0.0164     0.0559 -0.294    0.769 0.4 -0.126  0.093</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Type:  response </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Columns: term, estimate, std.error, statistic, p.value, s.value, conf.low, conf.high </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu">emfx</span><span class="op">(</span><span class="va">hmod</span><span class="op">)</span><span class="op">)</span></span></span>
@@ -388,15 +387,15 @@ before <code>emfx</code>.</p></div>
 <span class="r-in"><span>  <span class="fu">emfx</span><span class="op">(</span><span class="st">"event"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> The variables '.Dtreat:first.treat::2006:year::2004', '.Dtreat:first.treat::2006:year::2005', '.Dtreat:first.treat::2007:year::2004', '.Dtreat:first.treat::2007:year::2005', '.Dtreat:first.treat::2007:year::2006', '.Dtreat:first.treat::2006:year::2004:lpop_dm' and 4 others have been removed because of collinearity (see $collin.var).</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Term event Estimate Std. Error       z Pr(&gt;|z|)    S  2.5 % 97.5 %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat     0   -25.35       15.9 -1.5942    0.111  3.2  -56.5   5.82</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat     1     1.09       41.8  0.0261    0.979  0.0  -80.9  83.09</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat     2   -75.12       22.3 -3.3696   &lt;0.001 10.4 -118.8 -31.43</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat     3  -101.82       28.1 -3.6234   &lt;0.001 11.7 -156.9 -46.75</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  event Estimate Std. Error       z Pr(&gt;|z|)    S  2.5 % 97.5 %</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      0   -25.35       15.9 -1.5942    0.111  3.2  -56.5   5.82</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      1     1.09       41.8  0.0261    0.979  0.0  -80.9  83.09</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      2   -75.12       22.3 -3.3696   &lt;0.001 10.4 -118.8 -31.43</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      3  -101.82       28.1 -3.6234   &lt;0.001 11.7 -156.9 -46.75</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Term: .Dtreat</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Type:  response </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Comparison: TRUE - FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Columns: term, contrast, event, estimate, std.error, statistic, p.value, s.value, conf.low, conf.high </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
