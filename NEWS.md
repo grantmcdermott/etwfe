@@ -1,3 +1,9 @@
+# etwfe 0.5.0.99 (dev version)
+
+## Internals
+
+- Bump **tinyplot** depencency to v0.3.0.
+
 # etwfe 0.5.0
 
 ## New features
