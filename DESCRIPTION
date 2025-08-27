@@ -2,7 +2,7 @@ Package: etwfe
 Type: Package
 Title: Extended Two-Way Fixed Effects
 Version: 0.5.0.99
-Date: 2025-03-11
+Date: 2025-08-27
 Authors@R: 
     c(
     person(given = "Grant",
@@ -25,7 +25,7 @@ Imports:
   data.table,
   Formula,
   marginaleffects (> 0.28.0),
-  tinyplot (>= 0.3.0)
+  tinyplot (>= 0.4.2)
 Suggests:
   did,
   broom,
