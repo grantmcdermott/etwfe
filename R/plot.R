@@ -38,7 +38,7 @@ plot.emfx = function(
     warning('\nRibbon plots are not allowed for `emfx(..., type = "simple")` objects. Reverting to pointrange.\n')
     type = "pointrange"
   }
-  byvar = attr(x, "by")
+  byvar = attr(x, "marginaleffects")@by
   xvar = etwfe_attr[["xvar"]]
   if (is.null(xvar)) {
     fml = reformulate(byvar, response = "estimate")
