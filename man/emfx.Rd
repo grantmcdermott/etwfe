@@ -76,7 +76,8 @@ in the size of the return object. Consequently, we may change the default
 to \code{TRUE} in a future version of \strong{etwfe}.}
 
 \item{...}{Additional arguments passed to
-\code{\link[marginaleffects:slopes]{marginaleffects::slopes}}. For example, you can pass \code{vcov = FALSE} to dramatically speed up estimation times of the main marginal
+\code{\link[marginaleffects:slopes]{marginaleffects::slopes}}. For example, you can pass \code{vcov = FALSE}
+to dramatically speed up estimation times of the main marginal
 effects (but at the cost of not getting any information about standard
 errors; see Performance tips below). Another potentially useful
 application is testing whether heterogeneous treatment effects (i.e., the

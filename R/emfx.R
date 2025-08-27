@@ -59,8 +59,8 @@
 #'   in the size of the return object. Consequently, we may change the default
 #'   to `TRUE` in a future version of **etwfe**.
 #' @param ... Additional arguments passed to
-#'   [`marginaleffects::slopes`]. For example, you can pass `vcov =
-#'   FALSE` to dramatically speed up estimation times of the main marginal
+#'   [`marginaleffects::slopes`]. For example, you can pass `vcov = FALSE`
+#'   to dramatically speed up estimation times of the main marginal
 #'   effects (but at the cost of not getting any information about standard
 #'   errors; see Performance tips below). Another potentially useful
 #'   application is testing whether heterogeneous treatment effects (i.e., the
@@ -131,6 +131,7 @@ emfx = function(
   gref = etwfe_attr[["gref"]]
   tref = etwfe_attr[["tref"]]
   cgroup = etwfe_attr[["cgroup"]]
+  fe = etwfe_attr[["fe"]]
   if (!by_xvar %in% c("auto", TRUE, FALSE)) stop("\"by_xvar\" has to be \"auto\", TRUE, or FALSE.")
   if (!collapse %in% c("auto", TRUE, FALSE)) stop("\"collapse\" has to be \"auto\", TRUE, or FALSE.")
   
@@ -215,7 +216,7 @@ emfx = function(
   
   # compress the data 
   if (type=="simple") {
-      by_var = ".Dtreat"
+    by_var = ".Dtreat"
   } else if (type=="group") {
     by_var = gvar
   } else if (type=="calendar") {
@@ -226,23 +227,54 @@ emfx = function(
   }
   
   if (by_xvar) by_var = c(by_var, xvar)
+  
+  # catch for non-linear models
+  if (!is.null(dots)) {
+    # browser()
+    if (!is.null(object$family) && object$family$family != "gaussian" && fe != "none") {
+      if (is.null(dots$vcov) || !isFALSE(dots$vcov)) {
+        dots$vcov = FALSE
+        warning(
+          'Cannot estimate standard errors for non-Gaussian model families in the presence of fixed effects.\n',
+          'To calculate standard errors, re-estimate the original model with `etwfe(..., fe = "none")`.\n'
+        )
+      }
+    }
+  }
 
-  mfx = slopes(
-    object,
+  if (isTRUE(lean)) {
+    old_lean = getOption("marginaleffects_lean", default = FALSE)
+    options(marginaleffects_lean = TRUE)
+    on.exit(options(marginaleffects_lean = old_lean))
+  }
+
+  # mfx = slopes(
+  #   object,
+  #   newdata = dat,   
+  #   wts = "N",
+  #   variables = ".Dtreat",
+  #   by = by_var,
+  #   type = predict,
+  #   ...
+  # )
+  args_list = list(
+    model = object,
     newdata = dat,   
     wts = "N",
     variables = ".Dtreat",
     by = by_var,
-    type = predict,
-    ...
+    type = predict
   )
+  if (!is.null(dots)) args_list = utils::modifyList(args_list, dots)
+  mfx = do.call("slopes", args = args_list)
   
-  ## FIXME: remove when marginaleffects 0.25.0 is released
-  ## https://github.com/vincentarelbundock/marginaleffects/pull/1296
-  if (isTRUE(lean)) {
-    atts = names(attributes(mfx))
-    for (a in setdiff(atts, c("names", "row.names", "class", "by", "conf_level", "lean"))) attr(mfx, a) = NULL
-  }
+  # ## FIXME: remove when marginaleffects 0.25.0 is released
+  # ## https://github.com/vincentarelbundock/marginaleffects/pull/1296
+  # if (isTRUE(lean)) {
+  #   browser()
+  #   atts = names(attributes(mfx))
+  #   for (a in setdiff(atts, c("names", "row.names", "class", "by", "conf_level", "lean"))) attr(mfx, a) = NULL
+  # }
   
   class(mfx) = c("emfx", class(mfx))
   attr(mfx, "etwfe") = etwfe_attr

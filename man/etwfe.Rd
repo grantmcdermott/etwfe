@@ -14,7 +14,7 @@ etwfe(
   tref = NULL,
   gref = NULL,
   cgroup = c("notyet", "never"),
-  fe = c("vs", "feo", "none"),
+  fe = NULL,
   family = NULL,
   ...
 )
@@ -57,13 +57,17 @@ group takes an unusual value.}
 \item{cgroup}{What control group do you wish to use for estimating treatment
 effects. Either "notyet" treated (the default) or "never" treated.}
 
-\item{fe}{What level of fixed effects should be used? Defaults to "vs"
-(varying slopes), which is the most efficient in terms of estimation and
-terseness of the return model object. The other two options, "feo" (fixed
-effects only) and "none" (no fixed effects whatsoever), trade off
-efficiency for additional information on other (nuisance) model
-parameters. Note that the primary treatment parameters of interest should
-remain unchanged regardless of choice.}
+\item{fe}{What category of fixed effects should be used? One of either \code{"vs"}
+(varying slopes), \code{"feo"} (fixed effects only), or \code{"none"} (no fixed
+effects whatsoever). If left as \code{NULL} (i.e., no explicit choice) then
+will default to \code{"vs"} for linear/Gaussian models, since this is the most
+efficient estimation option and further limits the number of "nuisance"
+parameters in the return model object. However, for non-Gaussian families
+will default to \code{"none"}, since the downstream \code{\link{emfx}} function cannot
+compute standard errors for these models in the presence of fixed-effects.
+(See: https://github.com/vincentarelbundock/marginaleffects/issues/1487)
+Please note that the primary treatment parameters of interest should
+remain unchanged regardless of \code{fe} argument choice.}
 
 \item{family}{Which \code{\link{family}} to use for the estimation. Defaults to NULL,
 in which case \code{\link[fixest:feols]{fixest::feols}} is used. Otherwise passed to

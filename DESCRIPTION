@@ -24,7 +24,7 @@ Imports:
   stats,
   data.table,
   Formula,
-  marginaleffects (>= 0.24.0),
+  marginaleffects (> 0.28.0),
   tinyplot (>= 0.3.0)
 Suggests:
   did,

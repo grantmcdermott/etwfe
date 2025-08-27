@@ -38,13 +38,17 @@
 #'   group takes an unusual value.
 #' @param cgroup What control group do you wish to use for estimating treatment
 #'   effects. Either "notyet" treated (the default) or "never" treated.
-#' @param fe What level of fixed effects should be used? Defaults to "vs"
-#'   (varying slopes), which is the most efficient in terms of estimation and
-#'   terseness of the return model object. The other two options, "feo" (fixed
-#'   effects only) and "none" (no fixed effects whatsoever), trade off
-#'   efficiency for additional information on other (nuisance) model
-#'   parameters. Note that the primary treatment parameters of interest should
-#'   remain unchanged regardless of choice.
+#' @param fe What category of fixed effects should be used? One of either `"vs"`
+#'   (varying slopes), `"feo"` (fixed effects only), or `"none"` (no fixed
+#'   effects whatsoever). If left as `NULL` (i.e., no explicit choice) then
+#'   will default to `"vs"` for linear/Gaussian models, since this is the most
+#'   efficient estimation option and further limits the number of "nuisance"
+#'   parameters in the return model object. However, for non-Gaussian families
+#'   will default to `"none"`, since the downstream [`emfx`] function cannot
+#'   compute standard errors for these models in the presence of fixed-effects.
+#'   (See: https://github.com/vincentarelbundock/marginaleffects/issues/1487)
+#'   Please note that the primary treatment parameters of interest should
+#'   remain unchanged regardless of `fe` argument choice.
 #' @param family Which [`family`] to use for the estimation. Defaults to NULL,
 #'   in which case [`fixest::feols`] is used. Otherwise passed to
 #'   [`fixest::feglm`], so that valid entries include "logit", "poisson", and
@@ -241,13 +245,16 @@ etwfe = function(
     tref = NULL,
     gref = NULL,
     cgroup = c("notyet", "never"),
-    fe = c("vs", "feo", "none"),
+    fe = NULL,
     family = NULL,
     ...
 ) {
   
   cgroup = match.arg(cgroup)
-  fe = match.arg(fe)
+  if (is.null(fe)) {
+    fe = ifelse(is.null(family) || family == "gaussian", "fe", "none")
+  }
+  fe = match.arg(fe, c("vs", "feo", "none"))
   rhs = ctrls = vs = ref_string = xvar_dm_df = ctrls_fml_vars = xvar_fml_vars = NULL
   gref_min_flag = FALSE
   
@@ -467,7 +474,8 @@ etwfe = function(
     ivar = ivar,
     gref = gref,
     tref = tref,
-    cgroup = cgroup
+    cgroup = cgroup,
+    fe = fe
     )
 
   ## Return ----
