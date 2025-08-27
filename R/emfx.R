@@ -7,7 +7,7 @@
 #' dynamic average treatment effects). `emfx` is a light wrapper around the
 #' \code{\link[marginaleffects]{slopes}} function from the **marginaleffects**
 #' package.
-#' 
+#'
 #' @param object An `etwfe` model object.
 #' @param type Character. The desired type of post-estimation aggregation.
 #' @param by_xvar Logical. Should the results account for heterogeneous
@@ -30,7 +30,7 @@
 #' @param collapse Logical. An alias for `compress` (only used for backwards
 #'   compatability and ignored if both arguments are provided). The behaviour is
 #'   identical, but it will trigger a message nudging users to rather use the
-#'   `compress` argument. 
+#'   `compress` argument.
 #' @param predict Character. The type (scale) of prediction used to compute the
 #'   marginal effects. If `"response"` (the default), then the output is at the
 #'   level of the response variable, i.e. it is the expected predictor
@@ -82,10 +82,10 @@
 #'   - `s.value`
 #'   - `conf.low`
 #'   - `conf.high`
-#' @references 
+#' @references
 #' Wong, Jeffrey _et al._ (2021). \cite{You Only Compress Once: Optimal Data
 #' Compression for Estimating Linear Models}. Working paper (version: March 16,
-#' 2021). Available: 
+#' 2021). Available:
 #' https://doi.org/10.48550/arXiv.2102.11297
 #' @seealso [marginaleffects::slopes] which does the heavily lifting behind the
 #' scenes. [`etwfe`] is the companion estimating function that should be run
@@ -97,27 +97,17 @@
 #' @importFrom marginaleffects slopes
 #' @export
 emfx = function(
-    object,
-    type = c("simple", "group", "calendar", "event"),
-    by_xvar = "auto",
-    compress = "auto",
-    collapse = compress,
-    predict = c("response", "link"),
-    post_only = TRUE,
-    lean = FALSE,
-    ...
+  object,
+  type = c("simple", "group", "calendar", "event"),
+  by_xvar = "auto",
+  compress = "auto",
+  collapse = compress,
+  predict = c("response", "link"),
+  post_only = TRUE,
+  lean = FALSE,
+  ...
 ) {
-  
   dots = list(...)
-  
-  ## FIXME: uncomment when marginaleffects 0.25.0 is released and remove
-  ## workaround at the boom of this function
-  ## https://github.com/vincentarelbundock/marginaleffects/pull/1296
-  # if (isTRUE(lean)) {
-  #   oldlean = getOption("marginaleffects_lean")
-  #   options(marginaleffects_lean = TRUE)
-  #   on.exit(options(marginaleffects_lean = oldlean))
-  # }
 
   .Dtreat = NULL
   type = match.arg(type)
@@ -132,26 +122,34 @@ emfx = function(
   tref = etwfe_attr[["tref"]]
   cgroup = etwfe_attr[["cgroup"]]
   fe = etwfe_attr[["fe"]]
-  if (!by_xvar %in% c("auto", TRUE, FALSE)) stop("\"by_xvar\" has to be \"auto\", TRUE, or FALSE.")
-  if (!collapse %in% c("auto", TRUE, FALSE)) stop("\"collapse\" has to be \"auto\", TRUE, or FALSE.")
-  
+  if (!by_xvar %in% c("auto", TRUE, FALSE)) {
+    stop("\"by_xvar\" has to be \"auto\", TRUE, or FALSE.")
+  }
+  if (!collapse %in% c("auto", TRUE, FALSE)) {
+    stop("\"collapse\" has to be \"auto\", TRUE, or FALSE.")
+  }
+
   # sanity check
   if (isTRUE(by_xvar)) {
-    if(is.null(xvar)){
+    if (is.null(xvar)) {
       warning(
         "An \"xvar\" attribute was not found as part of the supplied model object. ",
         "(Did your original `etwfe()` call include a valid `xvar = ...` argument?)",
         "Average margins are reported instead."
-        )
+      )
       by_xvar = FALSE
-      }
+    }
   }
 
-  if (by_xvar=="auto") by_xvar = !is.null(xvar)
-  
+  if (by_xvar == "auto") {
+    by_xvar = !is.null(xvar)
+  }
+
   dat = as.data.table(eval(object$call$data, object$call_env))
-  if ("group" %in% names(dat)) dat[["group"]] = NULL
-  
+  if ("group" %in% names(dat)) {
+    dat[["group"]] = NULL
+  }
+
   # check compress argument
   nrows = NULL
   if (compress == "auto" && collapse != compress) {
@@ -170,7 +168,7 @@ emfx = function(
       compress = FALSE
     }
   }
-  
+
   if (cgroup == "never") {
     dat = dat[dat[[gvar]] != gref, , drop = FALSE] # Drop never treated reference group
     if (type != "event") {
@@ -178,60 +176,69 @@ emfx = function(
       dat = dat[dat[[".Dtreat"]], , drop = FALSE]
       dat = dat[dat[[tvar]] >= dat[[gvar]], , drop = FALSE]
     }
-  } else if (type=="event" & isFALSE(post_only)) {
+  } else if (type == "event" & isFALSE(post_only)) {
     dat = dat[dat[[gvar]] != gref, , drop = FALSE]
   } else if (".Dtreat" %in% names(dat)) {
     dat = dat[dat[[".Dtreat"]], , drop = FALSE]
   }
-  
+
   # define formulas and calculate weights
-  if(compress & is.null(ivar)){
-    if(by_xvar){
+  if (compress & is.null(ivar)) {
+    if (by_xvar) {
       dat_weights = dat[(.Dtreat)][, .N, by = c(gvar, tvar, xvar)]
     } else {
       dat_weights = dat[(.Dtreat)][, .N, by = c(gvar, tvar)]
     }
-    
-   if (!is.null(nrows) && nrows > 5e5) warning(
-    "\nNote: Dataset larger than 500k rows detected. The data will be ",
-    "compressed by period-cohort groups to reduce estimation times. ", 
-    "However, this shortcut can reduce the accuracy of the reported ",
-    "marginal effects. ",
-    "To override this default behaviour, specify: ",
-    "`emfx(..., compress = FALSE)`\n"
-    ) 
-    
+
+    if (!is.null(nrows) && nrows > 5e5) {
+      warning(
+        "\nNote: Dataset larger than 500k rows detected. The data will be ",
+        "compressed by period-cohort groups to reduce estimation times. ",
+        "However, this shortcut can reduce the accuracy of the reported ",
+        "marginal effects. ",
+        "To override this default behaviour, specify: ",
+        "`emfx(..., compress = FALSE)`\n"
+      )
+    }
+
     # compress the data
-    dat = dat[(.Dtreat)][, lapply(.SD, mean), by = c(gvar, tvar, xvar, ".Dtreat")] # compress data
+    dat = dat[(.Dtreat)][,
+      lapply(.SD, mean),
+      by = c(gvar, tvar, xvar, ".Dtreat")
+    ] # compress data
     dat = setDT(dat)[, merge(.SD, dat_weights, all.x = TRUE)] # add weights
-    
-    
   } else if (compress & !is.null(ivar)) {
-    warning("\"ivar\" is not NULL. Marginal effects are calculated without collapsing.")
+    warning(
+      "\"ivar\" is not NULL. Marginal effects are calculated without collapsing."
+    )
     dat$N = 1L
-    
   } else {
     dat$N = 1L
   }
-  
-  # compress the data 
-  if (type=="simple") {
+
+  # compress the data
+  if (type == "simple") {
     by_var = ".Dtreat"
-  } else if (type=="group") {
+  } else if (type == "group") {
     by_var = gvar
-  } else if (type=="calendar") {
+  } else if (type == "calendar") {
     by_var = tvar
-  } else if (type=="event") {
+  } else if (type == "event") {
     dat[["event"]] = dat[[tvar]] - dat[[gvar]]
     by_var = "event"
   }
-  
-  if (by_xvar) by_var = c(by_var, xvar)
-  
+
+  if (by_xvar) {
+    by_var = c(by_var, xvar)
+  }
+
   # catch for non-linear models
   if (!is.null(dots)) {
-    # browser()
-    if (!is.null(object$family) && object$family$family != "gaussian" && fe != "none") {
+    if (
+      !is.null(object$family) &&
+        object$family$family != "gaussian" &&
+        fe != "none"
+    ) {
       if (is.null(dots$vcov) || !isFALSE(dots$vcov)) {
         dots$vcov = FALSE
         warning(
@@ -248,9 +255,10 @@ emfx = function(
     on.exit(options(marginaleffects_lean = old_lean))
   }
 
+  ## Note: Rather use do.call so can pass adjusted dots if vcov is overriden.
   # mfx = slopes(
   #   object,
-  #   newdata = dat,   
+  #   newdata = dat,
   #   wts = "N",
   #   variables = ".Dtreat",
   #   by = by_var,
@@ -259,26 +267,19 @@ emfx = function(
   # )
   args_list = list(
     model = object,
-    newdata = dat,   
+    newdata = dat,
     wts = "N",
     variables = ".Dtreat",
     by = by_var,
     type = predict
   )
-  if (!is.null(dots)) args_list = utils::modifyList(args_list, dots)
+  if (!is.null(dots)) {
+    args_list = utils::modifyList(args_list, dots)
+  }
   mfx = do.call("slopes", args = args_list)
-  
-  # ## FIXME: remove when marginaleffects 0.25.0 is released
-  # ## https://github.com/vincentarelbundock/marginaleffects/pull/1296
-  # if (isTRUE(lean)) {
-  #   browser()
-  #   atts = names(attributes(mfx))
-  #   for (a in setdiff(atts, c("names", "row.names", "class", "by", "conf_level", "lean"))) attr(mfx, a) = NULL
-  # }
-  
+
   class(mfx) = c("emfx", class(mfx))
   attr(mfx, "etwfe") = etwfe_attr
-  
+
   return(mfx)
 }
-
