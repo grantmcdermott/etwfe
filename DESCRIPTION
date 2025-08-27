@@ -19,7 +19,7 @@ Description: Convenience functions for implementing extended two-way
   fixed effect regressions a la Wooldridge (2021, 2023)
   <doi:10.2139/ssrn.3906345>, <doi:10.1093/ectj/utad016>.
 License: MIT + file LICENSE
-Remotes: vincentarelbundock/marginaleffect
+Remotes: vincentarelbundock/marginaleffects
 Imports:
   fixest (>= 0.11.2),
   stats,
