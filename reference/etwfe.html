@@ -68,7 +68,7 @@ package. <code>etwfe</code> should be paired with its companion <code><a href="e
 <span>  tref <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  gref <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  cgroup <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"notyet"</span>, <span class="st">"never"</span><span class="op">)</span>,</span>
-<span>  fe <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"vs"</span>, <span class="st">"feo"</span>, <span class="st">"none"</span><span class="op">)</span>,</span>
+<span>  fe <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  family <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -134,13 +134,17 @@ effects. Either "notyet" treated (the default) or "never" treated.</p></dd>
 
 
 <dt id="arg-fe">fe<a class="anchor" aria-label="anchor" href="#arg-fe"></a></dt>
-<dd><p>What level of fixed effects should be used? Defaults to "vs"
-(varying slopes), which is the most efficient in terms of estimation and
-terseness of the return model object. The other two options, "feo" (fixed
-effects only) and "none" (no fixed effects whatsoever), trade off
-efficiency for additional information on other (nuisance) model
-parameters. Note that the primary treatment parameters of interest should
-remain unchanged regardless of choice.</p></dd>
+<dd><p>What category of fixed effects should be used? One of either <code>"vs"</code>
+(varying slopes), <code>"feo"</code> (fixed effects only), or <code>"none"</code> (no fixed
+effects whatsoever). If left as <code>NULL</code> (i.e., no explicit choice) then
+will default to <code>"vs"</code> for linear/Gaussian models, since this is the most
+efficient estimation option and further limits the number of "nuisance"
+parameters in the return model object. However, for non-Gaussian families
+will default to <code>"none"</code>, since the downstream <code><a href="emfx.html">emfx</a></code> function cannot
+compute standard errors for these models in the presence of fixed-effects.
+(See: https://github.com/vincentarelbundock/marginaleffects/issues/1487)
+Please note that the primary treatment parameters of interest should
+remain unchanged regardless of <code>fe</code> argument choice.</p></dd>
 
 
 <dt id="arg-family">family<a class="anchor" aria-label="anchor" href="#arg-family"></a></dt>
@@ -274,13 +278,13 @@ post-estimation aggregation to extract quantities of interest.</p></div>
 <span class="r-in"><span><span class="op">(</span><span class="va">mod_es</span> <span class="op">=</span> <span class="fu"><a href="emfx.html">emfx</a></span><span class="op">(</span><span class="va">mod</span>, type <span class="op">=</span> <span class="st">"event"</span><span class="op">)</span><span class="op">)</span> <span class="co"># dynamic ATE a la an event study</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  event Estimate Std. Error     z Pr(&gt;|z|)    S   2.5 %   97.5 %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      0  -0.0332     0.0134 -2.48    0.013  6.3 -0.0594 -0.00701</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      1  -0.0573     0.0172 -3.34   &lt;0.001 10.2 -0.0910 -0.02373</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      2  -0.1379     0.0308 -4.48   &lt;0.001 17.0 -0.1982 -0.07751</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      3  -0.1095     0.0323 -3.39   &lt;0.001 10.5 -0.1729 -0.04619</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      0  -0.0332     0.0134 -2.48    0.013  6.3 -0.0594 -0.00702</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      1  -0.0573     0.0171 -3.34   &lt;0.001 10.2 -0.0910 -0.02373</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      2  -0.1379     0.0308 -4.48   &lt;0.001 17.0 -0.1982 -0.07753</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      3  -0.1095     0.0323 -3.39   &lt;0.001 10.5 -0.1729 -0.04620</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Term: .Dtreat</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Type:  response </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Type: response</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Comparison: TRUE - FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
@@ -326,11 +330,11 @@ post-estimation aggregation to extract quantities of interest.</p></div>
 <span class="r-in"><span><span class="fu"><a href="emfx.html">emfx</a></span><span class="op">(</span><span class="va">hmod</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat   gls Estimate Std. Error     z Pr(&gt;|z|)   S  2.5 %  97.5 %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     TRUE FALSE  -0.0637     0.0376 -1.69   0.0906 3.5 -0.137 0.01007</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     TRUE  TRUE  -0.0472     0.0271 -1.74   0.0817 3.6 -0.100 0.00594</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     TRUE FALSE  -0.0637     0.0376 -1.69   0.0905 3.5 -0.137 0.01005</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     TRUE  TRUE  -0.0472     0.0271 -1.74   0.0816 3.6 -0.100 0.00593</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Term: .Dtreat</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Type:  response </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Type: response</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Comparison: TRUE - FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
@@ -340,9 +344,9 @@ post-estimation aggregation to extract quantities of interest.</p></div>
 <span class="r-in"><span><span class="fu"><a href="emfx.html">emfx</a></span><span class="op">(</span><span class="va">hmod</span>, hypothesis <span class="op">=</span> <span class="st">"b1 = b2"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Hypothesis Estimate Std. Error      z Pr(&gt;|z|)   S  2.5 % 97.5 %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       b1=b2  -0.0164     0.0559 -0.294    0.769 0.4 -0.126  0.093</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       b1=b2  -0.0164     0.0558 -0.294    0.768 0.4 -0.126  0.093</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Type:  response </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Type: response</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="emfx.html">emfx</a></span><span class="op">(</span><span class="va">hmod</span><span class="op">)</span><span class="op">)</span></span></span>
@@ -365,13 +369,13 @@ post-estimation aggregation to extract quantities of interest.</p></div>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> The variables '.Dtreat:first.treat::2006:year::2004', '.Dtreat:first.treat::2006:year::2005', '.Dtreat:first.treat::2007:year::2004', '.Dtreat:first.treat::2007:year::2005', '.Dtreat:first.treat::2007:year::2006', '.Dtreat:first.treat::2006:year::2004:lpop_dm' and 4 others have been removed because of collinearity (see $collin.var).</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  event Estimate Std. Error       z Pr(&gt;|z|)    S  2.5 % 97.5 %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      0   -25.35       15.9 -1.5942    0.111  3.2  -56.5   5.82</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      1     1.09       41.8  0.0261    0.979  0.0  -80.9  83.09</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      2   -75.12       22.3 -3.3696   &lt;0.001 10.4 -118.8 -31.43</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      3  -101.82       28.1 -3.6234   &lt;0.001 11.7 -156.9 -46.75</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      0   -25.35       15.9 -1.5957  0.11056  3.2  -56.5   5.79</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      1     1.09       40.3  0.0271  0.97838  0.0  -77.9  80.07</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      2   -75.12       23.2 -3.2445  0.00118  9.7 -120.5 -29.74</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      3  -101.82       27.1 -3.7590  &lt; 0.001 12.5 -154.9 -48.73</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Term: .Dtreat</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Type:  response </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Type: response</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Comparison: TRUE - FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
@@ -387,7 +391,7 @@ post-estimation aggregation to extract quantities of interest.</p></div>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer></div>

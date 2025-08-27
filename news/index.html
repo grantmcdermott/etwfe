@@ -36,8 +36,13 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.5.0.99" id="etwfe-05099-dev-version">etwfe 0.5.0.99 (dev version)<a class="anchor" aria-label="anchor" href="#etwfe-05099-dev-version"></a></h2>
 <div class="section level3">
+<h3 id="breaking-changes-0-5-0-99">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-0-5-0-99"></a></h3>
+<ul><li>The default behaviour of the <code>etwfe(..., fe = &lt;fe&gt;)</code> argument now hinges on the type of model family. For Gaussian models, we use the same <code>"vs"</code> (varying slopes) option as before. But for non-linear families like Poission, we now default to <code>"none"</code>. This is to preserve the correct VCOV behaviour of these models once they are passed to <code><a href="../reference/emfx.html">emfx()</a></code>, thus matching the new upstream logic of <strong>marginaleffects</strong>. (Briefly: the standard errors of these non-linear families cannot be computed correctly with derivative methods on estimations where the fixed-effects have been abstracted away; see <a href="https://github.com/vincentarelbundock/marginaleffects/issues/1487" class="external-link">marginaleffects#1487)</a> for more details.) Technically this is a breaking change, but it requires no changes on the user side and the end result should be identical in most cases. The only change you might see is that the standard errors from estimations with non-linear families will be slightly different/corrected. (<a href="https://github.com/grantmcdermott/etwfe/issues/67" class="external-link">#67</a>)</li>
+</ul></div>
+<div class="section level3">
 <h3 id="internals-0-5-0-99">Internals<a class="anchor" aria-label="anchor" href="#internals-0-5-0-99"></a></h3>
-<ul><li>Bump <strong>tinyplot</strong> depencency to v0.3.0.</li>
+<ul><li>Bump <strong>marginaleffects</strong> dependency to 0.29.0.</li>
+<li>Bump <strong>tinyplot</strong> depencency to v0.4.2.</li>
 </ul></div>
 </div>
     <div class="section level2">
@@ -161,7 +166,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer></div>
