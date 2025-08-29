@@ -104,6 +104,7 @@ emfx = function(
   collapse = compress,
   predict = c("response", "link"),
   post_only = TRUE,
+  max_e = NULL,
   lean = FALSE,
   ...
 ) {
@@ -180,6 +181,10 @@ emfx = function(
     dat = dat[dat[[gvar]] != gref, , drop = FALSE]
   } else if (".Dtreat" %in% names(dat)) {
     dat = dat[dat[[".Dtreat"]], , drop = FALSE]
+  }
+  
+  if (is.null(max_e)==FALSE){ #if user specifies max_e, calculate group average or overall effect only for post treatment periods 0 - max_e
+    dat = dat[dat[[tvar]] <= (dat[[gvar]]+max_e), , drop = FALSE]
   }
 
   # define formulas and calculate weights
