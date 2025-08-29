@@ -2,14 +2,17 @@
 % Please edit documentation in R/emfx.R
 \name{emfx}
 \alias{emfx}
-\title{Post-estimation treatment effects for an ETWFE regressions.}
+\title{Post-estimation aggregation of ETWFE results}
 \usage{
 emfx(
   object,
   type = c("simple", "group", "calendar", "event"),
   by_xvar = "auto",
-  collapse = "auto",
+  compress = "auto",
+  collapse = compress,
+  predict = c("response", "link"),
   post_only = TRUE,
+  lean = FALSE,
   ...
 )
 }
@@ -21,47 +24,91 @@ emfx(
 \item{by_xvar}{Logical. Should the results account for heterogeneous
 treatment effects? Only relevant if the preceding \code{etwfe} call included a
 specified \code{xvar} argument, i.e. interacted categorical covariate. The
-default behaviour ("auto") is to automatically estimate heterogeneous
+default behaviour (\code{"auto"}) is to automatically estimate heterogeneous
 treatment effects for each level of \code{xvar} if these are detected as part
 of the underlying \code{etwfe} model object. Users can override by setting to
-either FALSE or TRUE. See the section on Heterogeneous treatment effects
-below.}
+either \code{FALSE} or \code{TRUE.} See the "Heterogeneous treatment effects"
+section below.}
 
-\item{collapse}{Logical. Collapse the data by (period by cohort) groups
-before calculating marginal effects? This trades off a loss in estimate
-accuracy (typically around the 1st or 2nd significant decimal point) for a
+\item{compress}{Logical. Compress the data by (period by cohort) groups
+before calculating marginal effects? This trades off a slight loss in
+precision (typically around the 1st or 2nd significant decimal point) for a
 substantial improvement in estimation time for large datasets. The default
-behaviour ("auto") is to automatically collapse if the original dataset
-has more than 500,000 rows. Users can override by setting either FALSE or
-TRUE. Note that collapsing by group is only valid if the preceding \code{etwfe}
-call was run with "ivar = NULL" (the default). See the section on
-Performance tips below.}
+behaviour (\code{"auto"}) is to automatically compress if the original dataset
+has more than 500,000 rows. Users can override by setting either \code{FALSE} or
+\code{TRUE}. Note that collapsing by group is only valid if the preceding \code{etwfe}
+call was run with \code{"ivar = NULL"} (the default). See the "Performance
+tips" section below.}
+
+\item{collapse}{Logical. An alias for \code{compress} (only used for backwards
+compatability and ignored if both arguments are provided). The behaviour is
+identical, but it will trigger a message nudging users to rather use the
+\code{compress} argument.}
+
+\item{predict}{Character. The type (scale) of prediction used to compute the
+marginal effects. If \code{"response"} (the default), then the output is at the
+level of the response variable, i.e. it is the expected predictor
+\eqn{E(Y|X)}. If \code{"link"}, the value returned is the linear predictor of
+the fitted model, i.e. \eqn{X\cdot \beta}. The difference should only
+matter for nonlinear models. (Note: This argument is typically called
+\code{type} when use in \code{\link[stats]{predict}} or
+\code{\link[marginaleffects]{slopes}}, but we rename it here to avoid a
+clash with the top-level \code{type} argument above.)}
 
 \item{post_only}{Logical. Drop pre-treatment ATTs? Only evaluated if (a)
 \code{type = "event"} and (b) the original \code{etwfe} model object was estimated
-using the default "notyet" treated control group. If conditions (a) and
+using the default \code{"notyet"} treated control group. If conditions (a) and
 (b) are met then the pre-treatment effects will be zero as a mechanical
-result of ETWFE's estimation setup. The default behaviour (\code{FALSE}) is
+result of ETWFE's estimation setup. The default behaviour (\code{TRUE}) is
 thus to drop these nuisance rows from the dataset. The \code{post_only} argument
 recognises that you may still want to keep them for presentation purposes
-(e.g., plotting an event-study). Nevertheless, be forewarned that enabling
-that behaviour via \code{TRUE} is \emph{strictly} performative: the "zero" treatment
+(e.g., plotting an event study). Nevertheless, be forewarned that enabling
+that behaviour via \code{FALSE} is \emph{strictly} performative: the "zero" treatment
 effects for any pre-treatment periods is purely an artefact of the
 estimation setup.}
 
+\item{lean}{Logical. Default is \code{FALSE}. Switching to \code{TRUE} enforces a lean
+return object; namely a simple data.frame of the main results, stripped of
+ancillary attributes. Note that this will disable some advanced
+\code{marginaleffects} post-processing features, but those are unlikely to be
+used in the \code{emfx} context. The upside is a potentially dramatic reduction
+in the size of the return object. Consequently, we may change the default
+to \code{TRUE} in a future version of \strong{etwfe}.}
+
 \item{...}{Additional arguments passed to
-\code{\link[marginaleffects:slopes]{marginaleffects::slopes}}. For example, you can pass \code{vcov = FALSE} to dramatically speed up estimation times of the main marginal
+\code{\link[marginaleffects:slopes]{marginaleffects::slopes}}. For example, you can pass \code{vcov = FALSE}
+to dramatically speed up estimation times of the main marginal
 effects (but at the cost of not getting any information about standard
 errors; see Performance tips below). Another potentially useful
-application is testing whether heterogeneous treatment effects (i.e. the
+application is testing whether heterogeneous treatment effects (i.e., the
 levels of any \code{xvar} covariate) are equal by invoking the \code{hypothesis}
 argument, e.g. \code{hypothesis = "b1 = b2"}.}
 }
 \value{
-A \code{slopes} object from the \code{marginaleffects} package.
+A \code{data.frame} of aggregated treatment effects along the
+dimension(s) of interested. Note that this data.frame will have been
+overloaded with the \code{\link[marginaleffects]{slopes}} class, and so
+will come with a special print method. But the underlying columns will
+usually include:
+\itemize{
+\item \code{term}
+\item \code{contrast}
+\item \verb{<type>} (i.e., the name of your \code{type} string)
+\item \code{estimate}
+\item \code{std.error}
+\item \code{statistic}
+\item \code{p.value}
+\item \code{s.value}
+\item \code{conf.low}
+\item \code{conf.high}
+}
 }
 \description{
-Post-estimation treatment effects for an ETWFE regressions.
+Companion function to \code{etwfe}, enabling the recovery of aggregate treatment
+effects along different dimensions of interest (e.g, an event study of
+dynamic average treatment effects). \code{emfx} is a light wrapper around the
+\code{\link[marginaleffects]{slopes}} function from the \strong{marginaleffects}
+package.
 }
 \section{Performance tips}{
 
@@ -142,27 +189,40 @@ data("mpdta", package = "did")
 # Basic example
 #
 
-# The basic ETWFE workflow involves two steps:
+# The basic ETWFE workflow involves two consecutive function calls:
+# 1) `etwfe` and 2) `emfx`
 
-# 1) Estimate the main regression model with etwfe().
-
+# 1) `etwfe`: Estimate a regression model with saturated interaction terms.
 mod = etwfe(
-    fml  = lemp ~ lpop, # outcome ~ controls (use 0 or 1 if none)
-    tvar = year,        # time variable
-    gvar = first.treat, # group variable
-    data = mpdta,       # dataset
-    vcov = ~countyreal  # vcov adjustment (here: clustered by county)
-    )
+  fml  = lemp ~ lpop, # outcome ~ controls (use 0 or 1 if none)
+  tvar = year,        # time variable
+  gvar = first.treat, # group variable
+  data = mpdta,       # dataset
+  vcov = ~countyreal  # vcov adjustment (here: clustered by county)
+  )
 
 # mod ## A fixest model object with fully saturated interaction effects.
 
-# 2) Recover the treatment effects of interest with emfx().
+# 2) `emfx`: Recover the treatment effects of interest.
 
-emfx(mod, type = "event") # dynamic ATE a la an event study
+(mod_es = emfx(mod, type = "event")) # dynamic ATE a la an event study
 
 # Etc. Other aggregation type options are "simple" (the default), "group"
 # and "calendar"
 
+# To visualize results, use the native plot method (see `?plot.emfx`)
+plot(mod_es)
+
+# Notice that we don't get any pre-treatment effects with the default
+# "notyet" treated control group. Switch to the "never" treated control
+# group if you want this.
+etwfe(
+  lemp ~ lpop, tvar = year, gvar = first.treat, data = mpdta,
+  vcov = ~countyreal,
+  cgroup = "never"    ## <= use never treated group as control
+  ) |>
+  emfx("event") |>
+  plot()
 
 #
 # Heterogeneous treatment effects
@@ -177,10 +237,10 @@ gls = c("IL" = 17, "IN" = 18, "MI" = 26, "MN" = 27,
 mpdta$gls = substr(mpdta$countyreal, 1, 2) \%in\% gls
 
 hmod = etwfe(
-   lemp ~ lpop, tvar = year, gvar = first.treat, data = mpdta, 
-   vcov = ~countyreal,
-   xvar = gls           ## <= het. TEs by gls
-   )
+  lemp ~ lpop, tvar = year, gvar = first.treat, data = mpdta, 
+  vcov = ~countyreal,
+  xvar = gls           ## <= het. TEs by gls
+  )
 
 # Heterogeneous ATEs (could also specify "event", etc.) 
 
@@ -191,6 +251,7 @@ emfx(hmod)
 
 emfx(hmod, hypothesis = "b1 = b2")
 
+plot(emfx(hmod))
 
 #
 # Nonlinear model (distribution / link) families
@@ -201,14 +262,22 @@ emfx(hmod, hypothesis = "b1 = b2")
 mpdta$emp = exp(mpdta$lemp)
 
 etwfe(
-   emp ~ lpop, tvar = year, gvar = first.treat, data = mpdta, 
-   vcov = ~countyreal,
-   family = "poisson"   ## <= family arg for nonlinear options
-   ) |>
-   emfx("event")
+  emp ~ lpop, tvar = year, gvar = first.treat, data = mpdta, 
+  vcov = ~countyreal,
+  family = "poisson"   ## <= family arg for nonlinear options
+  ) |>
+  emfx("event")
 }
 
 }
+\references{
+Wong, Jeffrey \emph{et al.} (2021). \cite{You Only Compress Once: Optimal Data
+Compression for Estimating Linear Models}. Working paper (version: March 16,
+2021). Available:
+https://doi.org/10.48550/arXiv.2102.11297
+}
 \seealso{
-\code{\link[marginaleffects:slopes]{marginaleffects::slopes()}}
+\link[marginaleffects:slopes]{marginaleffects::slopes} which does the heavily lifting behind the
+scenes. \code{\link{etwfe}} is the companion estimating function that should be run
+before \code{emfx}.
 }

@@ -19,8 +19,10 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+options(width = 100)
 options(rmarkdown.html_vignette.check_title = FALSE)
-options(modelsummary_factory_default = "gt")
+options(marginaleffects_safe = FALSE)
+modelsummary::config_modelsummary(startup_message = FALSE)
 
 fixest::setFixest_notes(FALSE)
 ```
@@ -84,7 +86,7 @@ Fortunately, just as econometricians were taking away one of our
 favourite tools, they were kind enough to replace it with some new ones. 
 Among these, the proposed approach by 
 Wooldridge ([2021](https://dx.doi.org/10.2139/ssrn.3906345),
-[2022](https://dx.doi.org/10.2139/ssrn.4183726))
+[2023](https://doi.org/10.1093/ectj/utad016))
 is noteworthy. His idea might be paraphrased as stating that the problem 
 with TWFE is not that we were doing it in the first place. Rather, it's that we
 weren't doing it enough. Instead of only including a single treatment × time
@@ -126,9 +128,11 @@ population (`lpop`) as a potential control variable.
 
 ## Basic usage
 
-Let's load **etwfe** and work through its basic functionality. As we'll see,
-the core workflow of the package involves two consecutive function calls: 1)
-`etwfe()` and 2) `emfx()`.
+Let's load **etwfe** and work through its basic functionality. As we shall see,
+the core workflow of the package involves two consecutive function calls:
+
+1. `etwfe()`
+2. `emfx()`
 
 ### `etwfe`
 
@@ -138,14 +142,13 @@ function is `etwfe()`. Here's how it would look for our example dataset.
 ```{r}
 library(etwfe)
 
-mod =
-  etwfe(
-    fml  = lemp ~ lpop, # outcome ~ controls
-    tvar = year,        # time variable
-    gvar = first.treat, # group variable
-    data = mpdta,       # dataset
-    vcov = ~countyreal  # vcov adjustment (here: clustered)
-    )
+mod = etwfe(
+  fml  = lemp ~ lpop, # outcome ~ controls
+  tvar = year,        # time variable
+  gvar = first.treat, # group variable
+  data = mpdta,       # dataset
+  vcov = ~countyreal  # vcov adjustment (here: clustered)
+)
 ```
 
 There are a few things to say about our `etwfe()` argument choices and other
@@ -187,7 +190,7 @@ dimension of interest
 aggregations is by recovering the appropriate marginal effects. The **etwfe**
 package provides another convenience function for doing so: `emfx()`, which is a
 thin(ish) wrapper around
-[`marginaleffects::slopes()`](https://marginaleffects.com/vignettes/slopes.html).
+[`marginaleffects::slopes()`](https://marginaleffects.com/r/man/slopes.html).
 
 For example, we can recover the average treatment effect on the treated (ATT) as
 follows.
@@ -218,14 +221,90 @@ finding to your audience.
 
 ### Presentation
 
-Since `emfx()` produces a standard `marginaleffects` object, we can pass it on to
-other supported methods and packages. For example, we can pass it on to
-[**modelsummary**](https://modelsummary.com/index.html)
-to get a nice regression table of the event study coefficients. Note the use of
-the `shape` and `coef_rename` arguments below; these are optional but help to
-make the output look a bit nicer.
+#### Plots
+
+As of **etwfe** v0.5.0, we provide a native `plot.emfx` method for convenient
+visualization.
 
 ```{r}
+plot(mod_es)
+```
+
+Note that `emfx` only reports post-treatment effects here. That's because all
+pre-treatment effects have been swept out of the estimation as a result of the
+ETWFE setup. Specifically, under the default setting where the control group
+comprises the "not-yet" treated units, all pre-treatment effects are
+mechanistically set to zero.^[This obviously means that our ETWFE result here
+cannot be used for interrogating pre-treatment fit (say, a visual inspection for
+parallel pre-trends). To force return these "zero" pre-treatment effects, you
+can invoke the `emfx(..., post_only = TRUE)` argument. But it should be
+emphasized that doing so is _strictly_ performative. Again, pre-treatment
+effects are zero by estimation design if the not-yet treated units are used as
+the control group.] Alternatively, you can specify the "never" treated units as
+the control group by first calling `etwfe(..., cgroup = "never")`. This _does_
+return pre-treatment effects, albeit with the potential trade-off of yielding
+less precise estimates from not using all available information.
+
+```{r}
+mod_es2 = etwfe(
+  lemp ~ lpop, tvar = year, gvar = first.treat, data = mpdta, vcov = ~countyreal,
+  cgroup = "never" # <= use never treated as control group
+  ) |>
+  emfx(type = "event")
+
+plot(mod_es2)
+```
+
+Two final points about visualizing `emfx` objects. First, you can customize
+your plots by overriding default arguments. We use
+[**tinyplot**](https://grantmcdermott.com/tinyplot/)
+as a backend and you should be able to pass through any valid argument that
+`tinyplot()` understands. For example:
+
+```{r}
+plot(
+  mod_es2,
+  type = "ribbon",
+  col  = "darkcyan",
+  xlab = "Years post treatment",
+  main = "Minimum wage effect on (log) teen employment",
+  sub  = "Note: Using never-treated as control group",
+  # file = "event-study.png", width = 8, height = 5. ## uncomment to save file
+)
+```
+
+Second, since `emfx` objects are essentially just data.frames with additional
+attributes, you can easily use another plot engine if you'd prefer. For example,
+assuming that you have **ggplot2** installed: 
+
+```{r, warning=FALSE, message=FALSE}
+# install.packages("ggplot2")
+library(ggplot2)
+theme_set(
+  theme_linedraw() + theme(panel.grid = element_blank())
+)
+ggplot(mod_es2, aes(x = event, y = estimate, ymin = conf.low, ymax = conf.high)) +
+  geom_hline(yintercept = 0, lty = 2, col = "grey50") +
+  geom_vline(xintercept = -1, lty = 2, col = "grey50") +
+  geom_pointrange(col = "darkcyan") +
+  labs(
+    x = "Years post treatment",
+    y = "ATT",
+    title = "Effect on log teen employment",
+    caption = "Note: Using never-treated as control group"
+  )
+```
+
+#### Tables
+
+We recommend the excellent
+[**modelsummary**](https://modelsummary.com/index.html) package for transforming
+your results into a nice regression table. (You will need to install it first.)
+Note the use of the `shape` and `coef_rename` arguments below; these are
+optional, but help to make the event-study output look a bit cleaner.
+
+```{r}
+# install.packages("modelsummary")
 library(modelsummary)
 
 # Quick renaming function to replace ".Dtreat" with something more meaningful
@@ -235,52 +314,14 @@ rename_fn = function(old_names) {
 }
 
 modelsummary(
-  mod_es,
+  list(mod_es2, mod_es),
   shape       = term:event:statistic ~ model,
   coef_rename = rename_fn,
   gof_omit    = "Adj|Within|IC|RMSE",
+  stars       = TRUE,
   title       = "Event study",
   notes       = "Std. errors are clustered at the county level"
 )
-```
-
-For visualization, you can pass it on to your preferred plotting method. For
-example:
-
-```{r}
-library(ggplot2)
-theme_set(
-  theme_minimal() + theme(panel.grid.minor = element_blank())
-)
-
-ggplot(mod_es, aes(x = event, y = estimate, ymin = conf.low, ymax = conf.high)) +
-  geom_hline(yintercept = 0) +
-  geom_pointrange(col = "darkcyan") +
-  labs(x = "Years post treatment", y = "Effect on log teen employment")
-```
-
-Note that `emfx` only reports post-treatment effects. All pre-treatment effects
-are swept out of the estimation because of the way that ETWFE is set up. In
-fact, all pre-treatment effects are mechanistically set to zero. This means that
-ETWFE cannot be used for interrogating pre-treatment fit (say, a visual
-inspection for parallel pre-trends). Still, you can get these zero
-pre-treatment effects by changing the `post_only` argument.  I emphasize that
-doing so is strictly performative---again, pre-treatment effects are zero by
-estimation design---but it might make your event study plot more aesthetically
-pleasing.
-
-```{r}
-# Use post_only = FALSE to get the "zero" pre-treatment effects
-mod_es2 = emfx(mod, type = "event", post_only = FALSE)
-
-ggplot(mod_es2, aes(x = event, y = estimate, ymin = conf.low, ymax = conf.high)) +
-  geom_hline(yintercept = 0) +
-  geom_vline(xintercept = -1, lty = 2) +
-  geom_pointrange(col = "darkcyan") +
-  labs(
-    x = "Years post treatment", y = "Effect on log teen employment",
-    caption = "Note: Zero pre-treatment effects for illustrative purposes only."
-  )
 ```
 
 ## Heterogeneous treatment effects
@@ -316,43 +357,61 @@ distinct groups.
 
 ```{r}
 hmod = etwfe(
-   lemp ~ lpop, tvar = year, gvar = first.treat, data = mpdta, 
-   vcov = ~countyreal,
-   xvar = gls           ## <= het. TEs by gls
-   )
+  lemp ~ lpop, tvar = year, gvar = first.treat, data = mpdta,
+  cgroup = "never",
+  vcov = ~countyreal,
+  xvar = gls           ## <= het. TEs by gls
+)
 
-# Heterogeneous ATTs (could also specify `type = "event"`, etc.) 
-emfx(hmod)
+# Simple heterogeneous ATTs (could also specify `type = "event"`, etc.) 
+(hmod_mfx = emfx(hmod))
 ```
 
 The above point estimates might tempt us to think that minimum wage hikes caused
 less teen disemployment in GLS counties than in the rest of the US on average.
 However, to test this formally we can invoke the powerful
-[`hypothesis`](https://marginaleffects.com/vignettes/hypothesis.html)
+[`hypotheses`](https://marginaleffects.com/r/man/hypotheses.html)
 infrastructure of the underlying **marginaleffects** package. Probably the
 easiest way to do this is by using `b[i]`-style positional arguments, where
 "`[i]`" denotes the row of the `emfx()` return object. Thus, by specifying
 `hypothesis = "b1 = b2"`, we can test whether the ATTs from row 1 (non-GLS) and
 row 2 (GLS) are different from one another.
 
-```{r}
+```{r, warning=FALSE}
 emfx(hmod, hypothesis = "b1 = b2")
 ```
 
 Here we see that there is actually no statistical difference in the average
-disemployment effect between GLS and non-GLS counties.
+disemployment effect between GLS and non-GLS counties. We can also confirm this
+with a quick visual inspection (note that we get an automatic legend, as well as
+dodged pointrange bars).
+
+```{r}
+plot(hmod_mfx)
+```
+
+Interesting enough, however, the full event study reveals a more complex
+picture. Would the non-GLS counties have recorded a larger employment drop-off
+had we been able to collect more post-treatment data? We'll let the the reader
+decide...
+
+```{r}
+hmod |>
+  emfx("event") |>
+  plot(type = "ribbon")
+```
 
 One final aside is that you can easily display the results of heterogeneous 
-treatment effects in plot or table form. Here's an example of the latter, where
-we again make use of the `modelsummary(..., shape = ...)` argument.
+treatment effects in table form too. Here's a quick example, where we again make
+use of the `modelsummary(..., shape = ...)` argument.
 
 ```{r}
 modelsummary(
-    models      = list("GLS county" = emfx(hmod)),
-    shape       = term + statistic ~ model + gls, # add xvar variable (here: gls)
-    coef_map    = c(".Dtreat" = "ATT"),
-    gof_map     = NA,
-    title       = "Comparing the ATT on GLS and non-GLS counties"
+  models      = list("GLS county" = hmod_mfx),
+  shape       = term + statistic ~ model + gls, # add xvar variable (here: gls)
+  coef_map    = c(".Dtreat" = "ATT"),
+  gof_map     = NA,
+  title       = "Comparing the ATT on GLS and non-GLS counties"
 )
 ```
 
@@ -392,27 +451,28 @@ For its part, the second `emfx()` stage also tends to be pretty performant. If
 your data has less than 100k rows, it's unlikely that you'll have to wait more
 than a few seconds to obtain results. However, `emfx`'s computation time does
 tend to scale non-linearly with the size of the original data, as well as the
-number of interactions from the underlying `etwfe` model object. Without getting
+number of interactions from the underlying `etwfe` model object.^[Without getting
 too deep into the weeds, we are relying on a numerical delta method of the
 (excellent) **marginaleffects** package underneath the hood to recover the ATTs
 of interest. This method requires estimating two prediction models for *each*
 coefficient in the model and then computing their standard errors. So it's a
 potentially expensive operation that can push the computation time for large
-datasets (> 1m rows) up to several minutes or longer.
+datasets (> 1m rows) up to several minutes or longer.]
 
 Fortunately, there are two complementary strategies that you can use to speed
 things up. The first is to turn off the most expensive part of the whole
 procedure---standard error calculation---by calling `emfx(..., vcov = FALSE)`.
-Doing so should bring the estimation time back down to a few seconds or less,
+This should bring the estimation time back down to a few seconds or less,
 even for datasets in excess of a million rows. Of course, the loss of standard
 errors might not be an acceptable trade-off for projects where statistical
-inference is critical. But the good news is this first strategy can still be
-combined our second strategy: it turns out that collapsing the data by groups
-prior to estimating the marginal effects can yield substantial speed gains on
-its own. Users can do this by invoking the `emfx(..., collapse = TRUE)`
+inference is critical. But the good news is that we "combine" turning off
+standard errors with a second strategy. Specially, it turns out that compressing
+the data by groups prior to estimation can yield substantial speed gains on
+its own; see Wong _et al._ ([2021](https://doi.org/10.48550/arXiv.2102.11297))
+on this. Users can do this by invoking the `emfx(..., compress = TRUE)`
 argument. While the effect here is not as dramatic as the first strategy,
 collapsing the data does have the virtue of retaining information about the
-standard errors. The trade-off this time, however, is that collapsing our data
+standard errors. The trade-off this time, however, is that compressing our data
 does lead to a loss in accuracy for our estimated parameters. On the other hand,
 testing suggests that this loss in accuracy tends to be relatively minor, with
 results equivalent up to the 1st or 2nd significant decimal place (or even
@@ -423,10 +483,10 @@ about the estimation time for large datasets and models:
 
 0. Estimate `mod = etwfe(...)` as per usual.
 1. Run `emfx(mod, vcov = FALSE, ...)`.
-2. Run `emfx(mod, vcov = FALSE, collapse = TRUE, ...)`.
+2. Run `emfx(mod, vcov = FALSE, compress = TRUE, ...)`.
 3. Compare the point estimates from steps 1 and 2. If they are are similar 
 enough to your satisfaction, get the approximate standard errors by running 
-`emfx(mod, collapse = TRUE, ...)`.
+`emfx(mod, compress = TRUE, ...)`.
 
 It's a bit of performance art, since all of the examples in this vignette
 complete very quickly anyway. But here is a reworking of our earlier event study
@@ -439,23 +499,23 @@ example to demonstrate this performance-conscious workflow.
 emfx(mod, type = "event", vcov = FALSE)
 
 # Step 2
-emfx(mod, type = "event", vcov = FALSE, collapse = TRUE)
+emfx(mod, type = "event", vcov = FALSE, compress = TRUE)
 
 # Step 3: Results from 1 and 2 are similar enough, so get approx. SEs
-mod_es2 = emfx(mod, type = "event", collapse = TRUE)
+mod_es_compressed = emfx(mod, type = "event", compress = TRUE)
 ```
 
 To put a fine point on it, we can can compare our original event study with the
-collapsed estimates and see that the results are indeed very similar.
+compressed estimates and see that the results are indeed very similar.
 
 ```{r}
 modelsummary(
-    list("Original" = mod_es, "Collapsed" = mod_es2),
-    shape       = term:event:statistic ~ model,
-    coef_rename = rename_fn,
-    gof_omit    = "Adj|Within|IC|RMSE",
-    title       = "Event study",
-    notes       = "Std. errors are clustered at the county level"
+  list("Original" = mod_es, "Compressed" = mod_es_compressed),
+  shape       = term:event:statistic ~ model,
+  coef_rename = rename_fn,
+  gof_omit    = "Adj|Within|IC|RMSE",
+  title       = "Event study",
+  notes       = "Std. errors are clustered at the county level"
 )
 ```
 
@@ -527,7 +587,7 @@ slopes(
   newdata   = subset(mpdta2, .Dtreat), # we only want rows where .Dtreat is TRUE
   variables = ".Dtreat", 
   by        = ".Dtreat"
-  )
+)
 
 # Event study
 slopes(
@@ -535,7 +595,7 @@ slopes(
   newdata   = transform(subset(mpdta2, .Dtreat), event = year - first.treat),
   variables = ".Dtreat", 
   by        = "event"
-  )
+)
 ```
 
 ### Regarding fixed effects

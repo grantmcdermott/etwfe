@@ -14,7 +14,7 @@ etwfe(
   tref = NULL,
   gref = NULL,
   cgroup = c("notyet", "never"),
-  fe = c("vs", "feo", "none"),
+  fe = NULL,
   family = NULL,
   ...
 )
@@ -57,13 +57,17 @@ group takes an unusual value.}
 \item{cgroup}{What control group do you wish to use for estimating treatment
 effects. Either "notyet" treated (the default) or "never" treated.}
 
-\item{fe}{What level of fixed effects should be used? Defaults to "vs"
-(varying slopes), which is the most efficient in terms of estimation and
-terseness of the return model object. The other two options, "feo" (fixed
-effects only) and "none" (no fixed effects whatsoever), trade off
-efficiency for additional information on other (nuisance) model
-parameters. Note that the primary treatment parameters of interest should
-remain unchanged regardless of choice.}
+\item{fe}{What category of fixed effects should be used? One of either \code{"vs"}
+(varying slopes), \code{"feo"} (fixed effects only), or \code{"none"} (no fixed
+effects whatsoever). If left as \code{NULL} (i.e., no explicit choice) then
+will default to \code{"vs"} for linear/Gaussian models, since this is the most
+efficient estimation option and further limits the number of "nuisance"
+parameters in the return model object. However, for non-Gaussian families
+will default to \code{"none"}, since the downstream \code{\link{emfx}} function cannot
+compute standard errors for these models in the presence of fixed-effects.
+(See: https://github.com/vincentarelbundock/marginaleffects/issues/1487)
+Please note that the primary treatment parameters of interest should
+remain unchanged regardless of \code{fe} argument choice.}
 
 \item{family}{Which \code{\link{family}} to use for the estimation. Defaults to NULL,
 in which case \code{\link[fixest:feols]{fixest::feols}} is used. Otherwise passed to
@@ -75,10 +79,18 @@ automatically be set to NULL.}
 \code{\link[fixest:feglm]{fixest::feglm}}). The most common example would be a \code{vcov} argument.}
 }
 \value{
-A fixest object with fully saturated interaction effects.
+A \code{\link[fixest]{fixest}} object with fully saturated
+interaction effects, and a few additional attributes used for
+post-estimation in \code{emfx}.
 }
 \description{
-Extended two-way fixed effects
+Estimates an "extended" two-way fixed effects regression, with fully
+saturated interaction effects \emph{a la} Wooldridge (2021, 2023). At its heart,
+\code{etwfe} is a convenience function that automates a number of tedious and
+error prone preparation steps involving both the data and model formulae.
+Computation is passed on to the \code{\link[fixest]{feols}} (linear) /
+\code{\link[fixest]{feglm}} (nonlinear) functions from the \strong{fixest}
+package. \code{etwfe} should be paired with its companion \code{\link{emfx}} function.
 }
 \section{Heterogeneous treatment effects}{
 
@@ -159,27 +171,40 @@ data("mpdta", package = "did")
 # Basic example
 #
 
-# The basic ETWFE workflow involves two steps:
+# The basic ETWFE workflow involves two consecutive function calls:
+# 1) `etwfe` and 2) `emfx`
 
-# 1) Estimate the main regression model with etwfe().
-
+# 1) `etwfe`: Estimate a regression model with saturated interaction terms.
 mod = etwfe(
-    fml  = lemp ~ lpop, # outcome ~ controls (use 0 or 1 if none)
-    tvar = year,        # time variable
-    gvar = first.treat, # group variable
-    data = mpdta,       # dataset
-    vcov = ~countyreal  # vcov adjustment (here: clustered by county)
-    )
+  fml  = lemp ~ lpop, # outcome ~ controls (use 0 or 1 if none)
+  tvar = year,        # time variable
+  gvar = first.treat, # group variable
+  data = mpdta,       # dataset
+  vcov = ~countyreal  # vcov adjustment (here: clustered by county)
+  )
 
 # mod ## A fixest model object with fully saturated interaction effects.
 
-# 2) Recover the treatment effects of interest with emfx().
+# 2) `emfx`: Recover the treatment effects of interest.
 
-emfx(mod, type = "event") # dynamic ATE a la an event study
+(mod_es = emfx(mod, type = "event")) # dynamic ATE a la an event study
 
 # Etc. Other aggregation type options are "simple" (the default), "group"
 # and "calendar"
 
+# To visualize results, use the native plot method (see `?plot.emfx`)
+plot(mod_es)
+
+# Notice that we don't get any pre-treatment effects with the default
+# "notyet" treated control group. Switch to the "never" treated control
+# group if you want this.
+etwfe(
+  lemp ~ lpop, tvar = year, gvar = first.treat, data = mpdta,
+  vcov = ~countyreal,
+  cgroup = "never"    ## <= use never treated group as control
+  ) |>
+  emfx("event") |>
+  plot()
 
 #
 # Heterogeneous treatment effects
@@ -194,10 +219,10 @@ gls = c("IL" = 17, "IN" = 18, "MI" = 26, "MN" = 27,
 mpdta$gls = substr(mpdta$countyreal, 1, 2) \%in\% gls
 
 hmod = etwfe(
-   lemp ~ lpop, tvar = year, gvar = first.treat, data = mpdta, 
-   vcov = ~countyreal,
-   xvar = gls           ## <= het. TEs by gls
-   )
+  lemp ~ lpop, tvar = year, gvar = first.treat, data = mpdta, 
+  vcov = ~countyreal,
+  xvar = gls           ## <= het. TEs by gls
+  )
 
 # Heterogeneous ATEs (could also specify "event", etc.) 
 
@@ -208,6 +233,7 @@ emfx(hmod)
 
 emfx(hmod, hypothesis = "b1 = b2")
 
+plot(emfx(hmod))
 
 #
 # Nonlinear model (distribution / link) families
@@ -218,11 +244,11 @@ emfx(hmod, hypothesis = "b1 = b2")
 mpdta$emp = exp(mpdta$lemp)
 
 etwfe(
-   emp ~ lpop, tvar = year, gvar = first.treat, data = mpdta, 
-   vcov = ~countyreal,
-   family = "poisson"   ## <= family arg for nonlinear options
-   ) |>
-   emfx("event")
+  emp ~ lpop, tvar = year, gvar = first.treat, data = mpdta, 
+  vcov = ~countyreal,
+  family = "poisson"   ## <= family arg for nonlinear options
+  ) |>
+  emfx("event")
 }
 
 }
@@ -232,10 +258,12 @@ Two-Way Mundlak Regression, and Difference-in-Differences Estimators}.
 Working paper (version: August 16, 2021). Available:
 http://dx.doi.org/10.2139/ssrn.3906345
 
-Wooldridge, Jeffrey M. (2022). \cite{Simple Approaches to Nonlinear
-Difference-in-Differences with Panel Data}. The Econometrics Journal
-(forthcoming). Available: http://dx.doi.org/10.2139/ssrn.4183726
+Wooldridge, Jeffrey M. (2023). \cite{Simple Approaches to Nonlinear
+Difference-in-Differences with Panel Data}. The Econometrics Journal,
+26(3), C31-C66. Available: https://doi.org/10.1093/ectj/utad016
 }
 \seealso{
-\code{\link[fixest:feols]{fixest::feols()}}, \code{\link[fixest:feglm]{fixest::feglm()}}
+\code{\link[fixest:feols]{fixest::feols()}}, \code{\link[fixest:feglm]{fixest::feglm()}} which power the underlying
+estimation routines. \code{\link{emfx}} is a companion function that handles
+post-estimation aggregation to extract quantities of interest.
 }

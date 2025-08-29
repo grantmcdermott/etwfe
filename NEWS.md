@@ -1,3 +1,59 @@
+# etwfe 0.5.0.99 (dev version)
+
+## Breaking changes
+
+- The default behaviour of the `etwfe(..., fe = <fe>)` argument now hinges on
+  the type of model family. For Gaussian models, we use the same `"vs"` (varying
+  slopes) option as before. But for non-linear families like Poission, we now
+  default to `"none"`. This is to preserve the correct VCOV behaviour of these
+  models once they are passed to `emfx()`, thus matching the new upstream logic
+  of **marginaleffects**. (Briefly: the standard errors of these non-linear
+  families cannot be computed correctly with derivative methods on estimations
+  where the fixed-effects have been abstracted away; see
+  [marginaleffects#1487)](https://github.com/vincentarelbundock/marginaleffects/issues/1487)
+  for more details.) Technically this is a breaking change, but it requires no
+  changes on the user side and the end result should be identical in most cases.
+  The only change you might see is that the standard errors from estimations
+  with non-linear families will be slightly different/corrected. (#67) 
+
+## Internals
+
+- Bump **marginaleffects** dependency to 0.29.0.
+- Bump **tinyplot** depencency to v0.4.2.
+
+# etwfe 0.5.0
+
+## New features
+
+- New `emfx` arguments:
+  - `emfx(..., predict = c("response", "link"))`, where the latter
+allows for obtaining the linear prediction for non-linear models. Internally
+passed as `marginaleffects::slopes(..., type = predict)`, thus avoiding a clash
+with the topline `emfx(..., type = <aggregration_type>)` argument. (#49)
+- `emfx(..., lean = <logical>)`. Default value is `FALSE`, but switching to
+`TRUE` will ensure a light return object that strips away data-heavy attributes
+(e.g., copies of the original model). These attributes are unlikely to be needed
+as part of the `emfx()` workflow, so we may change the default to `lean = TRUE`
+in a future version of **etwfe**. (#51, #58)
+- Native `plot.emfx()` method (via a **tinyplot** backend) for visualizing
+`emfx` objects. (#54)
+
+## Superseded arguments
+
+- The `collapse` argument in `emfx()` is superseded by `compress`. The older
+argument is retained as an alias for backwards compatibility, but will now
+trigger a message, nudging users to switch to `compress` instead. The end result
+will be identical, though. This cosmetic change was motivated by a desire to be
+more consistent with the phrasing used in the literature (i.e., on
+performance-boosting within group compression and weighting). See Wong _et al._
+([2021](https://doi.org/10.48550/arXiv.2102.11297)), for example. (#57)
+
+## Documentation
+
+- Various documentation improvements, including the addition of a "never"
+treated control group example in the vignette and fixing some confusing typos
+(e.g., refering to wrong default arguments).
+
 # etwfe 0.4.0
 
 ## Bug fixes

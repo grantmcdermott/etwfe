@@ -10,4 +10,5 @@
 cran-comments.md
 ^CRAN-SUBMISSION$
 ^_TESTING/
+^SCRATCH/
 README.html
