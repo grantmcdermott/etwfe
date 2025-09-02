@@ -58,6 +58,8 @@
 #'   used in the `emfx` context. The upside is a potentially dramatic reduction
 #'   in the size of the return object. Consequently, we may change the default
 #'   to `TRUE` in a future version of **etwfe**.
+#' @param max_e Numeric. For event studies (`type = "event"`) this represents
+#'   the largest post-treatment time to compute dynamic effects for.
 #' @param ... Additional arguments passed to
 #'   [`marginaleffects::slopes`]. For example, you can pass `vcov = FALSE`
 #'   to dramatically speed up estimation times of the main marginal
@@ -182,9 +184,10 @@ emfx = function(
   } else if (".Dtreat" %in% names(dat)) {
     dat = dat[dat[[".Dtreat"]], , drop = FALSE]
   }
-  
-  if (is.null(max_e)==FALSE){ #if user specifies max_e, calculate group average or overall effect only for post treatment periods 0 - max_e
-    dat = dat[dat[[tvar]] <= (dat[[gvar]]+max_e), , drop = FALSE]
+
+  if (is.null(max_e) == FALSE) {
+    #if user specifies max_e, calculate group average or overall effect only for post treatment periods 0 - max_e
+    dat = dat[dat[[tvar]] <= (dat[[gvar]] + max_e), , drop = FALSE]
   }
 
   # define formulas and calculate weights
