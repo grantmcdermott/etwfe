@@ -11,6 +11,15 @@ m3 = etwfe(
   data = mpdta,
   vcov = ~countyreal
 )
+# Never-treated variant
+m3n = etwfe(
+  lemp ~ lpop,
+  tvar = year,
+  gvar = first.treat,
+  data = mpdta,
+  cgroup = "never",
+  vcov = ~countyreal
+)
 # Poisson version
 m3p = etwfe(
   emp ~ lpop,
@@ -271,6 +280,80 @@ event_pre_known = structure(
   row.names = c(NA, -8L)
 )
 
+event_never_window_known = structure(
+  list(
+    term = c(".Dtreat", ".Dtreat", ".Dtreat", ".Dtreat", ".Dtreat", ".Dtreat"),
+    contrast = c(
+      "TRUE - FALSE",
+      "TRUE - FALSE",
+      "TRUE - FALSE",
+      "TRUE - FALSE",
+      "TRUE - FALSE",
+      "TRUE - FALSE"
+    ),
+    event = c(-2, -1, 0, 1, 2, 3),
+    estimate = c(
+      0.0234649547538384,
+      0,
+      -0.0211467366918433,
+      -0.0533558653415615,
+      -0.141080104628566,
+      -0.107544274673025
+    ),
+    std.error = c(
+      0.0145314904277398,
+      NA,
+      0.0113935648352396,
+      0.0157744281621729,
+      0.0322891808795742,
+      0.0329231688783015
+    ),
+    statistic = c(
+      1.61476586799693,
+      NA,
+      -1.85602460666548,
+      -3.38242786318612,
+      -4.36926861522871,
+      -3.26652258385443
+    ),
+    p.value = c(
+      0.106361407262773,
+      NA,
+      0.0634500507961697,
+      0.000718481448440828,
+      1.24663349302817e-05,
+      0.00108877123139251
+    ),
+    s.value = c(
+      3.23295332422268,
+      NA,
+      3.97823487073036,
+      10.4427614735112,
+      16.291603095484,
+      9.84308343254194
+    ),
+    conf.low = c(
+      -0.00501624312622013,
+      NA,
+      -0.0434777134244349,
+      -0.0842731764161348,
+      -0.204365736242831,
+      -0.172072499931426
+    ),
+    conf.high = c(
+      0.0519461526338969,
+      NA,
+      0.00118424004074839,
+      -0.0224385542669882,
+      -0.0777944730143017,
+      -0.0430160494146244
+    )
+  ),
+  class = "data.frame",
+  row.names = c(NA, -6L)
+)
+
+
 event_pois_known = structure(
   list(
     term = c(".Dtreat", ".Dtreat", ".Dtreat", ".Dtreat"),
@@ -387,26 +470,44 @@ event_pois_link_known = structure(
 
 # Tests ----
 
-e1 = emfx(m3)
-e2 = emfx(m3, type = "simple")
-e3 = emfx(m3, type = "calendar")
-e4 = emfx(m3, type = "group")
-e5 = emfx(m3, type = "event")
-e6 = emfx(m3, type = "event", post_only = FALSE)
-e7 = emfx(m3p, type = "event")
-e8 = emfx(m3p, type = "event", predict = "link")
+mod_default = emfx(m3)
+mod_simple = emfx(m3, type = "simple")
+mod_calendar = emfx(m3, type = "calendar")
+mod_group = emfx(m3, type = "group")
+mod_event = emfx(m3, type = "event")
+mod_event_pre = emfx(m3, type = "event", post_only = FALSE)
+mod_event_never_window = emfx(m3n, type = "event", window = c(2, 3))
+mod_pois_event = emfx(m3p, type = "event")
+mod_pois_event_link = emfx(m3p, type = "event", predict = "link")
 
 # match order
-e3 = e3[order(e3$year), ]
-e4 = e4[order(e4$first.treat), ]
+mod_calendar = mod_calendar[order(mod_calendar$year), ]
+mod_group = mod_group[order(mod_group$first.treat), ]
 
 for (col in c("estimate", "std.error", "conf.low", "conf.high")) {
-  expect_equivalent(e1[[col]], simple_known[[col]], tolerance = tol)
-  expect_equivalent(e2[[col]], simple_known[[col]], tolerance = tol)
-  expect_equivalent(e3[[col]], calendar_known[[col]], tolerance = tol)
-  expect_equivalent(e4[[col]], group_known[[col]], tolerance = tol)
-  expect_equivalent(e5[[col]], event_known[[col]], tolerance = tol)
-  expect_equivalent(e6[[col]], event_pre_known[[col]], tolerance = tol)
-  expect_equivalent(e7[[col]], event_pois_known[[col]], tolerance = tol)
-  expect_equivalent(e8[[col]], event_pois_link_known[[col]], tolerance = tol)
+  expect_equivalent(mod_default[[col]], simple_known[[col]], tolerance = tol)
+  expect_equivalent(mod_simple[[col]], simple_known[[col]], tolerance = tol)
+  expect_equivalent(mod_calendar[[col]], calendar_known[[col]], tolerance = tol)
+  expect_equivalent(mod_group[[col]], group_known[[col]], tolerance = tol)
+  expect_equivalent(mod_event[[col]], event_known[[col]], tolerance = tol)
+  expect_equivalent(
+    mod_event_pre[[col]],
+    event_pre_known[[col]],
+    tolerance = tol
+  )
+  expect_equivalent(
+    mod_event_never_window[[col]],
+    event_never_window_known[[col]],
+    tolerance = tol
+  )
+  expect_equivalent(
+    mod_pois_event[[col]],
+    event_pois_known[[col]],
+    tolerance = tol
+  )
+  expect_equivalent(
+    mod_pois_event_link[[col]],
+    event_pois_link_known[[col]],
+    tolerance = tol
+  )
 }

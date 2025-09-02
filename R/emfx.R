@@ -58,6 +58,21 @@
 #'   used in the `emfx` context. The upside is a potentially dramatic reduction
 #'   in the size of the return object. Consequently, we may change the default
 #'   to `TRUE` in a future version of **etwfe**.
+#' @param window Numeric of length 1 or 2. Limits the temporal window of
+#'   consideration around treatment.
+#'
+#'   - NULL (default): Include all available periods.
+#'   - Length 1: Truncate to a symmetric window around the treatment event.
+#'     E.g., `window = 2` will truncate to two pre-treatment periods and two
+#'     post-treatment periods.
+#'   - Length 2: Asymmetric window, where the first number gives the maximum
+#'     number of pre-treatment periods and the second number gives the maximum
+#'     number of post-treatment periods. E.g., `window = c(5, 2)` will truncate
+#'     to five pre-treatment periods and two post-treatment periods.
+#'
+#' Note that the pre-treatment truncation is only ever binding in cases where
+#' the "never" treated group is used as a control, i.e.,
+#' `etwfe(..., cgroup = "never")` in the original call.
 #' @param ... Additional arguments passed to
 #'   [`marginaleffects::slopes`]. For example, you can pass `vcov = FALSE`
 #'   to dramatically speed up estimation times of the main marginal
@@ -104,6 +119,7 @@ emfx = function(
   collapse = compress,
   predict = c("response", "link"),
   post_only = TRUE,
+  window = NULL,
   lean = FALSE,
   ...
 ) {
@@ -180,6 +196,26 @@ emfx = function(
     dat = dat[dat[[gvar]] != gref, , drop = FALSE]
   } else if (".Dtreat" %in% names(dat)) {
     dat = dat[dat[[".Dtreat"]], , drop = FALSE]
+  }
+
+  if (!is.null(window)) {
+    if (length(window) == 1) {
+      dat = dat[
+        dat[[tvar]] >= (dat[[gvar]] - window) &
+          dat[[tvar]] <= (dat[[gvar]] + window),
+        ,
+        drop = FALSE
+      ]
+    } else if (length(window) == 2) {
+      dat = dat[
+        dat[[tvar]] >= (dat[[gvar]] - window[1]) &
+          dat[[tvar]] <= (dat[[gvar]] + window[2]),
+        ,
+        drop = FALSE
+      ]
+    } else {
+      stop("Invalid `window` argument. Must be of length 1 or 2.")
+    }
   }
 
   # define formulas and calculate weights

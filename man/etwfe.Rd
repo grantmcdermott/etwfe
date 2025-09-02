@@ -161,7 +161,7 @@ running \code{emfx(mod, collapse = TRUE, ...)}.
 
 \examples{
 \dontrun{
-# We’ll use the mpdta dataset from the did package (which you’ll need to 
+# We’ll use the mpdta dataset from the did package (which you’ll need to
 # install separately).
 
 # install.packages("did")
@@ -210,8 +210,8 @@ etwfe(
 # Heterogeneous treatment effects
 #
 
-# Example where we estimate heterogeneous treatment effects for counties 
-# within the 8 US Great Lake states (versus all other counties). 
+# Example where we estimate heterogeneous treatment effects for counties
+# within the 8 US Great Lake states (versus all other counties).
 
 gls = c("IL" = 17, "IN" = 18, "MI" = 26, "MN" = 27,
         "NY" = 36, "OH" = 39, "PA" = 42, "WI" = 55)
@@ -219,16 +219,16 @@ gls = c("IL" = 17, "IN" = 18, "MI" = 26, "MN" = 27,
 mpdta$gls = substr(mpdta$countyreal, 1, 2) \%in\% gls
 
 hmod = etwfe(
-  lemp ~ lpop, tvar = year, gvar = first.treat, data = mpdta, 
+  lemp ~ lpop, tvar = year, gvar = first.treat, data = mpdta,
   vcov = ~countyreal,
   xvar = gls           ## <= het. TEs by gls
   )
 
-# Heterogeneous ATEs (could also specify "event", etc.) 
+# Heterogeneous ATEs (could also specify "event", etc.)
 
 emfx(hmod)
 
-# To test whether the ATEs across these two groups (non-GLS vs GLS) are 
+# To test whether the ATEs across these two groups (non-GLS vs GLS) are
 # statistically different, simply pass an appropriate "hypothesis" argument.
 
 emfx(hmod, hypothesis = "b1 = b2")
@@ -244,7 +244,7 @@ plot(emfx(hmod))
 mpdta$emp = exp(mpdta$lemp)
 
 etwfe(
-  emp ~ lpop, tvar = year, gvar = first.treat, data = mpdta, 
+  emp ~ lpop, tvar = year, gvar = first.treat, data = mpdta,
   vcov = ~countyreal,
   family = "poisson"   ## <= family arg for nonlinear options
   ) |>

@@ -12,6 +12,7 @@ emfx(
   collapse = compress,
   predict = c("response", "link"),
   post_only = TRUE,
+  window = NULL,
   lean = FALSE,
   ...
 )
@@ -66,6 +67,23 @@ recognises that you may still want to keep them for presentation purposes
 that behaviour via \code{FALSE} is \emph{strictly} performative: the "zero" treatment
 effects for any pre-treatment periods is purely an artefact of the
 estimation setup.}
+
+\item{window}{Numeric of length 1 or 2. Limits the temporal window of
+consideration around treatment.
+\itemize{
+\item NULL (default): Include all available periods.
+\item Length 1: Truncate to a symmetric window around the treatment event.
+E.g., \code{window = 2} will truncate to two pre-treatment periods and two
+post-treatment periods.
+\item Length 2: Asymmetric window, where the first number gives the maximum
+number of pre-treatment periods and the second number gives the maximum
+number of post-treatment periods. E.g., \code{window = c(5, 2)} will truncate
+to five pre-treatment periods and two post-treatment periods.
+}
+
+Note that the pre-treatment truncation is only ever binding in cases where
+the "never" treated group is used as a control, i.e.,
+\code{etwfe(..., cgroup = "never")} in the original call.}
 
 \item{lean}{Logical. Default is \code{FALSE}. Switching to \code{TRUE} enforces a lean
 return object; namely a simple data.frame of the main results, stripped of
@@ -179,7 +197,7 @@ categorical variables with multiple levels, or even continuous variables
 
 \examples{
 \dontrun{
-# We’ll use the mpdta dataset from the did package (which you’ll need to 
+# We’ll use the mpdta dataset from the did package (which you’ll need to
 # install separately).
 
 # install.packages("did")
@@ -228,8 +246,8 @@ etwfe(
 # Heterogeneous treatment effects
 #
 
-# Example where we estimate heterogeneous treatment effects for counties 
-# within the 8 US Great Lake states (versus all other counties). 
+# Example where we estimate heterogeneous treatment effects for counties
+# within the 8 US Great Lake states (versus all other counties).
 
 gls = c("IL" = 17, "IN" = 18, "MI" = 26, "MN" = 27,
         "NY" = 36, "OH" = 39, "PA" = 42, "WI" = 55)
@@ -237,16 +255,16 @@ gls = c("IL" = 17, "IN" = 18, "MI" = 26, "MN" = 27,
 mpdta$gls = substr(mpdta$countyreal, 1, 2) \%in\% gls
 
 hmod = etwfe(
-  lemp ~ lpop, tvar = year, gvar = first.treat, data = mpdta, 
+  lemp ~ lpop, tvar = year, gvar = first.treat, data = mpdta,
   vcov = ~countyreal,
   xvar = gls           ## <= het. TEs by gls
   )
 
-# Heterogeneous ATEs (could also specify "event", etc.) 
+# Heterogeneous ATEs (could also specify "event", etc.)
 
 emfx(hmod)
 
-# To test whether the ATEs across these two groups (non-GLS vs GLS) are 
+# To test whether the ATEs across these two groups (non-GLS vs GLS) are
 # statistically different, simply pass an appropriate "hypothesis" argument.
 
 emfx(hmod, hypothesis = "b1 = b2")
@@ -262,7 +280,7 @@ plot(emfx(hmod))
 mpdta$emp = exp(mpdta$lemp)
 
 etwfe(
-  emp ~ lpop, tvar = year, gvar = first.treat, data = mpdta, 
+  emp ~ lpop, tvar = year, gvar = first.treat, data = mpdta,
   vcov = ~countyreal,
   family = "poisson"   ## <= family arg for nonlinear options
   ) |>

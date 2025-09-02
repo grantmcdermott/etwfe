@@ -1,8 +1,11 @@
 # etwfe 0.5.0.99 (dev version)
 
+**etwfe** v0.6.0 returns to CRAN after addressing some failures due to upstream
+dependency changes. Apologies for any inconvenience caused.
+
 ## Breaking changes
 
-- The default behaviour of the `etwfe(..., fe = <fe>)` argument now hinges on
+- The default behaviour of the `etwfe(..., fe = <string>)` argument now hinges on
   the type of model family. For Gaussian models, we use the same `"vs"` (varying
   slopes) option as before. But for non-linear families like Poission, we now
   default to `"none"`. This is to preserve the correct VCOV behaviour of these
@@ -15,6 +18,14 @@
   changes on the user side and the end result should be identical in most cases.
   The only change you might see is that the standard errors from estimations
   with non-linear families will be slightly different/corrected. (#67) 
+
+## New Features
+
+- The new `emfx(..., window = <numeric>)` argument allows users to restrict the
+  temporal window around the treatment event, thereby narrowing the
+  consideration horizon. This may prove helpful for cases with a large number of
+  pre- and/or post-treatment periods. Thanks to @fhollenbach for the initial
+  suggestion and implementation. (#46)
 
 ## Internals
 

@@ -9,7 +9,7 @@
 #' Computation is passed on to the \code{\link[fixest]{feols}} (linear) /
 #' \code{\link[fixest]{feglm}} (nonlinear) functions from the **fixest**
 #' package. `etwfe` should be paired with its companion [`emfx`] function.
-#' 
+#'
 #' @param fml A two-side formula representing the outcome (lhs) and any control
 #'   variables (rhs), e.g. `y ~ x1 + x2`. If no controls are required, the rhs
 #'   must take the value of 0 or 1, e.g. `y ~ 0`.
@@ -59,36 +59,36 @@
 #' @return A \code{\link[fixest]{fixest}} object with fully saturated
 #' interaction effects, and a few additional attributes used for
 #' post-estimation in `emfx`.
-#' 
+#'
 #' @importFrom fixest demean feols feglm
 #' @importFrom stats reformulate setNames
 #' @importFrom Formula as.Formula
 #'
 #' @section Heterogeneous treatment effects:
-#' 
+#'
 #'   Specifying `etwfe(..., xvar = <xvar>)` will generate interaction effects
 #'   for all levels of `<xvar>` as part of the main regression model. The
 #'   reason that this is useful (as opposed to a regular, non-interacted
 #'   covariate in the formula RHS) is that it allows us to estimate
 #'   heterogeneous treatment effects as part of the larger ETWFE framework.
 #'   Specifically, we can recover heterogeneous treatment effects for each
-#'   level of `<xvar>` by passing the resulting `etwfe` model object on to 
+#'   level of `<xvar>` by passing the resulting `etwfe` model object on to
 #'   `emfx()`.
-#'   
+#'
 #'   For example, imagine that we have a categorical variable called "age" in
 #'   our dataset, with two distinct levels "adult" and "child". Running
-#'   `emfx(etwfe(..., xvar = age))` will tell us how the efficacy of treatment 
-#'   varies across adults and children. We can then also leverage the in-built 
+#'   `emfx(etwfe(..., xvar = age))` will tell us how the efficacy of treatment
+#'   varies across adults and children. We can then also leverage the in-built
 #'   hypothesis testing infrastructure of `marginaleffects` to test whether
 #'   the treatment effect is statistically different across these two age
-#'   groups; see Examples below. Note the same principles carry over to 
+#'   groups; see Examples below. Note the same principles carry over to
 #'   categorical variables with multiple levels, or even continuous variables
 #'   (although continuous variables are not as well supported yet).
-#'   
-#' @section Performance tips: 
-#' 
+#'
+#' @section Performance tips:
+#'
 #'   Under most situations, `etwfe` should complete very quickly. For its part,
-#'   `emfx` is quite performant too and should take a few seconds or less for 
+#'   `emfx` is quite performant too and should take a few seconds or less for
 #'   datasets under 100k rows. However, `emfx`'s computation time does tend to
 #'   scale non-linearly with the size of the original data, as well as the
 #'   number of interactions from the underlying `etwfe` model. Without getting
@@ -97,7 +97,7 @@
 #'   coefficient in the model and then compute their standard errors. So, it's
 #'   a potentially expensive operation that can push the computation time for
 #'   large datasets (> 1m rows) up to several minutes or longer.
-#'   
+#'
 #'   Fortunately, there are two complementary strategies that you can use to
 #'   speed things up. The first is to turn off the most expensive part of the
 #'   whole procedure---standard error calculation---by calling `emfx(..., vcov
@@ -116,24 +116,24 @@
 #'   this loss in accuracy tends to be relatively minor, with results
 #'   equivalent up to the 1st or 2nd significant decimal place (or even
 #'   better).
-#'   
+#'
 #'   Summarizing, here's a quick plan of attack for you to try if you are
 #'   worried about the estimation time for large datasets and models:
-#'   
+#'
 #'   0. Estimate `mod = etwfe(...)` as per usual.
-#'   
-#'   1. Run `emfx(mod, vcov = FALSE, ...)`. 
-#'   
-#'   2. Run `emfx(mod, vcov = FALSE, collapse = TRUE, ...)`. 
-#'   
+#'
+#'   1. Run `emfx(mod, vcov = FALSE, ...)`.
+#'
+#'   2. Run `emfx(mod, vcov = FALSE, collapse = TRUE, ...)`.
+#'
 #'   3. Compare the point estimates from steps 1 and 2. If they are are similar
 #'   enough to your satisfaction, get the approximate standard errors by
 #'   running `emfx(mod, collapse = TRUE, ...)`.
-#' 
-#' @references 
-#' Wooldridge, Jeffrey M. (2021). \cite{Two-Way Fixed Effects, the 
+#'
+#' @references
+#' Wooldridge, Jeffrey M. (2021). \cite{Two-Way Fixed Effects, the
 #' Two-Way Mundlak Regression, and Difference-in-Differences Estimators}.
-#' Working paper (version: August 16, 2021). Available: 
+#' Working paper (version: August 16, 2021). Available:
 #' http://dx.doi.org/10.2139/ssrn.3906345
 #'
 #' Wooldridge, Jeffrey M. (2023). \cite{Simple Approaches to Nonlinear
@@ -144,19 +144,19 @@
 #' post-estimation aggregation to extract quantities of interest.
 #' @examples
 #' \dontrun{
-#' # We’ll use the mpdta dataset from the did package (which you’ll need to 
+#' # We’ll use the mpdta dataset from the did package (which you’ll need to
 #' # install separately).
 #'
 #' # install.packages("did")
 #' data("mpdta", package = "did")
-#' 
+#'
 #' #
 #' # Basic example
 #' #
-#' 
+#'
 #' # The basic ETWFE workflow involves two consecutive function calls:
 #' # 1) `etwfe` and 2) `emfx`
-#' 
+#'
 #' # 1) `etwfe`: Estimate a regression model with saturated interaction terms.
 #' mod = etwfe(
 #'   fml  = lemp ~ lpop, # outcome ~ controls (use 0 or 1 if none)
@@ -165,19 +165,19 @@
 #'   data = mpdta,       # dataset
 #'   vcov = ~countyreal  # vcov adjustment (here: clustered by county)
 #'   )
-#' 
+#'
 #' # mod ## A fixest model object with fully saturated interaction effects.
-#' 
+#'
 #' # 2) `emfx`: Recover the treatment effects of interest.
-#' 
+#'
 #' (mod_es = emfx(mod, type = "event")) # dynamic ATE a la an event study
-#' 
+#'
 #' # Etc. Other aggregation type options are "simple" (the default), "group"
 #' # and "calendar"
-#' 
+#'
 #' # To visualize results, use the native plot method (see `?plot.emfx`)
 #' plot(mod_es)
-#' 
+#'
 #' # Notice that we don't get any pre-treatment effects with the default
 #' # "notyet" treated control group. Switch to the "never" treated control
 #' # group if you want this.
@@ -188,68 +188,67 @@
 #'   ) |>
 #'   emfx("event") |>
 #'   plot()
-#' 
+#'
 #' #
 #' # Heterogeneous treatment effects
 #' #
-#' 
-#' # Example where we estimate heterogeneous treatment effects for counties 
-#' # within the 8 US Great Lake states (versus all other counties). 
-#' 
+#'
+#' # Example where we estimate heterogeneous treatment effects for counties
+#' # within the 8 US Great Lake states (versus all other counties).
+#'
 #' gls = c("IL" = 17, "IN" = 18, "MI" = 26, "MN" = 27,
 #'         "NY" = 36, "OH" = 39, "PA" = 42, "WI" = 55)
-#' 
+#'
 #' mpdta$gls = substr(mpdta$countyreal, 1, 2) %in% gls
-#' 
+#'
 #' hmod = etwfe(
-#'   lemp ~ lpop, tvar = year, gvar = first.treat, data = mpdta, 
+#'   lemp ~ lpop, tvar = year, gvar = first.treat, data = mpdta,
 #'   vcov = ~countyreal,
 #'   xvar = gls           ## <= het. TEs by gls
 #'   )
-#' 
-#' # Heterogeneous ATEs (could also specify "event", etc.) 
-#' 
+#'
+#' # Heterogeneous ATEs (could also specify "event", etc.)
+#'
 #' emfx(hmod)
-#' 
-#' # To test whether the ATEs across these two groups (non-GLS vs GLS) are 
+#'
+#' # To test whether the ATEs across these two groups (non-GLS vs GLS) are
 #' # statistically different, simply pass an appropriate "hypothesis" argument.
-#' 
+#'
 #' emfx(hmod, hypothesis = "b1 = b2")
-#' 
+#'
 #' plot(emfx(hmod))
-#' 
+#'
 #' #
 #' # Nonlinear model (distribution / link) families
 #' #
-#' 
+#'
 #' # Poisson example
-#' 
+#'
 #' mpdta$emp = exp(mpdta$lemp)
-#' 
+#'
 #' etwfe(
-#'   emp ~ lpop, tvar = year, gvar = first.treat, data = mpdta, 
+#'   emp ~ lpop, tvar = year, gvar = first.treat, data = mpdta,
 #'   vcov = ~countyreal,
 #'   family = "poisson"   ## <= family arg for nonlinear options
 #'   ) |>
 #'   emfx("event")
 #' }
-#' 
+#'
 #' @export
 etwfe = function(
-    fml = NULL,
-    tvar = NULL,
-    gvar = NULL,
-    data = NULL,
-    ivar = NULL,
-    xvar = NULL,
-    tref = NULL,
-    gref = NULL,
-    cgroup = c("notyet", "never"),
-    fe = NULL,
-    family = NULL,
-    ...
+  fml = NULL,
+  tvar = NULL,
+  gvar = NULL,
+  data = NULL,
+  ivar = NULL,
+  xvar = NULL,
+  tref = NULL,
+  gref = NULL,
+  cgroup = c("notyet", "never"),
+  fe = NULL,
+  family = NULL,
+  ...
 ) {
-  
   cgroup = match.arg(cgroup)
   if (is.null(fe)) {
     fe = ifelse(is.null(family) || family == "gaussian", "fe", "none")
@@ -257,26 +256,44 @@ etwfe = function(
   fe = match.arg(fe, c("vs", "feo", "none"))
   rhs = ctrls = vs = ref_string = xvar_dm_df = ctrls_fml_vars = xvar_fml_vars = NULL
   gref_min_flag = FALSE
-  
-  if (is.null(fml)) stop("A non-NULL `fml` argument is required.\n")
-  if (is.null(data)) stop("A non-NULL `data` argument is required.\n")
+
+  if (is.null(fml)) {
+    stop("A non-NULL `fml` argument is required.\n")
+  }
+  if (is.null(data)) {
+    stop("A non-NULL `data` argument is required.\n")
+  }
   data = as.data.frame(data)
-  
+
   ## NSE ----
   nl = as.list(seq_along(data))
   names(nl) = names(data)
   tvar = eval(substitute(tvar), nl, parent.frame())
-  if (is.numeric(tvar)) tvar = names(data)[tvar]
+  if (is.numeric(tvar)) {
+    tvar = names(data)[tvar]
+  }
   gvar = eval(substitute(gvar), nl, parent.frame())
-  if (is.numeric(gvar)) gvar = names(data)[gvar]
+  if (is.numeric(gvar)) {
+    gvar = names(data)[gvar]
+  }
   ivar = eval(substitute(ivar), nl, parent.frame())
-  if (is.numeric(ivar)) ivar = names(data)[ivar]
+  if (is.numeric(ivar)) {
+    ivar = names(data)[ivar]
+  }
   xvar = eval(substitute(xvar), nl, parent.frame())
-  if (is.numeric(xvar)) xvar = names(data)[xvar]
+  if (is.numeric(xvar)) {
+    xvar = names(data)[xvar]
+  }
 
-  if (is.null(gvar)) stop("A non-NULL `gvar` argument is required.\n")
-  if (is.null(tvar)) stop("A non-NULL `tvar` argument is required.\n")
-  if (!is.null(family)) ivar = NULL
+  if (is.null(gvar)) {
+    stop("A non-NULL `gvar` argument is required.\n")
+  }
+  if (is.null(tvar)) {
+    stop("A non-NULL `tvar` argument is required.\n")
+  }
+  if (!is.null(family)) {
+    ivar = NULL
+  }
 
   if ("group" %in% c(xvar, gvar, tvar, ivar)) {
     stop(
@@ -285,11 +302,11 @@ etwfe = function(
       "Please rename the 'group' column in your dataset, or use a different variable (a copy of 'group' is fine)."
     )
   }
-  
+
   fml_paste = paste(fml)
   lhs = fml_paste[2]
   ctrls = fml_paste[3]
-  
+
   if ("group" %in% c(xvar, gvar, tvar, ivar, lhs, ctrls)) {
     stop(
       "A variable called 'group' was detected in your model formula.",
@@ -297,7 +314,7 @@ etwfe = function(
       "Please rename the 'group' column in your dataset, or use a different variable (a copy of 'group' is fine)."
     )
   }
-  
+
   if (length(ctrls) == 0) {
     ctrls = NULL
   } else if (ctrls %in% c("0", "1")) {
@@ -305,18 +322,28 @@ etwfe = function(
   } else {
     ctrls_dm = unique(paste0(strsplit(ctrls, " \\+ | \\* | \\: ")[[1]], "_dm"))
     if (fe == "vs") {
-      vs = paste0("[", gsub(" \\+", ",", ctrls), "]") ## For varying slopes later 
+      vs = paste0("[", gsub(" \\+", ",", ctrls), "]") ## For varying slopes later
     }
   }
-  
+
   if (is.null(gref)) {
     ug = unique(data[[gvar]])
     ut = unique(data[[tvar]])
     gref = ug[ug > max(ut)]
-    if (length(gref)==0) gref = ug[ug < min(ut)]
-    if (length(gref)==0 && cgroup=="notyet") gref = max(ug)
-    if (length(gref)==0) {
-      stop("The '", cgroup,"' control group for ", gvar, " could not be identified. You can provide a bespoke group reference level via the `gref` argument.\n")
+    if (length(gref) == 0) {
+      gref = ug[ug < min(ut)]
+    }
+    if (length(gref) == 0 && cgroup == "notyet") {
+      gref = max(ug)
+    }
+    if (length(gref) == 0) {
+      stop(
+        "The '",
+        cgroup,
+        "' control group for ",
+        gvar,
+        " could not be identified. You can provide a bespoke group reference level via the `gref` argument.\n"
+      )
     }
     if (length(gref) > 1) {
       gref = min(gref) ## placeholder. could do something a bit smarter here like bin post periods.
@@ -330,19 +357,19 @@ etwfe = function(
     }
     if (gref < min(unique(data[[tvar]]))) gref_min_flag = TRUE
   }
-  
+
   ref_string = paste0(", ref = ", gref)
-  
+
   if (is.null(tref)) {
-      tref = min(data[[tvar]], na.rm = TRUE)
+    tref = min(data[[tvar]], na.rm = TRUE)
   } else if (!(tref %in% unique(data[[tvar]]))) {
-      stop("Proposed reference level ", tref, " not found in ", tvar, ".\n")
+    stop("Proposed reference level ", tref, " not found in ", tvar, ".\n")
   }
   if (length(tref) > 1) {
-      tref = min(tref, na.rm = TRUE) ## placeholder. could do something a bit smarter here like bin post periods.
-      ## also: what about NA vals?
+    tref = min(tref, na.rm = TRUE) ## placeholder. could do something a bit smarter here like bin post periods.
+    ## also: what about NA vals?
   }
-  
+
   if (cgroup == "notyet") {
     ref_string = paste0(ref_string, ", ref2 = ", tref)
     data[[".Dtreat"]] = data[[tvar]] >= data[[gvar]] & data[[gvar]] != gref
@@ -358,71 +385,98 @@ etwfe = function(
     data[[".Dtreat"]] = data[[tvar]] != data[[gvar]] - 1L
   }
   rhs = paste0(".Dtreat : ", rhs)
-  
+
   rhs = paste0(rhs, "i(", gvar, ", i.", tvar, ref_string, ")")
-  
+
   ## Demean and interact controls ----
   if (!is.null(ctrls)) {
     dm_fml = reformulate(gvar, response = ctrls)
     ctrls_dm_df = demean(dm_fml, data = data, as.matrix = FALSE)
     ctrls_dm_df = setNames(ctrls_dm_df, ctrls_dm)
     data = cbind(data, ctrls_dm_df)
-    
+
     if (length(ctrls_dm) > 1) {
       ctrls_fml_vars = paste("(", paste(ctrls_dm, collapse = " + "), ")")
     } else {
       ctrls_fml_vars = paste(ctrls_dm)
     }
     rhs = paste(rhs, "/", ctrls_fml_vars)
-    
+
     if (fe != "vs") {
       ictrls = strsplit(ctrls, split = " \\+ ")[[1]]
       ictrls = paste(
         c(
           ctrls,
-          paste(paste0("i(", gvar, ", ", ictrls, ", ref = ", gref, ")"), collapse = " + "),
-          paste(paste0("i(", tvar, ", ", ictrls, ", ref = ", tref, ")"), collapse = " + ")
+          paste(
+            paste0("i(", gvar, ", ", ictrls, ", ref = ", gref, ")"),
+            collapse = " + "
           ),
+          paste(
+            paste0("i(", tvar, ", ", ictrls, ", ref = ", tref, ")"),
+            collapse = " + "
+          )
+        ),
         collapse = " + "
-        )
-      rhs = paste(rhs, "+", ictrls) 
+      )
+      rhs = paste(rhs, "+", ictrls)
     }
   }
-  
+
   ## Demean the interacted covariate (for heterogeneous ATEs) ----
   if (!is.null(xvar)) {
-    data$.Dtreated_cohort = ifelse(data[[gvar]] != gref & !is.na(data[[gvar]]), 1, 0) # generate a treatment-dummy
+    data$.Dtreated_cohort = ifelse(
+      data[[gvar]] != gref & !is.na(data[[gvar]]),
+      1,
+      0
+    ) # generate a treatment-dummy
     xvar_dm_fml = reformulate(gvar, response = xvar)
-    xvar_dm_df = demean(xvar_dm_fml, data = data, weights = data$.Dtreated_cohort, as.matrix = FALSE) # weights: only use the treated cohorts (units) to demean
-    if (length(xvar)==ncol(xvar_dm_df)){
+    xvar_dm_df = demean(
+      xvar_dm_fml,
+      data = data,
+      weights = data$.Dtreated_cohort,
+      as.matrix = FALSE
+    ) # weights: only use the treated cohorts (units) to demean
+    if (length(xvar) == ncol(xvar_dm_df)) {
       xvar_dm_df = setNames(xvar_dm_df, paste0(xvar, "_dm")) # give a name
       xvar_fml_vars = paste0(xvar, "_dm")
     } else {
       names(xvar_dm_df) = paste0(names(xvar_dm_df), "_dm") # give a name
-      xvar_fml_vars = paste0("(",paste(names(xvar_dm_df), collapse = "+"), ")")
+      xvar_fml_vars = paste0("(", paste(names(xvar_dm_df), collapse = "+"), ")")
     }
     data = cbind(data, xvar_dm_df)
 
     if (is.null(ctrls)) {
       rhs = paste0(
-        rhs, 
-        " / ", xvar_fml_vars,
-        " +  i(", tvar, ", ", xvar_fml_vars, ", ref = ", tref, ")"
+        rhs,
+        " / ",
+        xvar_fml_vars,
+        " +  i(",
+        tvar,
+        ", ",
+        xvar_fml_vars,
+        ", ref = ",
+        tref,
+        ")"
       )
-    # splice together with ctrl vars if necessary
+      # splice together with ctrl vars if necessary
     } else {
       rhs = paste0(
         gsub(
-          ctrls_fml_vars, 
+          ctrls_fml_vars,
           paste0("(", ctrls_fml_vars, "+", xvar_fml_vars, ")"),
           rhs
         ),
-        " +  i(", tvar, ", ", xvar_fml_vars, ", ref = ", tref, ")"
+        " +  i(",
+        tvar,
+        ", ",
+        xvar_fml_vars,
+        ", ref = ",
+        tref,
+        ")"
       )
     }
-
   }
-  
+
   ## Fixed effects ----
   if (fe != "none") {
     if (is.null(ivar)) {
@@ -434,36 +488,50 @@ etwfe = function(
   } else {
     fes = 0
     rhs = paste0(
-      rhs, 
-      "+ i(", gvar, ", ref = ", gref, ") + i(", tvar, ", ref = ", tref, ")"
-      )
+      rhs,
+      "+ i(",
+      gvar,
+      ", ref = ",
+      gref,
+      ") + i(",
+      tvar,
+      ", ref = ",
+      tref,
+      ")"
+    )
   }
-  
+
   ## Estimation ----
-  
+
   ## Formula
-  if( !is.null(xvar) ) {# Formula with interaction
+  if (!is.null(xvar)) {
+    # Formula with interaction
     # one could add gvar:xvar, but the result is equivalent
     Fml = as.Formula(paste(
-      lhs, " ~ ", rhs, "|", fes
-    )) 
-  } else {# formula without interaction
-    Fml = as.Formula(paste(lhs, " ~ ", rhs, "|", fes)) 
+      lhs,
+      " ~ ",
+      rhs,
+      "|",
+      fes
+    ))
+  } else {
+    # formula without interaction
+    Fml = as.Formula(paste(lhs, " ~ ", rhs, "|", fes))
   }
-  
+
   ## Estimate
   if (is.null(family)) {
     est = feols(Fml, data = data, notes = FALSE, ...)
   } else {
     est = feglm(Fml, data = data, notes = FALSE, family = family, ...)
   }
-  
+
   # catch for offset if/when passing to emfx later
   # hacky but works (i.e., overcomes the xpd / envir mismatch)
   if (!is.null(est$call$offset) && !is.null(est$model_info$offset)) {
     est$call$offset = reformulate(est$model_info$offset)
   }
-  
+
   ## Overload class and new attributes (for post-estimation) ----
   class(est) = c("etwfe", class(est))
   attr(est, "etwfe") = list(
@@ -476,9 +544,8 @@ etwfe = function(
     tref = tref,
     cgroup = cgroup,
     fe = fe
-    )
+  )
 
   ## Return ----
   return(est)
-
 }
