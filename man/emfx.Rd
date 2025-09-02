@@ -12,7 +12,7 @@ emfx(
   collapse = compress,
   predict = c("response", "link"),
   post_only = TRUE,
-  max_e = NULL,
+  window = NULL,
   lean = FALSE,
   ...
 )
@@ -68,8 +68,22 @@ that behaviour via \code{FALSE} is \emph{strictly} performative: the "zero" trea
 effects for any pre-treatment periods is purely an artefact of the
 estimation setup.}
 
-\item{max_e}{Numeric. For event studies (\code{type = "event"}) this represents
-the largest post-treatment time to compute dynamic effects for.}
+\item{window}{Numeric of length 1 or 2. Limits the temporal window of
+consideration around treatment.
+\itemize{
+\item NULL (default): Include all available periods.
+\item Length 1: Truncate to a symmetric window around the treatment event.
+E.g., \code{window = 2} will truncate to two pre-treatment periods and two
+post-treatment periods.
+\item Length 2: Asymmetric window, where the first number gives the maximum
+number of pre-treatment periods and the second number gives the maximum
+number of post-treatment periods. E.g., \code{window = c(5, 2)} will truncate
+to five pre-treatment periods and two post-treatment periods.
+}
+
+Note that the pre-treatment truncation is only ever binding in cases where
+the "never" treated group is used as a control, i.e.,
+\code{etwfe(..., cgroup = "never")} in the original call.}
 
 \item{lean}{Logical. Default is \code{FALSE}. Switching to \code{TRUE} enforces a lean
 return object; namely a simple data.frame of the main results, stripped of
