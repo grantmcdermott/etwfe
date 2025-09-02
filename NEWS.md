@@ -29,7 +29,7 @@ dependency changes. Apologies for any inconvenience caused.
 
 ## Bug fixes
 
-- Fix bug where a superfluous factor or character column could caused the
+- Fix bug where a superfluous factor or character column could cause the
   compression step in `emfx(..., compress = TRUE)` to fail. Thanks to @umor for
   reporting in #66.
 
