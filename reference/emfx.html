@@ -60,6 +60,7 @@ package.</p>
 <span>  collapse <span class="op">=</span> <span class="va">compress</span>,</span>
 <span>  predict <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"response"</span>, <span class="st">"link"</span><span class="op">)</span>,</span>
 <span>  post_only <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  window <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  lean <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -131,6 +132,21 @@ recognises that you may still want to keep them for presentation purposes
 that behaviour via <code>FALSE</code> is <em>strictly</em> performative: the "zero" treatment
 effects for any pre-treatment periods is purely an artefact of the
 estimation setup.</p></dd>
+
+
+<dt id="arg-window">window<a class="anchor" aria-label="anchor" href="#arg-window"></a></dt>
+<dd><p>Numeric of length 1 or 2. Limits the temporal window of
+consideration around treatment.</p><ul><li><p>NULL (default): Include all available periods.</p></li>
+<li><p>Length 1: Truncate to a symmetric window around the treatment event.
+E.g., <code>window = 2</code> will truncate to two pre-treatment periods and two
+post-treatment periods.</p></li>
+<li><p>Length 2: Asymmetric window, where the first number gives the maximum
+number of pre-treatment periods and the second number gives the maximum
+number of post-treatment periods. E.g., <code>window = c(5, 2)</code> will truncate
+to five pre-treatment periods and two post-treatment periods.</p></li>
+</ul><p>Note that the pre-treatment truncation is only ever binding in cases where
+the "never" treated group is used as a control, i.e.,
+<code>etwfe(..., cgroup = "never")</code> in the original call.</p></dd>
 
 
 <dt id="arg-lean">lean<a class="anchor" aria-label="anchor" href="#arg-lean"></a></dt>
@@ -251,7 +267,7 @@ before <code>emfx</code>.</p></div>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="co"># We’ll use the mpdta dataset from the did package (which you’ll need to </span></span></span>
+<span class="r-in"><span><span class="co"># We’ll use the mpdta dataset from the did package (which you’ll need to</span></span></span>
 <span class="r-in"><span><span class="co"># install separately).</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># install.packages("did")</span></span></span>
@@ -313,8 +329,8 @@ before <code>emfx</code>.</p></div>
 <span class="r-in"><span><span class="co"># Heterogeneous treatment effects</span></span></span>
 <span class="r-in"><span><span class="co">#</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Example where we estimate heterogeneous treatment effects for counties </span></span></span>
-<span class="r-in"><span><span class="co"># within the 8 US Great Lake states (versus all other counties). </span></span></span>
+<span class="r-in"><span><span class="co"># Example where we estimate heterogeneous treatment effects for counties</span></span></span>
+<span class="r-in"><span><span class="co"># within the 8 US Great Lake states (versus all other counties).</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">gls</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"IL"</span> <span class="op">=</span> <span class="fl">17</span>, <span class="st">"IN"</span> <span class="op">=</span> <span class="fl">18</span>, <span class="st">"MI"</span> <span class="op">=</span> <span class="fl">26</span>, <span class="st">"MN"</span> <span class="op">=</span> <span class="fl">27</span>,</span></span>
 <span class="r-in"><span>        <span class="st">"NY"</span> <span class="op">=</span> <span class="fl">36</span>, <span class="st">"OH"</span> <span class="op">=</span> <span class="fl">39</span>, <span class="st">"PA"</span> <span class="op">=</span> <span class="fl">42</span>, <span class="st">"WI"</span> <span class="op">=</span> <span class="fl">55</span><span class="op">)</span></span></span>
@@ -322,12 +338,12 @@ before <code>emfx</code>.</p></div>
 <span class="r-in"><span><span class="va">mpdta</span><span class="op">$</span><span class="va">gls</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/substr.html" class="external-link">substr</a></span><span class="op">(</span><span class="va">mpdta</span><span class="op">$</span><span class="va">countyreal</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">gls</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">hmod</span> <span class="op">=</span> <span class="fu"><a href="etwfe.html">etwfe</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  <span class="va">lemp</span> <span class="op">~</span> <span class="va">lpop</span>, tvar <span class="op">=</span> <span class="va">year</span>, gvar <span class="op">=</span> <span class="va">first.treat</span>, data <span class="op">=</span> <span class="va">mpdta</span>, </span></span>
+<span class="r-in"><span>  <span class="va">lemp</span> <span class="op">~</span> <span class="va">lpop</span>, tvar <span class="op">=</span> <span class="va">year</span>, gvar <span class="op">=</span> <span class="va">first.treat</span>, data <span class="op">=</span> <span class="va">mpdta</span>,</span></span>
 <span class="r-in"><span>  vcov <span class="op">=</span> <span class="op">~</span><span class="va">countyreal</span>,</span></span>
 <span class="r-in"><span>  xvar <span class="op">=</span> <span class="va">gls</span>           <span class="co">## &lt;= het. TEs by gls</span></span></span>
 <span class="r-in"><span>  <span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Heterogeneous ATEs (could also specify "event", etc.) </span></span></span>
+<span class="r-in"><span><span class="co"># Heterogeneous ATEs (could also specify "event", etc.)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">emfx</span><span class="op">(</span><span class="va">hmod</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -340,7 +356,7 @@ before <code>emfx</code>.</p></div>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Comparison: TRUE - FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># To test whether the ATEs across these two groups (non-GLS vs GLS) are </span></span></span>
+<span class="r-in"><span><span class="co"># To test whether the ATEs across these two groups (non-GLS vs GLS) are</span></span></span>
 <span class="r-in"><span><span class="co"># statistically different, simply pass an appropriate "hypothesis" argument.</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">emfx</span><span class="op">(</span><span class="va">hmod</span>, hypothesis <span class="op">=</span> <span class="st">"b1 = b2"</span><span class="op">)</span></span></span>
@@ -381,7 +397,7 @@ before <code>emfx</code>.</p></div>
 <span class="r-in"><span><span class="va">mpdta</span><span class="op">$</span><span class="va">emp</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">mpdta</span><span class="op">$</span><span class="va">lemp</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="etwfe.html">etwfe</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  <span class="va">emp</span> <span class="op">~</span> <span class="va">lpop</span>, tvar <span class="op">=</span> <span class="va">year</span>, gvar <span class="op">=</span> <span class="va">first.treat</span>, data <span class="op">=</span> <span class="va">mpdta</span>, </span></span>
+<span class="r-in"><span>  <span class="va">emp</span> <span class="op">~</span> <span class="va">lpop</span>, tvar <span class="op">=</span> <span class="va">year</span>, gvar <span class="op">=</span> <span class="va">first.treat</span>, data <span class="op">=</span> <span class="va">mpdta</span>,</span></span>
 <span class="r-in"><span>  vcov <span class="op">=</span> <span class="op">~</span><span class="va">countyreal</span>,</span></span>
 <span class="r-in"><span>  family <span class="op">=</span> <span class="st">"poisson"</span>   <span class="co">## &lt;= family arg for nonlinear options</span></span></span>
 <span class="r-in"><span>  <span class="op">)</span> <span class="op">|&gt;</span></span></span>
