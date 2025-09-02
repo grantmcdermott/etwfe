@@ -536,6 +536,7 @@ etwfe = function(
   class(est) = c("etwfe", class(est))
   attr(est, "etwfe") = list(
     yvar = lhs,
+    ctrls = ctrls,
     gvar = gvar,
     tvar = tvar,
     xvar = xvar,

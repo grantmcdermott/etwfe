@@ -130,6 +130,8 @@ emfx = function(
   predict = match.arg(predict)
   etwfe_attr = attr(object, "etwfe")
   etwfe_attr[["type"]] = type
+  yvar = etwfe_attr[["yvar"]]
+  ctrls = etwfe_attr[["ctrls"]]
   gvar = etwfe_attr[["gvar"]]
   tvar = etwfe_attr[["tvar"]]
   ivar = etwfe_attr[["ivar"]]
@@ -240,7 +242,10 @@ emfx = function(
     # compress the data
     dat = dat[(.Dtreat)][,
       lapply(.SD, mean),
-      by = c(gvar, tvar, xvar, ".Dtreat")
+      by = c(gvar, tvar, xvar, ".Dtreat"),
+      .SDcols = function(x) {
+        !(is.factor(x) || is.character(x))
+      }
     ] # compress data
     dat = setDT(dat)[, merge(.SD, dat_weights, all.x = TRUE)] # add weights
   } else if (compress & !is.null(ivar)) {
