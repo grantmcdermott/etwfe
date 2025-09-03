@@ -1,8 +1,8 @@
 Package: etwfe
 Type: Package
 Title: Extended Two-Way Fixed Effects
-Version: 0.5.0.99
-Date: 2025-08-27
+Version: 0.6.0
+Date: 2025-09-02
 Authors@R: 
     c(
     person(given = "Grant",
