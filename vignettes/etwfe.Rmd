@@ -190,7 +190,7 @@ dimension of interest
 aggregations is by recovering the appropriate marginal effects. The **etwfe**
 package provides another convenience function for doing so: `emfx()`, which is a
 thin(ish) wrapper around
-[`marginaleffects::slopes()`](https://marginaleffects.com/r/man/slopes.html).
+[`marginaleffects::slopes()`](https://marginaleffects.com/man/r/slopes.html).
 
 For example, we can recover the average treatment effect on the treated (ATT) as
 follows.
@@ -370,7 +370,7 @@ hmod = etwfe(
 The above point estimates might tempt us to think that minimum wage hikes caused
 less teen disemployment in GLS counties than in the rest of the US on average.
 However, to test this formally we can invoke the powerful
-[`hypotheses`](https://marginaleffects.com/r/man/hypotheses.html)
+[`hypotheses`](https://marginaleffects.com/man/r/hypotheses.html)
 infrastructure of the underlying **marginaleffects** package. Probably the
 easiest way to do this is by using `b[i]`-style positional arguments, where
 "`[i]`" denotes the row of the `emfx()` return object. Thus, by specifying
