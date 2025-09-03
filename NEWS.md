@@ -1,4 +1,4 @@
-# etwfe 0.5.0.99 (dev version)
+# etwfe 0.6.0 (dev version)
 
 **etwfe** v0.6.0 returns to CRAN after addressing some failures due to upstream
 dependency changes. Apologies for any inconvenience caused.
