@@ -239,14 +239,16 @@ emfx = function(
       )
     }
 
+    # id factor / character columns for dropping, since we can't compute means
+    # on these (https://github.com/Rdatatable/data.table/issues/7261)
+    scols = sapply(dat, function(x) is.factor(x) || is.character(x))
+    scols[c(gvar, tvar, xvar, ".Dtreat")] = TRUE
     # compress the data
     dat = dat[(.Dtreat)][,
       lapply(.SD, mean),
       by = c(gvar, tvar, xvar, ".Dtreat"),
-      .SDcols = function(x) {
-        !(is.factor(x) || is.character(x))
-      }
-    ] # compress data
+      .SDcols = !scols
+    ]
     dat = setDT(dat)[, merge(.SD, dat_weights, all.x = TRUE)] # add weights
   } else if (compress & !is.null(ivar)) {
     warning(
