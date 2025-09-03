@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">etwfe</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0.99</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -247,7 +247,7 @@ to aggregate them along some dimension of interest (e.g., by groups or
 time, or as an event study). A natural way to perform these aggregations
 is by recovering the appropriate marginal effects. The
 <strong>etwfe</strong> package provides another convenience function for
-doing so: <code><a href="../reference/emfx.html">emfx()</a></code>, which is a thin(ish) wrapper around <a href="https://marginaleffects.com/r/man/slopes.html" class="external-link"><code>marginaleffects::slopes()</code></a>.</p>
+doing so: <code><a href="../reference/emfx.html">emfx()</a></code>, which is a thin(ish) wrapper around <a href="https://marginaleffects.com/man/r/slopes.html" class="external-link"><code>marginaleffects::slopes()</code></a>.</p>
 <p>For example, we can recover the average treatment effect on the
 treated (ATT) as follows.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
@@ -629,7 +629,7 @@ treatment effects by these two distinct groups.</p>
 <p>The above point estimates might tempt us to think that minimum wage
 hikes caused less teen disemployment in GLS counties than in the rest of
 the US on average. However, to test this formally we can invoke the
-powerful <a href="https://marginaleffects.com/r/man/hypotheses.html" class="external-link"><code>hypotheses</code></a>
+powerful <a href="https://marginaleffects.com/man/r/hypotheses.html" class="external-link"><code>hypotheses</code></a>
 infrastructure of the underlying <strong>marginaleffects</strong>
 package. Probably the easiest way to do this is by using
 <code>b[i]</code>-style positional arguments, where “<code>[i]</code>”
@@ -1081,7 +1081,7 @@ the formula of an estimated model to see for yourself.</p>
 <span><span class="co">#&gt; $linear</span></span>
 <span><span class="co">#&gt; lemp ~ .Dtreat:i(first.treat, i.year, ref = 0, ref2 = 2003)/lpop_dm + </span></span>
 <span><span class="co">#&gt;     lpop + i(first.treat, lpop, ref = 0) + i(year, lpop, ref = 2003)</span></span>
-<span><span class="co">#&gt; &lt;environment: 0x55ae51f71238&gt;</span></span>
+<span><span class="co">#&gt; &lt;environment: 0x564be2228400&gt;</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $fixef</span></span>
 <span><span class="co">#&gt; ~first.treat + year</span></span></code></pre></div>
