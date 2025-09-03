@@ -130,6 +130,8 @@ emfx = function(
   predict = match.arg(predict)
   etwfe_attr = attr(object, "etwfe")
   etwfe_attr[["type"]] = type
+  yvar = etwfe_attr[["yvar"]]
+  ctrls = etwfe_attr[["ctrls"]]
   gvar = etwfe_attr[["gvar"]]
   tvar = etwfe_attr[["tvar"]]
   ivar = etwfe_attr[["ivar"]]
@@ -237,11 +239,16 @@ emfx = function(
       )
     }
 
+    # id factor / character columns for dropping, since we can't compute means
+    # on these (https://github.com/Rdatatable/data.table/issues/7261)
+    scols = sapply(dat, function(x) is.factor(x) || is.character(x))
+    scols[c(gvar, tvar, xvar, ".Dtreat")] = TRUE
     # compress the data
     dat = dat[(.Dtreat)][,
       lapply(.SD, mean),
-      by = c(gvar, tvar, xvar, ".Dtreat")
-    ] # compress data
+      by = c(gvar, tvar, xvar, ".Dtreat"),
+      .SDcols = !scols
+    ]
     dat = setDT(dat)[, merge(.SD, dat_weights, all.x = TRUE)] # add weights
   } else if (compress & !is.null(ivar)) {
     warning(

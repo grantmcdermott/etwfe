@@ -13,7 +13,7 @@ dependency changes. Apologies for any inconvenience caused.
   of **marginaleffects**. (Briefly: the standard errors of these non-linear
   families cannot be computed correctly with derivative methods on estimations
   where the fixed-effects have been abstracted away; see
-  [marginaleffects#1487)](https://github.com/vincentarelbundock/marginaleffects/issues/1487)
+  [marginaleffects#1487](https://github.com/vincentarelbundock/marginaleffects/issues/1487)
   for more details.) Technically this is a breaking change, but it requires no
   changes on the user side and the end result should be identical in most cases.
   The only change you might see is that the standard errors from estimations
@@ -26,6 +26,12 @@ dependency changes. Apologies for any inconvenience caused.
   consideration horizon. This may prove helpful for cases with a large number of
   pre- and/or post-treatment periods. Thanks to @fhollenbach for the initial
   suggestion and implementation. (#46)
+
+## Bug fixes
+
+- Fix bug where a superfluous factor or character column could cause the
+  compression step in `emfx(..., compress = TRUE)` to fail. Thanks to @umor for
+  reporting in #66.
 
 ## Internals
 
