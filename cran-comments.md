@@ -1,8 +1,8 @@
 ## Overview
 
-`etwfe` 0.5.0 is a minor release that addresses some CRAN check failures due to
-an upstream dependency, and also adds some new features (e.g, a native
-`plot.emfx` method).
+`etwfe` 0.6.0 is a resubmission to CRAN following the package's removal due to
+test failures that were caused by changes to an upstream dependency. All test
+failures have been addressed.
 
 ## Test environments
 
