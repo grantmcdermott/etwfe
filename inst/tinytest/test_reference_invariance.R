@@ -7,64 +7,63 @@ tol = 1e-6  # Strict tolerance for invariance
 
 data("mpdta", package = "did")
 
-# Create binary grouping variable with two different reference levels
-mpdta$gls_refA = factor(ifelse(mpdta$industry <= 4, "A", "B"))  # ref = "A"
-mpdta$gls_refB = factor(
-  ifelse(mpdta$industry <= 4, "A", "B"),
-  levels = c("B", "A")  # ref = "B"
-)
+# Create factor variables with different reference levels
+gls1 <- c('IL' = 17, 'IN' = 18, 'MI' = 26, 'MN' = 27, 'NY' = 36, 'OH' = 39, 'PA' = 42, 'WI' = 55)
+mpdta$gls1 <- substr(mpdta$countyreal, 1, 2) %in% gls1
+mpdta$gls4 <- as.factor(ifelse(mpdta$gls1, 'gls', 'other'))  # ref = 'gls' (alphabetical)
+mpdta$gls5 <- relevel(mpdta$gls4, ref = 'other')  # ref = 'other'
 
-# Estimate with reference level "A"
-mod_refA = etwfe(
+# Estimate with reference level "gls"
+mod_gls4 <- etwfe(
   fml = lemp ~ lpop,
   tvar = year,
   gvar = first.treat,
   data = mpdta,
-  xvar = gls_refA,
+  xvar = gls4,
   vcov = ~countyreal
 )
 
-# Estimate with reference level "B"
-mod_refB = etwfe(
+# Estimate with reference level "other"
+mod_gls5 <- etwfe(
   fml = lemp ~ lpop,
   tvar = year,
   gvar = first.treat,
   data = mpdta,
-  xvar = gls_refB,
+  xvar = gls5,
   vcov = ~countyreal
 )
 
 # Get simple ATT estimates
-att_refA = emfx(mod_refA, type = "simple")
-att_refB = emfx(mod_refB, type = "simple")
+att_gls4 <- emfx(mod_gls4, type = "simple")
+att_gls5 <- emfx(mod_gls5, type = "simple")
 
 # Test 1: Estimates should be identical regardless of reference level
 expect_equal(
-  att_refA$estimate,
-  att_refB$estimate,
+  att_gls4$estimate,
+  att_gls5$estimate,
   tolerance = tol,
   info = "ATT estimates should be invariant to factor reference level (Issue #72)"
 )
 
 # Test 2: Standard errors should also be identical
 expect_equal(
-  att_refA$std.error,
-  att_refB$std.error,
+  att_gls4$std.error,
+  att_gls5$std.error,
   tolerance = tol,
   info = "Standard errors should be invariant to factor reference level (Issue #72)"
 )
 
 # Test 3: Test with heterogeneous effects (by_xvar = TRUE)
-att_het_refA = emfx(mod_refA, type = "simple", by_xvar = TRUE)
-att_het_refB = emfx(mod_refB, type = "simple", by_xvar = TRUE)
+att_het_gls4 = emfx(mod_gls4, type = "simple", by_xvar = TRUE)
+att_het_gls5 = emfx(mod_gls5, type = "simple", by_xvar = TRUE)
 
 # Sort by xvar level to ensure same ordering
-att_het_refA = att_het_refA[order(att_het_refA$gls_refA), ]
-att_het_refB = att_het_refB[order(att_het_refB$gls_refB), ]
+att_het_gls4 = att_het_gls4[order(att_het_gls4$gls4), ]
+att_het_gls5 = att_het_gls5[order(att_het_gls5$gls5), ]
 
 expect_equal(
-  att_het_refA$estimate,
-  att_het_refB$estimate,
+  att_het_gls4$estimate,
+  att_het_gls5$estimate,
   tolerance = tol,
   info = "Heterogeneous ATT estimates should be invariant to reference level (Issue #72)"
 )
