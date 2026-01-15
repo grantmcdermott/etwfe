@@ -1,4 +1,11 @@
-# etwfe 0.6.0 (dev version)
+# Development version
+
+## Internals
+
+- Bump the dependency version for several upstream packages, which should result
+  in better performance and faster install times.
+
+# etwfe 0.6.0
 
 **etwfe** v0.6.0 returns to CRAN after addressing some failures due to upstream
 dependency changes. Apologies for any inconvenience caused.
