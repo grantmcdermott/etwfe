@@ -8,13 +8,16 @@ tol = 1e-6  # Strict tolerance for invariance
 data("mpdta", package = "did")
 
 # Create factor variables with different reference levels
-gls1 <- c('IL' = 17, 'IN' = 18, 'MI' = 26, 'MN' = 27, 'NY' = 36, 'OH' = 39, 'PA' = 42, 'WI' = 55)
-mpdta$gls1 <- substr(mpdta$countyreal, 1, 2) %in% gls1
-mpdta$gls4 <- as.factor(ifelse(mpdta$gls1, 'gls', 'other'))  # ref = 'gls' (alphabetical)
-mpdta$gls5 <- relevel(mpdta$gls4, ref = 'other')  # ref = 'other'
+gls1 = c('IL' = 17, 'IN' = 18, 'MI' = 26, 'MN' = 27, 'NY' = 36, 'OH' = 39, 'PA' = 42, 'WI' = 55)
+mpdta$gls1 = substr(mpdta$countyreal, 1, 2) %in% gls1
+mpdta$gls4 = as.factor(ifelse(mpdta$gls1, 'gls', 'other'))  # ref = 'gls' (alphabetical)
+mpdta$gls5 = relevel(mpdta$gls4, ref = 'other')  # ref = 'other'
+
+# For matching
+gls_ord = c("gls", "other")
 
 # Estimate with reference level "gls"
-mod_gls4 <- etwfe(
+mod_gls4 = etwfe(
   fml = lemp ~ lpop,
   tvar = year,
   gvar = first.treat,
@@ -24,7 +27,7 @@ mod_gls4 <- etwfe(
 )
 
 # Estimate with reference level "other"
-mod_gls5 <- etwfe(
+mod_gls5 = etwfe(
   fml = lemp ~ lpop,
   tvar = year,
   gvar = first.treat,
@@ -34,8 +37,11 @@ mod_gls5 <- etwfe(
 )
 
 # Get simple ATT estimates
-att_gls4 <- emfx(mod_gls4, type = "simple")
-att_gls5 <- emfx(mod_gls5, type = "simple")
+att_gls4 = emfx(mod_gls4, type = "simple")
+att_gls5 = emfx(mod_gls5, type = "simple")
+
+att_gls4 = att_het_gls4[gls_ord, ]
+att_gls5 = att_het_gls5[gls_ord, ]
 
 # Test 1: Estimates should be identical regardless of reference level
 expect_equal(
@@ -58,8 +64,8 @@ att_het_gls4 = emfx(mod_gls4, type = "simple", by_xvar = TRUE)
 att_het_gls5 = emfx(mod_gls5, type = "simple", by_xvar = TRUE)
 
 # Sort by xvar level to ensure same ordering
-att_het_gls4 = att_het_gls4[order(att_het_gls4$gls4), ]
-att_het_gls5 = att_het_gls5[order(att_het_gls5$gls5), ]
+att_het_gls4 = att_het_gls4[gls_ord, ]
+att_het_gls5 = att_het_gls5[gls_ord, ]
 
 expect_equal(
   att_het_gls4$estimate,
