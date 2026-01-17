@@ -424,9 +424,8 @@ etwfe = function(
 
   ## Demean the interacted covariate (for heterogeneous ATEs) ----
   if (!is.null(xvar)) {
-    # Solution 1: Demean within cohort-time groups (matches Stata's jwdid)
-    # Create cohort-time grouping variable (equivalent to Stata's toabshere)
-    data$.cohort_time = interaction(data[[gvar]], data[[tvar]], drop = TRUE)
+    # Demean within cohort-time groups
+    data[[".cohort_time"]] = interaction(data[[gvar]], data[[tvar]], drop = TRUE)
 
     # Demean within cohort-time groups using ALL observations
     # This ensures demeaned values are invariant to factor reference levels
@@ -434,7 +433,7 @@ etwfe = function(
     xvar_dm_df = demean(
       xvar_dm_fml,
       data = data,
-      # No weights restriction - all observations participate
+      # No weights restriction; all observations participate to preserve symmetry (#73)
       as.matrix = FALSE
     )
     if (length(xvar) == ncol(xvar_dm_df)) {
