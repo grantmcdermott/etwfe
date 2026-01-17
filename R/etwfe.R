@@ -424,18 +424,18 @@ etwfe = function(
 
   ## Demean the interacted covariate (for heterogeneous ATEs) ----
   if (!is.null(xvar)) {
-    data$.Dtreated_cohort = ifelse(
-      data[[gvar]] != gref & !is.na(data[[gvar]]),
-      1,
-      0
-    ) # generate a treatment-dummy
-    xvar_dm_fml = reformulate(gvar, response = xvar)
+    # Demean within cohort-time groups
+    data[[".cohort_time"]] = interaction(data[[gvar]], data[[tvar]], drop = TRUE)
+
+    # Demean within cohort-time groups using ALL observations
+    # This ensures demeaned values are invariant to factor reference levels
+    xvar_dm_fml = reformulate(".cohort_time", response = xvar)
     xvar_dm_df = demean(
       xvar_dm_fml,
       data = data,
-      weights = data$.Dtreated_cohort,
+      # No weights restriction; all observations participate to preserve symmetry (#73)
       as.matrix = FALSE
-    ) # weights: only use the treated cohorts (units) to demean
+    )
     if (length(xvar) == ncol(xvar_dm_df)) {
       xvar_dm_df = setNames(xvar_dm_df, paste0(xvar, "_dm")) # give a name
       xvar_fml_vars = paste0(xvar, "_dm")
