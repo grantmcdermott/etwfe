@@ -1,5 +1,11 @@
 # Development version
 
+## Bug fixes
+
+- Fix bug where changing the factor reference level of `xvar` would affect
+  treatment effect estimates. Thanks to @umor for the details report and PR.
+  (#72, #73)
+
 ## Internals
 
 - Bump the dependency version for several upstream packages, which should result
