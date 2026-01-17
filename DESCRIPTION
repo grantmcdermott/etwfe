@@ -10,11 +10,15 @@ Authors@R:
            role = c("aut", "cre"),
            email = "gmcd@amazon.com",
            comment = c(ORCID = "0000-0001-7883-8573")),
-    person( given = "Frederic",
-            family = "Kluser",
-            role = "ctb",
-            email = "frederic.kluser@unibe.ch")
-            )
+    person(given = "Frederic",
+          family = "Kluser",
+          role = "ctb",
+          email = "frederic.kluser@unibe.ch"),
+    person(given = "Ulrich",
+          family = "Morawetz",
+          role = "ctb",
+          email = "ulrich.morawetz@boku.ac.at")
+          )
 Description: Convenience functions for implementing extended two-way 
   fixed effect regressions a la Wooldridge (2021, 2023)
   <doi:10.2139/ssrn.3906345>, <doi:10.1093/ectj/utad016>.
@@ -35,7 +39,7 @@ Suggests:
   rmarkdown,
   tinytest
 Encoding: UTF-8
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 URL: https://grantmcdermott.com/etwfe/
 BugReports: https://github.com/grantmcdermott/etwfe/issues
 VignetteBuilder: knitr
