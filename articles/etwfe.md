@@ -434,9 +434,9 @@ hmod = etwfe(
 # Simple heterogeneous ATTs (could also specify `type = "event"`, etc.) 
 (hmod_mfx = emfx(hmod))
 #> 
-#>  .Dtreat   gls Estimate Std. Error     z Pr(>|z|)   S  2.5 %  97.5 %
-#>     TRUE FALSE  -0.0519     0.0346 -1.50    0.134 2.9 -0.120 0.01597
-#>     TRUE  TRUE  -0.0394     0.0243 -1.62    0.105 3.3 -0.087 0.00822
+#>  .Dtreat   gls Estimate Std. Error     z Pr(>|z|)   S   2.5 % 97.5 %
+#>     TRUE FALSE  -0.0511     0.0317 -1.61    0.107 3.2 -0.1133 0.0111
+#>     TRUE  TRUE  -0.0366     0.0253 -1.44    0.149 2.7 -0.0862 0.0131
 #> 
 #> Term: .Dtreat
 #> Type: response
@@ -460,7 +460,7 @@ one another.
 emfx(hmod, hypothesis = "b1 = b2")
 #> 
 #>  Hypothesis Estimate Std. Error      z Pr(>|z|)   S  2.5 % 97.5 %
-#>       b1=b2  -0.0125     0.0528 -0.237    0.813 0.3 -0.116  0.091
+#>       b1=b2  -0.0145     0.0511 -0.285    0.776 0.4 -0.115 0.0856
 #> 
 #> Type: response
 ```
@@ -507,8 +507,8 @@ modelsummary(
 |     | GLS county |         |
 |-----|------------|---------|
 |     | FALSE      | TRUE    |
-| ATT | -0.052     | -0.039  |
-|     | (0.035)    | (0.024) |
+| ATT | -0.051     | -0.037  |
+|     | (0.032)    | (0.025) |
 
 Comparing the ATT on GLS and non-GLS counties
 
@@ -686,7 +686,7 @@ mod$fml_all
 #> $linear
 #> lemp ~ .Dtreat:i(first.treat, i.year, ref = 0, ref2 = 2003)/lpop_dm + 
 #>     lpop + i(first.treat, lpop, ref = 0) + i(year, lpop, ref = 2003)
-#> <environment: 0x55e68aa33f78>
+#> <environment: 0x55c35acf98e8>
 #> 
 #> $fixef
 #> ~first.treat + year

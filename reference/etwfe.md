@@ -302,8 +302,8 @@ hmod = etwfe(
 emfx(hmod)
 #> 
 #>  .Dtreat   gls Estimate Std. Error     z Pr(>|z|)   S  2.5 %  97.5 %
-#>     TRUE FALSE  -0.0637     0.0376 -1.69   0.0905 3.5 -0.137 0.01005
-#>     TRUE  TRUE  -0.0472     0.0271 -1.74   0.0816 3.6 -0.100 0.00593
+#>     TRUE FALSE  -0.0600     0.0344 -1.74   0.0811 3.6 -0.127 0.00741
+#>     TRUE  TRUE  -0.0449     0.0281 -1.60   0.1101 3.2 -0.100 0.01018
 #> 
 #> Term: .Dtreat
 #> Type: response
@@ -315,8 +315,8 @@ emfx(hmod)
 
 emfx(hmod, hypothesis = "b1 = b2")
 #> 
-#>  Hypothesis Estimate Std. Error      z Pr(>|z|)   S  2.5 % 97.5 %
-#>       b1=b2  -0.0164     0.0558 -0.294    0.768 0.4 -0.126  0.093
+#>  Hypothesis Estimate Std. Error     z Pr(>|z|)   S  2.5 % 97.5 %
+#>       b1=b2  -0.0151     0.0538 -0.28    0.779 0.4 -0.121 0.0904
 #> 
 #> Type: response
 #> 

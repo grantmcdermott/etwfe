@@ -583,9 +583,9 @@ treatment effects by these two distinct groups.</p>
 <span><span class="co"># Simple heterogeneous ATTs (could also specify `type = "event"`, etc.) </span></span>
 <span><span class="op">(</span><span class="va">hmod_mfx</span> <span class="op">=</span> <span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="va">hmod</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;  .Dtreat   gls Estimate Std. Error     z Pr(&gt;|z|)   S  2.5 %  97.5 %</span></span>
-<span><span class="co">#&gt;     TRUE FALSE  -0.0519     0.0346 -1.50    0.134 2.9 -0.120 0.01597</span></span>
-<span><span class="co">#&gt;     TRUE  TRUE  -0.0394     0.0243 -1.62    0.105 3.3 -0.087 0.00822</span></span>
+<span><span class="co">#&gt;  .Dtreat   gls Estimate Std. Error     z Pr(&gt;|z|)   S   2.5 % 97.5 %</span></span>
+<span><span class="co">#&gt;     TRUE FALSE  -0.0511     0.0317 -1.61    0.107 3.2 -0.1133 0.0111</span></span>
+<span><span class="co">#&gt;     TRUE  TRUE  -0.0366     0.0253 -1.44    0.149 2.7 -0.0862 0.0131</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Term: .Dtreat</span></span>
 <span><span class="co">#&gt; Type: response</span></span>
@@ -605,7 +605,7 @@ another.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="va">hmod</span>, hypothesis <span class="op">=</span> <span class="st">"b1 = b2"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Hypothesis Estimate Std. Error      z Pr(&gt;|z|)   S  2.5 % 97.5 %</span></span>
-<span><span class="co">#&gt;       b1=b2  -0.0125     0.0528 -0.237    0.813 0.3 -0.116  0.091</span></span>
+<span><span class="co">#&gt;       b1=b2  -0.0145     0.0511 -0.285    0.776 0.4 -0.115 0.0856</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Type: response</span></span></code></pre></div>
 <p>Here we see that there is actually no statistical difference in the
@@ -693,13 +693,13 @@ example, where we again make use of the
 <tbody>
 <tr>
 <td data-row="1" data-col="1">ATT</td>
-                  <td data-row="1" data-col="2">-0.052</td>
-                  <td data-row="1" data-col="3">-0.039</td>
+                  <td data-row="1" data-col="2">-0.051</td>
+                  <td data-row="1" data-col="3">-0.037</td>
                 </tr>
 <tr>
 <td data-row="2" data-col="1"></td>
-                  <td data-row="2" data-col="2">(0.035)</td>
-                  <td data-row="2" data-col="3">(0.024)</td>
+                  <td data-row="2" data-col="2">(0.032)</td>
+                  <td data-row="2" data-col="3">(0.025)</td>
                 </tr>
 </tbody>
 </table>
@@ -971,7 +971,7 @@ the formula of an estimated model to see for yourself.</p>
 <span><span class="co">#&gt; $linear</span></span>
 <span><span class="co">#&gt; lemp ~ .Dtreat:i(first.treat, i.year, ref = 0, ref2 = 2003)/lpop_dm + </span></span>
 <span><span class="co">#&gt;     lpop + i(first.treat, lpop, ref = 0) + i(year, lpop, ref = 2003)</span></span>
-<span><span class="co">#&gt; &lt;environment: 0x55e68aa33f78&gt;</span></span>
+<span><span class="co">#&gt; &lt;environment: 0x55c35acf98e8&gt;</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $fixef</span></span>
 <span><span class="co">#&gt; ~first.treat + year</span></span></code></pre></div>
