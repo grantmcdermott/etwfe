@@ -85,7 +85,7 @@ post-estimation in \code{emfx}.
 }
 \description{
 Estimates an "extended" two-way fixed effects regression, with fully
-saturated interaction effects \emph{a la} Wooldridge (2021, 2023). At its heart,
+saturated interaction effects \emph{a la} Wooldridge (2023, 2025). At its heart,
 \code{etwfe} is a convenience function that automates a number of tedious and
 error prone preparation steps involving both the data and model formulae.
 Computation is passed on to the \code{\link[fixest]{feols}} (linear) /
@@ -253,10 +253,10 @@ etwfe(
 
 }
 \references{
-Wooldridge, Jeffrey M. (2021). \cite{Two-Way Fixed Effects, the
-Two-Way Mundlak Regression, and Difference-in-Differences Estimators}.
-Working paper (version: August 16, 2021). Available:
-http://dx.doi.org/10.2139/ssrn.3906345
+Wooldridge, Jeffrey M. (2025). \cite{Two-way fixed effects, the two-way
+Mundlak regression, and difference-in-differences estimators}.
+Empirical Economics, 69, 2545-2587. Available:
+https://doi.org/10.1007/s00181-025-02807-z
 
 Wooldridge, Jeffrey M. (2023). \cite{Simple Approaches to Nonlinear
 Difference-in-Differences with Panel Data}. The Econometrics Journal,

@@ -20,8 +20,8 @@ Authors@R:
           email = "ulrich.morawetz@boku.ac.at")
           )
 Description: Convenience functions for implementing extended two-way 
-  fixed effect regressions a la Wooldridge (2021, 2023)
-  <doi:10.2139/ssrn.3906345>, <doi:10.1093/ectj/utad016>.
+  fixed effect regressions a la Wooldridge (2023, 2025)
+  <doi:10.1093/ectj/utad016>, <doi:10.1007/s00181-025-02807-z>.
 License: MIT + file LICENSE
 Imports:
   fixest (>= 0.11.2),

@@ -10,6 +10,7 @@
 
 - Bump the dependency version for several upstream packages, which should result
   in better performance and faster install times.
+- Update Wooldridge (2021) ref with the published version, i.e. Wooldridge (2025).
 
 # etwfe 0.6.0
 
