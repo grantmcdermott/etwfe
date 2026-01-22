@@ -24,18 +24,18 @@ Description: Convenience functions for implementing extended two-way
   <doi:10.1093/ectj/utad016>, <doi:10.1007/s00181-025-02807-z>.
 License: MIT + file LICENSE
 Imports:
-  fixest (>= 0.11.2),
-  stats,
+  fixest (>= 0.13.2),
   data.table,
   Formula,
   marginaleffects (>= 0.29.0),
+  stats,
   tinyplot (>= 0.6.0)
 Suggests:
-  did (>= 2.3.0),
   broom,
-  modelsummary (>= 2.2.0),
+  did (>= 2.3.0),
   ggplot2,
   knitr,
+  modelsummary (>= 2.2.0),
   rmarkdown,
   tinytest
 Encoding: UTF-8

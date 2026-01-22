@@ -9,7 +9,10 @@
 ## Internals
 
 - Bump the dependency version for several upstream packages, which should result
-  in better performance and faster install times.
+  in better performance and faster install times. Note that **fixest** 0.13.2
+  introduced a breaking change to its default `vcov` (now always `"iid"`), which
+  may affect `etwfe` results if the user did not explicitly provide a `vcov`
+  argument.
 - Update Wooldridge (2021) ref with the published version, i.e. Wooldridge (2025).
 
 # etwfe 0.6.0
