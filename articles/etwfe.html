@@ -115,18 +115,18 @@ estimate bias in the presence of staggered treatment rollouts, which are
 very common in real-life applications.</p>
 <p>Fortunately, just as econometricians were taking away one of our
 favourite tools, they were kind enough to replace it with some new ones.
-Among these, the proposed approach by Wooldridge (<a href="https://dx.doi.org/10.2139/ssrn.3906345" class="external-link">2021</a>, <a href="https://doi.org/10.1093/ectj/utad016" class="external-link">2023</a>) is noteworthy. His
-idea might be paraphrased as stating that the problem with TWFE is not
-that we were doing it in the first place. Rather, it’s that we weren’t
-doing it enough. Instead of only including a single treatment × time
-interaction, Wooldridge recommends that we saturate our model with all
-possible interactions between treatment and time variables, including
-treatment cohorts, as well as other covariates. He goes on to show that
-this approach actually draws an equivalence between different types of
-estimators (pooled OLS, twoway Mundlak regression, etc.) So it’s not
-entirely clear what to call it. But Wooldridge refers to the general
-idea as as <em>extended</em> TWFE—or, ETWFE—which I rather like and is
-where this package takes its name.</p>
+Among these, the proposed approach by Wooldridge (<a href="https://doi.org/10.1093/ectj/utad016" class="external-link">2023</a>, <a href="https://doi.org/10.1007/s00181-025-02807-z" class="external-link">2025</a>) is
+noteworthy. His idea might be paraphrased as stating that the problem
+with TWFE is not that we were doing it in the first place. Rather, it’s
+that we weren’t doing it enough. Instead of only including a single
+treatment × time interaction, Wooldridge recommends that we saturate our
+model with all possible interactions between treatment and time
+variables, including treatment cohorts, as well as other covariates. He
+goes on to show that this approach actually draws an equivalence between
+different types of estimators (pooled OLS, twoway Mundlak regression,
+etc.) So it’s not entirely clear what to call it. But Wooldridge refers
+to the general idea as as <em>extended</em> TWFE—or, ETWFE—which I
+rather like and is where this package takes its name.</p>
 <p>The Wooldridge ETWFE solution is intuitive and elegant. But it is
 also rather tedious and error prone to code up manually. You have to
 correctly specify all the possible interactions, demean control
@@ -971,7 +971,7 @@ the formula of an estimated model to see for yourself.</p>
 <span><span class="co">#&gt; $linear</span></span>
 <span><span class="co">#&gt; lemp ~ .Dtreat:i(first.treat, i.year, ref = 0, ref2 = 2003)/lpop_dm + </span></span>
 <span><span class="co">#&gt;     lpop + i(first.treat, lpop, ref = 0) + i(year, lpop, ref = 2003)</span></span>
-<span><span class="co">#&gt; &lt;environment: 0x55c35acf98e8&gt;</span></span>
+<span><span class="co">#&gt; &lt;environment: 0x564b267f5670&gt;</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $fixef</span></span>
 <span><span class="co">#&gt; ~first.treat + year</span></span></code></pre></div>
@@ -1970,7 +1970,7 @@ all return the same raw coefficients.</p>
 <strong>etwfe</strong> defaults to using group-level (i.e.,
 cohort-level) fixed effects like <code>first.treat</code>, rather than
 unit-level fixed effects like <code>countyreal</code>. This design
-decision reflects a neat ancillary result in Wooldridge (2021), which
+decision reflects a neat ancillary result in Wooldridge (2025), which
 proves the equivalence between the two types of fixed effects for linear
 cases. Group-level effects have the virtue of being faster to estimate,
 since there are fewer factor levels. Moreover, they are

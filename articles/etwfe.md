@@ -60,11 +60,11 @@ very common in real-life applications.
 Fortunately, just as econometricians were taking away one of our
 favourite tools, they were kind enough to replace it with some new ones.
 Among these, the proposed approach by Wooldridge
-([2021](https://dx.doi.org/10.2139/ssrn.3906345),
-[2023](https://doi.org/10.1093/ectj/utad016)) is noteworthy. His idea
-might be paraphrased as stating that the problem with TWFE is not that
-we were doing it in the first place. Rather, it’s that we weren’t doing
-it enough. Instead of only including a single treatment × time
+([2023](https://doi.org/10.1093/ectj/utad016),
+[2025](https://doi.org/10.1007/s00181-025-02807-z)) is noteworthy. His
+idea might be paraphrased as stating that the problem with TWFE is not
+that we were doing it in the first place. Rather, it’s that we weren’t
+doing it enough. Instead of only including a single treatment × time
 interaction, Wooldridge recommends that we saturate our model with all
 possible interactions between treatment and time variables, including
 treatment cohorts, as well as other covariates. He goes on to show that
@@ -686,7 +686,7 @@ mod$fml_all
 #> $linear
 #> lemp ~ .Dtreat:i(first.treat, i.year, ref = 0, ref2 = 2003)/lpop_dm + 
 #>     lpop + i(first.treat, lpop, ref = 0) + i(year, lpop, ref = 2003)
-#> <environment: 0x55c35acf98e8>
+#> <environment: 0x564b267f5670>
 #> 
 #> $fixef
 #> ~first.treat + year
@@ -951,7 +951,7 @@ modelsummary(mods, gof_map = NA)
 A final point to note about fixed effects is that **etwfe** defaults to
 using group-level (i.e., cohort-level) fixed effects like `first.treat`,
 rather than unit-level fixed effects like `countyreal`. This design
-decision reflects a neat ancillary result in Wooldridge (2021), which
+decision reflects a neat ancillary result in Wooldridge (2025), which
 proves the equivalence between the two types of fixed effects for linear
 cases. Group-level effects have the virtue of being faster to estimate,
 since there are fewer factor levels. Moreover, they are *required* for

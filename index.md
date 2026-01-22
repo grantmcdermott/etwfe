@@ -1,8 +1,8 @@
 # Extended Two-way Fixed Effects (ETWFE)
 
 The goal of **etwfe** is to estimate extended two-way fixed effects *a
-la* Wooldridge ([2021](https://dx.doi.org/10.2139/ssrn.3906345),
-[2023](https://doi.org/10.1093/ectj/utad016)). Briefly, Wooldridge
+la* Wooldridge ([2023](https://doi.org/10.1093/ectj/utad016),
+[2025](https://doi.org/10.1007/s00181-025-02807-z)). Briefly, Wooldridge
 proposes a set of saturated interaction effects to overcome the
 potential bias problems of vanilla TWFE in difference-in-differences
 designs. The Wooldridge solution is intuitive and elegant, but rather
@@ -66,28 +66,24 @@ mod
 #> OLS estimation, Dep. Var.: lemp
 #> Observations: 2,500
 #> Fixed-effects: first.treat: 4,  year: 5
-#> Varying slopes: lpop (first.treat): 4,  lpop (year): 5
 #> Standard-errors: Clustered (countyreal) 
-#>                                               Estimate Std. Error   t value   Pr(>|t|)    
-#> .Dtreat:first.treat::2004:year::2004         -0.021248   0.021728 -0.977890 3.2860e-01    
-#> .Dtreat:first.treat::2004:year::2005         -0.081850   0.027375 -2.989963 2.9279e-03 ** 
-#> .Dtreat:first.treat::2004:year::2006         -0.137870   0.030795 -4.477097 9.3851e-06 ***
-#> .Dtreat:first.treat::2004:year::2007         -0.109539   0.032322 -3.389024 7.5694e-04 ***
-#> .Dtreat:first.treat::2006:year::2006          0.002537   0.018883  0.134344 8.9318e-01    
-#> .Dtreat:first.treat::2006:year::2007         -0.045093   0.021987 -2.050907 4.0798e-02 *  
-#> .Dtreat:first.treat::2007:year::2007         -0.045955   0.017975 -2.556568 1.0866e-02 *  
-#> .Dtreat:first.treat::2004:year::2004:lpop_dm  0.004628   0.017584  0.263184 7.9252e-01    
-#> .Dtreat:first.treat::2004:year::2005:lpop_dm  0.025113   0.017904  1.402661 1.6134e-01    
-#> .Dtreat:first.treat::2004:year::2006:lpop_dm  0.050735   0.021070  2.407884 1.6407e-02 *  
-#> .Dtreat:first.treat::2004:year::2007:lpop_dm  0.011250   0.026617  0.422648 6.7273e-01    
-#> .Dtreat:first.treat::2006:year::2006:lpop_dm  0.038935   0.016472  2.363731 1.8474e-02 *  
-#> .Dtreat:first.treat::2006:year::2007:lpop_dm  0.038060   0.022477  1.693276 9.1027e-02 .  
-#> .Dtreat:first.treat::2007:year::2007:lpop_dm -0.019835   0.016198 -1.224528 2.2133e-01    
-#> ... 10 variables were removed because of collinearity (.Dtreat:first.treat::2006:year::2004, .Dtreat:first.treat::2006:year::2005 and 8 others [full set in $collin.var])
+#>                         Estimate Std. Error   t value  Pr(>|t|)    
+#> lpop                    1.065461   0.021824 48.821102 < 2.2e-16 ***
+#> first.treat::2004:lpop  0.050982   0.037756  1.350320  0.177525    
+#> first.treat::2006:lpop -0.041095   0.047390 -0.867183  0.386259    
+#> first.treat::2007:lpop  0.055518   0.039212  1.415838  0.157447    
+#> year::2004:lpop         0.011014   0.007554  1.458043  0.145458    
+#> year::2005:lpop         0.020733   0.008104  2.558268  0.010814 *  
+#> year::2006:lpop         0.010535   0.010816  0.974084  0.330487    
+#> year::2007:lpop         0.020921   0.011808  1.771708  0.077053 .  
+#> ... 14 coefficients remaining (display them with summary() or use argument n)
+#> ... 10 variables were removed because of collinearity
+#> (.Dtreat:first.treat::2006:year::2004, .Dtreat:first.treat::2006:year::2005 and 8 others
+#> [full set in $collin.var])
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-#> RMSE: 0.537131     Adj. R2: 0.87167 
-#>                  Within R2: 8.449e-4
+#> RMSE: 0.537131     Adj. R2: 0.871722
+#>                  Within R2: 0.869464
 ```
 
 **Step 2:** Pass to
@@ -97,15 +93,15 @@ the ATTs of interest. In this case, an event-study example.
 ``` r
 emfx(mod, type = "event")
 #> 
-#>     Term event Estimate Std. Error     z Pr(>|z|)    S   2.5 %   97.5 %
-#>  .Dtreat     0  -0.0332     0.0134 -2.48    0.013  6.3 -0.0594 -0.00701
-#>  .Dtreat     1  -0.0573     0.0172 -3.34   <0.001 10.2 -0.0910 -0.02373
-#>  .Dtreat     2  -0.1379     0.0308 -4.48   <0.001 17.0 -0.1982 -0.07751
-#>  .Dtreat     3  -0.1095     0.0323 -3.39   <0.001 10.5 -0.1729 -0.04619
+#>  event Estimate Std. Error     z Pr(>|z|)    S   2.5 %   97.5 %
+#>      0  -0.0332     0.0134 -2.48    0.013  6.3 -0.0594 -0.00702
+#>      1  -0.0573     0.0171 -3.34   <0.001 10.2 -0.0910 -0.02373
+#>      2  -0.1379     0.0308 -4.48   <0.001 17.0 -0.1982 -0.07753
+#>      3  -0.1095     0.0323 -3.39   <0.001 10.5 -0.1729 -0.04620
 #> 
-#> Type:  response 
+#> Term: .Dtreat
+#> Type: response
 #> Comparison: TRUE - FALSE
-#> Columns: term, contrast, event, estimate, std.error, statistic, p.value, s.value, conf.low, conf.high
 ```
 
 ## Acknowledgements
@@ -113,7 +109,7 @@ emfx(mod, type = "event")
 - [Jeffrey
   Wooldridge](https://econ.msu.edu/about/directory/Wooldridge-Jeffrey)
   for the underlying ETWFE theory
-  ([1](https://dx.doi.org/10.2139/ssrn.3906345),
+  ([1](https://doi.org/10.1007/s00181-025-02807-z),
   [2](https://doi.org/10.1093/ectj/utad016)).
 - [Laurent Bergé](https://sites.google.com/site/laurentrberge/)
   ([**fixest**](https://lrberge.github.io/fixest/)) and [Vincent
