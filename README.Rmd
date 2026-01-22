@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 
 <!-- badges: start -->
 [![CRAN version](https://www.r-pkg.org/badges/version/etwfe)](https://CRAN.R-project.org/package=etwfe)
-[![R-universe status badge](https://grantmcdermott.r-universe.dev/badges/etwfe)](https://grantmcdermott.r-universe.dev)
+[![R-universe status badge](https://grantmcdermott.r-universe.dev/etwfe/badges/version)](https://grantmcdermott.r-universe.dev/etwfe)
 [![Dev R-CMD-check](https://github.com/grantmcdermott/etwfe/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/grantmcdermott/etwfe/actions/workflows/R-CMD-check.yaml)
 [![CRAN checks](https://badges.cranchecks.info/worst/etwfe.svg)](https://cran.r-project.org/web/checks/check_results_etwfe.html)
 [![CRAN downloads](https://cranlogs.r-pkg.org/badges/etwfe)](https://cran.r-project.org/package=etwfe)
@@ -27,8 +27,8 @@ knitr::opts_chunk$set(
 <!-- badges: end -->
 
 The goal of **etwfe** is to estimate extended two-way fixed effects _a la_
-Wooldridge ([2021](https://dx.doi.org/10.2139/ssrn.3906345),
-[2023](https://doi.org/10.1093/ectj/utad016)).  Briefly,
+Wooldridge ([2023](https://doi.org/10.1093/ectj/utad016),
+[2025](https://doi.org/10.1007/s00181-025-02807-z)).  Briefly,
 Wooldridge proposes a set of saturated interaction effects to overcome the
 potential bias problems of vanilla TWFE in difference-in-differences designs.
 The Wooldridge solution is intuitive and elegant, but rather tedious and error
@@ -88,6 +88,6 @@ emfx(mod, type = "event")
 
 ## Acknowledgements
 
-- [Jeffrey Wooldridge](https://econ.msu.edu/about/directory/Wooldridge-Jeffrey) for the underlying ETWFE theory ([1](https://dx.doi.org/10.2139/ssrn.3906345), [2](https://doi.org/10.1093/ectj/utad016)).
+- [Jeffrey Wooldridge](https://econ.msu.edu/about/directory/Wooldridge-Jeffrey) for the underlying ETWFE theory ([1](https://doi.org/10.1007/s00181-025-02807-z), [2](https://doi.org/10.1093/ectj/utad016)).
 - [Laurent Bergé](https://sites.google.com/site/laurentrberge/) ([**fixest**](https://lrberge.github.io/fixest/)) and [Vincent Arel-Bundock](https://arelbundock.com/) ([**marginaleffects**](https://marginaleffects.com/)) for maintaining the two wonderful R packages that do most of the heavy lifting under the hood here.
 - [Fernando Rios-Avila](https://friosavila.github.io/) for the [`jwdid`](https://ideas.repec.org/c/boc/bocode/s459114.html) Stata module, which has provided a welcome foil for unit testing and whose elegant design helped inform my own choices for this R equivalent. 
