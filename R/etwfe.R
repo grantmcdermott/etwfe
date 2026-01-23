@@ -60,7 +60,7 @@
 #' interaction effects, and a few additional attributes used for
 #' post-estimation in `emfx`.
 #'
-#' @importFrom fixest demean feols feglm
+#' @importFrom fixest demean feols feglm i
 #' @importFrom stats reformulate setNames
 #' @importFrom Formula as.Formula
 #'
@@ -520,6 +520,7 @@ etwfe = function(
   }
 
   ## Estimate
+  browser()
   if (is.null(family)) {
     est = feols(Fml, data = data, notes = FALSE, ...)
   } else {
