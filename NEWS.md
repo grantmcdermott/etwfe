@@ -5,6 +5,9 @@
 - Fix bug where changing the factor reference level of `xvar` would affect
   treatment effect estimates. Thanks to @umor for the details report and PR.
   (#72, #73)
+- Import `fixest::i` as part of the package namespace to avoid edge case where
+  the estimation would fail with boolean covariates. Thanks to @SMasa11 for the
+  report in #70. (#78)
 
 ## Internals
 
