@@ -686,7 +686,7 @@ mod$fml_all
 #> $linear
 #> lemp ~ .Dtreat:i(first.treat, i.year, ref = 0, ref2 = 2003)/lpop_dm + 
 #>     lpop + i(first.treat, lpop, ref = 0) + i(year, lpop, ref = 2003)
-#> <environment: 0x564b267f5670>
+#> <environment: 0x561873367d20>
 #> 
 #> $fixef
 #> ~first.treat + year
