@@ -520,7 +520,6 @@ etwfe = function(
   }
 
   ## Estimate
-  browser()
   if (is.null(family)) {
     est = feols(Fml, data = data, notes = FALSE, ...)
   } else {
