@@ -207,7 +207,7 @@ emfx = function(
           dat[[tvar]] <= (dat[[gvar]] + window),
         ,
         drop = FALSE,
-        env = list(tvar = I(tvar), gvar = gvar)
+        env = list(tvar = I(tvar), gvar = I(gvar))
       ]
     } else if (length(window) == 2) {
       dat = dat[
@@ -215,7 +215,7 @@ emfx = function(
           dat[[tvar]] <= (dat[[gvar]] + window[2]),
         ,
         drop = FALSE,
-        env = list(tvar = I(tvar), gvar = gvar)
+        env = list(tvar = I(tvar), gvar = I(gvar))
       ]
     } else {
       stop("Invalid `window` argument. Must be of length 1 or 2.")
