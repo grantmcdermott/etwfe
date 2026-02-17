@@ -19,18 +19,32 @@ downloads](https://cranlogs.r-pkg.org/badges/etwfe)](https://cran.r-project.org/
 [![Docs](https://img.shields.io/badge/docs-homepage-blue.svg)](https://grantmcdermott.com/etwfe/index.html)
 <!-- badges: end -->
 
-The goal of **etwfe** is to estimate extended two-way fixed effects *a
-la* Wooldridge ([2023](https://doi.org/10.1093/ectj/utad016),
-[2025](https://doi.org/10.1007/s00181-025-02807-z)). Briefly, Wooldridge
-proposes a set of saturated interaction effects to overcome the
-potential bias problems of vanilla TWFE in difference-in-differences
-designs. The Wooldridge solution is intuitive and elegant, but rather
-tedious and error prone to code up manually. The **etwfe** package aims
-to simplify the process by providing convenience functions that do the
-work for you.
+R package for estimating Extended Two-Way Fixed Effects (ETWFE).
 
-Documentation is available on the package
+## Motivation
+
+One of the most popular causal inference tools for social scientists is
+the two-way fixed effects (TWFE) estimator, especially in the context of
+difference-in-differences (DiD) designs. However, it turns out that
+vanilla TWFE is often biased in real-life situations, such as under
+staggered treatment rollout. Wooldridge
+([2023](https://doi.org/10.1093/ectj/utad016),
+[2025](https://doi.org/10.1007/s00181-025-02807-z)) points out that this
+isn’t the fault of TWFE *per se*, but rather due to the fact that we
+haven’t specified an appropriately flexible model. His recommended
+solution involves saturating the model with cohort×time interaction
+terms, yielding a specification that he calls **extended TWFE (ETWFE)**.
+The Wooldridge solution is intuitive and elegant, but rather tedious and
+error prone to code up manually.
+
+The good news is that the **etwfe** R package is here to help. It
+provides a set of convenience functions and diagnostic tools that do the
+work for you. Please see below for some quickstart examples. Full
+documentation is available on the **etwfe**
 [homepage](https://grantmcdermott.com/etwfe/).
+
+Python users should take a look at Armand Kapllani’s
+[port](https://armandkapllani.github.io/etwfe/#) of this package.
 
 ## Installation
 
