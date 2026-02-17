@@ -26,7 +26,7 @@ knitr::opts_chunk$set(
 [![Docs](https://img.shields.io/badge/docs-homepage-blue.svg)](https://grantmcdermott.com/etwfe/index.html)
 <!-- badges: end -->
 
-The goal of **etwfe** is to estimate extended two-way fixed effects _a la_
+**etwfe** is an R package for estimating extended two-way fixed effects _a la_
 Wooldridge ([2023](https://doi.org/10.1093/ectj/utad016),
 [2025](https://doi.org/10.1007/s00181-025-02807-z)).  Briefly,
 Wooldridge proposes a set of saturated interaction effects to overcome the
@@ -36,6 +36,9 @@ prone to code up manually. The **etwfe** package aims to simplify the process by
 providing convenience functions that do the work for you.
 
 Documentation is available on the package [homepage](https://grantmcdermott.com/etwfe/).
+
+Python users should take a look at Armand Kapllani's
+[port](https://armandkapllani.github.io/etwfe/#) of this package.
 
 ## Installation
 
