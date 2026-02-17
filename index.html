@@ -52,8 +52,14 @@
 </h1></div>
 <!-- badges: start -->
 
-<p>The goal of <strong>etwfe</strong> is to estimate extended two-way fixed effects <em>a la</em> Wooldridge (<a href="https://doi.org/10.1093/ectj/utad016" class="external-link">2023</a>, <a href="https://doi.org/10.1007/s00181-025-02807-z" class="external-link">2025</a>). Briefly, Wooldridge proposes a set of saturated interaction effects to overcome the potential bias problems of vanilla TWFE in difference-in-differences designs. The Wooldridge solution is intuitive and elegant, but rather tedious and error prone to code up manually. The <strong>etwfe</strong> package aims to simplify the process by providing convenience functions that do the work for you.</p>
-<p>Documentation is available on the package <a href="https://grantmcdermott.com/etwfe/" class="external-link">homepage</a>.</p>
+<p>R package for estimating Extended Two-Way Fixed Effects (ETWFE).</p>
+<div class="section level2">
+<h2 id="motivation">Motivation<a class="anchor" aria-label="anchor" href="#motivation"></a>
+</h2>
+<p>One of the most popular causal inference tools for social scientists is the two-way fixed effects (TWFE) estimator, especially in the context of difference-in-differences (DiD) designs. However, it turns out that vanilla TWFE is often biased in real-life situations, such as under staggered treatment rollout. Wooldridge (<a href="https://doi.org/10.1093/ectj/utad016" class="external-link">2023</a>, <a href="https://doi.org/10.1007/s00181-025-02807-z" class="external-link">2025</a>) points out that this isn’t the fault of TWFE <em>per se</em>, but rather due to the fact that we haven’t specified an appropriately flexible model. His recommended solution involves saturating the model with cohort×time interaction terms, yielding a specification that he calls <strong>extended TWFE (ETWFE)</strong>. The Wooldridge solution is intuitive and elegant, but rather tedious and error prone to code up manually.</p>
+<p>The good news is that the <strong>etwfe</strong> R package is here to help. It provides a set of convenience functions and diagnostic tools that do the work for you. Please see below for some quickstart examples. Full documentation is available on the <strong>etwfe</strong> <a href="https://grantmcdermott.com/etwfe/" class="external-link">homepage</a>.</p>
+<p>Python users should take a look at Armand Kapllani’s <a href="https://armandkapllani.github.io/etwfe/#" class="external-link">port</a> of this package.</p>
+</div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
