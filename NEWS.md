@@ -17,6 +17,7 @@
   may affect `etwfe` results if the user did not explicitly provide a `vcov`
   argument.
 - Update Wooldridge (2021) ref with the published version, i.e. Wooldridge (2025).
+- Update maintainer email.
 
 # etwfe 0.6.0
 
