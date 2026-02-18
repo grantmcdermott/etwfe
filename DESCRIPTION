@@ -25,7 +25,7 @@ Description: Convenience functions for implementing extended two-way
 License: MIT + file LICENSE
 Imports:
   fixest (>= 0.13.2),
-  data.table,
+  data.table (>= 1.15.0),
   Formula,
   marginaleffects (>= 0.29.0),
   stats,
