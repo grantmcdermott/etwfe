@@ -686,7 +686,7 @@ mod$fml_all
 #> $linear
 #> lemp ~ .Dtreat:i(first.treat, i.year, ref = 0, ref2 = 2003)/lpop_dm + 
 #>     lpop + i(first.treat, lpop, ref = 0) + i(year, lpop, ref = 2003)
-#> <environment: 0x55b246086930>
+#> <environment: 0x55c1cad23a30>
 #> 
 #> $fixef
 #> ~first.treat + year
@@ -706,7 +706,7 @@ regression manually:
 mpdta2 = mpdta |>
   transform(
     .Dtreat = year >= first.treat & first.treat != 0,
-    lpop_dm = ave(lpop, first.treat, year, FUN = \(x) x - mean(x, na.rm = TRUE))
+    lpop_dm = ave(lpop, first.treat, FUN = \(x) x - mean(x, na.rm = TRUE))
   )
 
 # Then estimate the manual version of etwfe
