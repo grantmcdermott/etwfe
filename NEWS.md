@@ -9,6 +9,11 @@
   the estimation would fail with boolean covariates. Thanks to @SMasa11 for the
   report in #70. (#78)
 
+## Documentation
+
+- Fix a documentation bug in the vignette. Thanks to @RichardPatterson for
+  flagging in #61.
+
 ## Internals
 
 - Bump the dependency version for several upstream packages, which should result
