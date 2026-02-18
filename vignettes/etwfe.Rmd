@@ -549,7 +549,7 @@ the dataset ahead of time and estimated the ETWFE regression manually:
 mpdta2 = mpdta |>
   transform(
     .Dtreat = year >= first.treat & first.treat != 0,
-    lpop_dm = ave(lpop, first.treat, year, FUN = \(x) x - mean(x, na.rm = TRUE))
+    lpop_dm = ave(lpop, first.treat, FUN = \(x) x - mean(x, na.rm = TRUE))
   )
 
 # Then estimate the manual version of etwfe
