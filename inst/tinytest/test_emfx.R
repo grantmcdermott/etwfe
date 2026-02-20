@@ -29,6 +29,17 @@ m3p = etwfe(
   vcov = ~countyreal,
   family = "poisson"
 )
+# Conflicting column names variant (test for data.table scoping fix)
+mpdta_conflict = mpdta
+mpdta_conflict[["gvar"]] = mpdta_conflict[["first.treat"]]
+m3_conflict = etwfe(
+  lemp ~ lpop,
+  tvar = year,
+  gvar = first.treat,
+  data = mpdta_conflict,
+  cgroup = "never",
+  vcov = ~countyreal
+)
 
 # Known outputs ----
 
@@ -479,6 +490,8 @@ mod_event_pre = emfx(m3, type = "event", post_only = FALSE)
 mod_event_never_window = emfx(m3n, type = "event", window = c(2, 3))
 mod_pois_event = emfx(m3p, type = "event")
 mod_pois_event_link = emfx(m3p, type = "event", predict = "link")
+mod_event_conflict = emfx(m3_conflict, type = "event", window = c(2, 3))
+
 
 # match order
 mod_calendar = mod_calendar[order(mod_calendar$year), ]
@@ -510,4 +523,9 @@ for (col in c("estimate", "std.error", "conf.low", "conf.high")) {
     event_pois_link_known[[col]],
     tolerance = tol
   )
+  expect_equivalent(mod_event_conflict[[col]],
+    event_never_window_known[[col]],
+    tolerance = tol
+  )
+
 }

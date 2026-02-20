@@ -188,14 +188,14 @@ emfx = function(
   }
 
   if (cgroup == "never") {
-    dat = dat[dat[[gvar]] != gref, , drop = FALSE] # Drop never treated reference group
+    dat = dat[dat[[gvar]] != gref, , drop = FALSE, env = list(gvar = I(gvar), gref = gref)] # Drop never treated reference group
     if (type != "event") {
       # For non-event studies, we want to calculated ATTs for post-treatment only
       dat = dat[dat[[".Dtreat"]], , drop = FALSE]
-      dat = dat[dat[[tvar]] >= dat[[gvar]], , drop = FALSE]
+      dat = dat[dat[[tvar]] >= dat[[gvar]], , drop = FALSE, env = list(tvar = I(tvar), gvar = I(gvar))]
     }
   } else if (type == "event" & isFALSE(post_only)) {
-    dat = dat[dat[[gvar]] != gref, , drop = FALSE]
+    dat = dat[dat[[gvar]] != gref, , drop = FALSE, env = list(gvar = I(gvar), gref = gref)]
   } else if (".Dtreat" %in% names(dat)) {
     dat = dat[dat[[".Dtreat"]], , drop = FALSE]
   }
@@ -206,14 +206,16 @@ emfx = function(
         dat[[tvar]] >= (dat[[gvar]] - window) &
           dat[[tvar]] <= (dat[[gvar]] + window),
         ,
-        drop = FALSE
+        drop = FALSE,
+        env = list(tvar = I(tvar), gvar = I(gvar))
       ]
     } else if (length(window) == 2) {
       dat = dat[
         dat[[tvar]] >= (dat[[gvar]] - window[1]) &
           dat[[tvar]] <= (dat[[gvar]] + window[2]),
         ,
-        drop = FALSE
+        drop = FALSE,
+        env = list(tvar = I(tvar), gvar = I(gvar))
       ]
     } else {
       stop("Invalid `window` argument. Must be of length 1 or 2.")
