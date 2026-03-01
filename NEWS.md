@@ -8,6 +8,9 @@
 - Import `fixest::i` as part of the package namespace to avoid edge case where
   the estimation would fail with boolean covariates. Thanks to @SMasa11 for the
   report in #70. (#78)
+- Fix bug where `emfx` estimations fail due to a name collision between arguments
+  and variables (e.g., if the input datasets has a column called `gvar`). Thanks
+  to @chase-eck for the report in #79 and fix in #80. 
 
 ## Documentation
 
