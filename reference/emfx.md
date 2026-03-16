@@ -3,8 +3,9 @@
 Companion function to `etwfe`, enabling the recovery of aggregate
 treatment effects along different dimensions of interest (e.g, an event
 study of dynamic average treatment effects). `emfx` is a light wrapper
-around the [`slopes`](https://marginaleffects.com/man/r/slopes.html)
-function from the **marginaleffects** package.
+around the
+[`slopes`](https://rdrr.io/pkg/marginaleffects/man/slopes.html) function
+from the **marginaleffects** package.
 
 ## Usage
 
@@ -72,9 +73,9 @@ emfx(
   of the fitted model, i.e. \\X\cdot \beta\\. The difference should only
   matter for nonlinear models. (Note: This argument is typically called
   `type` when use in [`predict`](https://rdrr.io/r/stats/predict.html)
-  or [`slopes`](https://marginaleffects.com/man/r/slopes.html), but we
-  rename it here to avoid a clash with the top-level `type` argument
-  above.)
+  or [`slopes`](https://rdrr.io/pkg/marginaleffects/man/slopes.html),
+  but we rename it here to avoid a clash with the top-level `type`
+  argument above.)
 
 - post_only:
 
@@ -125,7 +126,7 @@ emfx(
 - ...:
 
   Additional arguments passed to
-  [`marginaleffects::slopes`](https://marginaleffects.com/man/r/slopes.html).
+  [`marginaleffects::slopes`](https://rdrr.io/pkg/marginaleffects/man/slopes.html).
   For example, you can pass `vcov = FALSE` to dramatically speed up
   estimation times of the main marginal effects (but at the cost of not
   getting any information about standard errors; see Performance tips
@@ -138,9 +139,9 @@ emfx(
 
 A `data.frame` of aggregated treatment effects along the dimension(s) of
 interested. Note that this data.frame will have been overloaded with the
-[`slopes`](https://marginaleffects.com/man/r/slopes.html) class, and so
-will come with a special print method. But the underlying columns will
-usually include:
+[`slopes`](https://rdrr.io/pkg/marginaleffects/man/slopes.html) class,
+and so will come with a special print method. But the underlying columns
+will usually include:
 
 - `term`
 
@@ -237,7 +238,7 @@ Compression for Estimating Linear Models. Working paper (version: March
 
 ## See also
 
-[marginaleffects::slopes](https://marginaleffects.com/man/r/slopes.html)
+[marginaleffects::slopes](https://rdrr.io/pkg/marginaleffects/man/slopes.html)
 which does the heavily lifting behind the scenes.
 [`etwfe`](http://grantmcdermott.com/etwfe/reference/etwfe.md) is the
 companion estimating function that should be run before `emfx`.

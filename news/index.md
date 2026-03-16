@@ -1,5 +1,47 @@
 # Changelog
 
+## etwfe 0.6.1
+
+CRAN release: 2026-03-16
+
+### Bug fixes
+
+- Fix bug where changing the factor reference level of `xvar` would
+  affect treatment effect estimates. Thanks to
+  [@umor](https://github.com/umor) for the details report and PR.
+  ([\#72](https://github.com/grantmcdermott/etwfe/issues/72),
+  [\#73](https://github.com/grantmcdermott/etwfe/issues/73))
+- Import
+  [`fixest::i`](https://lrberge.github.io/fixest/reference/i.html) as
+  part of the package namespace to avoid edge case where the estimation
+  would fail with boolean covariates. Thanks to
+  [@SMasa11](https://github.com/SMasa11) for the report in
+  [\#70](https://github.com/grantmcdermott/etwfe/issues/70).
+  ([\#78](https://github.com/grantmcdermott/etwfe/issues/78))
+- Fix bug where `emfx` estimations fail due to a name collision between
+  arguments and variables (e.g., if the input datasets has a column
+  called `gvar`). Thanks to [@chase-eck](https://github.com/chase-eck)
+  for the report in
+  [\#79](https://github.com/grantmcdermott/etwfe/issues/79) and fix in
+  [\#80](https://github.com/grantmcdermott/etwfe/issues/80).
+
+### Documentation
+
+- Fix a documentation bug in the vignette. Thanks to
+  [@RichardPatterson](https://github.com/RichardPatterson) for flagging
+  in [\#61](https://github.com/grantmcdermott/etwfe/issues/61).
+
+### Internals
+
+- Bump the dependency version for several upstream packages, which
+  should result in better performance and faster install times. Note
+  that **fixest** 0.13.2 introduced a breaking change to its default
+  `vcov` (now always `"iid"`), which may affect `etwfe` results if the
+  user did not explicitly provide a `vcov` argument.
+- Update Wooldridge (2021) ref with the published version,
+  i.e. Wooldridge (2025).
+- Update maintainer email.
+
 ## etwfe 0.6.0
 
 CRAN release: 2025-09-03
@@ -270,7 +312,7 @@ CRAN release: 2023-01-11
   yields slightly different effect sizes for `emfx` output when applied
   to non-linear model families (e.g., `etwfe(..., family = "poisson")`.
   The reason is that we are now implicitly calling
-  [`marginaleffects::comparisons`](https://marginaleffects.com/man/r/comparisons.html)
+  [`marginaleffects::comparisons`](https://rdrr.io/pkg/marginaleffects/man/comparisons.html)
   under the hood rather than `marginaleffects::marginaleffects`. Note
   that the main `etwfe` coefficients (for any family) are unaffected,
   and the same is also true for `emfx` when applied to a linear model

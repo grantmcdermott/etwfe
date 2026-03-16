@@ -15,7 +15,7 @@ package."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">etwfe</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0.99</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,7 +46,7 @@ package."></head><body>
     <p>Companion function to <code>etwfe</code>, enabling the recovery of aggregate treatment
 effects along different dimensions of interest (e.g, an event study of
 dynamic average treatment effects). <code>emfx</code> is a light wrapper around the
-<code><a href="https://marginaleffects.com/man/r/slopes.html" class="external-link">slopes</a></code> function from the <strong>marginaleffects</strong>
+<code><a href="https://rdrr.io/pkg/marginaleffects/man/slopes.html" class="external-link">slopes</a></code> function from the <strong>marginaleffects</strong>
 package.</p>
     </div>
 
@@ -116,7 +116,7 @@ level of the response variable, i.e. it is the expected predictor
 the fitted model, i.e. \(X\cdot \beta\). The difference should only
 matter for nonlinear models. (Note: This argument is typically called
 <code>type</code> when use in <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></code> or
-<code><a href="https://marginaleffects.com/man/r/slopes.html" class="external-link">slopes</a></code>, but we rename it here to avoid a
+<code><a href="https://rdrr.io/pkg/marginaleffects/man/slopes.html" class="external-link">slopes</a></code>, but we rename it here to avoid a
 clash with the top-level <code>type</code> argument above.)</p></dd>
 
 
@@ -161,7 +161,7 @@ to <code>TRUE</code> in a future version of <strong>etwfe</strong>.</p></dd>
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Additional arguments passed to
-<code><a href="https://marginaleffects.com/man/r/slopes.html" class="external-link">marginaleffects::slopes</a></code>. For example, you can pass <code>vcov = FALSE</code>
+<code><a href="https://rdrr.io/pkg/marginaleffects/man/slopes.html" class="external-link">marginaleffects::slopes</a></code>. For example, you can pass <code>vcov = FALSE</code>
 to dramatically speed up estimation times of the main marginal
 effects (but at the cost of not getting any information about standard
 errors; see Performance tips below). Another potentially useful
@@ -174,7 +174,7 @@ argument, e.g. <code>hypothesis = "b1 = b2"</code>.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A <code>data.frame</code> of aggregated treatment effects along the
 dimension(s) of interested. Note that this data.frame will have been
-overloaded with the <code><a href="https://marginaleffects.com/man/r/slopes.html" class="external-link">slopes</a></code> class, and so
+overloaded with the <code><a href="https://rdrr.io/pkg/marginaleffects/man/slopes.html" class="external-link">slopes</a></code> class, and so
 will come with a special print method. But the underlying columns will
 usually include:</p><ul><li><p><code>term</code></p></li>
 <li><p><code>contrast</code></p></li>
@@ -259,7 +259,7 @@ https://doi.org/10.48550/arXiv.2102.11297</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><a href="https://marginaleffects.com/man/r/slopes.html" class="external-link">marginaleffects::slopes</a> which does the heavily lifting behind the
+    <div class="dont-index"><p><a href="https://rdrr.io/pkg/marginaleffects/man/slopes.html" class="external-link">marginaleffects::slopes</a> which does the heavily lifting behind the
 scenes. <code><a href="etwfe.html">etwfe</a></code> is the companion estimating function that should be run
 before <code>emfx</code>.</p></div>
     </div>
