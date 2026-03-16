@@ -1,4 +1,4 @@
-# Development version
+# etwfe 0.6.1
 
 ## Bug fixes
 

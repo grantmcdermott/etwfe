@@ -1,8 +1,7 @@
 ## Overview
 
-`etwfe` 0.6.0 is a resubmission to CRAN following the package's removal due to
-test failures that were caused by changes to an upstream dependency. All test
-failures have been addressed.
+`etwfe` 0.6.1 is a patch release with bug fixes and documentation improvements.
+See NEWS.md for details.
 
 ## Test environments
 
@@ -13,4 +12,8 @@ failures have been addressed.
 
 ## R CMD check results
 
-0 ERRORs | 0 WARNINGs | 0 NOTEs.
+0 ERRORs | 0 WARNINGs | 1 NOTE.
+
+The NOTE flags a maintainer email change (old: gmcd@amazon.com, new:
+contact@grantmcdermott.com). I am the same person; I've simply updated
+my preferred contact address.
