@@ -409,6 +409,16 @@ m3p_known = structure(
   vcov_type = "Clustered (countyreal)"
 )
 
+if(packageVersion("fixest") < "0.14.0"){
+  attr(m1_known, "type") = attr(m1_known, "vcov_type")
+  attr(m2_known, "type") = attr(m2_known, "vcov_type")
+  attr(m3_known, "type") = attr(m3_known, "vcov_type")
+  attr(m3p_known, "type") = attr(m3p_known, "vcov_type")
+  
+  attr(m1_known, "vcov_type") = attr(m2_known, "vcov_type") = NULL
+  attr(m3_known, "vcov_type") = attr(m3p_known, "vcov_type") = NULL
+}
+
 
 # Tests ----
 
