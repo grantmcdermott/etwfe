@@ -1,7 +1,7 @@
 ## Overview
 
-`etwfe` 0.6.1 is a patch release with bug fixes and documentation improvements.
-See NEWS.md for details.
+`etwfe` 0.6.2 is a patch release that addresses minor test failures on CRAN due
+to upstream changes in `fixest`.
 
 ## Test environments
 
@@ -12,8 +12,4 @@ See NEWS.md for details.
 
 ## R CMD check results
 
-0 ERRORs | 0 WARNINGs | 1 NOTE.
-
-The NOTE flags a maintainer email change (old: gmcd@amazon.com, new:
-contact@grantmcdermott.com). I am the same person; I've simply updated
-my preferred contact address.
+0 ERRORs | 0 WARNINGs | 0 NOTES.
