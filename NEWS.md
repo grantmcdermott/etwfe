@@ -1,3 +1,9 @@
+# etwfe 0.6.2
+
+## Internals
+
+- Minor test fixes to match upstream `fixest` updates. Thanks to @lrberge. (#84)
+
 # etwfe 0.6.1
 
 ## Bug fixes
