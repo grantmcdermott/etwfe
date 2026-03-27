@@ -12,15 +12,15 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/grantmcdermott/etwfe/blob/main/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/grantmcdermott/etwfe/blob/v0.6.1/DESCRIPTION)
 
 McDermott G (2026). *etwfe: Extended Two-Way Fixed Effects*. R package
-version 0.6.2, <https://grantmcdermott.com/etwfe/>.
+version 0.6.1, <https://grantmcdermott.com/etwfe/>.
 
     @Manual{,
       title = {etwfe: Extended Two-Way Fixed Effects},
       author = {Grant McDermott},
       year = {2026},
-      note = {R package version 0.6.2},
+      note = {R package version 0.6.1},
       url = {https://grantmcdermott.com/etwfe/},
     }

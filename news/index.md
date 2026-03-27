@@ -1,15 +1,5 @@
 # Changelog
 
-## etwfe 0.6.2
-
-CRAN release: 2026-03-23
-
-### Internals
-
-- Minor test fixes to match upstream `fixest` updates. Thanks to
-  [@lrberge](https://github.com/lrberge).
-  ([\#84](https://github.com/grantmcdermott/etwfe/issues/84))
-
 ## etwfe 0.6.1
 
 CRAN release: 2026-03-16
