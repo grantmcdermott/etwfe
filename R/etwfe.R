@@ -85,50 +85,14 @@
 #'   categorical variables with multiple levels, or even continuous variables
 #'   (although continuous variables are not as well supported yet).
 #'
-#' @section Performance tips:
+#' @section Performance:
 #'
-#'   Under most situations, `etwfe` should complete very quickly. For its part,
-#'   `emfx` is quite performant too and should take a few seconds or less for
-#'   datasets under 100k rows. However, `emfx`'s computation time does tend to
-#'   scale non-linearly with the size of the original data, as well as the
-#'   number of interactions from the underlying `etwfe` model. Without getting
-#'   too deep into the weeds, the numerical delta method used to recover the
-#'   ATEs of interest has to estimate two prediction models for *each*
-#'   coefficient in the model and then compute their standard errors. So, it's
-#'   a potentially expensive operation that can push the computation time for
-#'   large datasets (> 1m rows) up to several minutes or longer.
-#'
-#'   Fortunately, there are two complementary strategies that you can use to
-#'   speed things up. The first is to turn off the most expensive part of the
-#'   whole procedure---standard error calculation---by calling `emfx(..., vcov
-#'   = FALSE)`. Doing so should bring the estimation time back down to a few
-#'   seconds or less, even for datasets in excess of a million rows. While the
-#'   loss of standard errors might not be an acceptable trade-off for projects
-#'   where statistical inference is critical, the good news is this first
-#'   strategy can still be combined our second strategy. It turns out that
-#'   collapsing the data by groups prior to estimating the marginal effects can
-#'   yield substantial speed gains of its own. Users can do this by invoking
-#'   the `emfx(..., collapse = TRUE)` argument. While the effect here is not as
-#'   dramatic as the first strategy, our second strategy does have the virtue
-#'   of retaining information about the standard errors. The trade-off this
-#'   time, however, is that collapsing our data does lead to a loss in accuracy
-#'   for our estimated parameters. On the other hand, testing suggests that
-#'   this loss in accuracy tends to be relatively minor, with results
-#'   equivalent up to the 1st or 2nd significant decimal place (or even
-#'   better).
-#'
-#'   Summarizing, here's a quick plan of attack for you to try if you are
-#'   worried about the estimation time for large datasets and models:
-#'
-#'   0. Estimate `mod = etwfe(...)` as per usual.
-#'
-#'   1. Run `emfx(mod, vcov = FALSE, ...)`.
-#'
-#'   2. Run `emfx(mod, vcov = FALSE, collapse = TRUE, ...)`.
-#'
-#'   3. Compare the point estimates from steps 1 and 2. If they are are similar
-#'   enough to your satisfaction, get the approximate standard errors by
-#'   running `emfx(mod, collapse = TRUE, ...)`.
+#'   Both `etwfe` and `emfx` should be fast, even for large datasets. In
+#'   particular, as of **etwfe** v0.7.0, `emfx` is orders of magnitude faster
+#'   than it used to be, because it now computes standard errors using exact
+#'   analytic Jacobians. (Earlier versions relied on a numerical delta method,
+#'   which required estimating two prediction models for *each* coefficient in
+#'   the model.)
 #'
 #' @references
 #' Wooldridge, Jeffrey M. (2025). \cite{Two-way fixed effects, the two-way
@@ -143,12 +107,10 @@
 #' estimation routines. [`emfx`] is a companion function that handles
 #' post-estimation aggregation to extract quantities of interest.
 #' @examples
-#' \dontrun{
-#' # We’ll use the mpdta dataset from the did package (which you’ll need to
-#' # install separately).
-#'
-#' # install.packages("did")
-#' data("mpdta", package = "did")
+#' # We'll use the base_stagg dataset from the fixest package, which simulates a
+#' # staggered treatment rollout across 100 units over 10 years. Never-treated
+#' # units have `year_treated = 10000`.
+#' data("base_stagg", package = "fixest")
 #'
 #' #
 #' # Basic example
@@ -159,11 +121,11 @@
 #'
 #' # 1) `etwfe`: Estimate a regression model with saturated interaction terms.
 #' mod = etwfe(
-#'   fml  = lemp ~ lpop, # outcome ~ controls (use 0 or 1 if none)
-#'   tvar = year,        # time variable
-#'   gvar = first.treat, # group variable
-#'   data = mpdta,       # dataset
-#'   vcov = ~countyreal  # vcov adjustment (here: clustered by county)
+#'   fml  = y ~ x1,       # outcome ~ controls (use 0 or 1 if none)
+#'   tvar = year,         # time variable
+#'   gvar = year_treated, # group variable
+#'   data = base_stagg,   # dataset
+#'   vcov = ~id           # vcov adjustment (here: clustered by unit)
 #'   )
 #'
 #' # mod ## A fixest model object with fully saturated interaction effects.
@@ -182,8 +144,8 @@
 #' # "notyet" treated control group. Switch to the "never" treated control
 #' # group if you want this.
 #' etwfe(
-#'   lemp ~ lpop, tvar = year, gvar = first.treat, data = mpdta,
-#'   vcov = ~countyreal,
+#'   y ~ x1, tvar = year, gvar = year_treated, data = base_stagg,
+#'   vcov = ~id,
 #'   cgroup = "never"    ## <= use never treated group as control
 #'   ) |>
 #'   emfx("event") |>
@@ -193,26 +155,23 @@
 #' # Heterogeneous treatment effects
 #' #
 #'
-#' # Example where we estimate heterogeneous treatment effects for counties
-#' # within the 8 US Great Lake states (versus all other counties).
+#' # Example where we estimate heterogeneous treatment effects for two
+#' # (arbitrary) groups of units.
 #'
-#' gls = c("IL" = 17, "IN" = 18, "MI" = 26, "MN" = 27,
-#'         "NY" = 36, "OH" = 39, "PA" = 42, "WI" = 55)
-#'
-#' mpdta$gls = substr(mpdta$countyreal, 1, 2) %in% gls
+#' base_stagg$grp = base_stagg$id > 50
 #'
 #' hmod = etwfe(
-#'   lemp ~ lpop, tvar = year, gvar = first.treat, data = mpdta,
-#'   vcov = ~countyreal,
-#'   xvar = gls           ## <= het. TEs by gls
+#'   y ~ x1, tvar = year, gvar = year_treated, data = base_stagg,
+#'   vcov = ~id,
+#'   xvar = grp           ## <= het. TEs by grp
 #'   )
 #'
 #' # Heterogeneous ATEs (could also specify "event", etc.)
 #'
 #' emfx(hmod)
 #'
-#' # To test whether the ATEs across these two groups (non-GLS vs GLS) are
-#' # statistically different, simply pass an appropriate "hypothesis" argument.
+#' # To test whether the ATEs across these two groups are statistically
+#' # different, simply pass an appropriate "hypothesis" argument.
 #'
 #' emfx(hmod, hypothesis = "b1 = b2")
 #'
@@ -222,17 +181,16 @@
 #' # Nonlinear model (distribution / link) families
 #' #
 #'
-#' # Poisson example
+#' # Poisson example (using a transformed, strictly positive outcome)
 #'
-#' mpdta$emp = exp(mpdta$lemp)
+#' base_stagg$y_exp = exp(base_stagg$y / 10)
 #'
 #' etwfe(
-#'   emp ~ lpop, tvar = year, gvar = first.treat, data = mpdta,
-#'   vcov = ~countyreal,
+#'   y_exp ~ x1, tvar = year, gvar = year_treated, data = base_stagg,
+#'   vcov = ~id,
 #'   family = "poisson"   ## <= family arg for nonlinear options
 #'   ) |>
 #'   emfx("event")
-#' }
 #'
 #' @export
 etwfe = function(
@@ -425,7 +383,11 @@ etwfe = function(
   ## Demean the interacted covariate (for heterogeneous ATEs) ----
   if (!is.null(xvar)) {
     # Demean within cohort-time groups
-    data[[".cohort_time"]] = interaction(data[[gvar]], data[[tvar]], drop = TRUE)
+    data[[".cohort_time"]] = interaction(
+      data[[gvar]],
+      data[[tvar]],
+      drop = TRUE
+    )
 
     # Demean within cohort-time groups using ALL observations
     # This ensures demeaned values are invariant to factor reference levels

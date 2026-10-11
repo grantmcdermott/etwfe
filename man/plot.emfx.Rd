@@ -46,12 +46,10 @@ can be replayed later; see \code{\link[tinyplot]{recordedtinyplot}}.
 Visualize the results of an \code{\link{emfx}} call.
 }
 \examples{
-\dontrun{
-# We’ll use the mpdta dataset from the did package (which you’ll need to
-# install separately).
-
-# install.packages("did")
-data("mpdta", package = "did")
+# We'll use the base_stagg dataset from the fixest package, which simulates a
+# staggered treatment rollout across 100 units over 10 years. Never-treated
+# units have `year_treated = 10000`.
+data("base_stagg", package = "fixest")
 
 #
 # Basic example
@@ -62,11 +60,11 @@ data("mpdta", package = "did")
 
 # 1) `etwfe`: Estimate a regression model with saturated interaction terms.
 mod = etwfe(
-  fml  = lemp ~ lpop, # outcome ~ controls (use 0 or 1 if none)
-  tvar = year,        # time variable
-  gvar = first.treat, # group variable
-  data = mpdta,       # dataset
-  vcov = ~countyreal  # vcov adjustment (here: clustered by county)
+  fml  = y ~ x1,       # outcome ~ controls (use 0 or 1 if none)
+  tvar = year,         # time variable
+  gvar = year_treated, # group variable
+  data = base_stagg,   # dataset
+  vcov = ~id           # vcov adjustment (here: clustered by unit)
   )
 
 # mod ## A fixest model object with fully saturated interaction effects.
@@ -85,8 +83,8 @@ plot(mod_es)
 # "notyet" treated control group. Switch to the "never" treated control
 # group if you want this.
 etwfe(
-  lemp ~ lpop, tvar = year, gvar = first.treat, data = mpdta,
-  vcov = ~countyreal,
+  y ~ x1, tvar = year, gvar = year_treated, data = base_stagg,
+  vcov = ~id,
   cgroup = "never"    ## <= use never treated group as control
   ) |>
   emfx("event") |>
@@ -96,26 +94,23 @@ etwfe(
 # Heterogeneous treatment effects
 #
 
-# Example where we estimate heterogeneous treatment effects for counties
-# within the 8 US Great Lake states (versus all other counties).
+# Example where we estimate heterogeneous treatment effects for two
+# (arbitrary) groups of units.
 
-gls = c("IL" = 17, "IN" = 18, "MI" = 26, "MN" = 27,
-        "NY" = 36, "OH" = 39, "PA" = 42, "WI" = 55)
-
-mpdta$gls = substr(mpdta$countyreal, 1, 2) \%in\% gls
+base_stagg$grp = base_stagg$id > 50
 
 hmod = etwfe(
-  lemp ~ lpop, tvar = year, gvar = first.treat, data = mpdta,
-  vcov = ~countyreal,
-  xvar = gls           ## <= het. TEs by gls
+  y ~ x1, tvar = year, gvar = year_treated, data = base_stagg,
+  vcov = ~id,
+  xvar = grp           ## <= het. TEs by grp
   )
 
 # Heterogeneous ATEs (could also specify "event", etc.)
 
 emfx(hmod)
 
-# To test whether the ATEs across these two groups (non-GLS vs GLS) are
-# statistically different, simply pass an appropriate "hypothesis" argument.
+# To test whether the ATEs across these two groups are statistically
+# different, simply pass an appropriate "hypothesis" argument.
 
 emfx(hmod, hypothesis = "b1 = b2")
 
@@ -125,16 +120,15 @@ plot(emfx(hmod))
 # Nonlinear model (distribution / link) families
 #
 
-# Poisson example
+# Poisson example (using a transformed, strictly positive outcome)
 
-mpdta$emp = exp(mpdta$lemp)
+base_stagg$y_exp = exp(base_stagg$y / 10)
 
 etwfe(
-  emp ~ lpop, tvar = year, gvar = first.treat, data = mpdta,
-  vcov = ~countyreal,
+  y_exp ~ x1, tvar = year, gvar = year_treated, data = base_stagg,
+  vcov = ~id,
   family = "poisson"   ## <= family arg for nonlinear options
   ) |>
   emfx("event")
-}
 
 }

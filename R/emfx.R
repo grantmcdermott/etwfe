@@ -19,14 +19,14 @@
 #'   either `FALSE` or `TRUE.` See the "Heterogeneous treatment effects"
 #'   section below.
 #' @param compress Logical. Compress the data by (period by cohort) groups
-#'   before calculating marginal effects? This trades off a slight loss in
-#'   precision (typically around the 1st or 2nd significant decimal point) for a
-#'   substantial improvement in estimation time for large datasets. The default
-#'   behaviour (`"auto"`) is to automatically compress if the original dataset
-#'   has more than 500,000 rows. Users can override by setting either `FALSE` or
-#'   `TRUE`. Note that collapsing by group is only valid if the preceding `etwfe`
-#'   call was run with `"ivar = NULL"` (the default). See the "Performance
-#'   tips" section below.
+#' before calculating marginal effects? This legacy argument was originally
+#' intended as a shortcut to reduce estimation times for large datasets.
+#' However, it is largely irrelevant as of **etwfe** v0.7.0, which introduced
+#' fast analytic standard errors (see the "Standard errors" section below). The
+#' default `"auto"` is retained for backwards compatibility and is equivalent
+#' to `FALSE`. Note that switching to `TRUE` also means losing the default
+#' unconditional standard errors, since these are not supported with data
+#' compression.
 #' @param collapse Logical. An alias for `compress` (only used for backwards
 #'   compatability and ignored if both arguments are provided). The behaviour is
 #'   identical, but it will trigger a message nudging users to rather use the
@@ -75,16 +75,19 @@
 #' `etwfe(..., cgroup = "never")` in the original call.
 #' @param ... Additional arguments passed to
 #'   [`marginaleffects::slopes`]. For example, you can pass `vcov = FALSE`
-#'   to dramatically speed up estimation times of the main marginal
-#'   effects (but at the cost of not getting any information about standard
-#'   errors; see Performance tips below). Another potentially useful
+#'   to skip standard errors entirely, or your own `vcov` argument (see the
+#'   "Standard errors" section below). Another potentially useful
 #'   application is testing whether heterogeneous treatment effects (i.e., the
 #'   levels of any `xvar` covariate) are equal by invoking the `hypothesis`
 #'   argument, e.g. `hypothesis = "b1 = b2"`.
 #' @section Standard errors:
-#' As of **etwfe** v0.7.0, `emfx` reports "unconditional" standard errors by
-#' default, which account for sampling variation in the covariate distribution
-#' over which the treatment effects are averaged (see:
+#' As of **etwfe** v0.7.0, `emfx` computes its standard errors using a fast and
+#' exact analytic path, which yields both greater performance and precision
+#' than the old numeric approach (which was based on the delta method).
+#'
+#' Moreover, we now also report "unconditional" standard errors by default,
+#' which account for sampling variation in the covariate distribution over
+#' which the treatment effects are averaged (see:
 #' [`marginaleffects::vcovUnconditional`]). Any one-way clustering in the
 #' original `etwfe` model (e.g., `vcov = ~countyreal`) is carried over
 #' automatically.
@@ -129,7 +132,7 @@
 #' scenes. [`etwfe`] is the companion estimating function that should be run
 #' before `emfx`.
 #' @inherit etwfe examples
-#' @inheritSection etwfe Performance tips
+#' @inheritSection etwfe Performance
 #' @inheritSection etwfe Heterogeneous treatment effects
 #' @importFrom data.table as.data.table setDT .N .SD
 #' @importFrom marginaleffects slopes vcovUnconditional
@@ -193,8 +196,8 @@ emfx = function(
     dat[["group"]] = NULL
   }
 
-  # check compress argument
-  nrows = NULL
+  # check compress argument ("auto" is kept for backwards compatibility, but
+  # analytic Jacobians make compression unnecessary, so it means FALSE)
   if (compress == "auto" && collapse != compress) {
     compress = collapse
     message(
@@ -203,24 +206,33 @@ emfx = function(
     )
   }
   if (compress == "auto") {
-    nrows = nrow(dat)
-
-    if (nrows >= 5e5) {
-      compress = TRUE
-    } else {
-      compress = FALSE
-    }
+    compress = FALSE
   }
 
   if (cgroup == "never") {
-    dat = dat[dat[[gvar]] != gref, , drop = FALSE, env = list(gvar = I(gvar), gref = gref)] # Drop never treated reference group
+    dat = dat[
+      dat[[gvar]] != gref,
+      ,
+      drop = FALSE,
+      env = list(gvar = I(gvar), gref = gref)
+    ] # Drop never treated reference group
     if (type != "event") {
       # For non-event studies, we want to calculated ATTs for post-treatment only
       dat = dat[dat[[".Dtreat"]], , drop = FALSE]
-      dat = dat[dat[[tvar]] >= dat[[gvar]], , drop = FALSE, env = list(tvar = I(tvar), gvar = I(gvar))]
+      dat = dat[
+        dat[[tvar]] >= dat[[gvar]],
+        ,
+        drop = FALSE,
+        env = list(tvar = I(tvar), gvar = I(gvar))
+      ]
     }
   } else if (type == "event" & isFALSE(post_only)) {
-    dat = dat[dat[[gvar]] != gref, , drop = FALSE, env = list(gvar = I(gvar), gref = gref)]
+    dat = dat[
+      dat[[gvar]] != gref,
+      ,
+      drop = FALSE,
+      env = list(gvar = I(gvar), gref = gref)
+    ]
   } else if (".Dtreat" %in% names(dat)) {
     dat = dat[dat[[".Dtreat"]], , drop = FALSE]
   }
@@ -272,23 +284,7 @@ emfx = function(
       dat_weights = dat[(.Dtreat)][, .N, by = c(gvar, tvar)]
     }
 
-    if (!is.null(nrows) && nrows > 5e5) {
-      warning(
-        "\nNote: Dataset larger than 500k rows detected. The data will be ",
-        "compressed by period-cohort groups to reduce estimation times. ",
-        "However, this shortcut can reduce the accuracy of the reported ",
-        "marginal effects. ",
-        "To override this default behaviour, specify: ",
-        "`emfx(..., compress = FALSE)`\n",
-        if (is.null(dots$vcov)) {
-          paste0(
-            "Unconditional standard errors are also not available for ",
-            "compressed data, so the model's variance-covariance matrix is ",
-            "used instead.\n"
-          )
-        }
-      )
-    } else if (is.null(dots$vcov)) {
+    if (is.null(dots$vcov)) {
       warning(
         "Unconditional standard errors are not available for compressed ",
         "data; using the model's variance-covariance matrix instead. ",
@@ -395,7 +391,9 @@ vcov_unconditional = function(object) {
   if (cl != make.names(cl)) {
     warning(
       "Unconditional standard errors only support one-way clustering by a ",
-      "single variable, but the model is \"", vtype, "\". ",
+      "single variable, but the model is \"",
+      vtype,
+      "\". ",
       "Falling back to the model's own variance-covariance matrix."
     )
     return(NULL)
