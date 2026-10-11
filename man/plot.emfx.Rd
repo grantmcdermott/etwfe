@@ -37,7 +37,10 @@ underlying object was computed using \code{emfx(..., type = "event")}.}
 \item{...}{Additional arguments passed to \code{\link[tinyplot:tinyplot]{tinyplot::tinyplot}}.}
 }
 \value{
-No return value, called for side effect of producing a plot.
+By default, no return value; called for the side effect of producing
+a plot. If \code{record = TRUE} (or globally via \code{tpar(record = TRUE)}), the
+plot is instead returned invisibly as a \code{"recordedtinyplot"} object, which
+can be replayed later; see \code{\link[tinyplot]{recordedtinyplot}}.
 }
 \description{
 Visualize the results of an \code{\link{emfx}} call.

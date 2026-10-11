@@ -81,6 +81,29 @@
 #'   application is testing whether heterogeneous treatment effects (i.e., the
 #'   levels of any `xvar` covariate) are equal by invoking the `hypothesis`
 #'   argument, e.g. `hypothesis = "b1 = b2"`.
+#' @section Standard errors:
+#' As of **etwfe** v0.7.0, `emfx` reports "unconditional" standard errors by
+#' default, which account for sampling variation in the covariate distribution
+#' over which the treatment effects are averaged (see:
+#' [`marginaleffects::vcovUnconditional`]). Any one-way clustering in the
+#' original `etwfe` model (e.g., `vcov = ~countyreal`) is carried over
+#' automatically.
+#'
+#' Exceptions to this rule, where `emfx` instead falls back to the model's own
+#' (conditional) variance-covariance matrix, are as follows:
+#'
+#' - Compressed data (`compress = TRUE`), since the compressed groups no longer
+#'   map to the original observations.
+#' - Multiway or interacted clustering (e.g., `vcov = ~countyreal + year`),
+#'   which `vcovUnconditional` does not support.
+#'
+#' A warning is triggered in both cases.
+#'
+#' Users can override the default by passing their own `vcov` argument, e.g.
+#' `vcov = TRUE` to recover the model's conditional standard errors (the
+#' default behaviour prior to **etwfe** v0.7.0), or
+#' `vcov = marginaleffects::vcovUnconditional(type = "HC1", cluster = ~id)` for
+#' finer control.
 #' @return A `data.frame` of aggregated treatment effects along the
 #'   dimension(s) of interested. Note that this data.frame will have been
 #'   overloaded with the \code{\link[marginaleffects]{slopes}} class, and so
@@ -109,7 +132,9 @@
 #' @inheritSection etwfe Performance tips
 #' @inheritSection etwfe Heterogeneous treatment effects
 #' @importFrom data.table as.data.table setDT .N .SD
-#' @importFrom marginaleffects slopes
+#' @importFrom marginaleffects slopes vcovUnconditional
+#' @importFrom stats reformulate
+#' @importFrom utils modifyList
 #' @export
 emfx = function(
   object,
@@ -222,6 +247,23 @@ emfx = function(
     }
   }
 
+  # catch for non-linear models
+  if (!is.null(dots)) {
+    if (
+      !is.null(object$family) &&
+        object$family$family != "gaussian" &&
+        fe != "none"
+    ) {
+      if (is.null(dots$vcov) || !isFALSE(dots$vcov)) {
+        dots$vcov = FALSE
+        warning(
+          'Cannot estimate standard errors for non-Gaussian model families in the presence of fixed effects.\n',
+          'To calculate standard errors, re-estimate the original model with `etwfe(..., fe = "none")`.\n'
+        )
+      }
+    }
+  }
+
   # define formulas and calculate weights
   if (compress & is.null(ivar)) {
     if (by_xvar) {
@@ -237,7 +279,20 @@ emfx = function(
         "However, this shortcut can reduce the accuracy of the reported ",
         "marginal effects. ",
         "To override this default behaviour, specify: ",
-        "`emfx(..., compress = FALSE)`\n"
+        "`emfx(..., compress = FALSE)`\n",
+        if (is.null(dots$vcov)) {
+          paste0(
+            "Unconditional standard errors are also not available for ",
+            "compressed data, so the model's variance-covariance matrix is ",
+            "used instead.\n"
+          )
+        }
+      )
+    } else if (is.null(dots$vcov)) {
+      warning(
+        "Unconditional standard errors are not available for compressed ",
+        "data; using the model's variance-covariance matrix instead. ",
+        "Use `vcov = TRUE` to silence this warning."
       )
     }
 
@@ -277,21 +332,16 @@ emfx = function(
     by_var = c(by_var, xvar)
   }
 
-  # catch for non-linear models
-  if (!is.null(dots)) {
-    if (
-      !is.null(object$family) &&
-        object$family$family != "gaussian" &&
-        fe != "none"
-    ) {
-      if (is.null(dots$vcov) || !isFALSE(dots$vcov)) {
-        dots$vcov = FALSE
-        warning(
-          'Cannot estimate standard errors for non-Gaussian model families in the presence of fixed effects.\n',
-          'To calculate standard errors, re-estimate the original model with `etwfe(..., fe = "none")`.\n'
-        )
-      }
-    }
+  # unconditional standard errors (default): inherit the model's one-way
+  # cluster variable, since marginaleffects::vcovUnconditional() can't
+  if (is.null(dots$vcov) && !(compress && is.null(ivar))) {
+    dots$vcov = "unconditional"
+  }
+  if (
+    identical(dots$vcov, "unconditional") ||
+      identical(dots$vcov, vcovUnconditional)
+  ) {
+    dots$vcov = vcov_unconditional(object)
   }
 
   if (isTRUE(lean)) {
@@ -310,8 +360,12 @@ emfx = function(
   #   type = predict,
   #   ...
   # )
+  # etwfe doesn't override fixest prediction, so pass a plain fixest object;
+  # marginaleffects only uses analytic Jacobians for exact (non-sub)classes
+  model = object
+  class(model) = setdiff(class(model), "etwfe")
   args_list = list(
-    model = object,
+    model = model,
     newdata = dat,
     wts = "N",
     variables = ".Dtreat",
@@ -319,7 +373,7 @@ emfx = function(
     type = predict
   )
   if (!is.null(dots)) {
-    args_list = utils::modifyList(args_list, dots)
+    args_list = modifyList(args_list, dots)
   }
   mfx = do.call("slopes", args = args_list)
 
@@ -327,4 +381,24 @@ emfx = function(
   attr(mfx, "etwfe") = etwfe_attr
 
   return(mfx)
+}
+
+## Build a vcovUnconditional() request that matches the model's clustering.
+## Falls back to the model's own vcov (NULL) for multiway or non-bare clusters,
+## which vcovUnconditional() doesn't support.
+vcov_unconditional = function(object) {
+  vtype = attr(object$cov.scaled, "vcov_type")
+  if (is.null(vtype) || !grepl("^Clustered \\(", vtype)) {
+    return(vcovUnconditional())
+  }
+  cl = sub("^Clustered \\((.*)\\)$", "\\1", vtype)
+  if (cl != make.names(cl)) {
+    warning(
+      "Unconditional standard errors only support one-way clustering by a ",
+      "single variable, but the model is \"", vtype, "\". ",
+      "Falling back to the model's own variance-covariance matrix."
+    )
+    return(NULL)
+  }
+  vcovUnconditional(cluster = reformulate(cl))
 }

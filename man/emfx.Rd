@@ -128,6 +128,33 @@ dynamic average treatment effects). \code{emfx} is a light wrapper around the
 \code{\link[marginaleffects]{slopes}} function from the \strong{marginaleffects}
 package.
 }
+\section{Standard errors}{
+
+As of \strong{etwfe} v0.7.0, \code{emfx} reports "unconditional" standard errors by
+default, which account for sampling variation in the covariate distribution
+over which the treatment effects are averaged (see:
+\code{\link[marginaleffects:vcovUnconditional]{marginaleffects::vcovUnconditional}}). Any one-way clustering in the
+original \code{etwfe} model (e.g., \code{vcov = ~countyreal}) is carried over
+automatically.
+
+Exceptions to this rule, where \code{emfx} instead falls back to the model's own
+(conditional) variance-covariance matrix, are as follows:
+\itemize{
+\item Compressed data (\code{compress = TRUE}), since the compressed groups no longer
+map to the original observations.
+\item Multiway or interacted clustering (e.g., \code{vcov = ~countyreal + year}),
+which \code{vcovUnconditional} does not support.
+}
+
+A warning is triggered in both cases.
+
+Users can override the default by passing their own \code{vcov} argument, e.g.
+\code{vcov = TRUE} to recover the model's conditional standard errors (the
+default behaviour prior to \strong{etwfe} v0.7.0), or
+\code{vcov = marginaleffects::vcovUnconditional(type = "HC1", cluster = ~id)} for
+finer control.
+}
+
 \section{Performance tips}{
 
 
