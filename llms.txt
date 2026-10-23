@@ -32,12 +32,14 @@ Python users should take a look at Armand Kapllani’s
 You can install **etwfe** from CRAN.
 
 ``` r
+
 install.packages("etwfe")
 ```
 
 Or, you can grab the development version from R-universe.
 
 ``` r
+
 install.packages("etwfe", repos = "https://grantmcdermott.r-universe.dev")
 ```
 
@@ -54,6 +56,7 @@ basic syntax.
 Start by loading the package and some data.
 
 ``` r
+
 library(etwfe)
 
 # install.packages("did")
@@ -69,6 +72,7 @@ head(mpdta, 2)
 estimate a model with full saturated interactions.
 
 ``` r
+
 mod = etwfe(
   fml  = lemp ~ lpop, # outcome ~ controls
   tvar = year,        # time variable
@@ -105,6 +109,7 @@ mod
 the ATTs of interest. In this case, an event-study example.
 
 ``` r
+
 emfx(mod, type = "event")
 #> 
 #>  event Estimate Std. Error     z Pr(>|z|)    S   2.5 %   97.5 %

@@ -1,5 +1,48 @@
 # Changelog
 
+## etwfe 0.6.2.99 (development version)
+
+### Breaking changes
+
+- [`emfx()`](http://grantmcdermott.com/etwfe/reference/emfx.md) now
+  reports “unconditional” standard errors by default, via
+  [`marginaleffects::vcovUnconditional()`](https://rdrr.io/pkg/marginaleffects/man/vcovUnconditional.html).
+  These account for sampling variation in the covariate distribution
+  over which treatment effects are averaged, and automatically inherit
+  any one-way clustering from the original
+  [`etwfe()`](http://grantmcdermott.com/etwfe/reference/etwfe.md) model.
+  Exceptions (compressed data, multiway clustering) fall back to the
+  model’s conditional variance-covariance matrix. Use
+  `emfx(..., vcov = TRUE)` to recover the previous default. Requires a
+  recent version of **marginaleffects**. Thanks to
+  [@pedrohcgs](https://github.com/pedrohcgs) for the upstream
+  implementation and [@snhansen](https://github.com/snhansen) for
+  theoretical guidance.
+  ([\#48](https://github.com/grantmcdermott/etwfe/issues/48))
+
+### Performance
+
+- Dramatic (10-40x) speed-ups for
+  [`emfx()`](http://grantmcdermott.com/etwfe/reference/emfx.md), thanks
+  to upstream **marginaleffects** support for analytic Jacobians
+  (vincentarelbundock/marginaleffects#1769). Moreover, standard errors
+  gain improved precision due to their exact analytic derivations.
+  - As a side-effect of the fast + exact analytic path, the default
+    `emfx(..., compress = "auto")` now falls back to `FALSE` (i.e., no
+    data compression). Data compression was mainly aimed at reducing
+    computation costs, which the analytic solution largely obviates.
+    Furthermore, it cannot support the new default of unconditional
+    standard errors.
+
+### Documentation
+
+- The examples now use the `base_stagg` dataset from **fixest**, and run
+  as part of the package checks. The introductory vignette continues to
+  use `mpdta` from **did**. The “Performance tips” sections have been
+  replaced by a brief “Performance” note, since the old workarounds
+  (turning off standard errors, compressing the data) are no longer
+  needed.
+
 ## etwfe 0.6.2
 
 CRAN release: 2026-03-23
