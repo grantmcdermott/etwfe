@@ -119,10 +119,11 @@ categorical variables with multiple levels, or even continuous variables
 
 
 Both \code{etwfe} and \code{emfx} should be fast, even for large datasets. In
-particular, as of \strong{etwfe} v0.7.0, \code{emfx} is more than an order of
-magnitude faster than it used to be (typically 10-40x), because it now
-computes standard errors using exact analytic Jacobians. (Earlier versions relied on a numerical delta method,
-which was much more time consuming.)
+particular, as of \strong{etwfe} v0.7.0, \code{emfx} is orders of magnitude faster
+than it used to be, because it now computes standard errors using exact
+analytic Jacobians. (Earlier versions relied on a numerical delta method,
+which required estimating two prediction models for \emph{each} coefficient in
+the model.)
 }
 
 \examples{
@@ -159,16 +160,27 @@ mod = etwfe(
 # To visualize results, use the native plot method (see `?plot.emfx`)
 plot(mod_es)
 
+# Aside: With R >= 4.1.0, you can also chain the whole workflow together with
+# the native pipe, e.g.:
+# etwfe(
+#   fml  = y ~ x1,
+#   tvar = year,
+#   gvar = year_treated,
+#   data = base_stagg,
+#   vcov = ~id
+#   ) |>
+#   emfx(type = "event") |>
+#   plot()
+
 # Notice that we don't get any pre-treatment effects with the default
 # "notyet" treated control group. Switch to the "never" treated control
 # group if you want this.
-etwfe(
+mod_never = etwfe(
   y ~ x1, tvar = year, gvar = year_treated, data = base_stagg,
   vcov = ~id,
   cgroup = "never"    ## <= use never treated group as control
-  ) |>
-  emfx("event") |>
-  plot()
+  )
+plot(emfx(mod_never, "event"))
 
 #
 # Heterogeneous treatment effects
@@ -204,12 +216,12 @@ plot(emfx(hmod))
 
 base_stagg$y_exp = exp(base_stagg$y / 10)
 
-etwfe(
+pmod = etwfe(
   y_exp ~ x1, tvar = year, gvar = year_treated, data = base_stagg,
   vcov = ~id,
   family = "poisson"   ## <= family arg for nonlinear options
-  ) |>
-  emfx("event")
+  )
+emfx(pmod, "event")
 
 }
 \references{
