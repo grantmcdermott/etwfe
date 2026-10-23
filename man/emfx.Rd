@@ -32,14 +32,14 @@ either \code{FALSE} or \code{TRUE.} See the "Heterogeneous treatment effects"
 section below.}
 
 \item{compress}{Logical. Compress the data by (period by cohort) groups
-before calculating marginal effects? This trades off a slight loss in
-precision (typically around the 1st or 2nd significant decimal point) for a
-substantial improvement in estimation time for large datasets. The default
-behaviour (\code{"auto"}) is to automatically compress if the original dataset
-has more than 500,000 rows. Users can override by setting either \code{FALSE} or
-\code{TRUE}. Note that collapsing by group is only valid if the preceding \code{etwfe}
-call was run with \code{"ivar = NULL"} (the default). See the "Performance
-tips" section below.}
+before calculating marginal effects? This legacy argument was originally
+intended as a shortcut to reduce estimation times for large datasets.
+However, it is largely irrelevant as of \strong{etwfe} v0.7.0, which introduced
+fast analytic standard errors (see the "Standard errors" section below). The
+default \code{"auto"} is retained for backwards compatibility and is equivalent
+to \code{FALSE}. Note that switching to \code{TRUE} also means losing the default
+unconditional standard errors, since these are not supported with data
+compression.}
 
 \item{collapse}{Logical. An alias for \code{compress} (only used for backwards
 compatability and ignored if both arguments are provided). The behaviour is
@@ -95,9 +95,8 @@ to \code{TRUE} in a future version of \strong{etwfe}.}
 
 \item{...}{Additional arguments passed to
 \code{\link[marginaleffects:slopes]{marginaleffects::slopes}}. For example, you can pass \code{vcov = FALSE}
-to dramatically speed up estimation times of the main marginal
-effects (but at the cost of not getting any information about standard
-errors; see Performance tips below). Another potentially useful
+to skip standard errors entirely, or your own \code{vcov} argument (see the
+"Standard errors" section below). Another potentially useful
 application is testing whether heterogeneous treatment effects (i.e., the
 levels of any \code{xvar} covariate) are equal by invoking the \code{hypothesis}
 argument, e.g. \code{hypothesis = "b1 = b2"}.}
@@ -128,48 +127,48 @@ dynamic average treatment effects). \code{emfx} is a light wrapper around the
 \code{\link[marginaleffects]{slopes}} function from the \strong{marginaleffects}
 package.
 }
-\section{Performance tips}{
+\section{Standard errors}{
 
+As of \strong{etwfe} v0.7.0, \code{emfx} computes its standard errors using a fast and
+exact analytic path, which yields both greater performance and precision
+than the old numeric approach (which was based on the delta method).
 
-Under most situations, \code{etwfe} should complete very quickly. For its part,
-\code{emfx} is quite performant too and should take a few seconds or less for
-datasets under 100k rows. However, \code{emfx}'s computation time does tend to
-scale non-linearly with the size of the original data, as well as the
-number of interactions from the underlying \code{etwfe} model. Without getting
-too deep into the weeds, the numerical delta method used to recover the
-ATEs of interest has to estimate two prediction models for \emph{each}
-coefficient in the model and then compute their standard errors. So, it's
-a potentially expensive operation that can push the computation time for
-large datasets (> 1m rows) up to several minutes or longer.
+Moreover, we now also report "unconditional" standard errors by default,
+which account for sampling variation in the covariate distribution over
+which the treatment effects are averaged (see:
+\code{\link[marginaleffects:vcovUnconditional]{marginaleffects::vcovUnconditional}}). Any one-way clustering in the
+original \code{etwfe} model (e.g., \code{vcov = ~countyreal}) is carried over
+automatically.
 
-Fortunately, there are two complementary strategies that you can use to
-speed things up. The first is to turn off the most expensive part of the
-whole procedure---standard error calculation---by calling \code{emfx(..., vcov = FALSE)}. Doing so should bring the estimation time back down to a few
-seconds or less, even for datasets in excess of a million rows. While the
-loss of standard errors might not be an acceptable trade-off for projects
-where statistical inference is critical, the good news is this first
-strategy can still be combined our second strategy. It turns out that
-collapsing the data by groups prior to estimating the marginal effects can
-yield substantial speed gains of its own. Users can do this by invoking
-the \code{emfx(..., collapse = TRUE)} argument. While the effect here is not as
-dramatic as the first strategy, our second strategy does have the virtue
-of retaining information about the standard errors. The trade-off this
-time, however, is that collapsing our data does lead to a loss in accuracy
-for our estimated parameters. On the other hand, testing suggests that
-this loss in accuracy tends to be relatively minor, with results
-equivalent up to the 1st or 2nd significant decimal place (or even
-better).
-
-Summarizing, here's a quick plan of attack for you to try if you are
-worried about the estimation time for large datasets and models:
-\enumerate{
-\item Estimate \code{mod = etwfe(...)} as per usual.
-\item Run \code{emfx(mod, vcov = FALSE, ...)}.
-\item Run \code{emfx(mod, vcov = FALSE, collapse = TRUE, ...)}.
-\item Compare the point estimates from steps 1 and 2. If they are are similar
-enough to your satisfaction, get the approximate standard errors by
-running \code{emfx(mod, collapse = TRUE, ...)}.
+Exceptions to this rule, where \code{emfx} instead falls back to the model's own
+(conditional) variance-covariance matrix, are as follows:
+\itemize{
+\item Compressed data (\code{compress = TRUE}), since the compressed groups no longer
+map to the original observations. (Explicitly requesting unconditional
+standard errors for compressed data, e.g. \code{vcov = "unconditional"}, is an
+error.)
+\item Multiway or interacted clustering (e.g., \code{vcov = ~countyreal + year}),
+which \code{vcovUnconditional} does not support.
 }
+
+A warning is triggered in both cases.
+
+Users can override the default by passing their own \code{vcov} argument, e.g.
+\code{vcov = TRUE} to recover the model's conditional standard errors (the
+default behaviour prior to \strong{etwfe} v0.7.0), or
+\code{vcov = marginaleffects::vcovUnconditional(type = "HC1", cluster = ~id)} for
+finer control.
+}
+
+\section{Performance}{
+
+
+Both \code{etwfe} and \code{emfx} should be fast, even for large datasets. In
+particular, as of \strong{etwfe} v0.7.0, \code{emfx} is orders of magnitude faster
+than it used to be, because it now computes standard errors using exact
+analytic Jacobians. (Earlier versions relied on a numerical delta method,
+which required estimating two prediction models for \emph{each} coefficient in
+the model.)
 }
 
 \section{Heterogeneous treatment effects}{
@@ -196,12 +195,10 @@ categorical variables with multiple levels, or even continuous variables
 }
 
 \examples{
-\dontrun{
-# We’ll use the mpdta dataset from the did package (which you’ll need to
-# install separately).
-
-# install.packages("did")
-data("mpdta", package = "did")
+# We'll use the base_stagg dataset from the fixest package, which simulates a
+# staggered treatment rollout across 100 units over 10 years. Never-treated
+# units have `year_treated = 10000`.
+data("base_stagg", package = "fixest")
 
 #
 # Basic example
@@ -212,11 +209,11 @@ data("mpdta", package = "did")
 
 # 1) `etwfe`: Estimate a regression model with saturated interaction terms.
 mod = etwfe(
-  fml  = lemp ~ lpop, # outcome ~ controls (use 0 or 1 if none)
-  tvar = year,        # time variable
-  gvar = first.treat, # group variable
-  data = mpdta,       # dataset
-  vcov = ~countyreal  # vcov adjustment (here: clustered by county)
+  fml  = y ~ x1,       # outcome ~ controls (use 0 or 1 if none)
+  tvar = year,         # time variable
+  gvar = year_treated, # group variable
+  data = base_stagg,   # dataset
+  vcov = ~id           # vcov adjustment (here: clustered by unit)
   )
 
 # mod ## A fixest model object with fully saturated interaction effects.
@@ -231,41 +228,49 @@ mod = etwfe(
 # To visualize results, use the native plot method (see `?plot.emfx`)
 plot(mod_es)
 
+# Aside: With R >= 4.1.0, you can also chain the whole workflow together with
+# the native pipe, e.g.:
+# etwfe(
+#   fml  = y ~ x1,
+#   tvar = year,
+#   gvar = year_treated,
+#   data = base_stagg,
+#   vcov = ~id
+#   ) |>
+#   emfx(type = "event") |>
+#   plot()
+
 # Notice that we don't get any pre-treatment effects with the default
 # "notyet" treated control group. Switch to the "never" treated control
 # group if you want this.
-etwfe(
-  lemp ~ lpop, tvar = year, gvar = first.treat, data = mpdta,
-  vcov = ~countyreal,
+mod_never = etwfe(
+  y ~ x1, tvar = year, gvar = year_treated, data = base_stagg,
+  vcov = ~id,
   cgroup = "never"    ## <= use never treated group as control
-  ) |>
-  emfx("event") |>
-  plot()
+  )
+plot(emfx(mod_never, "event"))
 
 #
 # Heterogeneous treatment effects
 #
 
-# Example where we estimate heterogeneous treatment effects for counties
-# within the 8 US Great Lake states (versus all other counties).
+# Example where we estimate heterogeneous treatment effects for two
+# (arbitrary) groups of units.
 
-gls = c("IL" = 17, "IN" = 18, "MI" = 26, "MN" = 27,
-        "NY" = 36, "OH" = 39, "PA" = 42, "WI" = 55)
-
-mpdta$gls = substr(mpdta$countyreal, 1, 2) \%in\% gls
+base_stagg$grp = base_stagg$id > 50
 
 hmod = etwfe(
-  lemp ~ lpop, tvar = year, gvar = first.treat, data = mpdta,
-  vcov = ~countyreal,
-  xvar = gls           ## <= het. TEs by gls
+  y ~ x1, tvar = year, gvar = year_treated, data = base_stagg,
+  vcov = ~id,
+  xvar = grp           ## <= het. TEs by grp
   )
 
 # Heterogeneous ATEs (could also specify "event", etc.)
 
 emfx(hmod)
 
-# To test whether the ATEs across these two groups (non-GLS vs GLS) are
-# statistically different, simply pass an appropriate "hypothesis" argument.
+# To test whether the ATEs across these two groups are statistically
+# different, simply pass an appropriate "hypothesis" argument.
 
 emfx(hmod, hypothesis = "b1 = b2")
 
@@ -275,17 +280,16 @@ plot(emfx(hmod))
 # Nonlinear model (distribution / link) families
 #
 
-# Poisson example
+# Poisson example (using a transformed, strictly positive outcome)
 
-mpdta$emp = exp(mpdta$lemp)
+base_stagg$y_exp = exp(base_stagg$y / 10)
 
-etwfe(
-  emp ~ lpop, tvar = year, gvar = first.treat, data = mpdta,
-  vcov = ~countyreal,
+pmod = etwfe(
+  y_exp ~ x1, tvar = year, gvar = year_treated, data = base_stagg,
+  vcov = ~id,
   family = "poisson"   ## <= family arg for nonlinear options
-  ) |>
-  emfx("event")
-}
+  )
+emfx(pmod, "event")
 
 }
 \references{

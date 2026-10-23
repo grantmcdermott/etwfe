@@ -1,7 +1,7 @@
 Package: etwfe
 Type: Package
 Title: Extended Two-Way Fixed Effects
-Version: 0.6.2
+Version: 0.6.2.99
 Date: 2026-03-22
 Authors@R: 
     c(
@@ -27,7 +27,7 @@ Imports:
   fixest (>= 0.13.2),
   data.table (>= 1.15.0),
   Formula,
-  marginaleffects (>= 0.29.0),
+  marginaleffects (> 1.0.0),
   stats,
   tinyplot (>= 0.6.0)
 Suggests:
@@ -38,9 +38,11 @@ Suggests:
   modelsummary (>= 2.2.0),
   rmarkdown,
   tinytest
+Remotes:
+  vincentarelbundock/marginaleffects/r
 Encoding: UTF-8
-RoxygenNote: 7.3.3
 URL: https://grantmcdermott.com/etwfe/
 BugReports: https://github.com/grantmcdermott/etwfe/issues
 VignetteBuilder: knitr
 Roxygen: list(markdown = TRUE)
+Config/roxygen2/version: 8.1.0

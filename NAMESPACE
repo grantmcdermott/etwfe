@@ -4,19 +4,30 @@ S3method(plot,emfx)
 export(emfx)
 export(etwfe)
 importFrom(Formula,as.Formula)
-importFrom(data.table,.N)
-importFrom(data.table,.SD)
-importFrom(data.table,as.data.table)
-importFrom(data.table,setDT)
-importFrom(fixest,demean)
-importFrom(fixest,feglm)
-importFrom(fixest,feols)
-importFrom(fixest,i)
-importFrom(graphics,abline)
-importFrom(graphics,par)
-importFrom(graphics,plot)
-importFrom(marginaleffects,slopes)
-importFrom(stats,reformulate)
-importFrom(stats,setNames)
+importFrom(data.table,
+  .N,
+  .SD,
+  as.data.table,
+  setDT
+)
+importFrom(fixest,
+  demean,
+  feglm,
+  feols,
+  i
+)
+importFrom(graphics,
+  abline,
+  par,
+  plot
+)
+importFrom(marginaleffects,
+  slopes,
+  vcovUnconditional
+)
+importFrom(stats,
+  reformulate,
+  setNames
+)
 importFrom(tinyplot,tinyplot)
 importFrom(utils,modifyList)

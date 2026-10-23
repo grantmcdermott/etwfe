@@ -437,86 +437,19 @@ etwfe(
   emfx("event")
 ```
 
-## Performance tips
+## Performance
 
-Thinking of the **etwfe** workflow again as a pair of consecutive functional
-calls, the first `etwfe()` stage tends to be very fast. We're leveraging the
-incredible performance of **fixest** and also taking some shortcuts to avoid
-wasting time on nuisance parameters. See the
-[Regarding fixed effects](#regarding-fixed-effects) section below for more 
-details about this.
-
-For its part, the second `emfx()` stage also tends to be pretty performant. If
-your data has less than 100k rows, it's unlikely that you'll have to wait more
-than a few seconds to obtain results. However, `emfx`'s computation time does
-tend to scale non-linearly with the size of the original data, as well as the
-number of interactions from the underlying `etwfe` model object.^[Without getting
-too deep into the weeds, we are relying on a numerical delta method of the
-(excellent) **marginaleffects** package underneath the hood to recover the ATTs
-of interest. This method requires estimating two prediction models for *each*
-coefficient in the model and then computing their standard errors. So it's a
-potentially expensive operation that can push the computation time for large
-datasets (> 1m rows) up to several minutes or longer.]
-
-Fortunately, there are two complementary strategies that you can use to speed
-things up. The first is to turn off the most expensive part of the whole
-procedure---standard error calculation---by calling `emfx(..., vcov = FALSE)`.
-This should bring the estimation time back down to a few seconds or less,
-even for datasets in excess of a million rows. Of course, the loss of standard
-errors might not be an acceptable trade-off for projects where statistical
-inference is critical. But the good news is that we "combine" turning off
-standard errors with a second strategy. Specially, it turns out that compressing
-the data by groups prior to estimation can yield substantial speed gains on
-its own; see Wong _et al._ ([2021](https://doi.org/10.48550/arXiv.2102.11297))
-on this. Users can do this by invoking the `emfx(..., compress = TRUE)`
-argument. While the effect here is not as dramatic as the first strategy,
-collapsing the data does have the virtue of retaining information about the
-standard errors. The trade-off this time, however, is that compressing our data
-does lead to a loss in accuracy for our estimated parameters. On the other hand,
-testing suggests that this loss in accuracy tends to be relatively minor, with
-results equivalent up to the 1st or 2nd significant decimal place (or even
-better).
-
-Summarizing, here is a quick plan of attack for you to try if you are worried
-about the estimation time for large datasets and models:
-
-0. Estimate `mod = etwfe(...)` as per usual.
-1. Run `emfx(mod, vcov = FALSE, ...)`.
-2. Run `emfx(mod, vcov = FALSE, compress = TRUE, ...)`.
-3. Compare the point estimates from steps 1 and 2. If they are are similar 
-enough to your satisfaction, get the approximate standard errors by running 
-`emfx(mod, compress = TRUE, ...)`.
-
-It's a bit of performance art, since all of the examples in this vignette
-complete very quickly anyway. But here is a reworking of our earlier event study
-example to demonstrate this performance-conscious workflow.
-
-```{r}
-# Step 0 already complete: using the same `mod` object from earlier...
-
-# Step 1
-emfx(mod, type = "event", vcov = FALSE)
-
-# Step 2
-emfx(mod, type = "event", vcov = FALSE, compress = TRUE)
-
-# Step 3: Results from 1 and 2 are similar enough, so get approx. SEs
-mod_es_compressed = emfx(mod, type = "event", compress = TRUE)
-```
-
-To put a fine point on it, we can can compare our original event study with the
-compressed estimates and see that the results are indeed very similar.
-
-```{r}
-modelsummary(
-  list("Original" = mod_es, "Compressed" = mod_es_compressed),
-  shape       = term:event:statistic ~ model,
-  coef_rename = rename_fn,
-  gof_omit    = "Adj|Within|IC|RMSE",
-  title       = "Event study",
-  notes       = "Std. errors are clustered at the county level"
-)
-```
+Both stages of the **etwfe** workflow should be fast, even for large datasets.
+The first `etwfe()` stage leverages the incredible performance of **fixest**
+(and takes some shortcuts to avoid wasting time on nuisance parameters; see
+[Regarding fixed effects](#regarding-fixed-effects) below). As of **etwfe**
+v0.7.0, the second `emfx()` stage should also be very fast---more than an
+order of magnitude faster than before (typically 10-40x)---since it now
+computes standard errors using exact analytic Jacobians.^[This is thanks to
+changes in the upstream **marginaleffects** package. Earlier versions relied on
+a numerical delta method, which required estimating two prediction models for
+*each* coefficient in the model. For large datasets, this could lead to
+frustratingly slow estimation times.]
 
 ## Under the hood
 
