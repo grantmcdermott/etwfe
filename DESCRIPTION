@@ -27,7 +27,7 @@ Imports:
   fixest (>= 0.13.2),
   data.table (>= 1.15.0),
   Formula,
-  marginaleffects (>= 1.0.0),
+  marginaleffects (> 1.0.0),
   stats,
   tinyplot (>= 0.6.0)
 Suggests:
@@ -39,7 +39,7 @@ Suggests:
   rmarkdown,
   tinytest
 Remotes:
-  grantmcdermott/marginaleffects/r@fixest-analytical
+  vincentarelbundock/marginaleffects/r
 Encoding: UTF-8
 URL: https://grantmcdermott.com/etwfe/
 BugReports: https://github.com/grantmcdermott/etwfe/issues
