@@ -96,7 +96,9 @@
 #' (conditional) variance-covariance matrix, are as follows:
 #'
 #' - Compressed data (`compress = TRUE`), since the compressed groups no longer
-#'   map to the original observations.
+#'   map to the original observations. (Explicitly requesting unconditional
+#'   standard errors for compressed data, e.g. `vcov = "unconditional"`, is an
+#'   error.)
 #' - Multiway or interacted clustering (e.g., `vcov = ~countyreal + year`),
 #'   which `vcovUnconditional` does not support.
 #'
@@ -332,6 +334,19 @@ emfx = function(
   # cluster variable, since marginaleffects::vcovUnconditional() can't
   if (is.null(dots$vcov) && !(compress && is.null(ivar))) {
     dots$vcov = "unconditional"
+  }
+  if (
+    compress &&
+      is.null(ivar) &&
+      (identical(dots$vcov, "unconditional") ||
+        identical(dots$vcov, marginaleffects::vcovUnconditional) ||
+        inherits(dots$vcov, "marginaleffects_vcov_unconditional"))
+  ) {
+    stop(
+      "Unconditional standard errors are not available for compressed data. ",
+      "Use `compress = FALSE` (the default), or `vcov = TRUE` for the model's ",
+      "conditional standard errors."
+    )
   }
   if (
     identical(dots$vcov, "unconditional") ||

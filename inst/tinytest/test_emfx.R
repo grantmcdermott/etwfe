@@ -553,6 +553,12 @@ expect_equivalent(
 expect_warning(mod_compress <- emfx(m3, compress = TRUE), "compressed data")
 expect_silent(mod_compress_cond <- emfx(m3, compress = TRUE, vcov = TRUE))
 expect_equivalent(mod_compress$std.error, mod_compress_cond$std.error)
+# ... but explicit unconditional requests are rejected
+expect_error(emfx(m3, compress = TRUE, vcov = "unconditional"), "compressed data")
+expect_error(
+  emfx(m3, compress = TRUE, vcov = marginaleffects::vcovUnconditional(cluster = ~countyreal)),
+  "compressed data"
+)
 # multiway clustering falls back to the model vcov (with a warning)
 m3_2way = etwfe(
   lemp ~ lpop,

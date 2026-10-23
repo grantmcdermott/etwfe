@@ -144,7 +144,9 @@ Exceptions to this rule, where \code{emfx} instead falls back to the model's own
 (conditional) variance-covariance matrix, are as follows:
 \itemize{
 \item Compressed data (\code{compress = TRUE}), since the compressed groups no longer
-map to the original observations.
+map to the original observations. (Explicitly requesting unconditional
+standard errors for compressed data, e.g. \code{vcov = "unconditional"}, is an
+error.)
 \item Multiway or interacted clustering (e.g., \code{vcov = ~countyreal + year}),
 which \code{vcovUnconditional} does not support.
 }
