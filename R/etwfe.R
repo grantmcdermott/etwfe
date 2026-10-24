@@ -298,9 +298,33 @@ etwfe = function(
   if (is.null(gref)) {
     ug = unique(data[[gvar]])
     ut = unique(data[[tvar]])
-    gref = ug[ug > max(ut)]
+    ## A cohort whose onset is beyond the observed range of `tvar` is, within this panel,
+    ## observationally identical to a genuinely never-treated cohort (both are always
+    ## .Dtreat == FALSE). But if we let it win the reference-level selection below whenever
+    ## one exists, it silently displaces any *real* never-treated group from its usual role
+    ## as the (implicit) baseline -- that real group then gets fitted as an ordinary
+    ## interacted cohort instead, with coefficients that are pure noise, and those get pooled
+    ## into every emfx() aggregate. So: prefer a genuine never-treated group whenever one is
+    ## present, and only fall back to a beyond-range cohort if no such group exists (this
+    ## preserves the previous behaviour for data that has no never-treated units at all).
+    gref_beyond_range = ug[ug > max(ut)]
+    gref = ug[ug < min(ut)]
     if (length(gref) == 0) {
-      gref = ug[ug < min(ut)]
+      gref = gref_beyond_range
+    } else if (length(gref_beyond_range) > 0) {
+      warning(
+        "Cohort(s) ",
+        paste(gref_beyond_range, collapse = ", "),
+        " of `",
+        gvar,
+        "` have an onset beyond the observed range of `",
+        tvar,
+        "` (max = ",
+        max(ut),
+        ") and are never actually observed as treated in this panel. A genuinely ",
+        "never-treated group was also found in the data and is being used as the reference ",
+        "level instead. Supply `gref` explicitly if you want different behaviour.\n"
+      )
     }
     if (length(gref) == 0 && cgroup == "notyet") {
       gref = max(ug)
@@ -325,6 +349,31 @@ etwfe = function(
       stop("Proposed reference level ", gref, " not found in ", gvar, ".\n")
     }
     if (gref < min(unique(data[[tvar]]))) gref_min_flag = TRUE
+  }
+
+  ## Warn about cohorts with no pre-treatment observations at all (onset at or before their
+  ## own earliest observed period). etwfe still fits a coefficient for them, but it reduces to
+  ## a cross-sectional/level comparison against the reference group rather than a genuine
+  ## within-cohort before/after effect, and it is silently pooled into any aggregated ATT
+  ## (e.g. `emfx(type = "simple")`) with no indication that it isn't identified the same way
+  ## as every other cohort.
+  ug_chk = unique(data[[gvar]])
+  no_pre = vapply(
+    setdiff(ug_chk, gref),
+    function(g) !any(data[[tvar]][data[[gvar]] == g] < g, na.rm = TRUE),
+    logical(1L)
+  )
+  if (any(no_pre)) {
+    warning(
+      "Cohort(s) ",
+      paste(setdiff(ug_chk, gref)[no_pre], collapse = ", "),
+      " of `",
+      gvar,
+      "` have no pre-treatment observations. Their estimated effects are not identified from ",
+      "within-cohort variation and are included in any aggregated ATT (e.g. ",
+      "`emfx(type = \"simple\")`) regardless. Consider excluding them from `data` if this is ",
+      "not intended.\n"
+    )
   }
 
   ref_string = paste0(", ref = ", gref)
