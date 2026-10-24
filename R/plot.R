@@ -17,7 +17,7 @@
 #' @param grid Logical. Should a background grid be displayed? Default is
 #'   `TRUE`.
 #' @param ... Additional arguments passed to [`tinyplot::tinyplot`].
-#' @inherit tinyplot::tinyplot return
+#' @return No return value, called for its side effect of producing a plot.
 #' @importFrom graphics abline par plot
 #' @importFrom utils modifyList
 #' @importFrom tinyplot tinyplot
