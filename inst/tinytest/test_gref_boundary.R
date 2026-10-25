@@ -148,3 +148,12 @@ expect_silent(
   info = "NA values in gvar should not trigger the beyond-range or no-pre-period warnings"
 )
 expect_equal(attr(m_na, "etwfe")$gref, 0)
+
+## a second pre-panel code (onset before min(year)) is always treated in-panel and
+## should still be flagged, even though the lowest code (0) is the never-treated group
+mpdta_pre <- mpdta
+mpdta_pre$first.treat[mpdta_pre$countyreal %in% flipB] <- 2001L
+expect_warning(
+  etwfe(lemp ~ lpop, tvar = year, gvar = first.treat, data = mpdta_pre),
+  pattern = "Cohort\\(s\\) 2001 .* no pre-treatment observations"
+)

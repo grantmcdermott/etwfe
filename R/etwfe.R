@@ -347,9 +347,10 @@ etwfe = function(
     if (gref < min(ut)) gref_min_flag = TRUE
   }
 
-  ## Warn about cohorts treated at or before their earliest observed period (only
-  ## onsets within the panel range; others are treated as never-treated above)
-  ug_in = setdiff(ug[ug >= min(ut) & ug <= max(ut)], gref)
+  ## Warn about cohorts treated at or before their earliest observed period (skipping
+  ## gref, the never-treated code, i.e. lowest pre-panel value, and beyond-range onsets)
+  never_code = if (any(ug < min(ut))) min(ug)
+  ug_in = setdiff(ug[ug <= max(ut)], c(gref, never_code))
   if (length(ug_in)) {
     in_rows = data[[gvar]] %in% ug_in
     tmin_g = tapply(data[[tvar]][in_rows], data[[gvar]][in_rows], min, na.rm = TRUE)
