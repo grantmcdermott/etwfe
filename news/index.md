@@ -43,6 +43,23 @@
   (turning off standard errors, compressing the data) are no longer
   needed.
 
+### Bug fixes
+
+- Improved automatic selection of the reference (never-treated) cohort.
+  If several `gvar` values fall outside the range of `tvar` (e.g., `0`
+  and `2009` for a 2003–2007 panel),
+  [`etwfe()`](http://grantmcdermott.com/etwfe/reference/etwfe.md) now
+  picks the value farthest from the panel and warns about the ambiguity.
+  Previously, it always preferred the value above the range, which could
+  mistake late-treated units for the never-treated group. Thanks to
+  [@umor](https://github.com/umor) for the report and fix.
+  ([\#89](https://github.com/grantmcdermott/etwfe/issues/89))
+- [`etwfe()`](http://grantmcdermott.com/etwfe/reference/etwfe.md) now
+  warns if any cohort has no pre-treatment observations. Their effects
+  are not identified from within-cohort variation, but are still
+  included in aggregated ATTs.
+  ([\#89](https://github.com/grantmcdermott/etwfe/issues/89))
+
 ## etwfe 0.6.2
 
 CRAN release: 2026-03-23
@@ -61,7 +78,7 @@ CRAN release: 2026-03-16
 
 - Fix bug where changing the factor reference level of `xvar` would
   affect treatment effect estimates. Thanks to
-  [@umor](https://github.com/umor) for the details report and PR.
+  [@umor](https://github.com/umor) for the detailed report and PR.
   ([\#72](https://github.com/grantmcdermott/etwfe/issues/72),
   [\#73](https://github.com/grantmcdermott/etwfe/issues/73))
 - Import
