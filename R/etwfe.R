@@ -295,9 +295,12 @@ etwfe = function(
     }
   }
 
+  ug = unique(data[[gvar]])
+  ug = ug[!is.na(ug)]
+  ut = unique(data[[tvar]])
+  ut = ut[!is.na(ut)]
+
   if (is.null(gref)) {
-    ug = unique(data[[gvar]])
-    ut = unique(data[[tvar]])
     ## A cohort whose onset is beyond the observed range of `tvar` is, within this panel,
     ## observationally identical to a genuinely never-treated cohort (both are always
     ## .Dtreat == FALSE). But if we let it win the reference-level selection below whenever
@@ -357,16 +360,16 @@ etwfe = function(
   ## within-cohort before/after effect, and it is silently pooled into any aggregated ATT
   ## (e.g. `emfx(type = "simple")`) with no indication that it isn't identified the same way
   ## as every other cohort.
-  ug_chk = unique(data[[gvar]])
+  ug_chk = setdiff(ug[ug >= min(ut) & ug <= max(ut)], gref)
   no_pre = vapply(
-    setdiff(ug_chk, gref),
+    ug_chk,
     function(g) !any(data[[tvar]][data[[gvar]] == g] < g, na.rm = TRUE),
     logical(1L)
   )
   if (any(no_pre)) {
     warning(
       "Cohort(s) ",
-      paste(setdiff(ug_chk, gref)[no_pre], collapse = ", "),
+      paste(ug_chk[no_pre], collapse = ", "),
       " of `",
       gvar,
       "` have no pre-treatment observations. Their estimated effects are not identified from ",

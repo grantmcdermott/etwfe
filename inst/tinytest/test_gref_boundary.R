@@ -133,3 +133,18 @@ expect_true(
     "cohort being present in the data"
   )
 )
+
+## ---- No spurious warnings: explicit gref, NA cohorts ----------------------
+
+expect_silent(
+  etwfe(lemp ~ lpop, tvar = year, gvar = first.treat, data = mpdta, gref = 2007, cgroup = "notyet"),
+  info = "an explicit gref should not flag the never-treated group as lacking pre-periods"
+)
+
+mpdta_na <- mpdta
+mpdta_na$first.treat[1:5] <- NA
+expect_silent(
+  m_na <- etwfe(lemp ~ lpop, tvar = year, gvar = first.treat, data = mpdta_na),
+  info = "NA values in gvar should not trigger the beyond-range or no-pre-period warnings"
+)
+expect_equal(attr(m_na, "etwfe")$gref, 0)
