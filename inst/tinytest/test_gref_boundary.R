@@ -35,7 +35,7 @@ mpdta_A$first.treat[mpdta_A$countyreal %in% flipA] <- 2009L # beyond max(year) =
 
 expect_warning(
   m_A <- etwfe(lemp ~ lpop, tvar = year, gvar = first.treat, data = mpdta_A, cgroup = "notyet"),
-  pattern = "beyond the observed range",
+  pattern = "Assuming 0 .* never-treated",
   info = "a cohort with onset beyond max(tvar) should trigger a gref warning"
 )
 
@@ -121,7 +121,7 @@ sim <- do.call(rbind, sim_rows)
 
 expect_warning(
   m_sim <- etwfe(y ~ 0, tvar = year, gvar = g, data = sim, cgroup = "notyet"),
-  pattern = "beyond the observed range",
+  pattern = "Assuming 0 .* never-treated",
   info = "simulated onset-beyond-panel cohort should trigger the same warning"
 )
 att_sim <- emfx(m_sim, type = "simple", vcov = FALSE)$estimate
@@ -156,4 +156,25 @@ mpdta_pre$first.treat[mpdta_pre$countyreal %in% flipB] <- 2001L
 expect_warning(
   etwfe(lemp ~ lpop, tvar = year, gvar = first.treat, data = mpdta_pre),
   pattern = "Cohort\\(s\\) 2001 .* no pre-treatment observations"
+)
+
+## ---- High-sentinel convention (base_stagg: never-treated = 10000) ----------
+
+data(base_stagg, package = "fixest")
+expect_silent(
+  m_bs <- etwfe(y ~ x1, tvar = year, gvar = year_treated, data = base_stagg)
+)
+expect_equal(attr(m_bs, "etwfe")$gref, 10000)
+
+## a cohort treated before the panel and coded 0 must not displace the high sentinel
+bs_pre <- base_stagg
+bs_pre$year_treated[bs_pre$year_treated == 2] <- 0
+expect_warning(
+  m_bs_pre <- etwfe(y ~ x1, tvar = year, gvar = year_treated, data = bs_pre),
+  pattern = "Assuming 10000 .* never-treated"
+)
+expect_equal(attr(m_bs_pre, "etwfe")$gref, 10000)
+expect_warning(
+  etwfe(y ~ x1, tvar = year, gvar = year_treated, data = bs_pre, gref = 10000),
+  pattern = "Cohort\\(s\\) 0 .* no pre-treatment observations"
 )

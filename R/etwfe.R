@@ -300,32 +300,39 @@ etwfe = function(
   ut = unique(data[[tvar]])
   ut = ut[!is.na(ut)]
 
+  ## Codes outside the observed range of tvar are candidate never-treated sentinels (e.g. 0,
+  ## 10000, Inf), but can also be real cohorts treated before/after the panel. Assume the
+  ## candidate farthest from the panel is the never-treated group.
+  g_out = ug[ug < min(ut) | ug > max(ut)]
+  never_code = NULL
+  if (length(g_out)) {
+    never_code = g_out[which.max(pmax(min(ut) - g_out, g_out - max(ut)))]
+  }
+
   if (is.null(gref)) {
-    ## Prefer a genuine never-treated group over a cohort with onset beyond the panel;
-    ## otherwise the never-treated group would be fitted as an (always) treated cohort.
-    gref_beyond_range = ug[ug > max(ut)]
-    gref = ug[ug < min(ut)]
-    if (length(gref) == 0) {
-      gref = gref_beyond_range
-    } else if (length(gref_beyond_range) > 0) {
+    gref = never_code
+    if (length(g_out) > 1) {
       warning(
-        "Cohort(s) ",
-        paste(gref_beyond_range, collapse = ", "),
-        " of `",
+        "Multiple values of `",
         gvar,
-        "` have an onset beyond the observed range of `",
+        "` lie outside the observed range of `",
         tvar,
-        "` (max = ",
+        "` (",
+        min(ut),
+        "-",
         max(ut),
-        ") and are never actually observed as treated in this panel. A genuinely ",
-        "never-treated group was also found in the data and is being used as the reference ",
-        "level instead. Supply `gref` explicitly if you want different behaviour.\n"
+        "): ",
+        paste(sort(g_out), collapse = ", "),
+        ". Assuming ",
+        gref,
+        " (the farthest from the panel) is the never-treated reference group. ",
+        "Supply `gref` explicitly to override.\n"
       )
     }
-    if (length(gref) == 0 && cgroup == "notyet") {
+    if (is.null(gref) && cgroup == "notyet") {
       gref = max(ug)
     }
-    if (length(gref) == 0) {
+    if (is.null(gref)) {
       stop(
         "The '",
         cgroup,
@@ -333,10 +340,6 @@ etwfe = function(
         gvar,
         " could not be identified. You can provide a bespoke group reference level via the `gref` argument.\n"
       )
-    }
-    if (length(gref) > 1) {
-      gref = min(gref) ## placeholder. could do something a bit smarter here like bin post periods.
-      ## also: what about NA vals?
     }
     if (gref < min(ut)) gref_min_flag = TRUE
   } else {
@@ -348,13 +351,10 @@ etwfe = function(
   }
 
   ## Warn about cohorts treated at or before their earliest observed period (skipping
-  ## gref, the never-treated code, i.e. lowest pre-panel value, and beyond-range onsets)
-  never_code = if (any(ug < min(ut))) min(ug)
+  ## gref, the assumed never-treated code, and onsets beyond the panel)
   ug_in = setdiff(ug[ug <= max(ut)], c(gref, never_code))
   if (length(ug_in)) {
-    in_rows = data[[gvar]] %in% ug_in
-    tmin_g = tapply(data[[tvar]][in_rows], data[[gvar]][in_rows], min, na.rm = TRUE)
-    no_pre = names(tmin_g)[tmin_g >= as.numeric(names(tmin_g))]
+    no_pre = setdiff(ug_in, data[[gvar]][data[[tvar]] < data[[gvar]]])
     if (length(no_pre)) {
       warning(
         "Cohort(s) ",

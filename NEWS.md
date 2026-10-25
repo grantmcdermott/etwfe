@@ -34,17 +34,15 @@
 
 ## Bug fixes
 
-- Fix `gref` (reference cohort) auto-selection so that a genuinely never-treated
-  group is preferred over a cohort whose recorded onset simply falls beyond the
-  observed range of `tvar`. Previously, the presence of even one such
-  beyond-range cohort would unconditionally displace the real never-treated
-  group from its role as reference, causing it to be fitted as an ordinary
-  (spuriously noisy) interacted cohort and pooled into every `emfx()` estimate.
-  Also add a `warning()` when any cohort has no pre-treatment observations at
-  all (onset at or before its own earliest observed period), since such
-  cohorts are not identified from within-cohort variation but were previously
-  included in aggregated ATTs with no indication of this. Thanks to @umor for
-  the report. (#89)
+- Improved automatic selection of the reference (never-treated) cohort. If
+  several `gvar` values fall outside the range of `tvar` (e.g., `0` and
+  `2009` for a 2003–2007 panel), `etwfe()` now picks the value farthest from
+  the panel and warns about the ambiguity. Previously, it always preferred the
+  value above the range, which could mistake late-treated units for the
+  never-treated group. Thanks to @umor for the report and fix. (#89)
+- `etwfe()` now warns if any cohort has no pre-treatment observations. Their
+  effects are not identified from within-cohort variation, but are still
+  included in aggregated ATTs. (#89)
 
 # etwfe 0.6.2
 
