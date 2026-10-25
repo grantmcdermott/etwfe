@@ -295,17 +295,44 @@ etwfe = function(
     }
   }
 
+  ug = unique(data[[gvar]])
+  ug = ug[!is.na(ug)]
+  ut = unique(data[[tvar]])
+  ut = ut[!is.na(ut)]
+
+  ## Codes outside the observed range of tvar are candidate never-treated sentinels (e.g. 0,
+  ## 10000, Inf), but can also be real cohorts treated before/after the panel. Assume the
+  ## candidate farthest from the panel is the never-treated group.
+  g_out = ug[ug < min(ut) | ug > max(ut)]
+  never_code = NULL
+  if (length(g_out)) {
+    never_code = g_out[which.max(pmax(min(ut) - g_out, g_out - max(ut)))]
+  }
+
   if (is.null(gref)) {
-    ug = unique(data[[gvar]])
-    ut = unique(data[[tvar]])
-    gref = ug[ug > max(ut)]
-    if (length(gref) == 0) {
-      gref = ug[ug < min(ut)]
+    gref = never_code
+    if (length(g_out) > 1) {
+      warning(
+        "Multiple values of `",
+        gvar,
+        "` lie outside the observed range of `",
+        tvar,
+        "` (",
+        min(ut),
+        "-",
+        max(ut),
+        "): ",
+        paste(sort(g_out), collapse = ", "),
+        ". Assuming ",
+        gref,
+        " (the farthest from the panel) is the never-treated reference group. ",
+        "Supply `gref` explicitly to override.\n"
+      )
     }
-    if (length(gref) == 0 && cgroup == "notyet") {
+    if (is.null(gref) && cgroup == "notyet") {
       gref = max(ug)
     }
-    if (length(gref) == 0) {
+    if (is.null(gref)) {
       stop(
         "The '",
         cgroup,
@@ -314,17 +341,32 @@ etwfe = function(
         " could not be identified. You can provide a bespoke group reference level via the `gref` argument.\n"
       )
     }
-    if (length(gref) > 1) {
-      gref = min(gref) ## placeholder. could do something a bit smarter here like bin post periods.
-      ## also: what about NA vals?
-    }
     if (gref < min(ut)) gref_min_flag = TRUE
   } else {
     # Sanity check proposed gref level
-    if (!(gref %in% unique(data[[gvar]]))) {
+    if (!(gref %in% ug)) {
       stop("Proposed reference level ", gref, " not found in ", gvar, ".\n")
     }
-    if (gref < min(unique(data[[tvar]]))) gref_min_flag = TRUE
+    if (gref < min(ut)) gref_min_flag = TRUE
+  }
+
+  ## Warn about cohorts treated at or before their earliest observed period (skipping
+  ## gref, the assumed never-treated code, and onsets beyond the panel)
+  ug_in = setdiff(ug[ug <= max(ut)], c(gref, never_code))
+  if (length(ug_in)) {
+    no_pre = setdiff(ug_in, data[[gvar]][data[[tvar]] < data[[gvar]]])
+    if (length(no_pre)) {
+      warning(
+        "Cohort(s) ",
+        paste(no_pre, collapse = ", "),
+        " of `",
+        gvar,
+        "` have no pre-treatment observations. Their estimated effects are not identified from ",
+        "within-cohort variation and are included in any aggregated ATT (e.g. ",
+        "`emfx(type = \"simple\")`) regardless. Consider excluding them from `data` if this is ",
+        "not intended.\n"
+      )
+    }
   }
 
   ref_string = paste0(", ref = ", gref)
