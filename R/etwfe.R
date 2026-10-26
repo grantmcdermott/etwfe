@@ -61,7 +61,7 @@
 #' post-estimation in `emfx`.
 #'
 #' @importFrom fixest demean feols feglm i
-#' @importFrom stats reformulate setNames
+#' @importFrom stats complete.cases reformulate setNames
 #' @importFrom Formula as.Formula
 #'
 #' @section Heterogeneous treatment effects:
@@ -294,6 +294,11 @@ etwfe = function(
       vs = paste0("[", gsub(" \\+", ",", ctrls), "]") ## For varying slopes later
     }
   }
+
+  ## Drop incomplete cases up front, so that demeaning (and emfx() later) use
+  ## the same rows as the estimation sample (#91)
+  cc_vars = intersect(c(all.vars(fml), gvar, tvar, ivar, xvar), names(data))
+  data = data[complete.cases(data[cc_vars]), , drop = FALSE]
 
   ug = unique(data[[gvar]])
   ug = ug[!is.na(ug)]

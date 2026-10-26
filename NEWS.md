@@ -43,6 +43,11 @@
 - `etwfe()` now warns if any cohort has no pre-treatment observations. Their
   effects are not identified from within-cohort variation, but are still
   included in aggregated ATTs. (#89)
+- Missing values (e.g., in the outcome) no longer contaminate results. `etwfe()`
+  now drops incomplete cases before demeaning any controls, and `emfx()`
+  aggregates over the estimation sample only. Previously, `emfx()` averaged
+  over all rows of the original data, which yielded incorrect ATTs and caused
+  the default unconditional standard errors to error. (#91)
 
 # etwfe 0.6.2
 
