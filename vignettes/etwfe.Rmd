@@ -323,7 +323,7 @@ modelsummary(
 )
 ```
 
-## Heterogeneous treatment effects
+## Heterogeneity
 
 So far we've limited ourselves to homogeneous treatment effects, where the
 impact of treatment (i.e., minimum wage hike) is averaged across all US counties
