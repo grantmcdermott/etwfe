@@ -14,7 +14,8 @@ importFrom(fixest,
   demean,
   feglm,
   feols,
-  i
+  i,
+  obs
 )
 importFrom(graphics,
   abline,
@@ -26,6 +27,7 @@ importFrom(marginaleffects,
   vcovUnconditional
 )
 importFrom(stats,
+  complete.cases,
   reformulate,
   setNames
 )

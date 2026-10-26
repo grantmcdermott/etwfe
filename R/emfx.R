@@ -139,6 +139,7 @@
 #' @importFrom data.table as.data.table setDT .N .SD
 #' @importFrom marginaleffects slopes vcovUnconditional
 #' @importFrom stats reformulate
+#' @importFrom fixest obs
 #' @importFrom utils modifyList
 #' @export
 emfx = function(
@@ -193,7 +194,17 @@ emfx = function(
     by_xvar = !is.null(xvar)
   }
 
-  dat = as.data.table(eval(object$call$data, object$call_env))
+  if (isTRUE(object$lean)) {
+    stop(
+      "`emfx()` does not support models estimated with `lean = TRUE`, since ",
+      "these don't retain the information needed to recover the estimation ",
+      "sample. Please re-estimate the model without `lean = TRUE`."
+    )
+  }
+
+  # restrict to the estimation sample, i.e. drop any rows that feols() removed
+  # (missing values, etc.) (#91)
+  dat = as.data.table(eval(object$call$data, object$call_env))[obs(object)]
   if ("group" %in% names(dat)) {
     dat[["group"]] = NULL
   }

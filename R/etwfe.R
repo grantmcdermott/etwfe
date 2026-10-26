@@ -56,12 +56,18 @@
 #'   automatically be set to NULL.
 #' @param ... Additional arguments passed to [`fixest::feols`] (or
 #'   [`fixest::feglm`]). The most common example would be a `vcov` argument.
+#'   Note that incomplete cases are dropped before any controls (or `xvar`)
+#'   are demeaned, but only for variables in `fml`, the `gvar`, `tvar`,
+#'   `ivar` and `xvar` arguments, and one-sided formula `weights` (e.g.,
+#'   `weights = ~pop`). Other sample restrictions passed here (e.g., `subset`,
+#'   or vector `weights` with missing values) are applied by `feols` after
+#'   demeaning, so you should remove the affected rows from `data` beforehand.
 #' @return A \code{\link[fixest]{fixest}} object with fully saturated
 #' interaction effects, and a few additional attributes used for
 #' post-estimation in `emfx`.
 #'
 #' @importFrom fixest demean feols feglm i
-#' @importFrom stats reformulate setNames
+#' @importFrom stats complete.cases reformulate setNames
 #' @importFrom Formula as.Formula
 #'
 #' @section Heterogeneous treatment effects:
@@ -294,6 +300,13 @@ etwfe = function(
       vs = paste0("[", gsub(" \\+", ",", ctrls), "]") ## For varying slopes later
     }
   }
+
+  ## Drop incomplete cases up front, so that demeaning (and emfx() later) use
+  ## the same rows as the estimation sample (#91)
+  wts = list(...)[["weights"]]
+  wts = if (inherits(wts, "formula")) all.vars(wts)
+  cc_vars = intersect(c(all.vars(fml), gvar, tvar, ivar, xvar, wts), names(data))
+  data = data[complete.cases(data[cc_vars]), , drop = FALSE]
 
   ug = unique(data[[gvar]])
   ug = ug[!is.na(ug)]
