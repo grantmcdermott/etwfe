@@ -59,6 +59,20 @@
   are not identified from within-cohort variation, but are still
   included in aggregated ATTs.
   ([\#89](https://github.com/grantmcdermott/etwfe/issues/89))
+- Missing values (e.g., in the outcome) no longer contaminate results.
+  [`etwfe()`](http://grantmcdermott.com/etwfe/reference/etwfe.md) now
+  drops incomplete cases (including missing formula `weights`) before
+  demeaning any controls, and
+  [`emfx()`](http://grantmcdermott.com/etwfe/reference/emfx.md)
+  aggregates over the estimation sample only. Previously,
+  [`emfx()`](http://grantmcdermott.com/etwfe/reference/emfx.md) averaged
+  over all rows of the original data, which yielded incorrect ATTs and
+  caused the default unconditional standard errors to error.
+  ([\#91](https://github.com/grantmcdermott/etwfe/issues/91))
+- [`emfx()`](http://grantmcdermott.com/etwfe/reference/emfx.md) now
+  throws an informative error for models estimated with `lean = TRUE`,
+  which were never supported.
+  ([\#92](https://github.com/grantmcdermott/etwfe/issues/92))
 
 ## etwfe 0.6.2
 

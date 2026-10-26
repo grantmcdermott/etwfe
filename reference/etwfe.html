@@ -157,7 +157,13 @@ automatically be set to NULL.</p></dd>
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Additional arguments passed to <code><a href="https://lrberge.github.io/fixest/reference/feols.html" class="external-link">fixest::feols</a></code> (or
-<code><a href="https://lrberge.github.io/fixest/reference/feglm.html" class="external-link">fixest::feglm</a></code>). The most common example would be a <code>vcov</code> argument.</p></dd>
+<code><a href="https://lrberge.github.io/fixest/reference/feglm.html" class="external-link">fixest::feglm</a></code>). The most common example would be a <code>vcov</code> argument.
+Note that incomplete cases are dropped before any controls (or <code>xvar</code>)
+are demeaned, but only for variables in <code>fml</code>, the <code>gvar</code>, <code>tvar</code>,
+<code>ivar</code> and <code>xvar</code> arguments, and one-sided formula <code>weights</code> (e.g.,
+<code>weights = ~pop</code>). Other sample restrictions passed here (e.g., <code>subset</code>,
+or vector <code>weights</code> with missing values) are applied by <code>feols</code> after
+demeaning, so you should remove the affected rows from <code>data</code> beforehand.</p></dd>
 
 </dl></div>
     <div class="section level2">

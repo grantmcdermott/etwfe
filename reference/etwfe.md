@@ -121,7 +121,14 @@ etwfe(
   [`fixest::feols`](https://lrberge.github.io/fixest/reference/feols.html)
   (or
   [`fixest::feglm`](https://lrberge.github.io/fixest/reference/feglm.html)).
-  The most common example would be a `vcov` argument.
+  The most common example would be a `vcov` argument. Note that
+  incomplete cases are dropped before any controls (or `xvar`) are
+  demeaned, but only for variables in `fml`, the `gvar`, `tvar`, `ivar`
+  and `xvar` arguments, and one-sided formula `weights` (e.g.,
+  `weights = ~pop`). Other sample restrictions passed here (e.g.,
+  `subset`, or vector `weights` with missing values) are applied by
+  `feols` after demeaning, so you should remove the affected rows from
+  `data` beforehand.
 
 ## Value
 

@@ -403,7 +403,7 @@ modelsummary(
 | \+ p \< 0.1, \* p \< 0.05, \*\* p \< 0.01, \*\*\* p \< 0.001 |  |  |
 | Std. errors are clustered at the county level |  |  |
 
-Event study {#tinytable_nosb9xx9w1t6hxtg9e3c .table .tinytable
+Event study {#tinytable_p7ft0hllf8psg50bifai .table .tinytable
 style="width: auto; margin-left: auto; margin-right: auto;"
 quarto-disable-processing="true"}
 
@@ -533,7 +533,7 @@ modelsummary(
 |     | (0.035)    | (0.026) |
 
 Comparing the ATT on GLS and non-GLS counties
-{#tinytable_193fv62h72hog4n4hhgw .table .tinytable
+{#tinytable_po986sebcjj3vbfwntmd .table .tinytable
 style="width: auto; margin-left: auto; margin-right: auto;"
 quarto-disable-processing="true"}
 
@@ -606,7 +606,7 @@ mod$fml_all
 #> $linear
 #> lemp ~ .Dtreat:i(first.treat, i.year, ref = 0, ref2 = 2003)/lpop_dm + 
 #>     lpop + i(first.treat, lpop, ref = 0) + i(year, lpop, ref = 2003)
-#> <environment: 0x63e9906a59a8>
+#> <environment: 0x5775e33b44f8>
 #> 
 #> $fixef
 #> ~first.treat + year
