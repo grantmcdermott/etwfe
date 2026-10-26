@@ -6,7 +6,8 @@
 #' effects along different dimensions of interest (e.g, an event study of
 #' dynamic average treatment effects). `emfx` is a light wrapper around the
 #' \code{\link[marginaleffects]{slopes}} function from the **marginaleffects**
-#' package.
+#' package. If the original `etwfe` model was estimated with regression weights
+#' (e.g., `weights = ~pop`), these are also used to weight the aggregation.
 #'
 #' @param object An `etwfe` model object.
 #' @param type Character. The desired type of post-estimation aggregation.
@@ -164,9 +165,9 @@
 #' @inherit etwfe examples
 #' @inheritSection etwfe Performance
 #' @inheritSection etwfe Heterogeneous treatment effects
-#' @importFrom data.table as.data.table setDT .N .SD
+#' @importFrom data.table as.data.table setDT .SD
 #' @importFrom marginaleffects comparisons slopes vcovUnconditional
-#' @importFrom stats reformulate setNames
+#' @importFrom stats reformulate setNames weighted.mean weights
 #' @importFrom fixest obs
 #' @importFrom utils modifyList
 #' @export
@@ -267,6 +268,8 @@ emfx = function(
   if ("group" %in% names(dat)) {
     dat[["group"]] = NULL
   }
+  # aggregation weights: the model's (regression) weights, if any
+  dat$N = if (is.null(weights(object))) 1 else weights(object)
 
   # check compress argument ("auto" is kept for backwards compatibility, but
   # analytic Jacobians make compression unnecessary, so it means FALSE)
@@ -351,11 +354,12 @@ emfx = function(
   }
 
   # define formulas and calculate weights
+  N = NULL # data.table NSE
   if (compress & is.null(ivar)) {
     if (by_xvar) {
-      dat_weights = dat[(.Dtreat)][, .N, by = c(gvar, tvar, xvar)]
+      dat_weights = dat[(.Dtreat)][, list(N = sum(N)), by = c(gvar, tvar, xvar)]
     } else {
-      dat_weights = dat[(.Dtreat)][, .N, by = c(gvar, tvar)]
+      dat_weights = dat[(.Dtreat)][, list(N = sum(N)), by = c(gvar, tvar)]
     }
 
     if (is.null(dots$vcov)) {
@@ -369,10 +373,10 @@ emfx = function(
     # id factor / character columns for dropping, since we can't compute means
     # on these (https://github.com/Rdatatable/data.table/issues/7261)
     scols = sapply(dat, function(x) is.factor(x) || is.character(x))
-    scols[c(gvar, tvar, xvar, ".Dtreat")] = TRUE
+    scols[c(gvar, tvar, xvar, ".Dtreat", "N")] = TRUE
     # compress the data
     dat = dat[(.Dtreat)][,
-      lapply(.SD, mean),
+      lapply(.SD, weighted.mean, w = N),
       by = c(gvar, tvar, xvar, ".Dtreat"),
       .SDcols = !scols
     ]
@@ -381,9 +385,6 @@ emfx = function(
     warning(
       "\"ivar\" is not NULL. Marginal effects are calculated without collapsing."
     )
-    dat$N = 1L
-  } else {
-    dat$N = 1L
   }
 
   # compress the data
@@ -408,10 +409,10 @@ emfx = function(
   bykey = function(x) do.call(paste, c(lapply(by_var, function(v) x[[v]]), sep = "\r"))
   empty_keys = NULL
   if (".post" %in% names(dat)) {
-    dat$N = as.integer(dat[[".post"]])
+    dat$N = dat$N * dat[[".post"]]
     keys = bykey(dat)
     empty_keys = setdiff(unique(keys), unique(keys[dat$N > 0]))
-    data.table::set(dat, which(keys %in% empty_keys), "N", 1L)
+    data.table::set(dat, which(keys %in% empty_keys), "N", 1)
   }
 
   # unconditional standard errors (default): inherit the model's one-way

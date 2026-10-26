@@ -39,6 +39,11 @@
   to recover the previous default. Requires a recent version of
   **marginaleffects**. Thanks to @pedrohcgs for the upstream implementation and
   @snhansen for theoretical guidance. (#48)
+- `emfx()` now aggregates using the regression weights of the original
+  `etwfe()` model (e.g., `etwfe(..., weights = ~pop)`). Previously, these
+  weights were used for estimation, but ignored when averaging the resulting
+  treatment effects, so that `emfx()` reported unweighted ATTs. Results for
+  unweighted models are unaffected.
 
 ## Performance
 

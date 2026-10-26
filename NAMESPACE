@@ -5,7 +5,6 @@ export(emfx)
 export(etwfe)
 importFrom(Formula,as.Formula)
 importFrom(data.table,
-  .N,
   .SD,
   as.data.table,
   setDT
@@ -30,7 +29,9 @@ importFrom(marginaleffects,
 importFrom(stats,
   complete.cases,
   reformulate,
-  setNames
+  setNames,
+  weighted.mean,
+  weights
 )
 importFrom(tinyplot,tinyplot)
 importFrom(utils,modifyList)
