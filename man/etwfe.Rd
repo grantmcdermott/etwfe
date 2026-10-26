@@ -76,7 +76,13 @@ in which case \code{\link[fixest:feols]{fixest::feols}} is used. Otherwise passe
 automatically be set to NULL.}
 
 \item{...}{Additional arguments passed to \code{\link[fixest:feols]{fixest::feols}} (or
-\code{\link[fixest:feglm]{fixest::feglm}}). The most common example would be a \code{vcov} argument.}
+\code{\link[fixest:feglm]{fixest::feglm}}). The most common example would be a \code{vcov} argument.
+Note that incomplete cases are dropped before any controls (or \code{xvar})
+are demeaned, but only for variables in \code{fml}, the \code{gvar}, \code{tvar},
+\code{ivar} and \code{xvar} arguments, and one-sided formula \code{weights} (e.g.,
+\code{weights = ~pop}). Other sample restrictions passed here (e.g., \code{subset},
+or vector \code{weights} with missing values) are applied by \code{feols} after
+demeaning, so you should remove the affected rows from \code{data} beforehand.}
 }
 \value{
 A \code{\link[fixest]{fixest}} object with fully saturated

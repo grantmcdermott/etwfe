@@ -194,6 +194,14 @@ emfx = function(
     by_xvar = !is.null(xvar)
   }
 
+  if (isTRUE(object$lean)) {
+    stop(
+      "`emfx()` does not support models estimated with `lean = TRUE`, since ",
+      "these don't retain the information needed to recover the estimation ",
+      "sample. Please re-estimate the model without `lean = TRUE`."
+    )
+  }
+
   # restrict to the estimation sample, i.e. drop any rows that feols() removed
   # (missing values, etc.) (#91)
   dat = as.data.table(eval(object$call$data, object$call_env))[obs(object)]

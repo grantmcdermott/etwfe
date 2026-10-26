@@ -44,10 +44,13 @@
   effects are not identified from within-cohort variation, but are still
   included in aggregated ATTs. (#89)
 - Missing values (e.g., in the outcome) no longer contaminate results. `etwfe()`
-  now drops incomplete cases before demeaning any controls, and `emfx()`
-  aggregates over the estimation sample only. Previously, `emfx()` averaged
-  over all rows of the original data, which yielded incorrect ATTs and caused
-  the default unconditional standard errors to error. (#91)
+  now drops incomplete cases (including missing formula `weights`) before
+  demeaning any controls, and `emfx()` aggregates over the estimation sample
+  only. Previously, `emfx()` averaged over all rows of the original data,
+  which yielded incorrect ATTs and caused the default unconditional standard
+  errors to error. (#91)
+- `emfx()` now throws an informative error for models estimated with
+  `lean = TRUE`, which were never supported. (#92)
 
 # etwfe 0.6.2
 
