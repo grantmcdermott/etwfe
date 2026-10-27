@@ -226,7 +226,7 @@ etwfe = function(
 ) {
   cgroup = match.arg(cgroup)
   if (is.null(fe)) {
-    fe = ifelse(is.null(family) || family == "gaussian", "fe", "none")
+    fe = ifelse(is.null(family) || family == "gaussian", "vs", "none")
   }
   fe = match.arg(fe, c("vs", "feo", "none"))
   rhs = ctrls = vs = ref_string = xvar_dm_df = ctrls_fml_vars = xvar_fml_vars = NULL

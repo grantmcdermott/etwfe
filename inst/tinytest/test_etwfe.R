@@ -468,9 +468,29 @@ m3 = etwfe(
   tvar = year,
   gvar = first.treat,
   data = mpdta,
-  vcov = ~countyreal
+  vcov = ~countyreal,
+  fe = "feo"
 )
 expect_equal(fixest::coeftable(m3), m3_known)
+
+# Default fe = "vs" absorbs the control interactions, but leaves the
+# treatment coefs unchanged. (The varying slopes count one redundant
+# parameter, so SEs only match without the small-sample K adjustment.)
+m3vs = etwfe(
+  lemp ~ lpop,
+  tvar = year,
+  gvar = first.treat,
+  data = mpdta,
+  vcov = ~countyreal
+)
+expect_equal(attr(m3vs, "etwfe")[["fe"]], "vs")
+ct3vs = fixest::coeftable(m3vs)
+expect_equal(ct3vs[, "Estimate"], m3_known[rownames(ct3vs), "Estimate"])
+ssc0 = fixest::ssc(K.adj = FALSE)
+expect_equal(
+  fixest::se(summary(m3vs, ssc = ssc0))[rownames(ct3vs)],
+  fixest::se(summary(m3, ssc = ssc0))[rownames(ct3vs)]
+)
 
 expect_error(
   etwfe(lemp ~ 0, tvar = NULL, gvar = first.treat, data = mpdta)

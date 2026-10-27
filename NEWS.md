@@ -34,6 +34,11 @@
 
 ## Bug fixes
 
+- The default `fe` for linear models is now `"vs"` (varying slopes), as
+  documented. Previously, an internal typo meant that the default silently
+  resolved to `"feo"` instead. Treatment effect estimates are unaffected, but
+  the returned model object contains fewer nuisance parameters.
+
 - Improved automatic selection of the reference (never-treated) cohort. If
   several `gvar` values fall outside the range of `tvar` (e.g., `0` and
   `2009` for a 2003–2007 panel), `etwfe()` now picks the value farthest from
