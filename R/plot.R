@@ -41,9 +41,16 @@ plot.emfx = function(
   byvar = attr(x, "marginaleffects")@by
   xvar = etwfe_attr[["xvar"]]
   # treat fixed treatment levels (wlevels) like xvar groups
+  # (pre-treatment rows of never-treated event studies have no level: "Pre")
+  pre = NULL
   if (is.numeric(etwfe_attr[["wlevels"]])) {
     xvar = etwfe_attr[["wvar"]]
-    x[[xvar]] = factor(x[[xvar]])
+    wv = x[[xvar]]
+    if (anyNA(wv)) pre = "Pre"
+    x[[xvar]] = factor(
+      ifelse(is.na(wv), "Pre", wv),
+      levels = c(pre, sort(unique(wv[!is.na(wv)])))
+    )
   }
   if (is.null(xvar)) {
     fml = reformulate(byvar, response = "estimate")
@@ -83,7 +90,7 @@ plot.emfx = function(
   }
   # dodge CIs if heterogenous groups
   if (!is.null(xvar) && type!="ribbon") {
-    uxvar = unique(x[[xvar]])
+    uxvar = setdiff(unique(x[[xvar]]), pre)
     xbmp = scale(seq_along(uxvar), scale = FALSE)[, 1] / 10 * 1.5
     # edge case
     if (etwfe_attr[["type"]]=="simple") {
@@ -108,6 +115,8 @@ plot.emfx = function(
     "ATT (at observed treatment level)"
   } else if (is.numeric(etwfe_attr[["wlevels"]])) {
     "ATT (at given treatment level)"
+  } else if (etwfe_attr[["cgroup"]] == "never" && byvar == "event") {
+    paste("ATT (pre) | Effect per unit of", etwfe_attr[["wvar"]], "(post)")
   } else {
     paste("Effect per unit of", etwfe_attr[["wvar"]])
   }

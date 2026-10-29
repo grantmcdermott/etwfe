@@ -68,9 +68,11 @@
 #'   automatically be set to NULL.
 #' @param trend Logical. Include cohort-specific linear time trends? Defaults to
 #'   `FALSE`. Useful when parallel trends is in doubt (Wooldridge, 2025, 2026).
-#'   Requires a numeric `tvar`. The trends enter the model as regular
-#'   coefficients (rather than absorbed fixed-effect slopes), so that they can
-#'   be inspected and tested, e.g. `fixest::wald(mod, "<tvar>")`.
+#'   Requires a numeric `tvar` and is not available with `cgroup = "never"`
+#'   (since cohort-specific trends and a full set of pre-treatment effects
+#'   cannot both be identified). The trends enter the model as regular
+#'   coefficients---rather than absorbed fixed-effect slopes---so that they can
+#'   be inspected and tested, e.g. `fixest::wald(mod, "^<gvar>::.*:<tvar>$")`.
 #' @param ... Additional arguments passed to [`fixest::feols`] (or
 #'   [`fixest::feglm`]). The most common example would be a `vcov` argument.
 #'   Note that incomplete cases are dropped before any controls (or `xvar`)
@@ -110,13 +112,20 @@
 #'
 #' @section Non-binary treatments:
 #'
-#'   Specifying `etwfe(..., wvar = <wvar>)` replaces the binary treatment
-#'   indicator with a non-binary treatment variable, following Wooldridge
-#'   (2026). The treatment can be continuous (e.g., a dollar amount), a count
-#'   (e.g., number of stores), or discrete, and may vary over time after the
-#'   initial treatment period. Each cohort-period cell gets its own slope on
-#'   `wvar`, and `emfx` aggregates these slopes along the usual dimensions
-#'   (e.g., `type = "event"`).
+#'   Following Wooldridge (2026), we can specify a non-binary treatment variable
+#'   with `etwfe(..., wvar = <wvar>)`. This treatment can be continuous (e.g., a
+#'   dollar amount), a count (e.g., number of stores), or discrete, and may vary
+#'   over time after the initial treatment period.
+#' 
+#'   Each cohort-period cell gets its own slope on `wvar`, and `emfx` aggregates
+#'   these slopes along the usual dimensions (e.g., `type = "event"`). With the
+#'   `"never"` treated control group, the pre-treatment periods enter as binary
+#'   cohort-period indicators---since treatment levels are zero before
+#'   treatment---while the post-treatment periods enter as slopes on `wvar`.
+#'   The pre-treatment estimates thus test for pre-trends in levels, and
+#'   `emfx(..., type = "event")` reports the post-treatment effects at the
+#'   observed treatment level by default, so that both sides of the event study
+#'   are on the same scale.
 #'
 #'   Beyond the usual no anticipation and parallel trends assumptions,
 #'   identification requires a "limited selection" assumption: i.e., the
@@ -125,12 +134,12 @@
 #'
 #'   **NB.** Compared with the binary case, non-binary `etwfe` estimation
 #'   imposes two additional practical constraints. First, it requires
-#'   unit-level fixed effects, i.e. a non-NULL `ivar`. Since the treatment level
-#'   varies across units within a cohort, cohort-level fixed effects do not
-#'   absorb unit heterogeneity that is correlated with the treatment level,
-#'   leading to inconsistent estimates. Second, non-binary treatments are
-#'   currently only supported for linear models (i.e., `family = NULL`) with the
-#'   default `"notyet"` control group.
+#'   unit-level fixed effects, i.e. a non-NULL `ivar`. This is because the
+#'   treatment intensity (dose) can vary across units within a cohort (`gvar`),
+#'   so cohort-leve fixed effects would yield inconsistent estimates. In other
+#'   words, we need `ivar` to absorb unit heterogeneity that is potentially
+#'   correlated with the treatment dose. Second, non-binary treatments are
+#'   currently only supported for linear models (i.e., `family = NULL`).
 #'
 #' @section Performance:
 #'
@@ -355,16 +364,16 @@ etwfe = function(
         "heterogeneity that is correlated with the treatment level.\n"
       )
     }
-    if (cgroup == "never") {
-      stop(
-        "Non-binary treatments (`wvar`) are not yet supported with `cgroup = \"never\"`. ",
-        "To test for pre-trends, consider a binary treatment indicator with ",
-        "`cgroup = \"never\"`, estimated on the untreated observations only.\n"
-      )
-    }
   }
   if (isTRUE(trend) && !is.numeric(data[[tvar]])) {
     stop("`trend = TRUE` requires a numeric `tvar`.\n")
+  }
+  if (isTRUE(trend) && cgroup == "never") {
+    stop(
+      "`trend = TRUE` is not supported with `cgroup = \"never\"`, since ",
+      "cohort-specific trends and a full set of pre-treatment effects cannot ",
+      "both be identified.\n"
+    )
   }
   if (!is.null(family)) {
     ivar = NULL
@@ -507,10 +516,21 @@ etwfe = function(
     # data[[".Dtreat"]] = TRUE
     ## Force reference group to be the year before treatment if cgroup == "never"
     data[[".Dtreat"]] = data[[tvar]] != data[[gvar]] - 1L
+    if (!is.null(wvar)) {
+      ## Binary pre-treatment (leads) and dose-scaled post-treatment (lags) cells
+      data[[".Dpre"]] = data[[tvar]] <= data[[gvar]] - 2 & data[[gvar]] != gref
+      data[[".Dpost"]] = data[[tvar]] >= data[[gvar]] & data[[gvar]] != gref
+    }
   }
-  rhs = paste0(".Dtreat : ", if (!is.null(wvar)) paste0(wvar, " : "), rhs)
-
-  rhs = paste0(rhs, "i(", gvar, ", i.", tvar, ref_string, ")")
+  ## Treatment term, assembled below once we know which (demeaned) covariates
+  ## are nested within the treatment cells. Other terms accumulate in rhs.
+  tterm = paste0(
+    ".Dtreat : ",
+    if (!is.null(wvar)) paste0(wvar, " : "),
+    "i(", gvar, ", i.", tvar, ref_string, ")"
+  )
+  nest = NULL
+  rhs = ""
 
   ## Demean and interact controls ----
   if (!is.null(ctrls)) {
@@ -524,7 +544,7 @@ etwfe = function(
     } else {
       ctrls_fml_vars = paste(ctrls_dm)
     }
-    rhs = paste(rhs, "/", ctrls_fml_vars)
+    nest = ctrls_dm
 
     if (fe != "vs") {
       ictrls = strsplit(ctrls, split = " \\+ ")[[1]]
@@ -573,37 +593,25 @@ etwfe = function(
     }
     data = cbind(data, xvar_dm_df)
 
-    if (is.null(ctrls)) {
-      rhs = paste0(
-        rhs,
-        " / ",
-        xvar_fml_vars,
-        " +  i(",
-        tvar,
-        ", ",
-        xvar_fml_vars,
-        ", ref = ",
-        tref,
-        ")"
-      )
-      # splice together with ctrl vars if necessary
-    } else {
-      rhs = paste0(
-        gsub(
-          ctrls_fml_vars,
-          paste0("(", ctrls_fml_vars, "+", xvar_fml_vars, ")"),
-          rhs
-        ),
-        " +  i(",
-        tvar,
-        ", ",
-        xvar_fml_vars,
-        ", ref = ",
-        tref,
-        ")"
-      )
-    }
+    nest = c(nest, names(xvar_dm_df))
+    rhs = paste0(rhs, " +  i(", tvar, ", ", xvar_fml_vars, ", ref = ", tref, ")")
   }
+
+  ## Assemble the treatment term ----
+  if (cgroup == "never" && !is.null(wvar)) {
+    # Spell out the nested interactions, since `(a + b):i(...) / x` drops them
+    mult = c(".Dpre", paste0(".Dpost:", wvar))
+    if (length(nest)) mult = c(mult, outer(mult, nest, paste, sep = ":"))
+    tterm = paste0(
+      "(", paste(mult, collapse = " + "), "):i(", gvar, ", i.", tvar, ref_string, ")"
+    )
+  } else if (length(nest)) {
+    tterm = paste(
+      tterm, "/",
+      if (length(nest) > 1) paste0("(", paste(nest, collapse = " + "), ")") else nest
+    )
+  }
+  rhs = paste0(tterm, rhs)
 
   ## Fixed effects ----
   if (fe != "none") {

@@ -92,9 +92,11 @@ automatically be set to NULL.}
 
 \item{trend}{Logical. Include cohort-specific linear time trends? Defaults to
 \code{FALSE}. Useful when parallel trends is in doubt (Wooldridge, 2025, 2026).
-Requires a numeric \code{tvar}. The trends enter the model as regular
-coefficients (rather than absorbed fixed-effect slopes), so that they can
-be inspected and tested, e.g. \code{fixest::wald(mod, "<tvar>")}.}
+Requires a numeric \code{tvar} and is not available with \code{cgroup = "never"}
+(since cohort-specific trends and a full set of pre-treatment effects
+cannot both be identified). The trends enter the model as regular
+coefficients---rather than absorbed fixed-effect slopes---so that they can
+be inspected and tested, e.g. \code{fixest::wald(mod, "^<gvar>::.*:<tvar>$")}.}
 
 \item{...}{Additional arguments passed to \code{\link[fixest:feols]{fixest::feols}} (or
 \code{\link[fixest:feglm]{fixest::feglm}}). The most common example would be a \code{vcov} argument.
@@ -145,13 +147,20 @@ categorical variables with multiple levels, or even continuous variables
 \section{Non-binary treatments}{
 
 
-Specifying \verb{etwfe(..., wvar = <wvar>)} replaces the binary treatment
-indicator with a non-binary treatment variable, following Wooldridge
-(2026). The treatment can be continuous (e.g., a dollar amount), a count
-(e.g., number of stores), or discrete, and may vary over time after the
-initial treatment period. Each cohort-period cell gets its own slope on
-\code{wvar}, and \code{emfx} aggregates these slopes along the usual dimensions
-(e.g., \code{type = "event"}).
+Following Wooldridge (2026), we can specify a non-binary treatment variable
+with \verb{etwfe(..., wvar = <wvar>)}. This treatment can be continuous (e.g., a
+dollar amount), a count (e.g., number of stores), or discrete, and may vary
+over time after the initial treatment period.
+
+Each cohort-period cell gets its own slope on \code{wvar}, and \code{emfx} aggregates
+these slopes along the usual dimensions (e.g., \code{type = "event"}). With the
+\code{"never"} treated control group, the pre-treatment periods enter as binary
+cohort-period indicators---since treatment levels are zero before
+treatment---while the post-treatment periods enter as slopes on \code{wvar}.
+The pre-treatment estimates thus test for pre-trends in levels, and
+\code{emfx(..., type = "event")} reports the post-treatment effects at the
+observed treatment level by default, so that both sides of the event study
+are on the same scale.
 
 Beyond the usual no anticipation and parallel trends assumptions,
 identification requires a "limited selection" assumption: i.e., the
@@ -160,12 +169,12 @@ not otherwise depend on the level of treatment that a unit receives.
 
 \strong{NB.} Compared with the binary case, non-binary \code{etwfe} estimation
 imposes two additional practical constraints. First, it requires
-unit-level fixed effects, i.e. a non-NULL \code{ivar}. Since the treatment level
-varies across units within a cohort, cohort-level fixed effects do not
-absorb unit heterogeneity that is correlated with the treatment level,
-leading to inconsistent estimates. Second, non-binary treatments are
-currently only supported for linear models (i.e., \code{family = NULL}) with the
-default \code{"notyet"} control group.
+unit-level fixed effects, i.e. a non-NULL \code{ivar}. This is because the
+treatment intensity (dose) can vary across units within a cohort (\code{gvar}),
+so cohort-leve fixed effects would yield inconsistent estimates. In other
+words, we need \code{ivar} to absorb unit heterogeneity that is potentially
+correlated with the treatment dose. Second, non-binary treatments are
+currently only supported for linear models (i.e., \code{family = NULL}).
 }
 
 \section{Performance}{

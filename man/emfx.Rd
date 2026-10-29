@@ -61,8 +61,10 @@ clash with the top-level \code{type} argument above.)}
 preceding \code{etwfe} call included a \code{wvar} argument. Controls the treatment
 level(s) at which effects are evaluated:
 \itemize{
-\item NULL (default): Average marginal effect of a one-unit change in \code{wvar}
-(i.e., the slope).
+\item NULL (default): Equivalent to \code{"slope"}, except for event studies with
+the \code{"never"} treated control group, where it is equivalent to
+\code{"observed"} (since the pre-treatment estimates are level differences).
+\item \code{"slope"}: Average marginal effect of a one-unit change in \code{wvar}.
 \item \code{"observed"}: Average effect of each unit's observed treatment level,
 relative to no treatment (\code{wvar = 0}). This also reflects how treatment
 levels evolve over time, and is the closest analogue to a binary ATT.
@@ -79,7 +81,11 @@ These options mirror the ergonomics of
 functions (e.g., \code{datagrid(x = fivenum)}). Note that effects at fixed
 treatment levels are linear in \code{wvar} by construction, and that levels far
 from the bulk of the data (e.g., the minimum and maximum in \code{fivenum}) are
-extrapolations.}
+extrapolations.
+
+For event studies with the \code{"never"} treated control group, the
+pre-treatment estimates do not depend on \code{wvar}, and are reported only once
+(with a missing \code{wvar} value, and as a "Pre" group in plots).}
 
 \item{post_only}{Logical. Drop pre-treatment ATTs? Only evaluated if (a)
 \code{type = "event"} and (b) the original \code{etwfe} model object was estimated

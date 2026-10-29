@@ -83,8 +83,44 @@ expect_equal(emfx(m, wlevels = fivenum, vcov = FALSE)$w, unique(fivenum(dat$w[da
 expect_error(emfx(m, wlevels = \(x) "a"), "must return a numeric")
 expect_warning(emfx(mb, wlevels = 2), "binary")
 expect_warning(emfx(etwfe(y ~ 0, tvar = t, gvar = g, data = dat), wlevels = 1), "only used")
-expect_error(emfx(m, wlevels = "median"), "must be NULL")
+expect_error(emfx(m, wlevels = "median"), "must be \"slope\"")
 expect_error(emfx(mx, wlevels = 1), "Fixed `wlevels`")
+
+# Never-treated control group (leads and lags) ----
+
+mn = etwfe(y0 ~ 0, tvar = t, gvar = g, ivar = id, wvar = w, cgroup = "never", data = dat)
+expect_true(any(grepl("^.Dpre", names(coef(mn)))))
+expect_message(en <- emfx(mn, "event", vcov = FALSE), "observed treatment level")
+pre = en$event < 0
+# noise-free outcome with parallel trends: pre-treatment effects are exactly zero
+expect_equal(en$estimate[pre], rep(0, sum(pre)), tolerance = tol)
+expect_equal(unique(en$term[pre]), ".Dpre")
+expect_equal(
+  en$estimate[!pre],
+  as.numeric(tapply((tau * dat$w)[dat$post], (dat$t - dat$g)[dat$post], mean)),
+  tolerance = tol
+)
+# explicit slopes (and no message); non-event types only use post periods
+expect_silent(es <- emfx(mn, "event", wlevels = "slope", vcov = FALSE))
+expect_equal(es$estimate[es$event >= 0], ev$estimate, tolerance = tol)
+expect_equal(emfx(mn, vcov = FALSE)$estimate, mean(tau[dat$post]), tolerance = tol)
+# fixed levels: pre-treatment estimates reported once, without a level
+ef = suppressMessages(emfx(mn, "event", wlevels = c(1, 3), vcov = FALSE))
+expect_true(all(is.na(ef$w[ef$event < 0])))
+expect_equal(sum(ef$event == -2), 1L)
+expect_equal(sum(ef$event == 0), 2L)
+# binary dose reproduces the binary never-treated event study
+bn1 = emfx(etwfe(y ~ x, tvar = t, gvar = g, ivar = id, cgroup = "never", data = dat, vcov = ~id), "event")
+bn2 = emfx(etwfe(y ~ x, tvar = t, gvar = g, ivar = id, wvar = wb, cgroup = "never", data = dat, vcov = ~id), "event")
+expect_equal(bn2$event, bn1$event)
+expect_equal(bn2$estimate, bn1$estimate, tolerance = tol)
+expect_equal(bn2$std.error, bn1$std.error, tolerance = tol)
+# controls are nested within both the pre- and post-treatment cells
+mnx = etwfe(y ~ x, tvar = t, gvar = g, ivar = id, wvar = w, cgroup = "never", data = dat, vcov = ~id)
+expect_true(any(grepl("^\\.Dpre:g::.*:x_dm$", names(coef(mnx)))))
+expect_true(any(grepl("\\.Dpost:w:x_dm$", names(coef(mnx)))))
+expect_error(emfx(mn, "event", hypothesis = "b1 = b2"), "not supported for event studies")
+expect_error(emfx(mn, compress = TRUE), "not supported for non-binary")
 
 # Errors ----
 
@@ -97,10 +133,6 @@ expect_error(
   "only supported for linear models"
 )
 expect_error(
-  etwfe(y ~ 0, tvar = t, gvar = g, ivar = id, wvar = w, data = dat, cgroup = "never"),
-  "not yet supported"
-)
-expect_error(
   etwfe(y ~ 0, tvar = t, gvar = g, ivar = id, wvar = grp, data = dat),
   "single numeric variable"
 )
@@ -108,4 +140,8 @@ dat$tc = factor(dat$t)
 expect_error(
   etwfe(y ~ 0, tvar = tc, gvar = g, trend = TRUE, data = dat),
   "numeric `tvar`"
+)
+expect_error(
+  etwfe(y ~ 0, tvar = t, gvar = g, trend = TRUE, cgroup = "never", data = dat),
+  "not supported with `cgroup"
 )

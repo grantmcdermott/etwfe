@@ -44,8 +44,10 @@
 #'   preceding `etwfe` call included a `wvar` argument. Controls the treatment
 #'   level(s) at which effects are evaluated:
 #'
-#'   - NULL (default): Average marginal effect of a one-unit change in `wvar`
-#'     (i.e., the slope).
+#'   - NULL (default): Equivalent to `"slope"`, except for event studies with
+#'     the `"never"` treated control group, where it is equivalent to
+#'     `"observed"` (since the pre-treatment estimates are level differences).
+#'   - `"slope"`: Average marginal effect of a one-unit change in `wvar`.
 #'   - `"observed"`: Average effect of each unit's observed treatment level,
 #'     relative to no treatment (`wvar = 0`). This also reflects how treatment
 #'     levels evolve over time, and is the closest analogue to a binary ATT.
@@ -62,6 +64,10 @@
 #'   treatment levels are linear in `wvar` by construction, and that levels far
 #'   from the bulk of the data (e.g., the minimum and maximum in `fivenum`) are
 #'   extrapolations.
+#'
+#'   For event studies with the `"never"` treated control group, the
+#'   pre-treatment estimates do not depend on `wvar`, and are reported only once
+#'   (with a missing `wvar` value, and as a "Pre" group in plots).
 #' @param post_only Logical. Drop pre-treatment ATTs? Only evaluated if (a)
 #'   `type = "event"` and (b) the original `etwfe` model object was estimated
 #'   using the default `"notyet"` treated control group. If conditions (a) and
@@ -218,14 +224,32 @@ emfx = function(
     by_xvar = !is.null(xvar)
   }
 
-  if (!is.null(wlevels)) {
-    if (is.null(etwfe_attr[["wvar"]])) {
-      warning("`wlevels` is only used for non-binary treatments (`etwfe(..., wvar = ...)`). Ignoring.")
-      wlevels = NULL
-    } else if (!(is.numeric(wlevels) || is.function(wlevels) || identical(wlevels, "observed"))) {
-      stop("`wlevels` must be NULL, \"observed\", a numeric vector, or a function.")
-    } else if (isTRUE(by_xvar) && !identical(wlevels, "observed")) {
+  if (!is.null(wlevels) && is.null(wvar)) {
+    warning("`wlevels` is only used for non-binary treatments (`etwfe(..., wvar = ...)`). Ignoring.")
+    wlevels = NULL
+  }
+  never_event = !is.null(wvar) && cgroup == "never" && type == "event"
+  if (!is.null(wvar)) {
+    wlevels_default = is.null(wlevels)
+    if (wlevels_default) {
+      wlevels = if (never_event) "observed" else "slope"
+    }
+    if (!(is.numeric(wlevels) || is.function(wlevels) ||
+      (is.character(wlevels) && length(wlevels) == 1 && wlevels %in% c("slope", "observed")))) {
+      stop("`wlevels` must be \"slope\", \"observed\", a numeric vector, or a function.")
+    }
+    if (isTRUE(by_xvar) && (is.numeric(wlevels) || is.function(wlevels))) {
       stop("Fixed `wlevels` cannot currently be combined with heterogeneous effects by `xvar`. Use `by_xvar = FALSE`.")
+    }
+    if (isTRUE(compress) || isTRUE(collapse)) {
+      stop("`compress = TRUE` is not supported for non-binary treatments (`wvar`).")
+    }
+    if (never_event && !is.null(dots$hypothesis)) {
+      stop(
+        "`hypothesis` is not supported for event studies with non-binary ",
+        "treatments and `cgroup = \"never\"`, since the pre- and ",
+        "post-treatment estimates are computed separately."
+      )
     }
   }
 
@@ -432,25 +456,43 @@ emfx = function(
   if (!is.null(dots)) {
     args_list = modifyList(args_list, dots)
   }
+  # never-treated event studies: pre-treatment cells are binary (placebo)
+  # contrasts on .Dpre, computed separately from the post-treatment effects
+  if (never_event) {
+    pre_rows = dat[[tvar]] < dat[[gvar]]
+    pre_args = args_list
+    pre_args[["newdata"]] = dat[pre_rows]
+    pre_args[["variables"]] = ".Dpre"
+    args_list[["newdata"]] = dat[!pre_rows]
+  }
+
   # effects at treatment levels: contrast observed (or fixed) wvar against zero.
   # Fixed levels stack one copy of the data per level, grouped by wvar. Binary
   # wvar levels coincide with slopes (and marginaleffects needs 0/1 contrasts).
   mfx_fun = "slopes"
-  if (!is.null(wlevels) && all(dat[[wvar]] %in% c(0, 1))) {
+  if (!is.null(wvar) && !identical(wlevels, "slope") && all(dat[[wvar]] %in% c(0, 1))) {
     if (!identical(wlevels, "observed")) {
       warning("`wvar` is binary, so effects at fixed `wlevels` are just slopes. Ignoring `wlevels`.")
     }
-    wlevels = NULL
+    wlevels = "slope"
   }
-  if (!is.null(wlevels)) {
+  if (never_event && wlevels_default && identical(wlevels, "observed")) {
+    message(
+      "Pre-treatment estimates are level differences, so post-treatment ",
+      "effects are reported at the observed treatment level for comparability. ",
+      "Use `wlevels = \"slope\"` for per-unit slopes instead."
+    )
+  }
+  if (!is.null(wvar) && !identical(wlevels, "slope")) {
     mfx_fun = "comparisons"
     args_list[["variables"]] = setNames(
       list(function(x) data.frame(lo = 0 * x, hi = x)),
       wvar
     )
     if (!identical(wlevels, "observed")) {
+      nd = args_list[["newdata"]]
       if (is.function(wlevels)) {
-        wlevels = wlevels(dat[[wvar]][dat[[".Dtreat"]]])
+        wlevels = wlevels(nd[[wvar]][nd[[tvar]] >= nd[[gvar]]])
         if (!is.numeric(wlevels)) {
           stop("A `wlevels` function must return a numeric vector.")
         }
@@ -459,7 +501,7 @@ emfx = function(
       args_list[["newdata"]] = do.call(
         rbind,
         lapply(wlevels, function(w) {
-          d = as.data.frame(dat)
+          d = as.data.frame(nd)
           d[[wvar]] = w
           d
         })
@@ -469,6 +511,17 @@ emfx = function(
   }
   etwfe_attr[["wlevels"]] = wlevels
   mfx = do.call(mfx_fun, args = args_list)
+
+  # stack pre- (once, i.e. not per treatment level) and post-treatment estimates,
+  # keeping the post-treatment object's attributes
+  if (never_event) {
+    pre = do.call("slopes", args = pre_args)
+    if (is.numeric(wlevels)) pre[[wvar]] = NA_real_
+    out = rbind(as.data.frame(pre), as.data.frame(mfx)[names(as.data.frame(pre))])
+    keep = setdiff(names(attributes(mfx)), c("names", "row.names"))
+    attributes(out)[keep] = attributes(mfx)[keep]
+    mfx = out
+  }
 
   class(mfx) = c("emfx", class(mfx))
   attr(mfx, "etwfe") = etwfe_attr
