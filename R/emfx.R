@@ -289,14 +289,16 @@ emfx = function(
       env = list(gvar = I(gvar), gref = gref)
     ] # Drop never treated reference group
     if (type != "event") {
-      # For non-event studies, we want to calculated ATTs for post-treatment only
-      dat = dat[dat[[".Dtreat"]], , drop = FALSE]
-      dat = dat[
-        dat[[tvar]] >= dat[[gvar]],
-        ,
-        drop = FALSE,
-        env = list(tvar = I(tvar), gvar = I(gvar))
-      ]
+      # For non-event studies, we want to calculated ATTs for post-treatment
+      # only. Rather than dropping the other rows, we give them zero weight
+      # (below), since subsetting would drop columns from the model matrix and
+      # thus force marginaleffects onto a (much slower) numerical Jacobian
+      post = dat[[".Dtreat"]] & dat[[tvar]] >= dat[[gvar]]
+      if (isTRUE(compress) || !is.null(dots$hypothesis)) {
+        dat = dat[post, , drop = FALSE]
+      } else {
+        dat[[".post"]] = post
+      }
     }
   } else if (type == "event" & isFALSE(post_only)) {
     dat = dat[
@@ -400,6 +402,18 @@ emfx = function(
     by_var = c(by_var, xvar)
   }
 
+  # zero-weight non-post-treatment rows (see above). Groups without any
+  # post-treatment rows (e.g., calendar periods before the first treatment) get
+  # placeholder weights instead, and are dropped after estimation
+  bykey = function(x) do.call(paste, c(lapply(by_var, function(v) x[[v]]), sep = "\r"))
+  empty_keys = NULL
+  if (".post" %in% names(dat)) {
+    dat$N = as.integer(dat[[".post"]])
+    keys = bykey(dat)
+    empty_keys = setdiff(unique(keys), unique(keys[dat$N > 0]))
+    data.table::set(dat, which(keys %in% empty_keys), "N", 1L)
+  }
+
   # unconditional standard errors (default): inherit the model's one-way
   # cluster variable, since marginaleffects::vcovUnconditional() can't
   if (is.null(dots$vcov) && !(compress && is.null(ivar))) {
@@ -456,14 +470,13 @@ emfx = function(
   if (!is.null(dots)) {
     args_list = modifyList(args_list, dots)
   }
-  # never-treated event studies: pre-treatment cells are binary (placebo)
-  # contrasts on .Dpre, computed separately from the post-treatment effects
+  # never-treated event studies: pre-treatment cells are binary contrasts on
+  # .Dpre, computed separately from the post-treatment effects. Both use all
+  # rows (keeping the full model matrix, and thus the fast analytic Jacobian),
+  # and we keep the relevant (disjoint) event groups afterwards.
   if (never_event) {
-    pre_rows = dat[[tvar]] < dat[[gvar]]
     pre_args = args_list
-    pre_args[["newdata"]] = dat[pre_rows]
     pre_args[["variables"]] = ".Dpre"
-    args_list[["newdata"]] = dat[!pre_rows]
   }
 
   # effects at treatment levels: contrast observed (or fixed) wvar against zero.
@@ -482,6 +495,12 @@ emfx = function(
       "effects are reported at the observed treatment level for comparability. ",
       "Use `wlevels = \"slope\"` for per-unit slopes instead."
     )
+  }
+  # slopes: since the model is linear in wvar, a +1 contrast is exactly the
+  # slope, and comparisons() is much faster than slopes() for unconditional SEs
+  if (!is.null(wvar) && identical(wlevels, "slope") && !all(dat[[wvar]] %in% c(0, 1))) {
+    mfx_fun = "comparisons"
+    args_list[["variables"]] = setNames(list(1), wvar)
   }
   if (!is.null(wvar) && !identical(wlevels, "slope")) {
     mfx_fun = "comparisons"
@@ -515,12 +534,28 @@ emfx = function(
   # stack pre- (once, i.e. not per treatment level) and post-treatment estimates,
   # keeping the post-treatment object's attributes
   if (never_event) {
-    pre = do.call("slopes", args = pre_args)
+    pre = as.data.frame(do.call("slopes", args = pre_args))
+    pre = pre[pre[["event"]] < 0, , drop = FALSE]
     if (is.numeric(wlevels)) pre[[wvar]] = NA_real_
-    out = rbind(as.data.frame(pre), as.data.frame(mfx)[names(as.data.frame(pre))])
+    post = as.data.frame(mfx)
+    post = post[post[["event"]] >= 0, names(pre), drop = FALSE]
+    out = rbind(pre, post)
+    rownames(out) = NULL
     keep = setdiff(names(attributes(mfx)), c("names", "row.names"))
     attributes(out)[keep] = attributes(mfx)[keep]
     mfx = out
+  }
+
+  # drop any placeholder groups that contain no post-treatment rows
+  if (length(empty_keys)) {
+    keep = !bykey(as.data.frame(mfx)) %in% empty_keys
+    if (!all(keep)) {
+      out = as.data.frame(mfx)[keep, , drop = FALSE]
+      rownames(out) = NULL
+      ka = setdiff(names(attributes(mfx)), c("names", "row.names"))
+      attributes(out)[ka] = attributes(mfx)[ka]
+      mfx = out
+    }
   }
 
   class(mfx) = c("emfx", class(mfx))
