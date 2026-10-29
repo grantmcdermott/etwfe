@@ -1,5 +1,27 @@
 # etwfe 0.6.2.99 (development version)
 
+## New features
+
+- Support for non-binary treatments (e.g., continuous doses or counts) via the
+  new `etwfe(..., wvar = <wvar>)` argument, following [Wooldridge
+  (2026)](https://doi.org/10.2139/ssrn.7530698). Each cohort-period cell gets
+  its own slope on `wvar`, which `emfx()` then aggregates as usual. Requires
+  unit fixed effects (`ivar`) and a linear model.
+  - By default, `emfx()` reports the slope (effect per unit of `wvar`). The new
+    `emfx(..., wlevels = ...)` argument instead returns effects at each unit's
+    observed treatment level (`"observed"`), or at fixed treatment levels (a
+    numeric vector, or a function such as `fivenum`, _a la_
+    `marginaleffects::datagrid()`), relative to no treatment. Fixed levels are
+    plotted as separate (dodged) groups.
+  - Event studies with the never-treated control group (`cgroup = "never"`)
+    are also supported, with binary pre-treatment leads for testing
+    pre-trends.
+- New `etwfe(..., trend = TRUE)` argument for including cohort-specific linear
+  trends, for both binary and non-binary treatments. This relaxes the parallel
+  trends assumption, which can matter when pre-trend tests suggest that it is
+  violated. See the vignette for examples. (Not available with
+  `cgroup = "never"`.)
+
 ## Breaking changes
 
 - `emfx()` now reports "unconditional" standard errors by default, via
