@@ -10,12 +10,14 @@ etwfe(
   gvar = NULL,
   data = NULL,
   ivar = NULL,
+  wvar = NULL,
   xvar = NULL,
   tref = NULL,
   gref = NULL,
   cgroup = c("notyet", "never"),
   fe = NULL,
   family = NULL,
+  trend = FALSE,
   ...
 )
 }
@@ -36,9 +38,22 @@ the group variable typically denotes treatment cohort.}
 \item{ivar}{Optional index variable. Can be a string (e.g., "country") or an
 expression (e.g., country). Leaving as NULL (the default) will result in
 group-level fixed effects being used, which is more efficient and
-necessary for nonlinear models (see \code{family} argument below). However, you
-may still want to cluster your standard errors by your index variable
-through the \code{vcov} argument. See Examples below.}
+necessary for nonlinear models (see \code{family} argument below). For binary
+treatments in balanced panels, group-level and unit-level fixed effects
+yield identical treatment effect estimates (Wooldridge, 2025). However,
+you may still want to cluster your standard errors by your index variable
+through the \code{vcov} argument. See Examples below. Note that \code{ivar} is
+\emph{required} for non-binary treatments (see \code{wvar} below), since the
+equivalence no longer holds.}
+
+\item{wvar}{Optional non-binary treatment variable, e.g. a treatment
+intensity or dose. Can be a string (e.g., "n_stores") or an expression
+(e.g., n_stores). If specified, \code{etwfe} estimates heterogeneous slopes on
+\code{wvar} for each cohort-period combination, and the downstream \code{\link{emfx}}
+function aggregates these slopes (i.e., the marginal effect of a one-unit
+change in \code{wvar}) rather than binary ATTs. \code{gvar} should still denote the
+first treatment period. Requires a linear model (\code{family = NULL}) and a
+non-NULL \code{ivar}. See the "Non-binary treatments" section below.}
 
 \item{xvar}{Optional interacted categorical covariate for estimating
 heterogeneous treatment effects. Enables recovery of the marginal
@@ -75,6 +90,12 @@ in which case \code{\link[fixest:feols]{fixest::feols}} is used. Otherwise passe
 "negbin". Note that if a non-NULL family entry is detected, \code{ivar} will
 automatically be set to NULL.}
 
+\item{trend}{Logical. Include cohort-specific linear time trends? Defaults to
+\code{FALSE}. Useful when parallel trends is in doubt (Wooldridge, 2025, 2026).
+Requires a numeric \code{tvar}. The trends enter the model as regular
+coefficients (rather than absorbed fixed-effect slopes), so that they can
+be inspected and tested, e.g. \code{fixest::wald(mod, "<tvar>")}.}
+
 \item{...}{Additional arguments passed to \code{\link[fixest:feols]{fixest::feols}} (or
 \code{\link[fixest:feglm]{fixest::feglm}}). The most common example would be a \code{vcov} argument.
 Note that incomplete cases are dropped before any controls (or \code{xvar})
@@ -91,9 +112,9 @@ post-estimation in \code{emfx}.
 }
 \description{
 Estimates an "extended" two-way fixed effects regression, with fully
-saturated interaction effects \emph{a la} Wooldridge (2023, 2025). At its heart,
-\code{etwfe} is a convenience function that automates a number of tedious and
-error prone preparation steps involving both the data and model formulae.
+saturated interaction effects \emph{a la} Wooldridge (2023, 2025, 2026). At its
+heart, \code{etwfe} is a convenience function that automates a number of tedious
+and error prone preparation steps involving both the data and model formulae.
 Computation is passed on to the \code{\link[fixest]{feols}} (linear) /
 \code{\link[fixest]{feglm}} (nonlinear) functions from the \strong{fixest}
 package. \code{etwfe} should be paired with its companion \code{\link{emfx}} function.
@@ -119,6 +140,32 @@ the treatment effect is statistically different across these two age
 groups; see Examples below. Note the same principles carry over to
 categorical variables with multiple levels, or even continuous variables
 (although continuous variables are not as well supported yet).
+}
+
+\section{Non-binary treatments}{
+
+
+Specifying \verb{etwfe(..., wvar = <wvar>)} replaces the binary treatment
+indicator with a non-binary treatment variable, following Wooldridge
+(2026). The treatment can be continuous (e.g., a dollar amount), a count
+(e.g., number of stores), or discrete, and may vary over time after the
+initial treatment period. Each cohort-period cell gets its own slope on
+\code{wvar}, and \code{emfx} aggregates these slopes along the usual dimensions
+(e.g., \code{type = "event"}).
+
+Beyond the usual no anticipation and parallel trends assumptions,
+identification requires a "limited selection" assumption: i.e., the
+expected gain from treatment may vary by cohort (and covariates), but must
+not otherwise depend on the level of treatment that a unit receives.
+
+\strong{NB.} Compared with the binary case, non-binary \code{etwfe} estimation
+imposes two additional practical constraints. First, it requires
+unit-level fixed effects, i.e. a non-NULL \code{ivar}. Since the treatment level
+varies across units within a cohort, cohort-level fixed effects do not
+absorb unit heterogeneity that is correlated with the treatment level,
+leading to inconsistent estimates. Second, non-binary treatments are
+currently only supported for linear models (i.e., \code{family = NULL}) with the
+default \code{"notyet"} control group.
 }
 
 \section{Performance}{
@@ -229,6 +276,30 @@ pmod = etwfe(
   )
 emfx(pmod, "event")
 
+#
+# Non-binary treatments
+#
+
+# Example where treated units receive different (time-varying) treatment
+# intensities. Note that `ivar` is required here.
+
+base_stagg$dose = with(
+  base_stagg,
+  (year >= year_treated) * (1 + id \%\% 3 + (year - year_treated > 2))
+)
+
+wmod = etwfe(
+  y ~ x1, tvar = year, gvar = year_treated, data = base_stagg,
+  ivar = id, vcov = ~id,
+  wvar = dose          ## <= non-binary treatment
+  )
+emfx(wmod, "event")    ## effect per unit of dose, by event time
+
+# Effects at specific treatment levels (relative to no treatment)
+wmod_es = emfx(wmod, "event", wlevels = c(1, 3))
+wmod_es
+plot(wmod_es)          ## dodged groups by dose
+
 }
 \references{
 Wooldridge, Jeffrey M. (2025). \cite{Two-way fixed effects, the two-way
@@ -239,6 +310,10 @@ https://doi.org/10.1007/s00181-025-02807-z
 Wooldridge, Jeffrey M. (2023). \cite{Simple Approaches to Nonlinear
 Difference-in-Differences with Panel Data}. The Econometrics Journal,
 26(3), C31-C66. Available: https://doi.org/10.1093/ectj/utad016
+
+Wooldridge, Jeffrey M. (2026). \cite{A Heterogeneous Slopes Approach to
+Difference-in-Differences with Non-Binary Treatments}. Working paper.
+Available: https://doi.org/10.2139/ssrn.7530698
 }
 \seealso{
 \code{\link[fixest:feols]{fixest::feols()}}, \code{\link[fixest:feglm]{fixest::feglm()}} which power the underlying

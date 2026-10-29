@@ -139,4 +139,28 @@ pmod = etwfe(
   )
 emfx(pmod, "event")
 
+#
+# Non-binary treatments
+#
+
+# Example where treated units receive different (time-varying) treatment
+# intensities. Note that `ivar` is required here.
+
+base_stagg$dose = with(
+  base_stagg,
+  (year >= year_treated) * (1 + id \%\% 3 + (year - year_treated > 2))
+)
+
+wmod = etwfe(
+  y ~ x1, tvar = year, gvar = year_treated, data = base_stagg,
+  ivar = id, vcov = ~id,
+  wvar = dose          ## <= non-binary treatment
+  )
+emfx(wmod, "event")    ## effect per unit of dose, by event time
+
+# Effects at specific treatment levels (relative to no treatment)
+wmod_es = emfx(wmod, "event", wlevels = c(1, 3))
+wmod_es
+plot(wmod_es)          ## dodged groups by dose
+
 }

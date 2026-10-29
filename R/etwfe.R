@@ -3,9 +3,9 @@
 #' @md
 #' @description
 #' Estimates an "extended" two-way fixed effects regression, with fully
-#' saturated interaction effects _a la_ Wooldridge (2023, 2025). At its heart,
-#' `etwfe` is a convenience function that automates a number of tedious and
-#' error prone preparation steps involving both the data and model formulae.
+#' saturated interaction effects _a la_ Wooldridge (2023, 2025, 2026). At its
+#' heart, `etwfe` is a convenience function that automates a number of tedious
+#' and error prone preparation steps involving both the data and model formulae.
 #' Computation is passed on to the \code{\link[fixest]{feols}} (linear) /
 #' \code{\link[fixest]{feglm}} (nonlinear) functions from the **fixest**
 #' package. `etwfe` should be paired with its companion [`emfx`] function.
@@ -22,9 +22,21 @@
 #' @param ivar Optional index variable. Can be a string (e.g., "country") or an
 #'   expression (e.g., country). Leaving as NULL (the default) will result in
 #'   group-level fixed effects being used, which is more efficient and
-#'   necessary for nonlinear models (see `family` argument below). However, you
-#'   may still want to cluster your standard errors by your index variable
-#'   through the `vcov` argument. See Examples below.
+#'   necessary for nonlinear models (see `family` argument below). For binary
+#'   treatments in balanced panels, group-level and unit-level fixed effects
+#'   yield identical treatment effect estimates (Wooldridge, 2025). However,
+#'   you may still want to cluster your standard errors by your index variable
+#'   through the `vcov` argument. See Examples below. Note that `ivar` is
+#'   _required_ for non-binary treatments (see `wvar` below), since the
+#'   equivalence no longer holds.
+#' @param wvar Optional non-binary treatment variable, e.g. a treatment
+#'   intensity or dose. Can be a string (e.g., "n_stores") or an expression
+#'   (e.g., n_stores). If specified, `etwfe` estimates heterogeneous slopes on
+#'   `wvar` for each cohort-period combination, and the downstream [`emfx`]
+#'   function aggregates these slopes (i.e., the marginal effect of a one-unit
+#'   change in `wvar`) rather than binary ATTs. `gvar` should still denote the
+#'   first treatment period. Requires a linear model (`family = NULL`) and a
+#'   non-NULL `ivar`. See the "Non-binary treatments" section below.
 #' @param xvar Optional interacted categorical covariate for estimating
 #'   heterogeneous treatment effects. Enables recovery of the marginal
 #'   treatment effect for distinct levels of `xvar`, e.g. "child", "teenager",
@@ -54,6 +66,11 @@
 #'   [`fixest::feglm`], so that valid entries include "logit", "poisson", and
 #'   "negbin". Note that if a non-NULL family entry is detected, `ivar` will
 #'   automatically be set to NULL.
+#' @param trend Logical. Include cohort-specific linear time trends? Defaults to
+#'   `FALSE`. Useful when parallel trends is in doubt (Wooldridge, 2025, 2026).
+#'   Requires a numeric `tvar`. The trends enter the model as regular
+#'   coefficients (rather than absorbed fixed-effect slopes), so that they can
+#'   be inspected and tested, e.g. `fixest::wald(mod, "<tvar>")`.
 #' @param ... Additional arguments passed to [`fixest::feols`] (or
 #'   [`fixest::feglm`]). The most common example would be a `vcov` argument.
 #'   Note that incomplete cases are dropped before any controls (or `xvar`)
@@ -91,6 +108,30 @@
 #'   categorical variables with multiple levels, or even continuous variables
 #'   (although continuous variables are not as well supported yet).
 #'
+#' @section Non-binary treatments:
+#'
+#'   Specifying `etwfe(..., wvar = <wvar>)` replaces the binary treatment
+#'   indicator with a non-binary treatment variable, following Wooldridge
+#'   (2026). The treatment can be continuous (e.g., a dollar amount), a count
+#'   (e.g., number of stores), or discrete, and may vary over time after the
+#'   initial treatment period. Each cohort-period cell gets its own slope on
+#'   `wvar`, and `emfx` aggregates these slopes along the usual dimensions
+#'   (e.g., `type = "event"`).
+#'
+#'   Beyond the usual no anticipation and parallel trends assumptions,
+#'   identification requires a "limited selection" assumption: i.e., the
+#'   expected gain from treatment may vary by cohort (and covariates), but must
+#'   not otherwise depend on the level of treatment that a unit receives.
+#'
+#'   **NB.** Compared with the binary case, non-binary `etwfe` estimation
+#'   imposes two additional practical constraints. First, it requires
+#'   unit-level fixed effects, i.e. a non-NULL `ivar`. Since the treatment level
+#'   varies across units within a cohort, cohort-level fixed effects do not
+#'   absorb unit heterogeneity that is correlated with the treatment level,
+#'   leading to inconsistent estimates. Second, non-binary treatments are
+#'   currently only supported for linear models (i.e., `family = NULL`) with the
+#'   default `"notyet"` control group.
+#'
 #' @section Performance:
 #'
 #'   Both `etwfe` and `emfx` should be fast, even for large datasets. In
@@ -109,6 +150,10 @@
 #' Wooldridge, Jeffrey M. (2023). \cite{Simple Approaches to Nonlinear
 #' Difference-in-Differences with Panel Data}. The Econometrics Journal,
 #' 26(3), C31-C66. Available: https://doi.org/10.1093/ectj/utad016
+#'
+#' Wooldridge, Jeffrey M. (2026). \cite{A Heterogeneous Slopes Approach to
+#' Difference-in-Differences with Non-Binary Treatments}. Working paper.
+#' Available: https://doi.org/10.2139/ssrn.7530698
 #' @seealso [fixest::feols()], [fixest::feglm()] which power the underlying
 #' estimation routines. [`emfx`] is a companion function that handles
 #' post-estimation aggregation to extract quantities of interest.
@@ -209,6 +254,30 @@
 #'   )
 #' emfx(pmod, "event")
 #'
+#' #
+#' # Non-binary treatments
+#' #
+#'
+#' # Example where treated units receive different (time-varying) treatment
+#' # intensities. Note that `ivar` is required here.
+#'
+#' base_stagg$dose = with(
+#'   base_stagg,
+#'   (year >= year_treated) * (1 + id %% 3 + (year - year_treated > 2))
+#' )
+#'
+#' wmod = etwfe(
+#'   y ~ x1, tvar = year, gvar = year_treated, data = base_stagg,
+#'   ivar = id, vcov = ~id,
+#'   wvar = dose          ## <= non-binary treatment
+#'   )
+#' emfx(wmod, "event")    ## effect per unit of dose, by event time
+#'
+#' # Effects at specific treatment levels (relative to no treatment)
+#' wmod_es = emfx(wmod, "event", wlevels = c(1, 3))
+#' wmod_es
+#' plot(wmod_es)          ## dodged groups by dose
+#'
 #' @export
 etwfe = function(
   fml = NULL,
@@ -216,12 +285,14 @@ etwfe = function(
   gvar = NULL,
   data = NULL,
   ivar = NULL,
+  wvar = NULL,
   xvar = NULL,
   tref = NULL,
   gref = NULL,
   cgroup = c("notyet", "never"),
   fe = NULL,
   family = NULL,
+  trend = FALSE,
   ...
 ) {
   cgroup = match.arg(cgroup)
@@ -259,6 +330,10 @@ etwfe = function(
   if (is.numeric(xvar)) {
     xvar = names(data)[xvar]
   }
+  wvar = eval(substitute(wvar), nl, parent.frame())
+  if (is.numeric(wvar)) {
+    wvar = names(data)[wvar]
+  }
 
   if (is.null(gvar)) {
     stop("A non-NULL `gvar` argument is required.\n")
@@ -266,11 +341,36 @@ etwfe = function(
   if (is.null(tvar)) {
     stop("A non-NULL `tvar` argument is required.\n")
   }
+  if (!is.null(wvar)) {
+    if (length(wvar) != 1 || !is.numeric(data[[wvar]])) {
+      stop("`wvar` must be a single numeric variable.\n")
+    }
+    if (!is.null(family)) {
+      stop("Non-binary treatments (`wvar`) are only supported for linear models, i.e. `family = NULL`.\n")
+    }
+    if (is.null(ivar)) {
+      stop(
+        "Non-binary treatments (`wvar`) require unit-level fixed effects via `ivar`. ",
+        "Unlike the binary case, cohort-level fixed effects do not absorb unit ",
+        "heterogeneity that is correlated with the treatment level.\n"
+      )
+    }
+    if (cgroup == "never") {
+      stop(
+        "Non-binary treatments (`wvar`) are not yet supported with `cgroup = \"never\"`. ",
+        "To test for pre-trends, consider a binary treatment indicator with ",
+        "`cgroup = \"never\"`, estimated on the untreated observations only.\n"
+      )
+    }
+  }
+  if (isTRUE(trend) && !is.numeric(data[[tvar]])) {
+    stop("`trend = TRUE` requires a numeric `tvar`.\n")
+  }
   if (!is.null(family)) {
     ivar = NULL
   }
 
-  if ("group" %in% c(xvar, gvar, tvar, ivar)) {
+  if ("group" %in% c(xvar, gvar, tvar, ivar, wvar)) {
     stop(
       "A variable called 'group' was detected in your model formula.",
       "This is a reserved name within etwfe.",
@@ -282,7 +382,7 @@ etwfe = function(
   lhs = fml_paste[2]
   ctrls = fml_paste[3]
 
-  if ("group" %in% c(xvar, gvar, tvar, ivar, lhs, ctrls)) {
+  if ("group" %in% c(xvar, gvar, tvar, ivar, wvar, lhs, ctrls)) {
     stop(
       "A variable called 'group' was detected in your model formula.",
       "This is a reserved name within etwfe.",
@@ -305,7 +405,7 @@ etwfe = function(
   ## the same rows as the estimation sample (#91)
   wts = list(...)[["weights"]]
   wts = if (inherits(wts, "formula")) all.vars(wts)
-  cc_vars = intersect(c(all.vars(fml), gvar, tvar, ivar, xvar, wts), names(data))
+  cc_vars = intersect(c(all.vars(fml), gvar, tvar, ivar, xvar, wvar, wts), names(data))
   data = data[complete.cases(data[cc_vars]), , drop = FALSE]
 
   ug = unique(data[[gvar]])
@@ -408,7 +508,7 @@ etwfe = function(
     ## Force reference group to be the year before treatment if cgroup == "never"
     data[[".Dtreat"]] = data[[tvar]] != data[[gvar]] - 1L
   }
-  rhs = paste0(".Dtreat : ", rhs)
+  rhs = paste0(".Dtreat : ", if (!is.null(wvar)) paste0(wvar, " : "), rhs)
 
   rhs = paste0(rhs, "i(", gvar, ", i.", tvar, ref_string, ")")
 
@@ -529,6 +629,11 @@ etwfe = function(
     )
   }
 
+  ## Cohort-specific linear trends (as regular coefs, so they can be tested)
+  if (isTRUE(trend)) {
+    rhs = paste0(rhs, " + i(", gvar, ", ", tvar, ", ref = ", gref, ")")
+  }
+
   ## Estimation ----
 
   ## Formula
@@ -572,7 +677,9 @@ etwfe = function(
     gref = gref,
     tref = tref,
     cgroup = cgroup,
-    fe = fe
+    fe = fe,
+    wvar = wvar,
+    trend = trend
   )
 
   ## Return ----

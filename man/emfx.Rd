@@ -11,6 +11,7 @@ emfx(
   compress = "auto",
   collapse = compress,
   predict = c("response", "link"),
+  wlevels = NULL,
   post_only = TRUE,
   window = NULL,
   lean = FALSE,
@@ -55,6 +56,30 @@ matter for nonlinear models. (Note: This argument is typically called
 \code{type} when use in \code{\link[stats]{predict}} or
 \code{\link[marginaleffects]{slopes}}, but we rename it here to avoid a
 clash with the top-level \code{type} argument above.)}
+
+\item{wlevels}{Only relevant for non-binary treatments, i.e. if the
+preceding \code{etwfe} call included a \code{wvar} argument. Controls the treatment
+level(s) at which effects are evaluated:
+\itemize{
+\item NULL (default): Average marginal effect of a one-unit change in \code{wvar}
+(i.e., the slope).
+\item \code{"observed"}: Average effect of each unit's observed treatment level,
+relative to no treatment (\code{wvar = 0}). This also reflects how treatment
+levels evolve over time, and is the closest analogue to a binary ATT.
+\item Numeric vector: Effects of setting the treatment level to each of the
+supplied values, relative to no treatment, e.g. \code{wlevels = c(1, 2, 5)}.
+Results are reported (and plotted) separately for each treatment level.
+\item Function: As above, but with treatment levels computed by applying the
+function to the treated observations' \code{wvar} values, e.g.
+\code{wlevels = fivenum} or \verb{wlevels = \\(x) quantile(x, c(0.25, 0.5, 0.75))}.
+}
+
+These options mirror the ergonomics of
+\code{\link[marginaleffects]{datagrid}}, which similarly accepts values or
+functions (e.g., \code{datagrid(x = fivenum)}). Note that effects at fixed
+treatment levels are linear in \code{wvar} by construction, and that levels far
+from the bulk of the data (e.g., the minimum and maximum in \code{fivenum}) are
+extrapolations.}
 
 \item{post_only}{Logical. Drop pre-treatment ATTs? Only evaluated if (a)
 \code{type = "event"} and (b) the original \code{etwfe} model object was estimated
@@ -290,6 +315,30 @@ pmod = etwfe(
   family = "poisson"   ## <= family arg for nonlinear options
   )
 emfx(pmod, "event")
+
+#
+# Non-binary treatments
+#
+
+# Example where treated units receive different (time-varying) treatment
+# intensities. Note that `ivar` is required here.
+
+base_stagg$dose = with(
+  base_stagg,
+  (year >= year_treated) * (1 + id \%\% 3 + (year - year_treated > 2))
+)
+
+wmod = etwfe(
+  y ~ x1, tvar = year, gvar = year_treated, data = base_stagg,
+  ivar = id, vcov = ~id,
+  wvar = dose          ## <= non-binary treatment
+  )
+emfx(wmod, "event")    ## effect per unit of dose, by event time
+
+# Effects at specific treatment levels (relative to no treatment)
+wmod_es = emfx(wmod, "event", wlevels = c(1, 3))
+wmod_es
+plot(wmod_es)          ## dodged groups by dose
 
 }
 \references{

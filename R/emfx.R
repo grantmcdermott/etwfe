@@ -40,6 +40,28 @@
 #'   `type` when use in \code{\link[stats]{predict}} or
 #'   \code{\link[marginaleffects]{slopes}}, but we rename it here to avoid a
 #'   clash with the top-level `type` argument above.)
+#' @param wlevels Only relevant for non-binary treatments, i.e. if the
+#'   preceding `etwfe` call included a `wvar` argument. Controls the treatment
+#'   level(s) at which effects are evaluated:
+#'
+#'   - NULL (default): Average marginal effect of a one-unit change in `wvar`
+#'     (i.e., the slope).
+#'   - `"observed"`: Average effect of each unit's observed treatment level,
+#'     relative to no treatment (`wvar = 0`). This also reflects how treatment
+#'     levels evolve over time, and is the closest analogue to a binary ATT.
+#'   - Numeric vector: Effects of setting the treatment level to each of the
+#'     supplied values, relative to no treatment, e.g. `wlevels = c(1, 2, 5)`.
+#'     Results are reported (and plotted) separately for each treatment level.
+#'   - Function: As above, but with treatment levels computed by applying the
+#'     function to the treated observations' `wvar` values, e.g.
+#'     `wlevels = fivenum` or `wlevels = \(x) quantile(x, c(0.25, 0.5, 0.75))`.
+#'
+#'   These options mirror the ergonomics of
+#'   \code{\link[marginaleffects]{datagrid}}, which similarly accepts values or
+#'   functions (e.g., `datagrid(x = fivenum)`). Note that effects at fixed
+#'   treatment levels are linear in `wvar` by construction, and that levels far
+#'   from the bulk of the data (e.g., the minimum and maximum in `fivenum`) are
+#'   extrapolations.
 #' @param post_only Logical. Drop pre-treatment ATTs? Only evaluated if (a)
 #'   `type = "event"` and (b) the original `etwfe` model object was estimated
 #'   using the default `"notyet"` treated control group. If conditions (a) and
@@ -137,8 +159,8 @@
 #' @inheritSection etwfe Performance
 #' @inheritSection etwfe Heterogeneous treatment effects
 #' @importFrom data.table as.data.table setDT .N .SD
-#' @importFrom marginaleffects slopes vcovUnconditional
-#' @importFrom stats reformulate
+#' @importFrom marginaleffects comparisons slopes vcovUnconditional
+#' @importFrom stats reformulate setNames
 #' @importFrom fixest obs
 #' @importFrom utils modifyList
 #' @export
@@ -149,6 +171,7 @@ emfx = function(
   compress = "auto",
   collapse = compress,
   predict = c("response", "link"),
+  wlevels = NULL,
   post_only = TRUE,
   window = NULL,
   lean = FALSE,
@@ -171,6 +194,7 @@ emfx = function(
   tref = etwfe_attr[["tref"]]
   cgroup = etwfe_attr[["cgroup"]]
   fe = etwfe_attr[["fe"]]
+  wvar = etwfe_attr[["wvar"]]
   if (!by_xvar %in% c("auto", TRUE, FALSE)) {
     stop("\"by_xvar\" has to be \"auto\", TRUE, or FALSE.")
   }
@@ -192,6 +216,17 @@ emfx = function(
 
   if (by_xvar == "auto") {
     by_xvar = !is.null(xvar)
+  }
+
+  if (!is.null(wlevels)) {
+    if (is.null(etwfe_attr[["wvar"]])) {
+      warning("`wlevels` is only used for non-binary treatments (`etwfe(..., wvar = ...)`). Ignoring.")
+      wlevels = NULL
+    } else if (!(is.numeric(wlevels) || is.function(wlevels) || identical(wlevels, "observed"))) {
+      stop("`wlevels` must be NULL, \"observed\", a numeric vector, or a function.")
+    } else if (isTRUE(by_xvar) && !identical(wlevels, "observed")) {
+      stop("Fixed `wlevels` cannot currently be combined with heterogeneous effects by `xvar`. Use `by_xvar = FALSE`.")
+    }
   }
 
   if (isTRUE(object$lean)) {
@@ -390,14 +425,50 @@ emfx = function(
     model = model,
     newdata = dat,
     wts = "N",
-    variables = ".Dtreat",
+    variables = if (is.null(wvar)) ".Dtreat" else wvar,
     by = by_var,
     type = predict
   )
   if (!is.null(dots)) {
     args_list = modifyList(args_list, dots)
   }
-  mfx = do.call("slopes", args = args_list)
+  # effects at treatment levels: contrast observed (or fixed) wvar against zero.
+  # Fixed levels stack one copy of the data per level, grouped by wvar. Binary
+  # wvar levels coincide with slopes (and marginaleffects needs 0/1 contrasts).
+  mfx_fun = "slopes"
+  if (!is.null(wlevels) && all(dat[[wvar]] %in% c(0, 1))) {
+    if (!identical(wlevels, "observed")) {
+      warning("`wvar` is binary, so effects at fixed `wlevels` are just slopes. Ignoring `wlevels`.")
+    }
+    wlevels = NULL
+  }
+  if (!is.null(wlevels)) {
+    mfx_fun = "comparisons"
+    args_list[["variables"]] = setNames(
+      list(function(x) data.frame(lo = 0 * x, hi = x)),
+      wvar
+    )
+    if (!identical(wlevels, "observed")) {
+      if (is.function(wlevels)) {
+        wlevels = wlevels(dat[[wvar]][dat[[".Dtreat"]]])
+        if (!is.numeric(wlevels)) {
+          stop("A `wlevels` function must return a numeric vector.")
+        }
+      }
+      wlevels = sort(unique(unname(wlevels)))
+      args_list[["newdata"]] = do.call(
+        rbind,
+        lapply(wlevels, function(w) {
+          d = as.data.frame(dat)
+          d[[wvar]] = w
+          d
+        })
+      )
+      args_list[["by"]] = c(by_var, wvar)
+    }
+  }
+  etwfe_attr[["wlevels"]] = wlevels
+  mfx = do.call(mfx_fun, args = args_list)
 
   class(mfx) = c("emfx", class(mfx))
   attr(mfx, "etwfe") = etwfe_attr

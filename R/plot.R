@@ -40,6 +40,11 @@ plot.emfx = function(
   }
   byvar = attr(x, "marginaleffects")@by
   xvar = etwfe_attr[["xvar"]]
+  # treat fixed treatment levels (wlevels) like xvar groups
+  if (is.numeric(etwfe_attr[["wlevels"]])) {
+    xvar = etwfe_attr[["wvar"]]
+    x[[xvar]] = factor(x[[xvar]])
+  }
   if (is.null(xvar)) {
     fml = reformulate(byvar, response = "estimate")
   } else {
@@ -97,6 +102,15 @@ plot.emfx = function(
   }
   if (byvar=="event") xlab = "Time since treatment"
   main = paste("Effect on", etwfe_attr[["yvar"]])
+  ylab = if (is.null(etwfe_attr[["wvar"]])) {
+    "ATT"
+  } else if (identical(etwfe_attr[["wlevels"]], "observed")) {
+    "ATT (at observed treatment level)"
+  } else if (is.numeric(etwfe_attr[["wlevels"]])) {
+    "ATT (at given treatment level)"
+  } else {
+    paste("Effect per unit of", etwfe_attr[["wvar"]])
+  }
   pargs = list(
     x = fml,
     data = x,
@@ -106,7 +120,7 @@ plot.emfx = function(
     pch = pch,
     grid = grid,
     xlab = xlab,
-    ylab = "ATT",
+    ylab = ylab,
     main = main
   )
   pargs = modifyList(pargs, dots)
