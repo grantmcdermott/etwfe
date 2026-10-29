@@ -29,8 +29,6 @@ importFrom(marginaleffects,
 )
 importFrom(stats,
   complete.cases,
-  fivenum,
-  quantile,
   reformulate,
   setNames
 )
