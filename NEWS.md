@@ -16,6 +16,12 @@
   - Event studies with the never-treated control group (`cgroup = "never"`)
     are also supported, with binary pre-treatment leads for testing
     pre-trends.
+- New `walmart` dataset of Walmart store openings and county retail employment
+  (1977-1999), as used in Wooldridge
+  ([2026](https://doi.org/10.2139/ssrn.7530698)). This is a subset of the data
+  originally constructed by Brown and Butts
+  ([2025](https://doi.org/10.1016/j.jeconom.2025.106013)), and is included with
+  their kind permission.
 - New `etwfe(..., trend = TRUE)` argument for including cohort-specific linear
   trends, for both binary and non-binary treatments. This relaxes the parallel
   trends assumption, which can matter when pre-trend tests suggest that it is
