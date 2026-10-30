@@ -102,3 +102,23 @@ expect_error(
   etwfe(y ~ 0, tvar = t, gvar = g, trend = TRUE, cgroup = "never", data = dat),
   "not supported with `cgroup"
 )
+
+# Wooldridge (2026), Table 7.1 (conditional SEs, as in the paper) ----
+
+data("walmart", package = "etwfe")
+t71 = data.frame(
+  est  = c(0.0291, 0.0439, 0.0357, 0.0301, 0.0286, 0.0316, 0.0344, 0.0412, 0.0459, 0.0480, 0.0624, 0.0671, 0.0706, 0.0895, 0.0386),
+  se   = c(0.0041, 0.0042, 0.0044, 0.0046, 0.0048, 0.0051, 0.0055, 0.0063, 0.0072, 0.0082, 0.0104, 0.0121, 0.0160, 0.0210, 0.0051),
+  est_tr = c(0.0049, 0.0196, 0.0113, 0.0070, 0.0060, 0.0073, 0.0106, 0.0200, 0.0236, 0.0274, 0.0373, 0.0422, 0.0587, 0.0925, 0.0156),
+  se_tr  = c(0.0033, 0.0034, 0.0035, 0.0036, 0.0039, 0.0041, 0.0046, 0.0054, 0.0064, 0.0083, 0.0111, 0.0146, 0.0200, 0.0302, 0.0046)
+)
+for (tr in c(FALSE, TRUE)) {
+  mw = etwfe(
+    log_retail_emp ~ 0, tvar = year, gvar = cohort, ivar = fips, wvar = n_open,
+    trend = tr, data = walmart, vcov = ~fips
+  )
+  ew = emfx(mw, "event", vcov = TRUE)
+  sw = emfx(mw, vcov = TRUE)
+  expect_equal(round(c(ew$estimate, sw$estimate), 4), t71[[if (tr) "est_tr" else "est"]])
+  expect_equal(round(c(ew$std.error, sw$std.error), 4), t71[[if (tr) "se_tr" else "se"]])
+}
