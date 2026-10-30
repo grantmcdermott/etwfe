@@ -62,6 +62,14 @@
 
 ## Bug fixes
 
+- `plot.emfx()` no longer errors for objects without standard errors (e.g.,
+  `emfx(..., vcov = FALSE)`), and plots point estimates only instead.
+- With unit-level fixed effects (`ivar`) and `fe = "vs"`, the control
+  variables now get cohort-specific (rather than unit-specific) slopes,
+  matching the Wooldridge specification and the equivalent `fe = "feo"` model.
+  The previous unit-specific slopes were redundant for time-constant controls,
+  but over-controlled for time-varying controls and could change the
+  treatment effect estimates.
 - The default `fe` for linear models is now `"vs"` (varying slopes), as
   documented. Previously, an internal typo meant that the default silently
   resolved to `"feo"` instead. Treatment effect estimates are unaffected, but

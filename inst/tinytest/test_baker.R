@@ -5,8 +5,7 @@ set.seed(1234)
 # Create the base dataset as a cross-join of 1,000 firms over 30 periods
 baker = expand.grid(n = 1:30, id = 1:1000)
 # Add additional columns
-baker = baker |>
-  within({
+baker = within(baker, {
     year = n + 1980 - 1
     state = 1 + (id - 1) %/% 25
     firms = runif(id * year, 0, 5)

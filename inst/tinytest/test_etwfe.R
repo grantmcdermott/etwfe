@@ -492,6 +492,14 @@ expect_equal(
   fixest::se(summary(m3, ssc = ssc0))[rownames(ct3vs)]
 )
 
+# With unit FEs, fe = "vs" (cohort-specific control slopes) matches fe = "feo",
+# including for time-varying controls
+data("base_stagg", package = "fixest")
+mvs = etwfe(y ~ x1, tvar = year, gvar = year_treated, ivar = id, data = base_stagg)
+mfeo = etwfe(y ~ x1, tvar = year, gvar = year_treated, ivar = id, data = base_stagg, fe = "feo")
+k = grep("x1_dm", names(coef(mvs)), invert = TRUE, value = TRUE)
+expect_equal(coef(mvs)[k], coef(mfeo)[k], tolerance = 1e-6)
+
 expect_error(
   etwfe(lemp ~ 0, tvar = NULL, gvar = first.treat, data = mpdta)
 )

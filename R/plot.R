@@ -34,6 +34,8 @@ plot.emfx = function(
   dots = list(...)
   etwfe_attr = attr(x, "etwfe")
   type = match.arg(type)
+  # no standard errors (e.g., `emfx(..., vcov = FALSE)`): plot points (or lines)
+  has_ci = !is.null(x$conf.low) && !all(is.na(x$conf.low))
   if (type=="ribbon" && etwfe_attr[["type"]]=="simple") {
     warning('\nRibbon plots are not allowed for `emfx(..., type = "simple")` objects. Reverting to pointrange.\n')
     type = "pointrange"
@@ -69,7 +71,7 @@ plot.emfx = function(
     dots$xlim = range(c(x$event, ref), na.rm = TRUE)
   }
   # catch for ribbon plots
-  if (byvar=="event" && type=="ribbon") {
+  if (has_ci && byvar=="event" && type=="ribbon") {
     idx = which(x$event == -1)
     x$conf.low[idx] = x$conf.high[idx] = x$estimate[idx]
   }
@@ -125,7 +127,7 @@ plot.emfx = function(
     data = x,
     ymin = x$conf.low,
     ymax = x$conf.high,
-    type = type,
+    type = if (has_ci) type else if (type == "ribbon") "l" else "p",
     pch = pch,
     grid = grid,
     xlab = xlab,

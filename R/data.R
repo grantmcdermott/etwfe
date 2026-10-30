@@ -43,7 +43,7 @@
 #' of Wal-Mart Expansion}. Review of Economics and Statistics, 87(1), 174-183.
 #' Available: https://doi.org/10.1162/0034653053327568
 #'
-#' Brown, N. and K. Butts (2025). \cite{Dynamic Treatment Effect
+#' Brown, Nicholas and Kyle Butts (2025). \cite{Dynamic Treatment Effect
 #' Estimation with Interactive Fixed Effects and Short Panels}. Journal of
 #' Econometrics, 250, 106013. Available:
 #' https://doi.org/10.1016/j.jeconom.2025.106013

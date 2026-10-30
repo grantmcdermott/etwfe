@@ -618,7 +618,13 @@ etwfe = function(
     if (is.null(ivar)) {
       fes = reformulate(paste0(c(gvar, tvar), vs))
     } else {
-      fes = reformulate(paste0(c(ivar, tvar), vs))
+      # unit FEs absorb the cohort FEs, but not cohort-specific control slopes
+      # (unit-specific slopes would over-control with time-varying controls)
+      fes = reformulate(c(
+        ivar,
+        paste0(tvar, vs),
+        if (!is.null(vs)) paste0(gvar, "[", vs, "]")
+      ))
     }
     fes = paste(fes)[2]
   } else {

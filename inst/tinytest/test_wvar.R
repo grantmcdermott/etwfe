@@ -50,7 +50,7 @@ ef = emfx(m, "event", wlevels = c(1, 3), vcov = FALSE)
 ef = ef[order(ef$w, ef$event), ]
 expect_equal(ef$w, rep(c(1, 3), each = nrow(ev)))
 expect_equal(ef$estimate, c(ev$estimate, 3 * ev$estimate), tolerance = tol)
-eq = emfx(m, wlevels = \(x) quantile(x, c(0.25, 0.5, 0.75)), vcov = FALSE)
+eq = emfx(m, wlevels = function(x) quantile(x, c(0.25, 0.5, 0.75)), vcov = FALSE)
 wq = unique(quantile(dat$w[dat$post], c(0.25, 0.5, 0.75), names = FALSE))
 expect_equal(eq$estimate, wq * mean(tau[dat$post]), tolerance = tol)
 expect_error(emfx(m, wlevels = "median"), "must be \"slope\"")
