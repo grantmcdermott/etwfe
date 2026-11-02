@@ -95,6 +95,10 @@ expect_error(
   "require unit-level fixed effects"
 )
 expect_error(
+  etwfe(y ~ 0, tvar = t, gvar = g, ivar = id, wvar = w, data = dat, fe = "none"),
+  "require unit-level fixed effects"
+)
+expect_error(
   etwfe(y ~ 0, tvar = t, gvar = g, ivar = id, wvar = w, data = dat, family = "poisson"),
   "only supported for linear models"
 )

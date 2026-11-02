@@ -134,9 +134,10 @@
 #'
 #'   **NB.** Compared with the binary case, non-binary `etwfe` estimation
 #'   imposes two additional practical constraints. First, it requires
-#'   unit-level fixed effects, i.e. a non-NULL `ivar`. This is because the
-#'   treatment intensity (dose) can vary across units within a cohort (`gvar`),
-#'   so cohort-leve fixed effects would yield inconsistent estimates. In other
+#'   unit-level fixed effects, i.e. a non-NULL `ivar` (and `fe != "none"`).
+#'   This is because the treatment intensity (dose) can vary across units within
+#'   a cohort (`gvar`), so cohort-level fixed effects would yield inconsistent
+#'   estimates. In other
 #'   words, we need `ivar` to absorb unit heterogeneity that is potentially
 #'   correlated with the treatment dose. Second, non-binary treatments are
 #'   currently only supported for linear models (i.e., `family = NULL`).
@@ -351,9 +352,10 @@ etwfe = function(
     if (!is.null(family)) {
       stop("Non-binary treatments (`wvar`) are only supported for linear models, i.e. `family = NULL`.\n")
     }
-    if (is.null(ivar)) {
+    if (is.null(ivar) || fe == "none") {
       stop(
-        "Non-binary treatments (`wvar`) require unit-level fixed effects via `ivar`. ",
+        "Non-binary treatments (`wvar`) require unit-level fixed effects via `ivar` ",
+        "(and `fe` other than \"none\"). ",
         "Unlike the binary case, cohort-level fixed effects do not absorb unit ",
         "heterogeneity that is correlated with the treatment level.\n"
       )
@@ -617,6 +619,7 @@ etwfe = function(
       fes = reformulate(c(
         ivar,
         paste0(tvar, vs),
+        # fixest's double-bracket syntax: slopes only, without the cohort FEs
         if (!is.null(vs)) paste0(gvar, "[", vs, "]")
       ))
     }

@@ -169,9 +169,10 @@ not otherwise depend on the level of treatment that a unit receives.
 
 \strong{NB.} Compared with the binary case, non-binary \code{etwfe} estimation
 imposes two additional practical constraints. First, it requires
-unit-level fixed effects, i.e. a non-NULL \code{ivar}. This is because the
-treatment intensity (dose) can vary across units within a cohort (\code{gvar}),
-so cohort-leve fixed effects would yield inconsistent estimates. In other
+unit-level fixed effects, i.e. a non-NULL \code{ivar} (and \code{fe != "none"}).
+This is because the treatment intensity (dose) can vary across units within
+a cohort (\code{gvar}), so cohort-level fixed effects would yield inconsistent
+estimates. In other
 words, we need \code{ivar} to absorb unit heterogeneity that is potentially
 correlated with the treatment dose. Second, non-binary treatments are
 currently only supported for linear models (i.e., \code{family = NULL}).
