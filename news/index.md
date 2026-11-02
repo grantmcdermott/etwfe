@@ -2,17 +2,51 @@
 
 ## etwfe 0.6.2.99 (development version)
 
+### New features
+
+- Support for non-binary treatments (e.g., continuous doses or counts)
+  via the new `etwfe(..., wvar = <wvar>)` argument, following
+  [Wooldridge (2026)](https://doi.org/10.2139/ssrn.7530698). Each
+  cohort-period cell gets its own slope on `wvar`, which
+  [`emfx()`](https://grantmcdermott.com/etwfe/reference/emfx.md) then
+  aggregates as usual. Requires unit fixed effects (`ivar`) and a linear
+  model.
+  - By default,
+    [`emfx()`](https://grantmcdermott.com/etwfe/reference/emfx.md)
+    reports the slope (effect per unit of `wvar`). The new
+    `emfx(..., wlevels = ...)` argument instead returns effects at each
+    unit’s observed treatment level (`"observed"`), or at fixed
+    treatment levels (a numeric vector, or a function such as `fivenum`,
+    *a la*
+    [`marginaleffects::datagrid()`](https://rdrr.io/pkg/marginaleffects/man/datagrid.html)),
+    relative to no treatment. Fixed levels are plotted as separate
+    (dodged) groups.
+  - Event studies with the never-treated control group
+    (`cgroup = "never"`) are also supported, with binary pre-treatment
+    leads for testing pre-trends.
+- New `walmart` dataset of Walmart store openings and county retail
+  employment (1977-1999), as used in Wooldridge
+  ([2026](https://doi.org/10.2139/ssrn.7530698)). This is a subset of
+  the data originally constructed by Brown and Butts
+  ([2025](https://doi.org/10.1016/j.jeconom.2025.106013)), and is
+  included with their kind permission.
+- New `etwfe(..., trend = TRUE)` argument for including cohort-specific
+  linear trends, for both binary and non-binary treatments. This relaxes
+  the parallel trends assumption, which can matter when pre-trend tests
+  suggest that it is violated. See the vignette for examples. (Not
+  available with `cgroup = "never"`.)
+
 ### Breaking changes
 
-- [`emfx()`](http://grantmcdermott.com/etwfe/reference/emfx.md) now
+- [`emfx()`](https://grantmcdermott.com/etwfe/reference/emfx.md) now
   reports “unconditional” standard errors by default, via
   [`marginaleffects::vcovUnconditional()`](https://rdrr.io/pkg/marginaleffects/man/vcovUnconditional.html).
   These account for sampling variation in the covariate distribution
   over which treatment effects are averaged, and automatically inherit
   any one-way clustering from the original
-  [`etwfe()`](http://grantmcdermott.com/etwfe/reference/etwfe.md) model.
-  Exceptions (compressed data, multiway clustering) fall back to the
-  model’s conditional variance-covariance matrix. Use
+  [`etwfe()`](https://grantmcdermott.com/etwfe/reference/etwfe.md)
+  model. Exceptions (compressed data, multiway clustering) fall back to
+  the model’s conditional variance-covariance matrix. Use
   `emfx(..., vcov = TRUE)` to recover the previous default. Requires a
   recent version of **marginaleffects**. Thanks to
   [@pedrohcgs](https://github.com/pedrohcgs) for the upstream
@@ -23,7 +57,7 @@
 ### Performance
 
 - Dramatic (10-40x) speed-ups for
-  [`emfx()`](http://grantmcdermott.com/etwfe/reference/emfx.md), thanks
+  [`emfx()`](https://grantmcdermott.com/etwfe/reference/emfx.md), thanks
   to upstream **marginaleffects** support for analytic Jacobians
   (vincentarelbundock/marginaleffects#1769). Moreover, standard errors
   gain improved precision due to their exact analytic derivations.
@@ -45,31 +79,51 @@
 
 ### Bug fixes
 
+- [`plot.emfx()`](https://grantmcdermott.com/etwfe/reference/plot.emfx.md)
+  no longer errors for objects without standard errors (e.g.,
+  `emfx(..., vcov = FALSE)`), and plots point estimates only instead.
+
+- With unit-level fixed effects (`ivar`) and `fe = "vs"`, the control
+  variables now get cohort-specific (rather than unit-specific) slopes,
+  matching the Wooldridge specification and the equivalent `fe = "feo"`
+  model. The previous unit-specific slopes were redundant for
+  time-constant controls, but over-controlled for time-varying controls
+  and could change the treatment effect estimates.
+
+- The default `fe` for linear models is now `"vs"` (varying slopes), as
+  documented. Previously, an internal typo meant that the default
+  silently resolved to `"feo"` instead. Treatment effect estimates are
+  unaffected, but the returned model object contains fewer nuisance
+  parameters.
+
 - Improved automatic selection of the reference (never-treated) cohort.
   If several `gvar` values fall outside the range of `tvar` (e.g., `0`
   and `2009` for a 2003–2007 panel),
-  [`etwfe()`](http://grantmcdermott.com/etwfe/reference/etwfe.md) now
+  [`etwfe()`](https://grantmcdermott.com/etwfe/reference/etwfe.md) now
   picks the value farthest from the panel and warns about the ambiguity.
   Previously, it always preferred the value above the range, which could
   mistake late-treated units for the never-treated group. Thanks to
   [@umor](https://github.com/umor) for the report and fix.
   ([\#89](https://github.com/grantmcdermott/etwfe/issues/89))
-- [`etwfe()`](http://grantmcdermott.com/etwfe/reference/etwfe.md) now
+
+- [`etwfe()`](https://grantmcdermott.com/etwfe/reference/etwfe.md) now
   warns if any cohort has no pre-treatment observations. Their effects
   are not identified from within-cohort variation, but are still
   included in aggregated ATTs.
   ([\#89](https://github.com/grantmcdermott/etwfe/issues/89))
+
 - Missing values (e.g., in the outcome) no longer contaminate results.
-  [`etwfe()`](http://grantmcdermott.com/etwfe/reference/etwfe.md) now
+  [`etwfe()`](https://grantmcdermott.com/etwfe/reference/etwfe.md) now
   drops incomplete cases (including missing formula `weights`) before
   demeaning any controls, and
-  [`emfx()`](http://grantmcdermott.com/etwfe/reference/emfx.md)
+  [`emfx()`](https://grantmcdermott.com/etwfe/reference/emfx.md)
   aggregates over the estimation sample only. Previously,
-  [`emfx()`](http://grantmcdermott.com/etwfe/reference/emfx.md) averaged
-  over all rows of the original data, which yielded incorrect ATTs and
-  caused the default unconditional standard errors to error.
+  [`emfx()`](https://grantmcdermott.com/etwfe/reference/emfx.md)
+  averaged over all rows of the original data, which yielded incorrect
+  ATTs and caused the default unconditional standard errors to error.
   ([\#91](https://github.com/grantmcdermott/etwfe/issues/91))
-- [`emfx()`](http://grantmcdermott.com/etwfe/reference/emfx.md) now
+
+- [`emfx()`](https://grantmcdermott.com/etwfe/reference/emfx.md) now
   throws an informative error for models estimated with `lean = TRUE`,
   which were never supported.
   ([\#92](https://github.com/grantmcdermott/etwfe/issues/92))
@@ -141,7 +195,7 @@ upstream dependency changes. Apologies for any inconvenience caused.
   families like Poission, we now default to `"none"`. This is to
   preserve the correct VCOV behaviour of these models once they are
   passed to
-  [`emfx()`](http://grantmcdermott.com/etwfe/reference/emfx.md), thus
+  [`emfx()`](https://grantmcdermott.com/etwfe/reference/emfx.md), thus
   matching the new upstream logic of **marginaleffects**. (Briefly: the
   standard errors of these non-linear families cannot be computed
   correctly with derivative methods on estimations where the
@@ -193,20 +247,20 @@ CRAN release: 2024-12-16
   to `TRUE` will ensure a light return object that strips away
   data-heavy attributes (e.g., copies of the original model). These
   attributes are unlikely to be needed as part of the
-  [`emfx()`](http://grantmcdermott.com/etwfe/reference/emfx.md)
+  [`emfx()`](https://grantmcdermott.com/etwfe/reference/emfx.md)
   workflow, so we may change the default to `lean = TRUE` in a future
   version of **etwfe**.
   ([\#51](https://github.com/grantmcdermott/etwfe/issues/51),
   [\#58](https://github.com/grantmcdermott/etwfe/issues/58))
 - Native
-  [`plot.emfx()`](http://grantmcdermott.com/etwfe/reference/plot.emfx.md)
+  [`plot.emfx()`](https://grantmcdermott.com/etwfe/reference/plot.emfx.md)
   method (via a **tinyplot** backend) for visualizing `emfx` objects.
   ([\#54](https://github.com/grantmcdermott/etwfe/issues/54))
 
 ### Superseded arguments
 
 - The `collapse` argument in
-  [`emfx()`](http://grantmcdermott.com/etwfe/reference/emfx.md) is
+  [`emfx()`](https://grantmcdermott.com/etwfe/reference/emfx.md) is
   superseded by `compress`. The older argument is retained as an alias
   for backwards compatibility, but will now trigger a message, nudging
   users to switch to `compress` instead. The end result will be
@@ -307,7 +361,7 @@ CRAN release: 2023-02-28
 - Minor updates to internal code and some unit tests to match
   forthcoming updates to **marginaleffects** 0.10.0. The latter update
   also brings some notable performance improvements to
-  [`emfx()`](http://grantmcdermott.com/etwfe/reference/emfx.md).
+  [`emfx()`](https://grantmcdermott.com/etwfe/reference/emfx.md).
 
 ### Other
 
@@ -328,7 +382,7 @@ CRAN release: 2023-02-08
   ([\#16](https://github.com/grantmcdermott/etwfe/issues/16), thanks to
   [@frederickluser](https://github.com/frederickluser)). Automatically
   extends to
-  [`emfx()`](http://grantmcdermott.com/etwfe/reference/emfx.md) via the
+  [`emfx()`](https://grantmcdermott.com/etwfe/reference/emfx.md) via the
   latter’s `by_xvar` argument
   ([\#21](https://github.com/grantmcdermott/etwfe/issues/21)). More
   details are provided in the dedicated “Heterogeneous treatment
@@ -403,7 +457,7 @@ CRAN release: 2023-01-11
   (i.e., the default).
 
 - The (optional) `ivar` argument of
-  [`etwfe()`](http://grantmcdermott.com/etwfe/reference/etwfe.md) has
+  [`etwfe()`](https://grantmcdermott.com/etwfe/reference/etwfe.md) has
   been moved down the argument order list from second position to fifth
   (i.e., after the `data` argument). This means that the four required
   arguments of function now occupy the top positions, which could enable

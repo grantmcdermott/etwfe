@@ -249,6 +249,33 @@ underlying object was computed using <code>emfx(..., type = "event")</code>.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Comparison: TRUE - FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">#</span></span></span>
+<span class="r-in"><span><span class="co"># Non-binary treatments</span></span></span>
+<span class="r-in"><span><span class="co">#</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Walmart store openings and county retail employment, where the treatment</span></span></span>
+<span class="r-in"><span><span class="co"># is the number of Walmart stores in a county. Note that `ivar` is required.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"walmart"</span>, package <span class="op">=</span> <span class="st">"etwfe"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">wmod</span> <span class="op">=</span> <span class="fu"><a href="etwfe.html">etwfe</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">log_retail_emp</span> <span class="op">~</span> <span class="fl">0</span>, tvar <span class="op">=</span> <span class="va">year</span>, gvar <span class="op">=</span> <span class="va">cohort</span>, data <span class="op">=</span> <span class="va">walmart</span>,</span></span>
+<span class="r-in"><span>  ivar <span class="op">=</span> <span class="va">fips</span>, vcov <span class="op">=</span> <span class="op">~</span><span class="va">fips</span>,</span></span>
+<span class="r-in"><span>  wvar <span class="op">=</span> <span class="va">n_open</span>        <span class="co">## &lt;= non-binary treatment</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="emfx.html">emfx</a></span><span class="op">(</span><span class="va">wmod</span><span class="op">)</span>             <span class="co">## effect of each additional store</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .Dtreat Estimate Std. Error    z Pr(&gt;|z|)    S  2.5 % 97.5 %</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     TRUE   0.0386    0.00506 7.63   &lt;0.001 45.3 0.0287 0.0485</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Term: n_open</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Type: response</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Comparison: +1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Effects at specific treatment levels (relative to no treatment)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="emfx.html">emfx</a></span><span class="op">(</span><span class="va">wmod</span>, <span class="st">"event"</span>, wlevels <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="plot.emfx-4.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

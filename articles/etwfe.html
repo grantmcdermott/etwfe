@@ -132,7 +132,9 @@ correctly specify all the possible interactions, demean control
 variables within groups, and then recover the treatment effects of
 interest via an appropriate marginal effect aggregation. The
 <strong>etwfe</strong> package aims to simplify the process by providing
-convenience functions that do all this work for you.</p>
+convenience functions that do all this work for you. It also supports
+the extension to non-binary treatments (e.g., continuous doses or
+counts) proposed by Wooldridge (<a href="https://doi.org/10.2139/ssrn.7530698" class="external-link">2026</a>); see <a href="#non-binary-treatments">Non-binary treatments</a> below.</p>
 </div>
 <div class="section level2">
 <h2 id="dataset">Dataset<a class="anchor" aria-label="anchor" href="#dataset"></a>
@@ -180,7 +182,7 @@ involves two consecutive function calls:</p>
 estimating function is <code><a href="../reference/etwfe.html">etwfe()</a></code>. Here’s how it would look
 for our example dataset.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://grantmcdermott.com/etwfe/" class="external-link">etwfe</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://grantmcdermott.com/etwfe/">etwfe</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">mod</span> <span class="op">=</span> <span class="fu"><a href="../reference/etwfe.html">etwfe</a></span><span class="op">(</span></span>
 <span>  fml  <span class="op">=</span> <span class="va">lemp</span> <span class="op">~</span> <span class="va">lpop</span>, <span class="co"># outcome ~ controls</span></span>
@@ -201,24 +203,30 @@ individual unit level).</p>
 <span><span class="co">#&gt; OLS estimation, Dep. Var.: lemp</span></span>
 <span><span class="co">#&gt; Observations: 2,500</span></span>
 <span><span class="co">#&gt; Fixed-effects: first.treat: 4,  year: 5</span></span>
+<span><span class="co">#&gt; Varying slopes: lpop (first.treat): 4,  lpop (year): 5</span></span>
 <span><span class="co">#&gt; Standard-errors: Clustered (countyreal) </span></span>
-<span><span class="co">#&gt;                         Estimate Std. Error   t value  Pr(&gt;|t|)    </span></span>
-<span><span class="co">#&gt; lpop                    1.065461   0.021824 48.821102 &lt; 2.2e-16 ***</span></span>
-<span><span class="co">#&gt; first.treat::2004:lpop  0.050982   0.037756  1.350320  0.177525    </span></span>
-<span><span class="co">#&gt; first.treat::2006:lpop -0.041095   0.047390 -0.867183  0.386259    </span></span>
-<span><span class="co">#&gt; first.treat::2007:lpop  0.055518   0.039212  1.415838  0.157447    </span></span>
-<span><span class="co">#&gt; year::2004:lpop         0.011014   0.007554  1.458043  0.145458    </span></span>
-<span><span class="co">#&gt; year::2005:lpop         0.020733   0.008104  2.558268  0.010814 *  </span></span>
-<span><span class="co">#&gt; year::2006:lpop         0.010535   0.010816  0.974084  0.330487    </span></span>
-<span><span class="co">#&gt; year::2007:lpop         0.020921   0.011808  1.771708  0.077053 .  </span></span>
-<span><span class="co">#&gt; ... 14 coefficients remaining (display them with summary() or use argument n)</span></span>
+<span><span class="co">#&gt;                                               Estimate Std. Error   t value   Pr(&gt;|t|)    </span></span>
+<span><span class="co">#&gt; .Dtreat:first.treat::2004:year::2004         -0.021248   0.021728 -0.977890 3.2860e-01    </span></span>
+<span><span class="co">#&gt; .Dtreat:first.treat::2004:year::2005         -0.081850   0.027375 -2.989963 2.9279e-03 ** </span></span>
+<span><span class="co">#&gt; .Dtreat:first.treat::2004:year::2006         -0.137870   0.030795 -4.477097 9.3851e-06 ***</span></span>
+<span><span class="co">#&gt; .Dtreat:first.treat::2004:year::2007         -0.109539   0.032322 -3.389024 7.5694e-04 ***</span></span>
+<span><span class="co">#&gt; .Dtreat:first.treat::2006:year::2006          0.002537   0.018883  0.134344 8.9318e-01    </span></span>
+<span><span class="co">#&gt; .Dtreat:first.treat::2006:year::2007         -0.045093   0.021987 -2.050907 4.0798e-02 *  </span></span>
+<span><span class="co">#&gt; .Dtreat:first.treat::2007:year::2007         -0.045955   0.017975 -2.556568 1.0866e-02 *  </span></span>
+<span><span class="co">#&gt; .Dtreat:first.treat::2004:year::2004:lpop_dm  0.004628   0.017584  0.263184 7.9252e-01    </span></span>
+<span><span class="co">#&gt; .Dtreat:first.treat::2004:year::2005:lpop_dm  0.025113   0.017904  1.402661 1.6134e-01    </span></span>
+<span><span class="co">#&gt; .Dtreat:first.treat::2004:year::2006:lpop_dm  0.050735   0.021070  2.407884 1.6407e-02 *  </span></span>
+<span><span class="co">#&gt; .Dtreat:first.treat::2004:year::2007:lpop_dm  0.011250   0.026617  0.422648 6.7273e-01    </span></span>
+<span><span class="co">#&gt; .Dtreat:first.treat::2006:year::2006:lpop_dm  0.038935   0.016472  2.363731 1.8474e-02 *  </span></span>
+<span><span class="co">#&gt; .Dtreat:first.treat::2006:year::2007:lpop_dm  0.038060   0.022477  1.693276 9.1027e-02 .  </span></span>
+<span><span class="co">#&gt; .Dtreat:first.treat::2007:year::2007:lpop_dm -0.019835   0.016198 -1.224528 2.2133e-01    </span></span>
 <span><span class="co">#&gt; ... 10 variables were removed because of collinearity</span></span>
 <span><span class="co">#&gt; (.Dtreat:first.treat::2006:year::2004, .Dtreat:first.treat::2006:year::2005 and 8 others</span></span>
 <span><span class="co">#&gt; [full set in $collin.var])</span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
-<span><span class="co">#&gt; RMSE: 0.537131     Adj. R2: 0.871722</span></span>
-<span><span class="co">#&gt;                  Within R2: 0.869464</span></span></code></pre></div>
+<span><span class="co">#&gt; RMSE: 0.537131     Adj. R2: 0.87167 </span></span>
+<span><span class="co">#&gt;                  Within R2: 8.449e-4</span></span></code></pre></div>
 <p>What <code><a href="../reference/etwfe.html">etwfe()</a></code> has done underneath the hood is construct a
 treatment dummy variable <code>.Dtreat</code> and saturated it together
 with the other variables of interest as a set of multiway interaction
@@ -392,42 +400,42 @@ help to make the event-study output look a bit cleaner.</p>
 
     <script src="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.js"></script><script>
       // Create table-specific functions using external factory
-      const tableFns_p7ft0hllf8psg50bifai = TinyTable.createTableFunctions("tinytable_p7ft0hllf8psg50bifai");
+      const tableFns_vpdyvmmnk3relei00pcb = TinyTable.createTableFunctions("tinytable_vpdyvmmnk3relei00pcb");
       // tinytable span after
       window.addEventListener('load', function () {
           var cellsToStyle = [
             // tinytable style arrays after
-          { positions: [ { i: '20', j: 2 }, { i: '20', j: 3 } ], css_id: 'tinytable_css_s0jy40tm5tyybc3ex6r4',}, 
-          { positions: [ { i: '15', j: 2 }, { i: '15', j: 3 } ], css_id: 'tinytable_css_8onudsc7d2m1gwg0d6dn',}, 
-          { positions: [ { i: '1', j: 2 }, { i: '2', j: 2 }, { i: '3', j: 2 }, { i: '4', j: 2 }, { i: '5', j: 2 }, { i: '6', j: 2 }, { i: '7', j: 2 }, { i: '8', j: 2 }, { i: '9', j: 2 }, { i: '10', j: 2 }, { i: '11', j: 2 }, { i: '12', j: 2 }, { i: '13', j: 2 }, { i: '14', j: 2 }, { i: '16', j: 2 }, { i: '17', j: 2 }, { i: '18', j: 2 }, { i: '19', j: 2 }, { i: '1', j: 3 }, { i: '2', j: 3 }, { i: '3', j: 3 }, { i: '4', j: 3 }, { i: '5', j: 3 }, { i: '6', j: 3 }, { i: '7', j: 3 }, { i: '8', j: 3 }, { i: '9', j: 3 }, { i: '10', j: 3 }, { i: '11', j: 3 }, { i: '12', j: 3 }, { i: '13', j: 3 }, { i: '14', j: 3 }, { i: '16', j: 3 }, { i: '17', j: 3 }, { i: '18', j: 3 }, { i: '19', j: 3 } ], css_id: 'tinytable_css_nkc8tds7ddx8y9kqya1q',}, 
-          { positions: [ { i: '0', j: 2 }, { i: '0', j: 3 } ], css_id: 'tinytable_css_zss2nivvj5e6y2qtyqwx',}, 
-          { positions: [ { i: '20', j: 1 } ], css_id: 'tinytable_css_g1mnw36v96qu51tqp8tt',}, 
-          { positions: [ { i: '15', j: 1 } ], css_id: 'tinytable_css_c2p1ptvi57bn3rwkgg6v',}, 
-          { positions: [ { i: '1', j: 1 }, { i: '2', j: 1 }, { i: '3', j: 1 }, { i: '4', j: 1 }, { i: '5', j: 1 }, { i: '6', j: 1 }, { i: '7', j: 1 }, { i: '8', j: 1 }, { i: '9', j: 1 }, { i: '10', j: 1 }, { i: '11', j: 1 }, { i: '12', j: 1 }, { i: '13', j: 1 }, { i: '14', j: 1 }, { i: '16', j: 1 }, { i: '17', j: 1 }, { i: '18', j: 1 }, { i: '19', j: 1 } ], css_id: 'tinytable_css_q4cgoaisq2r2mhfe1it0',}, 
-          { positions: [ { i: '0', j: 1 } ], css_id: 'tinytable_css_jv18ltzdtj00pus2ys8d',}, 
+          { positions: [ { i: '20', j: 2 }, { i: '20', j: 3 } ], css_id: 'tinytable_css_5qxgo4o4s0l6drj5zy6f',}, 
+          { positions: [ { i: '15', j: 2 }, { i: '15', j: 3 } ], css_id: 'tinytable_css_7nlhn6ewb4fvskvqll1d',}, 
+          { positions: [ { i: '1', j: 2 }, { i: '2', j: 2 }, { i: '3', j: 2 }, { i: '4', j: 2 }, { i: '5', j: 2 }, { i: '6', j: 2 }, { i: '7', j: 2 }, { i: '8', j: 2 }, { i: '9', j: 2 }, { i: '10', j: 2 }, { i: '11', j: 2 }, { i: '12', j: 2 }, { i: '13', j: 2 }, { i: '14', j: 2 }, { i: '16', j: 2 }, { i: '17', j: 2 }, { i: '18', j: 2 }, { i: '19', j: 2 }, { i: '1', j: 3 }, { i: '2', j: 3 }, { i: '3', j: 3 }, { i: '4', j: 3 }, { i: '5', j: 3 }, { i: '6', j: 3 }, { i: '7', j: 3 }, { i: '8', j: 3 }, { i: '9', j: 3 }, { i: '10', j: 3 }, { i: '11', j: 3 }, { i: '12', j: 3 }, { i: '13', j: 3 }, { i: '14', j: 3 }, { i: '16', j: 3 }, { i: '17', j: 3 }, { i: '18', j: 3 }, { i: '19', j: 3 } ], css_id: 'tinytable_css_q5nee5q057o33v93kvf9',}, 
+          { positions: [ { i: '0', j: 2 }, { i: '0', j: 3 } ], css_id: 'tinytable_css_pl24oj1b0m4n51h5ncu3',}, 
+          { positions: [ { i: '20', j: 1 } ], css_id: 'tinytable_css_ien568h44y47c1xu4k5s',}, 
+          { positions: [ { i: '15', j: 1 } ], css_id: 'tinytable_css_c8z2zgmxg70bdl7de7fp',}, 
+          { positions: [ { i: '1', j: 1 }, { i: '2', j: 1 }, { i: '3', j: 1 }, { i: '4', j: 1 }, { i: '5', j: 1 }, { i: '6', j: 1 }, { i: '7', j: 1 }, { i: '8', j: 1 }, { i: '9', j: 1 }, { i: '10', j: 1 }, { i: '11', j: 1 }, { i: '12', j: 1 }, { i: '13', j: 1 }, { i: '14', j: 1 }, { i: '16', j: 1 }, { i: '17', j: 1 }, { i: '18', j: 1 }, { i: '19', j: 1 } ], css_id: 'tinytable_css_ygbq7uqi2knivua6m6p8',}, 
+          { positions: [ { i: '0', j: 1 } ], css_id: 'tinytable_css_9z3aqpxakwvyae7fpjli',}, 
           ];
 
           // Loop over the arrays to style the cells
           cellsToStyle.forEach(function (group) {
               group.positions.forEach(function (cell) {
-                  tableFns_p7ft0hllf8psg50bifai.styleCell(cell.i, cell.j, group.css_id);
+                  tableFns_vpdyvmmnk3relei00pcb.styleCell(cell.i, cell.j, group.css_id);
               });
           });
       });
     </script><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.css">
 <style>
     /* tinytable css entries after */
-    #tinytable_p7ft0hllf8psg50bifai td.tinytable_css_s0jy40tm5tyybc3ex6r4, #tinytable_p7ft0hllf8psg50bifai th.tinytable_css_s0jy40tm5tyybc3ex6r4 {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
-    #tinytable_p7ft0hllf8psg50bifai td.tinytable_css_8onudsc7d2m1gwg0d6dn, #tinytable_p7ft0hllf8psg50bifai th.tinytable_css_8onudsc7d2m1gwg0d6dn {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
-    #tinytable_p7ft0hllf8psg50bifai td.tinytable_css_nkc8tds7ddx8y9kqya1q, #tinytable_p7ft0hllf8psg50bifai th.tinytable_css_nkc8tds7ddx8y9kqya1q { text-align: center }
-    #tinytable_p7ft0hllf8psg50bifai td.tinytable_css_zss2nivvj5e6y2qtyqwx, #tinytable_p7ft0hllf8psg50bifai th.tinytable_css_zss2nivvj5e6y2qtyqwx {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
-    #tinytable_p7ft0hllf8psg50bifai td.tinytable_css_g1mnw36v96qu51tqp8tt, #tinytable_p7ft0hllf8psg50bifai th.tinytable_css_g1mnw36v96qu51tqp8tt {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
-    #tinytable_p7ft0hllf8psg50bifai td.tinytable_css_c2p1ptvi57bn3rwkgg6v, #tinytable_p7ft0hllf8psg50bifai th.tinytable_css_c2p1ptvi57bn3rwkgg6v {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
-    #tinytable_p7ft0hllf8psg50bifai td.tinytable_css_q4cgoaisq2r2mhfe1it0, #tinytable_p7ft0hllf8psg50bifai th.tinytable_css_q4cgoaisq2r2mhfe1it0 { text-align: left }
-    #tinytable_p7ft0hllf8psg50bifai td.tinytable_css_jv18ltzdtj00pus2ys8d, #tinytable_p7ft0hllf8psg50bifai th.tinytable_css_jv18ltzdtj00pus2ys8d {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
+    #tinytable_vpdyvmmnk3relei00pcb td.tinytable_css_5qxgo4o4s0l6drj5zy6f, #tinytable_vpdyvmmnk3relei00pcb th.tinytable_css_5qxgo4o4s0l6drj5zy6f {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
+    #tinytable_vpdyvmmnk3relei00pcb td.tinytable_css_7nlhn6ewb4fvskvqll1d, #tinytable_vpdyvmmnk3relei00pcb th.tinytable_css_7nlhn6ewb4fvskvqll1d {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
+    #tinytable_vpdyvmmnk3relei00pcb td.tinytable_css_q5nee5q057o33v93kvf9, #tinytable_vpdyvmmnk3relei00pcb th.tinytable_css_q5nee5q057o33v93kvf9 { text-align: center }
+    #tinytable_vpdyvmmnk3relei00pcb td.tinytable_css_pl24oj1b0m4n51h5ncu3, #tinytable_vpdyvmmnk3relei00pcb th.tinytable_css_pl24oj1b0m4n51h5ncu3 {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
+    #tinytable_vpdyvmmnk3relei00pcb td.tinytable_css_ien568h44y47c1xu4k5s, #tinytable_vpdyvmmnk3relei00pcb th.tinytable_css_ien568h44y47c1xu4k5s {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
+    #tinytable_vpdyvmmnk3relei00pcb td.tinytable_css_c8z2zgmxg70bdl7de7fp, #tinytable_vpdyvmmnk3relei00pcb th.tinytable_css_c8z2zgmxg70bdl7de7fp {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
+    #tinytable_vpdyvmmnk3relei00pcb td.tinytable_css_ygbq7uqi2knivua6m6p8, #tinytable_vpdyvmmnk3relei00pcb th.tinytable_css_ygbq7uqi2knivua6m6p8 { text-align: left }
+    #tinytable_vpdyvmmnk3relei00pcb td.tinytable_css_9z3aqpxakwvyae7fpjli, #tinytable_vpdyvmmnk3relei00pcb th.tinytable_css_9z3aqpxakwvyae7fpjli {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
     </style>
 <div class="container">
-      <table class="table tinytable" id="tinytable_p7ft0hllf8psg50bifai" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
+      <table class="table tinytable" id="tinytable_vpdyvmmnk3relei00pcb" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
 <caption>Event study</caption>
         <thead><tr>
 <th scope="col" data-row="0" data-col="1"> </th>
@@ -642,44 +650,44 @@ example, where we again make use of the
 
     <script src="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.js"></script><script>
       // Create table-specific functions using external factory
-      const tableFns_po986sebcjj3vbfwntmd = TinyTable.createTableFunctions("tinytable_po986sebcjj3vbfwntmd");
+      const tableFns_s8sn5xe6sc29a4zd1ha3 = TinyTable.createTableFunctions("tinytable_s8sn5xe6sc29a4zd1ha3");
       // tinytable span after
       window.addEventListener('load', function () {
           var cellsToStyle = [
             // tinytable style arrays after
-          { positions: [ { i: '-1', j: 3 } ], css_id: 'tinytable_css_31j8q49qj9ctz3sx2att',}, 
-          { positions: [ { i: '2', j: 2 }, { i: '2', j: 3 } ], css_id: 'tinytable_css_m0r5olpk1p7hes8xezmc',}, 
-          { positions: [ { i: '1', j: 2 }, { i: '1', j: 3 } ], css_id: 'tinytable_css_59k3mkt5u3raff6gzk05',}, 
-          { positions: [ { i: '0', j: 2 }, { i: '0', j: 3 } ], css_id: 'tinytable_css_azkbj14525l75qnure9a',}, 
-          { positions: [ { i: '-1', j: 2 } ], css_id: 'tinytable_css_gzyxpnm7gtwgbw2nqusa',}, 
-          { positions: [ { i: '2', j: 1 } ], css_id: 'tinytable_css_do4mhl6d944hv1qaxjw9',}, 
-          { positions: [ { i: '1', j: 1 } ], css_id: 'tinytable_css_dn0vcwsmelmoyl7slf4t',}, 
-          { positions: [ { i: '0', j: 1 } ], css_id: 'tinytable_css_0dyglwab52af4trm2kkf',}, 
-          { positions: [ { i: '-1', j: 1 } ], css_id: 'tinytable_css_yytwzlxbsdm8gp1utdrf',}, 
+          { positions: [ { i: '-1', j: 3 } ], css_id: 'tinytable_css_6cac56nyt50zlnh9ts8w',}, 
+          { positions: [ { i: '2', j: 2 }, { i: '2', j: 3 } ], css_id: 'tinytable_css_485cjld6tzk9ccuktbt6',}, 
+          { positions: [ { i: '1', j: 2 }, { i: '1', j: 3 } ], css_id: 'tinytable_css_xxm1caeuiyla73mel47x',}, 
+          { positions: [ { i: '0', j: 2 }, { i: '0', j: 3 } ], css_id: 'tinytable_css_clx2x2rn9ark6892rvmz',}, 
+          { positions: [ { i: '-1', j: 2 } ], css_id: 'tinytable_css_i25h4b8nbqzxkmj36fct',}, 
+          { positions: [ { i: '2', j: 1 } ], css_id: 'tinytable_css_05s05hzzr43noz96yf3o',}, 
+          { positions: [ { i: '1', j: 1 } ], css_id: 'tinytable_css_cxuyc7o4r4o5czvkljsc',}, 
+          { positions: [ { i: '0', j: 1 } ], css_id: 'tinytable_css_gdmld1dxlxdgfmkv5o4n',}, 
+          { positions: [ { i: '-1', j: 1 } ], css_id: 'tinytable_css_6rs6ehfwebc9dej95lyh',}, 
           ];
 
           // Loop over the arrays to style the cells
           cellsToStyle.forEach(function (group) {
               group.positions.forEach(function (cell) {
-                  tableFns_po986sebcjj3vbfwntmd.styleCell(cell.i, cell.j, group.css_id);
+                  tableFns_s8sn5xe6sc29a4zd1ha3.styleCell(cell.i, cell.j, group.css_id);
               });
           });
       });
     </script><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.css">
 <style>
     /* tinytable css entries after */
-    #tinytable_po986sebcjj3vbfwntmd td.tinytable_css_31j8q49qj9ctz3sx2att, #tinytable_po986sebcjj3vbfwntmd th.tinytable_css_31j8q49qj9ctz3sx2att {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.03em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
-    #tinytable_po986sebcjj3vbfwntmd td.tinytable_css_m0r5olpk1p7hes8xezmc, #tinytable_po986sebcjj3vbfwntmd th.tinytable_css_m0r5olpk1p7hes8xezmc {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
-    #tinytable_po986sebcjj3vbfwntmd td.tinytable_css_59k3mkt5u3raff6gzk05, #tinytable_po986sebcjj3vbfwntmd th.tinytable_css_59k3mkt5u3raff6gzk05 { text-align: center }
-    #tinytable_po986sebcjj3vbfwntmd td.tinytable_css_azkbj14525l75qnure9a, #tinytable_po986sebcjj3vbfwntmd th.tinytable_css_azkbj14525l75qnure9a {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
-    #tinytable_po986sebcjj3vbfwntmd td.tinytable_css_gzyxpnm7gtwgbw2nqusa, #tinytable_po986sebcjj3vbfwntmd th.tinytable_css_gzyxpnm7gtwgbw2nqusa {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.03em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 3%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
-    #tinytable_po986sebcjj3vbfwntmd td.tinytable_css_do4mhl6d944hv1qaxjw9, #tinytable_po986sebcjj3vbfwntmd th.tinytable_css_do4mhl6d944hv1qaxjw9 {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
-    #tinytable_po986sebcjj3vbfwntmd td.tinytable_css_dn0vcwsmelmoyl7slf4t, #tinytable_po986sebcjj3vbfwntmd th.tinytable_css_dn0vcwsmelmoyl7slf4t { text-align: left }
-    #tinytable_po986sebcjj3vbfwntmd td.tinytable_css_0dyglwab52af4trm2kkf, #tinytable_po986sebcjj3vbfwntmd th.tinytable_css_0dyglwab52af4trm2kkf {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
-    #tinytable_po986sebcjj3vbfwntmd td.tinytable_css_yytwzlxbsdm8gp1utdrf, #tinytable_po986sebcjj3vbfwntmd th.tinytable_css_yytwzlxbsdm8gp1utdrf {  position: relative; --border-bottom: 0; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.1em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
+    #tinytable_s8sn5xe6sc29a4zd1ha3 td.tinytable_css_6cac56nyt50zlnh9ts8w, #tinytable_s8sn5xe6sc29a4zd1ha3 th.tinytable_css_6cac56nyt50zlnh9ts8w {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.03em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
+    #tinytable_s8sn5xe6sc29a4zd1ha3 td.tinytable_css_485cjld6tzk9ccuktbt6, #tinytable_s8sn5xe6sc29a4zd1ha3 th.tinytable_css_485cjld6tzk9ccuktbt6 {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
+    #tinytable_s8sn5xe6sc29a4zd1ha3 td.tinytable_css_xxm1caeuiyla73mel47x, #tinytable_s8sn5xe6sc29a4zd1ha3 th.tinytable_css_xxm1caeuiyla73mel47x { text-align: center }
+    #tinytable_s8sn5xe6sc29a4zd1ha3 td.tinytable_css_clx2x2rn9ark6892rvmz, #tinytable_s8sn5xe6sc29a4zd1ha3 th.tinytable_css_clx2x2rn9ark6892rvmz {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
+    #tinytable_s8sn5xe6sc29a4zd1ha3 td.tinytable_css_i25h4b8nbqzxkmj36fct, #tinytable_s8sn5xe6sc29a4zd1ha3 th.tinytable_css_i25h4b8nbqzxkmj36fct {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.03em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 3%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
+    #tinytable_s8sn5xe6sc29a4zd1ha3 td.tinytable_css_05s05hzzr43noz96yf3o, #tinytable_s8sn5xe6sc29a4zd1ha3 th.tinytable_css_05s05hzzr43noz96yf3o {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
+    #tinytable_s8sn5xe6sc29a4zd1ha3 td.tinytable_css_cxuyc7o4r4o5czvkljsc, #tinytable_s8sn5xe6sc29a4zd1ha3 th.tinytable_css_cxuyc7o4r4o5czvkljsc { text-align: left }
+    #tinytable_s8sn5xe6sc29a4zd1ha3 td.tinytable_css_gdmld1dxlxdgfmkv5o4n, #tinytable_s8sn5xe6sc29a4zd1ha3 th.tinytable_css_gdmld1dxlxdgfmkv5o4n {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
+    #tinytable_s8sn5xe6sc29a4zd1ha3 td.tinytable_css_6rs6ehfwebc9dej95lyh, #tinytable_s8sn5xe6sc29a4zd1ha3 th.tinytable_css_6rs6ehfwebc9dej95lyh {  position: relative; --border-bottom: 0; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.1em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
     </style>
 <div class="container">
-      <table class="table tinytable" id="tinytable_po986sebcjj3vbfwntmd" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
+      <table class="table tinytable" id="tinytable_s8sn5xe6sc29a4zd1ha3" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
 <caption>Comparing the ATT on GLS and non-GLS counties</caption>
         <thead>
 <tr>
@@ -742,6 +750,205 @@ recast our earlier event-study as a Poisson regression.</p>
 <span><span class="co">#&gt; Comparison: TRUE - FALSE</span></span></code></pre></div>
 </div>
 <div class="section level2">
+<h2 id="non-binary-treatments">Non-binary treatments<a class="anchor" aria-label="anchor" href="#non-binary-treatments"></a>
+</h2>
+<p>All of the examples thus far have involved a <em>binary</em>
+treatment: a county either received the minimum wage hike or it didn’t.
+But many interventions come in different intensities, or “doses”. For
+example, consider the size of a tax credit, the number of hours of job
+training, or the number of new stores opening in a town. Not only are
+these treatments non-binary, but the doses themselves might be changing
+over time, e.g. more stores opening each year in a town. The good news
+is that the ETWFE framework extends very naturally to these non-binary
+settings. Wooldridge (<a href="https://doi.org/10.2139/ssrn.7530698" class="external-link">2026</a>) shows that we need
+simply interact the treatment level (dose) with the full set of cohort ×
+period dummies, so that each cohort-period cell gets its own
+heterogeneous slope. These slopes can then be aggregated in all the
+usual ways.</p>
+<p>To demonstrate, we’ll use the <code>walmart</code> dataset that ships
+with <strong>etwfe</strong>, which is also the empirical application in
+Wooldridge (2026). It records the staggered rollout of Walmart stores
+across 1,288 US counties between 1977 and 1999, together with county
+retail employment. No county had a Walmart before 1986. The
+<code>cohort</code> variable records the year of each county’s first
+Walmart opening (with 0 denoting counties that had none by 1999), while
+<code>n_open</code> records the number of stores open in a given year.
+This latter variable is our non-binary treatment variable of
+interest.</p>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"walmart"</span>, package <span class="op">=</span> <span class="st">"etwfe"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">walmart</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   fips year cohort n_open log_retail_emp</span></span>
+<span><span class="co">#&gt; 1 1003 1977   1986      0         7.7811</span></span>
+<span><span class="co">#&gt; 2 1003 1978   1986      0         7.9082</span></span>
+<span><span class="co">#&gt; 3 1003 1979   1986      0         7.9878</span></span>
+<span><span class="co">#&gt; 4 1003 1980   1986      0         7.9693</span></span>
+<span><span class="co">#&gt; 5 1003 1981   1986      0         7.9650</span></span>
+<span><span class="co">#&gt; 6 1003 1982   1986      0         8.0594</span></span></code></pre></div>
+<p>Following Wooldridge’s notation, we specify the non-binary treatment
+via the <code>wvar</code> argument. One thing to note is that we also
+have to supply unit-level fixed effects via <code>ivar</code>. The
+reason is that, unlike the binary case, we must now allow for the fact
+that the treatment intensity can vary across units <em>within</em> a
+cohort. For example, two counties might get their first Walmart stores
+in the same year, but one of them could get additional stores in a later
+year. A model specification with only cohort-level (<code>gvar</code>)
+fixed effects would thus fail to absorb any unit heterogeneity that is
+correlated with the treatment level.<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;If the &lt;code&gt;wvar&lt;/code&gt; argument is present,
+&lt;code&gt;&lt;a href=&quot;../reference/etwfe.html&quot;&gt;etwfe()&lt;/a&gt;&lt;/code&gt; will actually throw an error if &lt;code&gt;ivar&lt;/code&gt;
+is missing.&lt;/p&gt;"><sup>5</sup></a></p>
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">wmod</span> <span class="op">=</span> <span class="fu"><a href="../reference/etwfe.html">etwfe</a></span><span class="op">(</span></span>
+<span>  <span class="va">log_retail_emp</span> <span class="op">~</span> <span class="fl">0</span>, tvar <span class="op">=</span> <span class="va">year</span>, gvar <span class="op">=</span> <span class="va">cohort</span>, data <span class="op">=</span> <span class="va">walmart</span>,</span>
+<span>  ivar <span class="op">=</span> <span class="va">fips</span>,         <span class="co">## &lt;= required for non-binary treatments</span></span>
+<span>  vcov <span class="op">=</span> <span class="op">~</span><span class="va">fips</span>,</span>
+<span>  wvar <span class="op">=</span> <span class="va">n_open</span>        <span class="co">## &lt;= non-binary treatment</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<div class="section level3">
+<h3 id="slopes">Slopes<a class="anchor" aria-label="anchor" href="#slopes"></a>
+</h3>
+<p>By default, <code><a href="../reference/emfx.html">emfx()</a></code> reports the aggregated slopes, i.e.,
+the effect of a one-unit change in the treatment level. Here, each
+additional Walmart store increases county retail employment by about
+3.9% on average.</p>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="va">wmod</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;  .Dtreat Estimate Std. Error    z Pr(&gt;|z|)    S  2.5 % 97.5 %</span></span>
+<span><span class="co">#&gt;     TRUE   0.0386    0.00506 7.63   &lt;0.001 45.3 0.0287 0.0485</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Term: n_open</span></span>
+<span><span class="co">#&gt; Type: response</span></span>
+<span><span class="co">#&gt; Comparison: +1</span></span></code></pre></div>
+<p>The same logic applies to the other aggregation types. For example,
+here is the event study of the slopes by time since treatment.</p>
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">wmod_es</span> <span class="op">=</span> <span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="va">wmod</span>, <span class="st">"event"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">wmod_es</span><span class="op">)</span></span></code></pre></div>
+<p><img src="etwfe_files/figure-html/unnamed-chunk-22-1.png" class="r-plt" alt="" width="700"></p>
+</div>
+<div class="section level3">
+<h3 id="treatment-levels">Treatment levels<a class="anchor" aria-label="anchor" href="#treatment-levels"></a>
+</h3>
+<p>Slopes are not always the most natural quantity of interest, though.
+We might rather want to know the effect of treatment as actually
+received, or the effect at some representative treatment level. The
+<code>wlevels</code> argument of <code><a href="../reference/emfx.html">emfx()</a></code> covers both cases.
+First, <code>wlevels = "observed"</code> reports the average effect of
+each county’s observed number of stores (relative to no stores), which
+is the closest analogue to a binary ATT.</p>
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="va">wmod</span>, <span class="st">"event"</span>, wlevels <span class="op">=</span> <span class="st">"observed"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;  event Estimate Std. Error     z Pr(&gt;|z|)    S  2.5 % 97.5 %</span></span>
+<span><span class="co">#&gt;      0   0.0309    0.00441  7.01   &lt;0.001 38.6 0.0222 0.0395</span></span>
+<span><span class="co">#&gt;      1   0.0521    0.00483 10.78   &lt;0.001 87.6 0.0426 0.0615</span></span>
+<span><span class="co">#&gt;      2   0.0452    0.00532  8.51   &lt;0.001 55.6 0.0348 0.0557</span></span>
+<span><span class="co">#&gt;      3   0.0407    0.00583  6.99   &lt;0.001 38.4 0.0293 0.0522</span></span>
+<span><span class="co">#&gt;      4   0.0401    0.00638  6.28   &lt;0.001 31.5 0.0276 0.0526</span></span>
+<span><span class="co">#&gt;      5   0.0451    0.00696  6.48   &lt;0.001 33.4 0.0315 0.0588</span></span>
+<span><span class="co">#&gt;      6   0.0500    0.00758  6.60   &lt;0.001 34.5 0.0351 0.0648</span></span>
+<span><span class="co">#&gt;      7   0.0603    0.00849  7.10   &lt;0.001 39.6 0.0437 0.0770</span></span>
+<span><span class="co">#&gt;      8   0.0665    0.00969  6.86   &lt;0.001 37.1 0.0475 0.0855</span></span>
+<span><span class="co">#&gt;      9   0.0710    0.01146  6.19   &lt;0.001 30.7 0.0485 0.0934</span></span>
+<span><span class="co">#&gt;     10   0.0892    0.01357  6.57   &lt;0.001 34.2 0.0626 0.1158</span></span>
+<span><span class="co">#&gt;     11   0.0987    0.01682  5.87   &lt;0.001 27.8 0.0657 0.1316</span></span>
+<span><span class="co">#&gt;     12   0.1006    0.02236  4.50   &lt;0.001 17.1 0.0567 0.1444</span></span>
+<span><span class="co">#&gt;     13   0.1375    0.03412  4.03   &lt;0.001 14.1 0.0706 0.2044</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Term: n_open</span></span>
+<span><span class="co">#&gt; Type: response</span></span>
+<span><span class="co">#&gt; Comparison: custom</span></span></code></pre></div>
+<p>Second, we can evaluate effects at specific treatment levels, e.g.,
+one, two, or three stores. These are reported and plotted as separate
+groups.</p>
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="va">wmod</span>, <span class="st">"event"</span>, wlevels <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="etwfe_files/figure-html/unnamed-chunk-24-1.png" class="r-plt" alt="" width="700"></p>
+<p>Similar to <code><a href="https://rdrr.io/pkg/marginaleffects/man/datagrid.html" class="external-link">marginaleffects::datagrid()</a></code>, the
+<code>wlevels</code> argument also accepts a function that is applied to
+the treated observations’ treatment levels, e.g.
+<code>wlevels = fivenum</code>. Two caveats are worth keeping in mind.
+First, since the model is linear in the treatment level, the effects at
+fixed levels are simply scaled versions of the slopes. Second, levels
+far from the bulk of the data are extrapolations. For example, in our
+case here, most treated counties only have a single Walmart.</p>
+</div>
+<div class="section level3">
+<h3 id="testing-pre-trends">Testing pre-trends<a class="anchor" aria-label="anchor" href="#testing-pre-trends"></a>
+</h3>
+<p>As with binary treatments, we can test for violations of parallel
+trends by switching to the never-treated control group. In this case,
+the pre-treatment periods enter as binary cohort-period indicators—since
+the treatment level is zero before treatment—while the post-treatment
+periods enter as slopes on <code>wvar</code>. Because the pre-treatment
+estimates are thus level differences, the event study reports the
+post-treatment effects at the observed treatment level by default, so
+that both sides are on the same scale.</p>
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">wmod_never</span> <span class="op">=</span> <span class="fu"><a href="../reference/etwfe.html">etwfe</a></span><span class="op">(</span></span>
+<span>  <span class="va">log_retail_emp</span> <span class="op">~</span> <span class="fl">0</span>, tvar <span class="op">=</span> <span class="va">year</span>, gvar <span class="op">=</span> <span class="va">cohort</span>, data <span class="op">=</span> <span class="va">walmart</span>,</span>
+<span>  ivar <span class="op">=</span> <span class="va">fips</span>, vcov <span class="op">=</span> <span class="op">~</span><span class="va">fips</span>, wvar <span class="op">=</span> <span class="va">n_open</span>,</span>
+<span>  cgroup <span class="op">=</span> <span class="st">"never"</span>     <span class="co">## &lt;= never-treated control group</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="va">wmod_never</span>, <span class="st">"event"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Pre-treatment estimates are level differences, so post-treatment effects are reported at the observed treatment level for comparability. Use `wlevels = "slope"` for per-unit slopes instead.</span></span></code></pre></div>
+<p><img src="etwfe_files/figure-html/unnamed-chunk-25-1.png" class="r-plt" alt="" width="700"></p>
+<p>Oh, dear. Our pre-treatment estimates reveal a clear violation of
+parallel trends: counties that eventually received a Walmart were
+already experiencing faster retail employment growth than the
+never-treated counties. So, we need to do something a little more
+sophisticated…</p>
+</div>
+<div class="section level3">
+<h3 id="cohort-trends">Cohort trends<a class="anchor" aria-label="anchor" href="#cohort-trends"></a>
+</h3>
+<p>One remedy is to allow each cohort its own linear time trend via
+<code>trend = TRUE</code>. This argument works for binary treatments too
+and is compatible with the default not-yet-treated control group.
+However, it is not compatible with <code>cgroup = "never"</code>, since
+the estimation cannot separately identify cohort trends and a full set
+of pre-treatment effects.<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;Unfortunately, this tradeoff makes for a slightly
+awkward workflow: first we visually inspect the pre-trends with
+&lt;code&gt;cgroup = &quot;never&quot;&lt;/code&gt;, before reverting back to the default
+&lt;code&gt;cgroup = &quot;notyet&quot;&lt;/code&gt; with &lt;code&gt;trend = TRUE&lt;/code&gt;. But such
+is the life of the applied researcher.&lt;/p&gt;"><sup>6</sup></a> Compared with our original estimates
+(<code>emfx(wmod)</code> above), accounting for these pre-existing
+trends cuts the estimated employment effect of each additional store by
+more than half to 1.6%.</p>
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">wmod_trend</span> <span class="op">=</span> <span class="fu"><a href="../reference/etwfe.html">etwfe</a></span><span class="op">(</span></span>
+<span>  <span class="va">log_retail_emp</span> <span class="op">~</span> <span class="fl">0</span>, tvar <span class="op">=</span> <span class="va">year</span>, gvar <span class="op">=</span> <span class="va">cohort</span>, data <span class="op">=</span> <span class="va">walmart</span>,</span>
+<span>  ivar <span class="op">=</span> <span class="va">fips</span>, vcov <span class="op">=</span> <span class="op">~</span><span class="va">fips</span>, wvar <span class="op">=</span> <span class="va">n_open</span>,</span>
+<span>  trend <span class="op">=</span> <span class="cn">TRUE</span>         <span class="co">## &lt;= cohort-specific linear trends</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/emfx.html">emfx</a></span><span class="op">(</span><span class="va">wmod_trend</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;  .Dtreat Estimate Std. Error    z Pr(&gt;|z|)    S   2.5 % 97.5 %</span></span>
+<span><span class="co">#&gt;     TRUE   0.0156    0.00462 3.39   &lt;0.001 10.5 0.00659 0.0247</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Term: n_open</span></span>
+<span><span class="co">#&gt; Type: response</span></span>
+<span><span class="co">#&gt; Comparison: +1</span></span></code></pre></div>
+<p>The cohort trends enter the model as regular coefficients, so we can
+also test their joint significance directly.</p>
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">fixest</span><span class="fu">::</span><span class="fu"><a href="https://lrberge.github.io/fixest/reference/wald.html" class="external-link">wald</a></span><span class="op">(</span><span class="va">wmod_trend</span>, <span class="st">"^cohort::.*:year$"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Wald test, H0: joint nullity of cohort::1986:year, cohort::1987:year, cohort::1988:year, cohort::1989:year, cohort::1990:year, cohort::1991:year and 8 others</span></span>
+<span><span class="co">#&gt;  stat = 8.03725, p-value &lt; 2.2e-16, on 14 and 1,287 DoF, VCOV: Clustered (fips).</span></span></code></pre></div>
+<p>The test strongly rejects the null that the cohort trends are jointly
+zero (F = 8.0, p &lt; 0.001). In other words, the treated cohorts’
+linear trends differ from that of the never-treated counties, which is
+consistent with the pre-trends evidence above and supports including
+them.</p>
+<p>Finally, note that the validity of the non-binary ETWFE estimator
+rests on one more assumption beyond no anticipation and parallel trends.
+Namely, the expected gain from treatment may vary by cohort, but must
+not otherwise depend on the level of treatment that a unit receives. See
+<code><a href="../reference/etwfe.html">?etwfe</a></code> for more details.</p>
+</div>
+</div>
+<div class="section level2">
 <h2 id="performance">Performance<a class="anchor" aria-label="anchor" href="#performance"></a>
 </h2>
 <p>Both stages of the <strong>etwfe</strong> workflow should be fast,
@@ -755,7 +962,7 @@ exact analytic Jacobians.<a class="footnote-ref" tabindex="0" data-bs-toggle="po
 &lt;strong&gt;marginaleffects&lt;/strong&gt; package. Earlier versions relied on a
 numerical delta method, which required estimating two prediction models
 for &lt;em&gt;each&lt;/em&gt; coefficient in the model. For large datasets, this
-could lead to frustratingly slow estimation times.&lt;/p&gt;"><sup>5</sup></a></p>
+could lead to frustratingly slow estimation times.&lt;/p&gt;"><sup>7</sup></a></p>
 </div>
 <div class="section level2">
 <h2 id="under-the-hood">Under the hood<a class="anchor" aria-label="anchor" href="#under-the-hood"></a>
@@ -772,15 +979,14 @@ scenarios and also give you a better understanding of
 <p>As I keep reiterating, the ETWFE approach basically involves
 saturating the regression with interaction effects. You can easily grab
 the formula of an estimated model to see for yourself.</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mod</span><span class="op">$</span><span class="va">fml_all</span></span>
 <span><span class="co">#&gt; $linear</span></span>
-<span><span class="co">#&gt; lemp ~ .Dtreat:i(first.treat, i.year, ref = 0, ref2 = 2003)/lpop_dm + </span></span>
-<span><span class="co">#&gt;     lpop + i(first.treat, lpop, ref = 0) + i(year, lpop, ref = 2003)</span></span>
-<span><span class="co">#&gt; &lt;environment: 0x5775e33b44f8&gt;</span></span>
+<span><span class="co">#&gt; lemp ~ .Dtreat:i(first.treat, i.year, ref = 0, ref2 = 2003)/lpop_dm</span></span>
+<span><span class="co">#&gt; &lt;environment: 0x6338513b1200&gt;</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $fixef</span></span>
-<span><span class="co">#&gt; ~first.treat + year</span></span></code></pre></div>
+<span><span class="co">#&gt; ~first.treat + first.treat[[lpop]] + year + year[[lpop]]</span></span></code></pre></div>
 <p>At this point, however, you may notice a few things. The first is
 that our formula references several variables that aren’t in the
 original dataset. An obvious one is the <code>.Dtreat</code> treatment
@@ -790,7 +996,7 @@ dummy. A more subtle one is <code>lpop_dm</code>, which is the
 demeaned before they are interacted in the ETWFE setting. Here’s how you
 could have constructed the dataset ahead of time and estimated the ETWFE
 regression manually:</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># First construct the dataset</span></span>
 <span><span class="va">mpdta2</span> <span class="op">=</span> <span class="va">mpdta</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform</a></span><span class="op">(</span></span>
@@ -808,8 +1014,8 @@ regression manually:</p>
 <p>We can confirm that the manual approach yields the same output as our
 original etwfe regression. I’ll use <strong>modelsummary</strong> to do
 that here, since I’ve already loaded it above.<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;Another option would be to use
-&lt;code&gt;&lt;a href=&quot;https://lrberge.github.io/fixest/reference/etable.html&quot; class=&quot;external-link&quot;&gt;fixest::etable()&lt;/a&gt;&lt;/code&gt;&lt;/p&gt;"><sup>6</sup></a>.</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+&lt;code&gt;&lt;a href=&quot;https://lrberge.github.io/fixest/reference/etable.html&quot; class=&quot;external-link&quot;&gt;fixest::etable()&lt;/a&gt;&lt;/code&gt;&lt;/p&gt;"><sup>8</sup></a>.</p>
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://modelsummary.com/man/modelsummary.html" class="external-link">modelsummary</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"etwfe"</span> <span class="op">=</span> <span class="va">mod</span>, <span class="st">"manual"</span> <span class="op">=</span> <span class="va">mod2</span><span class="op">)</span>,</span>
 <span>  gof_map <span class="op">=</span> <span class="cn">NA</span> <span class="co"># drop all goodness-of-fit info for brevity</span></span>
@@ -817,38 +1023,38 @@ that here, since I’ve already loaded it above.<a class="footnote-ref" tabindex
 
     <script src="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.js"></script><script>
       // Create table-specific functions using external factory
-      const tableFns_3cz2v0nau20t03otifqz = TinyTable.createTableFunctions("tinytable_3cz2v0nau20t03otifqz");
+      const tableFns_4av83jyx9vifu21v17t6 = TinyTable.createTableFunctions("tinytable_4av83jyx9vifu21v17t6");
       // tinytable span after
       window.addEventListener('load', function () {
           var cellsToStyle = [
             // tinytable style arrays after
-          { positions: [ { i: '44', j: 2 }, { i: '44', j: 3 } ], css_id: 'tinytable_css_ciu9fcq5oivtng9ipqvn',}, 
-          { positions: [ { i: '1', j: 2 }, { i: '2', j: 2 }, { i: '3', j: 2 }, { i: '4', j: 2 }, { i: '5', j: 2 }, { i: '6', j: 2 }, { i: '7', j: 2 }, { i: '8', j: 2 }, { i: '9', j: 2 }, { i: '10', j: 2 }, { i: '11', j: 2 }, { i: '12', j: 2 }, { i: '13', j: 2 }, { i: '14', j: 2 }, { i: '15', j: 2 }, { i: '16', j: 2 }, { i: '17', j: 2 }, { i: '18', j: 2 }, { i: '19', j: 2 }, { i: '20', j: 2 }, { i: '21', j: 2 }, { i: '22', j: 2 }, { i: '23', j: 2 }, { i: '24', j: 2 }, { i: '25', j: 2 }, { i: '26', j: 2 }, { i: '27', j: 2 }, { i: '28', j: 2 }, { i: '29', j: 2 }, { i: '30', j: 2 }, { i: '31', j: 2 }, { i: '32', j: 2 }, { i: '33', j: 2 }, { i: '34', j: 2 }, { i: '35', j: 2 }, { i: '36', j: 2 }, { i: '37', j: 2 }, { i: '38', j: 2 }, { i: '39', j: 2 }, { i: '40', j: 2 }, { i: '41', j: 2 }, { i: '42', j: 2 }, { i: '43', j: 2 }, { i: '1', j: 3 }, { i: '2', j: 3 }, { i: '3', j: 3 }, { i: '4', j: 3 }, { i: '5', j: 3 }, { i: '6', j: 3 }, { i: '7', j: 3 }, { i: '8', j: 3 }, { i: '9', j: 3 }, { i: '10', j: 3 }, { i: '11', j: 3 }, { i: '12', j: 3 }, { i: '13', j: 3 }, { i: '14', j: 3 }, { i: '15', j: 3 }, { i: '16', j: 3 }, { i: '17', j: 3 }, { i: '18', j: 3 }, { i: '19', j: 3 }, { i: '20', j: 3 }, { i: '21', j: 3 }, { i: '22', j: 3 }, { i: '23', j: 3 }, { i: '24', j: 3 }, { i: '25', j: 3 }, { i: '26', j: 3 }, { i: '27', j: 3 }, { i: '28', j: 3 }, { i: '29', j: 3 }, { i: '30', j: 3 }, { i: '31', j: 3 }, { i: '32', j: 3 }, { i: '33', j: 3 }, { i: '34', j: 3 }, { i: '35', j: 3 }, { i: '36', j: 3 }, { i: '37', j: 3 }, { i: '38', j: 3 }, { i: '39', j: 3 }, { i: '40', j: 3 }, { i: '41', j: 3 }, { i: '42', j: 3 }, { i: '43', j: 3 } ], css_id: 'tinytable_css_prctilqfhoftvpxd2ea7',}, 
-          { positions: [ { i: '0', j: 2 }, { i: '0', j: 3 } ], css_id: 'tinytable_css_ylg1ka28a9n6u46a1942',}, 
-          { positions: [ { i: '44', j: 1 } ], css_id: 'tinytable_css_r2vcpzak4i7pd8nqharn',}, 
-          { positions: [ { i: '1', j: 1 }, { i: '2', j: 1 }, { i: '3', j: 1 }, { i: '4', j: 1 }, { i: '5', j: 1 }, { i: '6', j: 1 }, { i: '7', j: 1 }, { i: '8', j: 1 }, { i: '9', j: 1 }, { i: '10', j: 1 }, { i: '11', j: 1 }, { i: '12', j: 1 }, { i: '13', j: 1 }, { i: '14', j: 1 }, { i: '15', j: 1 }, { i: '16', j: 1 }, { i: '17', j: 1 }, { i: '18', j: 1 }, { i: '19', j: 1 }, { i: '20', j: 1 }, { i: '21', j: 1 }, { i: '22', j: 1 }, { i: '23', j: 1 }, { i: '24', j: 1 }, { i: '25', j: 1 }, { i: '26', j: 1 }, { i: '27', j: 1 }, { i: '28', j: 1 }, { i: '29', j: 1 }, { i: '30', j: 1 }, { i: '31', j: 1 }, { i: '32', j: 1 }, { i: '33', j: 1 }, { i: '34', j: 1 }, { i: '35', j: 1 }, { i: '36', j: 1 }, { i: '37', j: 1 }, { i: '38', j: 1 }, { i: '39', j: 1 }, { i: '40', j: 1 }, { i: '41', j: 1 }, { i: '42', j: 1 }, { i: '43', j: 1 } ], css_id: 'tinytable_css_n7n3zwh0p2gkbttvonyc',}, 
-          { positions: [ { i: '0', j: 1 } ], css_id: 'tinytable_css_4wvr2hjlwg02zqq5m541',}, 
+          { positions: [ { i: '28', j: 2 }, { i: '28', j: 3 } ], css_id: 'tinytable_css_l4nvcitjh1i226an5qn0',}, 
+          { positions: [ { i: '1', j: 2 }, { i: '2', j: 2 }, { i: '3', j: 2 }, { i: '4', j: 2 }, { i: '5', j: 2 }, { i: '6', j: 2 }, { i: '7', j: 2 }, { i: '8', j: 2 }, { i: '9', j: 2 }, { i: '10', j: 2 }, { i: '11', j: 2 }, { i: '12', j: 2 }, { i: '13', j: 2 }, { i: '14', j: 2 }, { i: '15', j: 2 }, { i: '16', j: 2 }, { i: '17', j: 2 }, { i: '18', j: 2 }, { i: '19', j: 2 }, { i: '20', j: 2 }, { i: '21', j: 2 }, { i: '22', j: 2 }, { i: '23', j: 2 }, { i: '24', j: 2 }, { i: '25', j: 2 }, { i: '26', j: 2 }, { i: '27', j: 2 }, { i: '1', j: 3 }, { i: '2', j: 3 }, { i: '3', j: 3 }, { i: '4', j: 3 }, { i: '5', j: 3 }, { i: '6', j: 3 }, { i: '7', j: 3 }, { i: '8', j: 3 }, { i: '9', j: 3 }, { i: '10', j: 3 }, { i: '11', j: 3 }, { i: '12', j: 3 }, { i: '13', j: 3 }, { i: '14', j: 3 }, { i: '15', j: 3 }, { i: '16', j: 3 }, { i: '17', j: 3 }, { i: '18', j: 3 }, { i: '19', j: 3 }, { i: '20', j: 3 }, { i: '21', j: 3 }, { i: '22', j: 3 }, { i: '23', j: 3 }, { i: '24', j: 3 }, { i: '25', j: 3 }, { i: '26', j: 3 }, { i: '27', j: 3 } ], css_id: 'tinytable_css_s3iu81fc1glpz8w2uta5',}, 
+          { positions: [ { i: '0', j: 2 }, { i: '0', j: 3 } ], css_id: 'tinytable_css_3gnpnw16b20uzucqi2pw',}, 
+          { positions: [ { i: '28', j: 1 } ], css_id: 'tinytable_css_jjus4ks7ozkephypalhh',}, 
+          { positions: [ { i: '1', j: 1 }, { i: '2', j: 1 }, { i: '3', j: 1 }, { i: '4', j: 1 }, { i: '5', j: 1 }, { i: '6', j: 1 }, { i: '7', j: 1 }, { i: '8', j: 1 }, { i: '9', j: 1 }, { i: '10', j: 1 }, { i: '11', j: 1 }, { i: '12', j: 1 }, { i: '13', j: 1 }, { i: '14', j: 1 }, { i: '15', j: 1 }, { i: '16', j: 1 }, { i: '17', j: 1 }, { i: '18', j: 1 }, { i: '19', j: 1 }, { i: '20', j: 1 }, { i: '21', j: 1 }, { i: '22', j: 1 }, { i: '23', j: 1 }, { i: '24', j: 1 }, { i: '25', j: 1 }, { i: '26', j: 1 }, { i: '27', j: 1 } ], css_id: 'tinytable_css_88vuh78j3xowujuib46u',}, 
+          { positions: [ { i: '0', j: 1 } ], css_id: 'tinytable_css_k0ti8r9k8zyv51wnt6bo',}, 
           ];
 
           // Loop over the arrays to style the cells
           cellsToStyle.forEach(function (group) {
               group.positions.forEach(function (cell) {
-                  tableFns_3cz2v0nau20t03otifqz.styleCell(cell.i, cell.j, group.css_id);
+                  tableFns_4av83jyx9vifu21v17t6.styleCell(cell.i, cell.j, group.css_id);
               });
           });
       });
     </script><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.css">
 <style>
     /* tinytable css entries after */
-    #tinytable_3cz2v0nau20t03otifqz td.tinytable_css_ciu9fcq5oivtng9ipqvn, #tinytable_3cz2v0nau20t03otifqz th.tinytable_css_ciu9fcq5oivtng9ipqvn {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
-    #tinytable_3cz2v0nau20t03otifqz td.tinytable_css_prctilqfhoftvpxd2ea7, #tinytable_3cz2v0nau20t03otifqz th.tinytable_css_prctilqfhoftvpxd2ea7 { text-align: center }
-    #tinytable_3cz2v0nau20t03otifqz td.tinytable_css_ylg1ka28a9n6u46a1942, #tinytable_3cz2v0nau20t03otifqz th.tinytable_css_ylg1ka28a9n6u46a1942 {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
-    #tinytable_3cz2v0nau20t03otifqz td.tinytable_css_r2vcpzak4i7pd8nqharn, #tinytable_3cz2v0nau20t03otifqz th.tinytable_css_r2vcpzak4i7pd8nqharn {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
-    #tinytable_3cz2v0nau20t03otifqz td.tinytable_css_n7n3zwh0p2gkbttvonyc, #tinytable_3cz2v0nau20t03otifqz th.tinytable_css_n7n3zwh0p2gkbttvonyc { text-align: left }
-    #tinytable_3cz2v0nau20t03otifqz td.tinytable_css_4wvr2hjlwg02zqq5m541, #tinytable_3cz2v0nau20t03otifqz th.tinytable_css_4wvr2hjlwg02zqq5m541 {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
+    #tinytable_4av83jyx9vifu21v17t6 td.tinytable_css_l4nvcitjh1i226an5qn0, #tinytable_4av83jyx9vifu21v17t6 th.tinytable_css_l4nvcitjh1i226an5qn0 {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
+    #tinytable_4av83jyx9vifu21v17t6 td.tinytable_css_s3iu81fc1glpz8w2uta5, #tinytable_4av83jyx9vifu21v17t6 th.tinytable_css_s3iu81fc1glpz8w2uta5 { text-align: center }
+    #tinytable_4av83jyx9vifu21v17t6 td.tinytable_css_3gnpnw16b20uzucqi2pw, #tinytable_4av83jyx9vifu21v17t6 th.tinytable_css_3gnpnw16b20uzucqi2pw {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
+    #tinytable_4av83jyx9vifu21v17t6 td.tinytable_css_jjus4ks7ozkephypalhh, #tinytable_4av83jyx9vifu21v17t6 th.tinytable_css_jjus4ks7ozkephypalhh {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
+    #tinytable_4av83jyx9vifu21v17t6 td.tinytable_css_88vuh78j3xowujuib46u, #tinytable_4av83jyx9vifu21v17t6 th.tinytable_css_88vuh78j3xowujuib46u { text-align: left }
+    #tinytable_4av83jyx9vifu21v17t6 td.tinytable_css_k0ti8r9k8zyv51wnt6bo, #tinytable_4av83jyx9vifu21v17t6 th.tinytable_css_k0ti8r9k8zyv51wnt6bo {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
     </style>
 <div class="container">
-      <table class="table tinytable" id="tinytable_3cz2v0nau20t03otifqz" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
+      <table class="table tinytable" id="tinytable_4av83jyx9vifu21v17t6" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
 <thead><tr>
 <th scope="col" data-row="0" data-col="1"> </th>
                 <th scope="col" data-row="0" data-col="2">etwfe</th>
@@ -856,224 +1062,144 @@ that here, since I’ve already loaded it above.<a class="footnote-ref" tabindex
               </tr></thead>
 <tbody>
 <tr>
-<td data-row="1" data-col="1">lpop</td>
-                  <td data-row="1" data-col="2">1.065</td>
-                  <td data-row="1" data-col="3"></td>
+<td data-row="1" data-col="1">.Dtreat × first.treat = 2004 × year = 2004</td>
+                  <td data-row="1" data-col="2">-0.021</td>
+                  <td data-row="1" data-col="3">-0.021</td>
                 </tr>
 <tr>
 <td data-row="2" data-col="1"></td>
                   <td data-row="2" data-col="2">(0.022)</td>
-                  <td data-row="2" data-col="3"></td>
+                  <td data-row="2" data-col="3">(0.022)</td>
                 </tr>
 <tr>
-<td data-row="3" data-col="1">first.treat = 2004 × lpop</td>
-                  <td data-row="3" data-col="2">0.051</td>
-                  <td data-row="3" data-col="3"></td>
+<td data-row="3" data-col="1">.Dtreat × first.treat = 2004 × year = 2005</td>
+                  <td data-row="3" data-col="2">-0.082</td>
+                  <td data-row="3" data-col="3">-0.082</td>
                 </tr>
 <tr>
 <td data-row="4" data-col="1"></td>
-                  <td data-row="4" data-col="2">(0.038)</td>
-                  <td data-row="4" data-col="3"></td>
+                  <td data-row="4" data-col="2">(0.027)</td>
+                  <td data-row="4" data-col="3">(0.027)</td>
                 </tr>
 <tr>
-<td data-row="5" data-col="1">first.treat = 2006 × lpop</td>
-                  <td data-row="5" data-col="2">-0.041</td>
-                  <td data-row="5" data-col="3"></td>
+<td data-row="5" data-col="1">.Dtreat × first.treat = 2004 × year = 2006</td>
+                  <td data-row="5" data-col="2">-0.138</td>
+                  <td data-row="5" data-col="3">-0.138</td>
                 </tr>
 <tr>
 <td data-row="6" data-col="1"></td>
-                  <td data-row="6" data-col="2">(0.047)</td>
-                  <td data-row="6" data-col="3"></td>
+                  <td data-row="6" data-col="2">(0.031)</td>
+                  <td data-row="6" data-col="3">(0.031)</td>
                 </tr>
 <tr>
-<td data-row="7" data-col="1">first.treat = 2007 × lpop</td>
-                  <td data-row="7" data-col="2">0.056</td>
-                  <td data-row="7" data-col="3"></td>
+<td data-row="7" data-col="1">.Dtreat × first.treat = 2004 × year = 2007</td>
+                  <td data-row="7" data-col="2">-0.110</td>
+                  <td data-row="7" data-col="3">-0.110</td>
                 </tr>
 <tr>
 <td data-row="8" data-col="1"></td>
-                  <td data-row="8" data-col="2">(0.039)</td>
-                  <td data-row="8" data-col="3"></td>
+                  <td data-row="8" data-col="2">(0.032)</td>
+                  <td data-row="8" data-col="3">(0.032)</td>
                 </tr>
 <tr>
-<td data-row="9" data-col="1">year = 2004 × lpop</td>
-                  <td data-row="9" data-col="2">0.011</td>
-                  <td data-row="9" data-col="3"></td>
+<td data-row="9" data-col="1">.Dtreat × first.treat = 2006 × year = 2006</td>
+                  <td data-row="9" data-col="2">0.003</td>
+                  <td data-row="9" data-col="3">0.003</td>
                 </tr>
 <tr>
 <td data-row="10" data-col="1"></td>
-                  <td data-row="10" data-col="2">(0.008)</td>
-                  <td data-row="10" data-col="3"></td>
+                  <td data-row="10" data-col="2">(0.019)</td>
+                  <td data-row="10" data-col="3">(0.019)</td>
                 </tr>
 <tr>
-<td data-row="11" data-col="1">year = 2005 × lpop</td>
-                  <td data-row="11" data-col="2">0.021</td>
-                  <td data-row="11" data-col="3"></td>
+<td data-row="11" data-col="1">.Dtreat × first.treat = 2006 × year = 2007</td>
+                  <td data-row="11" data-col="2">-0.045</td>
+                  <td data-row="11" data-col="3">-0.045</td>
                 </tr>
 <tr>
 <td data-row="12" data-col="1"></td>
-                  <td data-row="12" data-col="2">(0.008)</td>
-                  <td data-row="12" data-col="3"></td>
+                  <td data-row="12" data-col="2">(0.022)</td>
+                  <td data-row="12" data-col="3">(0.022)</td>
                 </tr>
 <tr>
-<td data-row="13" data-col="1">year = 2006 × lpop</td>
-                  <td data-row="13" data-col="2">0.011</td>
-                  <td data-row="13" data-col="3"></td>
+<td data-row="13" data-col="1">.Dtreat × first.treat = 2007 × year = 2007</td>
+                  <td data-row="13" data-col="2">-0.046</td>
+                  <td data-row="13" data-col="3">-0.046</td>
                 </tr>
 <tr>
 <td data-row="14" data-col="1"></td>
-                  <td data-row="14" data-col="2">(0.011)</td>
-                  <td data-row="14" data-col="3"></td>
+                  <td data-row="14" data-col="2">(0.018)</td>
+                  <td data-row="14" data-col="3">(0.018)</td>
                 </tr>
 <tr>
-<td data-row="15" data-col="1">year = 2007 × lpop</td>
-                  <td data-row="15" data-col="2">0.021</td>
-                  <td data-row="15" data-col="3"></td>
+<td data-row="15" data-col="1">.Dtreat × first.treat = 2004 × year = 2004 × lpop_dm</td>
+                  <td data-row="15" data-col="2">0.005</td>
+                  <td data-row="15" data-col="3">0.005</td>
                 </tr>
 <tr>
 <td data-row="16" data-col="1"></td>
-                  <td data-row="16" data-col="2">(0.012)</td>
-                  <td data-row="16" data-col="3"></td>
+                  <td data-row="16" data-col="2">(0.018)</td>
+                  <td data-row="16" data-col="3">(0.018)</td>
                 </tr>
 <tr>
-<td data-row="17" data-col="1">.Dtreat × first.treat = 2004 × year = 2004</td>
-                  <td data-row="17" data-col="2">-0.021</td>
-                  <td data-row="17" data-col="3">-0.021</td>
+<td data-row="17" data-col="1">.Dtreat × first.treat = 2004 × year = 2005 × lpop_dm</td>
+                  <td data-row="17" data-col="2">0.025</td>
+                  <td data-row="17" data-col="3">0.025</td>
                 </tr>
 <tr>
 <td data-row="18" data-col="1"></td>
-                  <td data-row="18" data-col="2">(0.022)</td>
-                  <td data-row="18" data-col="3">(0.022)</td>
+                  <td data-row="18" data-col="2">(0.018)</td>
+                  <td data-row="18" data-col="3">(0.018)</td>
                 </tr>
 <tr>
-<td data-row="19" data-col="1">.Dtreat × first.treat = 2004 × year = 2005</td>
-                  <td data-row="19" data-col="2">-0.082</td>
-                  <td data-row="19" data-col="3">-0.082</td>
+<td data-row="19" data-col="1">.Dtreat × first.treat = 2004 × year = 2006 × lpop_dm</td>
+                  <td data-row="19" data-col="2">0.051</td>
+                  <td data-row="19" data-col="3">0.051</td>
                 </tr>
 <tr>
 <td data-row="20" data-col="1"></td>
-                  <td data-row="20" data-col="2">(0.027)</td>
-                  <td data-row="20" data-col="3">(0.027)</td>
+                  <td data-row="20" data-col="2">(0.021)</td>
+                  <td data-row="20" data-col="3">(0.021)</td>
                 </tr>
 <tr>
-<td data-row="21" data-col="1">.Dtreat × first.treat = 2004 × year = 2006</td>
-                  <td data-row="21" data-col="2">-0.138</td>
-                  <td data-row="21" data-col="3">-0.138</td>
+<td data-row="21" data-col="1">.Dtreat × first.treat = 2004 × year = 2007 × lpop_dm</td>
+                  <td data-row="21" data-col="2">0.011</td>
+                  <td data-row="21" data-col="3">0.011</td>
                 </tr>
 <tr>
 <td data-row="22" data-col="1"></td>
-                  <td data-row="22" data-col="2">(0.031)</td>
-                  <td data-row="22" data-col="3">(0.031)</td>
+                  <td data-row="22" data-col="2">(0.027)</td>
+                  <td data-row="22" data-col="3">(0.027)</td>
                 </tr>
 <tr>
-<td data-row="23" data-col="1">.Dtreat × first.treat = 2004 × year = 2007</td>
-                  <td data-row="23" data-col="2">-0.110</td>
-                  <td data-row="23" data-col="3">-0.110</td>
+<td data-row="23" data-col="1">.Dtreat × first.treat = 2006 × year = 2006 × lpop_dm</td>
+                  <td data-row="23" data-col="2">0.039</td>
+                  <td data-row="23" data-col="3">0.039</td>
                 </tr>
 <tr>
 <td data-row="24" data-col="1"></td>
-                  <td data-row="24" data-col="2">(0.032)</td>
-                  <td data-row="24" data-col="3">(0.032)</td>
+                  <td data-row="24" data-col="2">(0.016)</td>
+                  <td data-row="24" data-col="3">(0.016)</td>
                 </tr>
 <tr>
-<td data-row="25" data-col="1">.Dtreat × first.treat = 2006 × year = 2006</td>
-                  <td data-row="25" data-col="2">0.003</td>
-                  <td data-row="25" data-col="3">0.003</td>
+<td data-row="25" data-col="1">.Dtreat × first.treat = 2006 × year = 2007 × lpop_dm</td>
+                  <td data-row="25" data-col="2">0.038</td>
+                  <td data-row="25" data-col="3">0.038</td>
                 </tr>
 <tr>
 <td data-row="26" data-col="1"></td>
-                  <td data-row="26" data-col="2">(0.019)</td>
-                  <td data-row="26" data-col="3">(0.019)</td>
+                  <td data-row="26" data-col="2">(0.022)</td>
+                  <td data-row="26" data-col="3">(0.022)</td>
                 </tr>
 <tr>
-<td data-row="27" data-col="1">.Dtreat × first.treat = 2006 × year = 2007</td>
-                  <td data-row="27" data-col="2">-0.045</td>
-                  <td data-row="27" data-col="3">-0.045</td>
+<td data-row="27" data-col="1">.Dtreat × first.treat = 2007 × year = 2007 × lpop_dm</td>
+                  <td data-row="27" data-col="2">-0.020</td>
+                  <td data-row="27" data-col="3">-0.020</td>
                 </tr>
 <tr>
 <td data-row="28" data-col="1"></td>
-                  <td data-row="28" data-col="2">(0.022)</td>
-                  <td data-row="28" data-col="3">(0.022)</td>
-                </tr>
-<tr>
-<td data-row="29" data-col="1">.Dtreat × first.treat = 2007 × year = 2007</td>
-                  <td data-row="29" data-col="2">-0.046</td>
-                  <td data-row="29" data-col="3">-0.046</td>
-                </tr>
-<tr>
-<td data-row="30" data-col="1"></td>
-                  <td data-row="30" data-col="2">(0.018)</td>
-                  <td data-row="30" data-col="3">(0.018)</td>
-                </tr>
-<tr>
-<td data-row="31" data-col="1">.Dtreat × first.treat = 2004 × year = 2004 × lpop_dm</td>
-                  <td data-row="31" data-col="2">0.005</td>
-                  <td data-row="31" data-col="3">0.005</td>
-                </tr>
-<tr>
-<td data-row="32" data-col="1"></td>
-                  <td data-row="32" data-col="2">(0.018)</td>
-                  <td data-row="32" data-col="3">(0.018)</td>
-                </tr>
-<tr>
-<td data-row="33" data-col="1">.Dtreat × first.treat = 2004 × year = 2005 × lpop_dm</td>
-                  <td data-row="33" data-col="2">0.025</td>
-                  <td data-row="33" data-col="3">0.025</td>
-                </tr>
-<tr>
-<td data-row="34" data-col="1"></td>
-                  <td data-row="34" data-col="2">(0.018)</td>
-                  <td data-row="34" data-col="3">(0.018)</td>
-                </tr>
-<tr>
-<td data-row="35" data-col="1">.Dtreat × first.treat = 2004 × year = 2006 × lpop_dm</td>
-                  <td data-row="35" data-col="2">0.051</td>
-                  <td data-row="35" data-col="3">0.051</td>
-                </tr>
-<tr>
-<td data-row="36" data-col="1"></td>
-                  <td data-row="36" data-col="2">(0.021)</td>
-                  <td data-row="36" data-col="3">(0.021)</td>
-                </tr>
-<tr>
-<td data-row="37" data-col="1">.Dtreat × first.treat = 2004 × year = 2007 × lpop_dm</td>
-                  <td data-row="37" data-col="2">0.011</td>
-                  <td data-row="37" data-col="3">0.011</td>
-                </tr>
-<tr>
-<td data-row="38" data-col="1"></td>
-                  <td data-row="38" data-col="2">(0.027)</td>
-                  <td data-row="38" data-col="3">(0.027)</td>
-                </tr>
-<tr>
-<td data-row="39" data-col="1">.Dtreat × first.treat = 2006 × year = 2006 × lpop_dm</td>
-                  <td data-row="39" data-col="2">0.039</td>
-                  <td data-row="39" data-col="3">0.039</td>
-                </tr>
-<tr>
-<td data-row="40" data-col="1"></td>
-                  <td data-row="40" data-col="2">(0.016)</td>
-                  <td data-row="40" data-col="3">(0.016)</td>
-                </tr>
-<tr>
-<td data-row="41" data-col="1">.Dtreat × first.treat = 2006 × year = 2007 × lpop_dm</td>
-                  <td data-row="41" data-col="2">0.038</td>
-                  <td data-row="41" data-col="3">0.038</td>
-                </tr>
-<tr>
-<td data-row="42" data-col="1"></td>
-                  <td data-row="42" data-col="2">(0.022)</td>
-                  <td data-row="42" data-col="3">(0.022)</td>
-                </tr>
-<tr>
-<td data-row="43" data-col="1">.Dtreat × first.treat = 2007 × year = 2007 × lpop_dm</td>
-                  <td data-row="43" data-col="2">-0.020</td>
-                  <td data-row="43" data-col="3">-0.020</td>
-                </tr>
-<tr>
-<td data-row="44" data-col="1"></td>
-                  <td data-row="44" data-col="2">(0.016)</td>
-                  <td data-row="44" data-col="3">(0.016)</td>
+                  <td data-row="28" data-col="2">(0.016)</td>
+                  <td data-row="28" data-col="3">(0.016)</td>
                 </tr>
 </tbody>
 </table>
@@ -1084,7 +1210,7 @@ counterparts, we just need to perform the appropriate marginal effects
 operation. For example, here’s how we can get both the simple ATTs and
 event-study ATTs from earlier. This is what <code><a href="../reference/emfx.html">emfx()</a></code> is doing
 behind the scenes.</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://marginaleffects.com/" class="external-link">marginaleffects</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Simple ATT</span></span>
@@ -1132,7 +1258,7 @@ for this is part practical, part philosophical. From a practical
 perspective, <code>factor_var[numeric_var]</code> is equivalent to base
 R’s <code>factor_var/numeric_var</code> “nesting” syntax but is much
 faster for high-dimensional factors.<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;We won’t see a speed-up for this small dataset, but it
-can make a significant difference for large datasets.&lt;/p&gt;"><sup>7</sup></a> From a philosophical perspective,
+can make a significant difference for large datasets.&lt;/p&gt;"><sup>9</sup></a> From a philosophical perspective,
 <strong>etwfe</strong> tries to limit the amount of extraneous
 information that it reports to users. Most of the interaction effects in
 the ETWFE framework are just acting as controls. By relegating them to
@@ -1140,7 +1266,7 @@ the fixed effects slot, we can avoid polluting the user’s console with a
 host of extra coefficients. Nonetheless, we can control this behaviour
 with the <code>fe</code> (“fixed effects”) argument. Consider the
 following options and their manual equivalents.</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># fe = "feo" (fixed effects only)</span></span>
 <span><span class="va">mod_feo</span> <span class="op">=</span> <span class="fu"><a href="../reference/etwfe.html">etwfe</a></span><span class="op">(</span></span>
 <span>  <span class="va">lemp</span> <span class="op">~</span> <span class="va">lpop</span>, tvar <span class="op">=</span> <span class="va">year</span>, gvar <span class="op">=</span> <span class="va">first.treat</span>, data <span class="op">=</span> <span class="va">mpdta</span>, vcov <span class="op">=</span> <span class="op">~</span><span class="va">countyreal</span>,</span>
@@ -1170,7 +1296,7 @@ following options and their manual equivalents.</p>
 <code>emfx</code> to confirm that they give correct aggregated treatment
 effects. But we can quickly demonstrate in a regression table that they
 all return the same raw coefficients.</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mods</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  <span class="st">"etwfe"</span>         <span class="op">=</span> <span class="va">mod</span>,</span>
 <span>  <span class="st">"manual"</span>        <span class="op">=</span> <span class="va">mod2</span>,</span>
@@ -1184,38 +1310,38 @@ all return the same raw coefficients.</p>
 
     <script src="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.js"></script><script>
       // Create table-specific functions using external factory
-      const tableFns_gfu2tibjs8aq41j8los0 = TinyTable.createTableFunctions("tinytable_gfu2tibjs8aq41j8los0");
+      const tableFns_e67wsoij2a48l2k5uisc = TinyTable.createTableFunctions("tinytable_e67wsoij2a48l2k5uisc");
       // tinytable span after
       window.addEventListener('load', function () {
           var cellsToStyle = [
             // tinytable style arrays after
-          { positions: [ { i: '60', j: 2 }, { i: '60', j: 3 }, { i: '60', j: 4 }, { i: '60', j: 5 }, { i: '60', j: 6 }, { i: '60', j: 7 } ], css_id: 'tinytable_css_v51h74065fhrruwtizjt',}, 
-          { positions: [ { i: '1', j: 2 }, { i: '2', j: 2 }, { i: '3', j: 2 }, { i: '4', j: 2 }, { i: '5', j: 2 }, { i: '6', j: 2 }, { i: '7', j: 2 }, { i: '8', j: 2 }, { i: '9', j: 2 }, { i: '10', j: 2 }, { i: '11', j: 2 }, { i: '12', j: 2 }, { i: '13', j: 2 }, { i: '14', j: 2 }, { i: '15', j: 2 }, { i: '16', j: 2 }, { i: '17', j: 2 }, { i: '18', j: 2 }, { i: '19', j: 2 }, { i: '20', j: 2 }, { i: '21', j: 2 }, { i: '22', j: 2 }, { i: '23', j: 2 }, { i: '24', j: 2 }, { i: '25', j: 2 }, { i: '26', j: 2 }, { i: '27', j: 2 }, { i: '28', j: 2 }, { i: '29', j: 2 }, { i: '30', j: 2 }, { i: '31', j: 2 }, { i: '32', j: 2 }, { i: '33', j: 2 }, { i: '34', j: 2 }, { i: '35', j: 2 }, { i: '36', j: 2 }, { i: '37', j: 2 }, { i: '38', j: 2 }, { i: '39', j: 2 }, { i: '40', j: 2 }, { i: '41', j: 2 }, { i: '42', j: 2 }, { i: '43', j: 2 }, { i: '44', j: 2 }, { i: '45', j: 2 }, { i: '46', j: 2 }, { i: '47', j: 2 }, { i: '48', j: 2 }, { i: '49', j: 2 }, { i: '50', j: 2 }, { i: '51', j: 2 }, { i: '52', j: 2 }, { i: '53', j: 2 }, { i: '54', j: 2 }, { i: '55', j: 2 }, { i: '56', j: 2 }, { i: '57', j: 2 }, { i: '58', j: 2 }, { i: '59', j: 2 }, { i: '1', j: 3 }, { i: '2', j: 3 }, { i: '3', j: 3 }, { i: '4', j: 3 }, { i: '5', j: 3 }, { i: '6', j: 3 }, { i: '7', j: 3 }, { i: '8', j: 3 }, { i: '9', j: 3 }, { i: '10', j: 3 }, { i: '11', j: 3 }, { i: '12', j: 3 }, { i: '13', j: 3 }, { i: '14', j: 3 }, { i: '15', j: 3 }, { i: '16', j: 3 }, { i: '17', j: 3 }, { i: '18', j: 3 }, { i: '19', j: 3 }, { i: '20', j: 3 }, { i: '21', j: 3 }, { i: '22', j: 3 }, { i: '23', j: 3 }, { i: '24', j: 3 }, { i: '25', j: 3 }, { i: '26', j: 3 }, { i: '27', j: 3 }, { i: '28', j: 3 }, { i: '29', j: 3 }, { i: '30', j: 3 }, { i: '31', j: 3 }, { i: '32', j: 3 }, { i: '33', j: 3 }, { i: '34', j: 3 }, { i: '35', j: 3 }, { i: '36', j: 3 }, { i: '37', j: 3 }, { i: '38', j: 3 }, { i: '39', j: 3 }, { i: '40', j: 3 }, { i: '41', j: 3 }, { i: '42', j: 3 }, { i: '43', j: 3 }, { i: '44', j: 3 }, { i: '45', j: 3 }, { i: '46', j: 3 }, { i: '47', j: 3 }, { i: '48', j: 3 }, { i: '49', j: 3 }, { i: '50', j: 3 }, { i: '51', j: 3 }, { i: '52', j: 3 }, { i: '53', j: 3 }, { i: '54', j: 3 }, { i: '55', j: 3 }, { i: '56', j: 3 }, { i: '57', j: 3 }, { i: '58', j: 3 }, { i: '59', j: 3 }, { i: '1', j: 4 }, { i: '2', j: 4 }, { i: '3', j: 4 }, { i: '4', j: 4 }, { i: '5', j: 4 }, { i: '6', j: 4 }, { i: '7', j: 4 }, { i: '8', j: 4 }, { i: '9', j: 4 }, { i: '10', j: 4 }, { i: '11', j: 4 }, { i: '12', j: 4 }, { i: '13', j: 4 }, { i: '14', j: 4 }, { i: '15', j: 4 }, { i: '16', j: 4 }, { i: '17', j: 4 }, { i: '18', j: 4 }, { i: '19', j: 4 }, { i: '20', j: 4 }, { i: '21', j: 4 }, { i: '22', j: 4 }, { i: '23', j: 4 }, { i: '24', j: 4 }, { i: '25', j: 4 }, { i: '26', j: 4 }, { i: '27', j: 4 }, { i: '28', j: 4 }, { i: '29', j: 4 }, { i: '30', j: 4 }, { i: '31', j: 4 }, { i: '32', j: 4 }, { i: '33', j: 4 }, { i: '34', j: 4 }, { i: '35', j: 4 }, { i: '36', j: 4 }, { i: '37', j: 4 }, { i: '38', j: 4 }, { i: '39', j: 4 }, { i: '40', j: 4 }, { i: '41', j: 4 }, { i: '42', j: 4 }, { i: '43', j: 4 }, { i: '44', j: 4 }, { i: '45', j: 4 }, { i: '46', j: 4 }, { i: '47', j: 4 }, { i: '48', j: 4 }, { i: '49', j: 4 }, { i: '50', j: 4 }, { i: '51', j: 4 }, { i: '52', j: 4 }, { i: '53', j: 4 }, { i: '54', j: 4 }, { i: '55', j: 4 }, { i: '56', j: 4 }, { i: '57', j: 4 }, { i: '58', j: 4 }, { i: '59', j: 4 }, { i: '1', j: 5 }, { i: '2', j: 5 }, { i: '3', j: 5 }, { i: '4', j: 5 }, { i: '5', j: 5 }, { i: '6', j: 5 }, { i: '7', j: 5 }, { i: '8', j: 5 }, { i: '9', j: 5 }, { i: '10', j: 5 }, { i: '11', j: 5 }, { i: '12', j: 5 }, { i: '13', j: 5 }, { i: '14', j: 5 }, { i: '15', j: 5 }, { i: '16', j: 5 }, { i: '17', j: 5 }, { i: '18', j: 5 }, { i: '19', j: 5 }, { i: '20', j: 5 }, { i: '21', j: 5 }, { i: '22', j: 5 }, { i: '23', j: 5 }, { i: '24', j: 5 }, { i: '25', j: 5 }, { i: '26', j: 5 }, { i: '27', j: 5 }, { i: '28', j: 5 }, { i: '29', j: 5 }, { i: '30', j: 5 }, { i: '31', j: 5 }, { i: '32', j: 5 }, { i: '33', j: 5 }, { i: '34', j: 5 }, { i: '35', j: 5 }, { i: '36', j: 5 }, { i: '37', j: 5 }, { i: '38', j: 5 }, { i: '39', j: 5 }, { i: '40', j: 5 }, { i: '41', j: 5 }, { i: '42', j: 5 }, { i: '43', j: 5 }, { i: '44', j: 5 }, { i: '45', j: 5 }, { i: '46', j: 5 }, { i: '47', j: 5 }, { i: '48', j: 5 }, { i: '49', j: 5 }, { i: '50', j: 5 }, { i: '51', j: 5 }, { i: '52', j: 5 }, { i: '53', j: 5 }, { i: '54', j: 5 }, { i: '55', j: 5 }, { i: '56', j: 5 }, { i: '57', j: 5 }, { i: '58', j: 5 }, { i: '59', j: 5 }, { i: '1', j: 6 }, { i: '2', j: 6 }, { i: '3', j: 6 }, { i: '4', j: 6 }, { i: '5', j: 6 }, { i: '6', j: 6 }, { i: '7', j: 6 }, { i: '8', j: 6 }, { i: '9', j: 6 }, { i: '10', j: 6 }, { i: '11', j: 6 }, { i: '12', j: 6 }, { i: '13', j: 6 }, { i: '14', j: 6 }, { i: '15', j: 6 }, { i: '16', j: 6 }, { i: '17', j: 6 }, { i: '18', j: 6 }, { i: '19', j: 6 }, { i: '20', j: 6 }, { i: '21', j: 6 }, { i: '22', j: 6 }, { i: '23', j: 6 }, { i: '24', j: 6 }, { i: '25', j: 6 }, { i: '26', j: 6 }, { i: '27', j: 6 }, { i: '28', j: 6 }, { i: '29', j: 6 }, { i: '30', j: 6 }, { i: '31', j: 6 }, { i: '32', j: 6 }, { i: '33', j: 6 }, { i: '34', j: 6 }, { i: '35', j: 6 }, { i: '36', j: 6 }, { i: '37', j: 6 }, { i: '38', j: 6 }, { i: '39', j: 6 }, { i: '40', j: 6 }, { i: '41', j: 6 }, { i: '42', j: 6 }, { i: '43', j: 6 }, { i: '44', j: 6 }, { i: '45', j: 6 }, { i: '46', j: 6 }, { i: '47', j: 6 }, { i: '48', j: 6 }, { i: '49', j: 6 }, { i: '50', j: 6 }, { i: '51', j: 6 }, { i: '52', j: 6 }, { i: '53', j: 6 }, { i: '54', j: 6 }, { i: '55', j: 6 }, { i: '56', j: 6 }, { i: '57', j: 6 }, { i: '58', j: 6 }, { i: '59', j: 6 }, { i: '1', j: 7 }, { i: '2', j: 7 }, { i: '3', j: 7 }, { i: '4', j: 7 }, { i: '5', j: 7 }, { i: '6', j: 7 }, { i: '7', j: 7 }, { i: '8', j: 7 }, { i: '9', j: 7 }, { i: '10', j: 7 }, { i: '11', j: 7 }, { i: '12', j: 7 }, { i: '13', j: 7 }, { i: '14', j: 7 }, { i: '15', j: 7 }, { i: '16', j: 7 }, { i: '17', j: 7 }, { i: '18', j: 7 }, { i: '19', j: 7 }, { i: '20', j: 7 }, { i: '21', j: 7 }, { i: '22', j: 7 }, { i: '23', j: 7 }, { i: '24', j: 7 }, { i: '25', j: 7 }, { i: '26', j: 7 }, { i: '27', j: 7 }, { i: '28', j: 7 }, { i: '29', j: 7 }, { i: '30', j: 7 }, { i: '31', j: 7 }, { i: '32', j: 7 }, { i: '33', j: 7 }, { i: '34', j: 7 }, { i: '35', j: 7 }, { i: '36', j: 7 }, { i: '37', j: 7 }, { i: '38', j: 7 }, { i: '39', j: 7 }, { i: '40', j: 7 }, { i: '41', j: 7 }, { i: '42', j: 7 }, { i: '43', j: 7 }, { i: '44', j: 7 }, { i: '45', j: 7 }, { i: '46', j: 7 }, { i: '47', j: 7 }, { i: '48', j: 7 }, { i: '49', j: 7 }, { i: '50', j: 7 }, { i: '51', j: 7 }, { i: '52', j: 7 }, { i: '53', j: 7 }, { i: '54', j: 7 }, { i: '55', j: 7 }, { i: '56', j: 7 }, { i: '57', j: 7 }, { i: '58', j: 7 }, { i: '59', j: 7 } ], css_id: 'tinytable_css_0ggepexc8njh69wfq9d4',}, 
-          { positions: [ { i: '0', j: 2 }, { i: '0', j: 3 }, { i: '0', j: 4 }, { i: '0', j: 5 }, { i: '0', j: 6 }, { i: '0', j: 7 } ], css_id: 'tinytable_css_xoqcjbr7nmpa20lyiyxj',}, 
-          { positions: [ { i: '60', j: 1 } ], css_id: 'tinytable_css_yegxlxnarp3mll9nj85t',}, 
-          { positions: [ { i: '1', j: 1 }, { i: '2', j: 1 }, { i: '3', j: 1 }, { i: '4', j: 1 }, { i: '5', j: 1 }, { i: '6', j: 1 }, { i: '7', j: 1 }, { i: '8', j: 1 }, { i: '9', j: 1 }, { i: '10', j: 1 }, { i: '11', j: 1 }, { i: '12', j: 1 }, { i: '13', j: 1 }, { i: '14', j: 1 }, { i: '15', j: 1 }, { i: '16', j: 1 }, { i: '17', j: 1 }, { i: '18', j: 1 }, { i: '19', j: 1 }, { i: '20', j: 1 }, { i: '21', j: 1 }, { i: '22', j: 1 }, { i: '23', j: 1 }, { i: '24', j: 1 }, { i: '25', j: 1 }, { i: '26', j: 1 }, { i: '27', j: 1 }, { i: '28', j: 1 }, { i: '29', j: 1 }, { i: '30', j: 1 }, { i: '31', j: 1 }, { i: '32', j: 1 }, { i: '33', j: 1 }, { i: '34', j: 1 }, { i: '35', j: 1 }, { i: '36', j: 1 }, { i: '37', j: 1 }, { i: '38', j: 1 }, { i: '39', j: 1 }, { i: '40', j: 1 }, { i: '41', j: 1 }, { i: '42', j: 1 }, { i: '43', j: 1 }, { i: '44', j: 1 }, { i: '45', j: 1 }, { i: '46', j: 1 }, { i: '47', j: 1 }, { i: '48', j: 1 }, { i: '49', j: 1 }, { i: '50', j: 1 }, { i: '51', j: 1 }, { i: '52', j: 1 }, { i: '53', j: 1 }, { i: '54', j: 1 }, { i: '55', j: 1 }, { i: '56', j: 1 }, { i: '57', j: 1 }, { i: '58', j: 1 }, { i: '59', j: 1 } ], css_id: 'tinytable_css_yzqfevezv0t8vdj1lb0c',}, 
-          { positions: [ { i: '0', j: 1 } ], css_id: 'tinytable_css_9r470xq131dxrcutpelb',}, 
+          { positions: [ { i: '60', j: 2 }, { i: '60', j: 3 }, { i: '60', j: 4 }, { i: '60', j: 5 }, { i: '60', j: 6 }, { i: '60', j: 7 } ], css_id: 'tinytable_css_g5s1un3kof11d30z3uz7',}, 
+          { positions: [ { i: '1', j: 2 }, { i: '2', j: 2 }, { i: '3', j: 2 }, { i: '4', j: 2 }, { i: '5', j: 2 }, { i: '6', j: 2 }, { i: '7', j: 2 }, { i: '8', j: 2 }, { i: '9', j: 2 }, { i: '10', j: 2 }, { i: '11', j: 2 }, { i: '12', j: 2 }, { i: '13', j: 2 }, { i: '14', j: 2 }, { i: '15', j: 2 }, { i: '16', j: 2 }, { i: '17', j: 2 }, { i: '18', j: 2 }, { i: '19', j: 2 }, { i: '20', j: 2 }, { i: '21', j: 2 }, { i: '22', j: 2 }, { i: '23', j: 2 }, { i: '24', j: 2 }, { i: '25', j: 2 }, { i: '26', j: 2 }, { i: '27', j: 2 }, { i: '28', j: 2 }, { i: '29', j: 2 }, { i: '30', j: 2 }, { i: '31', j: 2 }, { i: '32', j: 2 }, { i: '33', j: 2 }, { i: '34', j: 2 }, { i: '35', j: 2 }, { i: '36', j: 2 }, { i: '37', j: 2 }, { i: '38', j: 2 }, { i: '39', j: 2 }, { i: '40', j: 2 }, { i: '41', j: 2 }, { i: '42', j: 2 }, { i: '43', j: 2 }, { i: '44', j: 2 }, { i: '45', j: 2 }, { i: '46', j: 2 }, { i: '47', j: 2 }, { i: '48', j: 2 }, { i: '49', j: 2 }, { i: '50', j: 2 }, { i: '51', j: 2 }, { i: '52', j: 2 }, { i: '53', j: 2 }, { i: '54', j: 2 }, { i: '55', j: 2 }, { i: '56', j: 2 }, { i: '57', j: 2 }, { i: '58', j: 2 }, { i: '59', j: 2 }, { i: '1', j: 3 }, { i: '2', j: 3 }, { i: '3', j: 3 }, { i: '4', j: 3 }, { i: '5', j: 3 }, { i: '6', j: 3 }, { i: '7', j: 3 }, { i: '8', j: 3 }, { i: '9', j: 3 }, { i: '10', j: 3 }, { i: '11', j: 3 }, { i: '12', j: 3 }, { i: '13', j: 3 }, { i: '14', j: 3 }, { i: '15', j: 3 }, { i: '16', j: 3 }, { i: '17', j: 3 }, { i: '18', j: 3 }, { i: '19', j: 3 }, { i: '20', j: 3 }, { i: '21', j: 3 }, { i: '22', j: 3 }, { i: '23', j: 3 }, { i: '24', j: 3 }, { i: '25', j: 3 }, { i: '26', j: 3 }, { i: '27', j: 3 }, { i: '28', j: 3 }, { i: '29', j: 3 }, { i: '30', j: 3 }, { i: '31', j: 3 }, { i: '32', j: 3 }, { i: '33', j: 3 }, { i: '34', j: 3 }, { i: '35', j: 3 }, { i: '36', j: 3 }, { i: '37', j: 3 }, { i: '38', j: 3 }, { i: '39', j: 3 }, { i: '40', j: 3 }, { i: '41', j: 3 }, { i: '42', j: 3 }, { i: '43', j: 3 }, { i: '44', j: 3 }, { i: '45', j: 3 }, { i: '46', j: 3 }, { i: '47', j: 3 }, { i: '48', j: 3 }, { i: '49', j: 3 }, { i: '50', j: 3 }, { i: '51', j: 3 }, { i: '52', j: 3 }, { i: '53', j: 3 }, { i: '54', j: 3 }, { i: '55', j: 3 }, { i: '56', j: 3 }, { i: '57', j: 3 }, { i: '58', j: 3 }, { i: '59', j: 3 }, { i: '1', j: 4 }, { i: '2', j: 4 }, { i: '3', j: 4 }, { i: '4', j: 4 }, { i: '5', j: 4 }, { i: '6', j: 4 }, { i: '7', j: 4 }, { i: '8', j: 4 }, { i: '9', j: 4 }, { i: '10', j: 4 }, { i: '11', j: 4 }, { i: '12', j: 4 }, { i: '13', j: 4 }, { i: '14', j: 4 }, { i: '15', j: 4 }, { i: '16', j: 4 }, { i: '17', j: 4 }, { i: '18', j: 4 }, { i: '19', j: 4 }, { i: '20', j: 4 }, { i: '21', j: 4 }, { i: '22', j: 4 }, { i: '23', j: 4 }, { i: '24', j: 4 }, { i: '25', j: 4 }, { i: '26', j: 4 }, { i: '27', j: 4 }, { i: '28', j: 4 }, { i: '29', j: 4 }, { i: '30', j: 4 }, { i: '31', j: 4 }, { i: '32', j: 4 }, { i: '33', j: 4 }, { i: '34', j: 4 }, { i: '35', j: 4 }, { i: '36', j: 4 }, { i: '37', j: 4 }, { i: '38', j: 4 }, { i: '39', j: 4 }, { i: '40', j: 4 }, { i: '41', j: 4 }, { i: '42', j: 4 }, { i: '43', j: 4 }, { i: '44', j: 4 }, { i: '45', j: 4 }, { i: '46', j: 4 }, { i: '47', j: 4 }, { i: '48', j: 4 }, { i: '49', j: 4 }, { i: '50', j: 4 }, { i: '51', j: 4 }, { i: '52', j: 4 }, { i: '53', j: 4 }, { i: '54', j: 4 }, { i: '55', j: 4 }, { i: '56', j: 4 }, { i: '57', j: 4 }, { i: '58', j: 4 }, { i: '59', j: 4 }, { i: '1', j: 5 }, { i: '2', j: 5 }, { i: '3', j: 5 }, { i: '4', j: 5 }, { i: '5', j: 5 }, { i: '6', j: 5 }, { i: '7', j: 5 }, { i: '8', j: 5 }, { i: '9', j: 5 }, { i: '10', j: 5 }, { i: '11', j: 5 }, { i: '12', j: 5 }, { i: '13', j: 5 }, { i: '14', j: 5 }, { i: '15', j: 5 }, { i: '16', j: 5 }, { i: '17', j: 5 }, { i: '18', j: 5 }, { i: '19', j: 5 }, { i: '20', j: 5 }, { i: '21', j: 5 }, { i: '22', j: 5 }, { i: '23', j: 5 }, { i: '24', j: 5 }, { i: '25', j: 5 }, { i: '26', j: 5 }, { i: '27', j: 5 }, { i: '28', j: 5 }, { i: '29', j: 5 }, { i: '30', j: 5 }, { i: '31', j: 5 }, { i: '32', j: 5 }, { i: '33', j: 5 }, { i: '34', j: 5 }, { i: '35', j: 5 }, { i: '36', j: 5 }, { i: '37', j: 5 }, { i: '38', j: 5 }, { i: '39', j: 5 }, { i: '40', j: 5 }, { i: '41', j: 5 }, { i: '42', j: 5 }, { i: '43', j: 5 }, { i: '44', j: 5 }, { i: '45', j: 5 }, { i: '46', j: 5 }, { i: '47', j: 5 }, { i: '48', j: 5 }, { i: '49', j: 5 }, { i: '50', j: 5 }, { i: '51', j: 5 }, { i: '52', j: 5 }, { i: '53', j: 5 }, { i: '54', j: 5 }, { i: '55', j: 5 }, { i: '56', j: 5 }, { i: '57', j: 5 }, { i: '58', j: 5 }, { i: '59', j: 5 }, { i: '1', j: 6 }, { i: '2', j: 6 }, { i: '3', j: 6 }, { i: '4', j: 6 }, { i: '5', j: 6 }, { i: '6', j: 6 }, { i: '7', j: 6 }, { i: '8', j: 6 }, { i: '9', j: 6 }, { i: '10', j: 6 }, { i: '11', j: 6 }, { i: '12', j: 6 }, { i: '13', j: 6 }, { i: '14', j: 6 }, { i: '15', j: 6 }, { i: '16', j: 6 }, { i: '17', j: 6 }, { i: '18', j: 6 }, { i: '19', j: 6 }, { i: '20', j: 6 }, { i: '21', j: 6 }, { i: '22', j: 6 }, { i: '23', j: 6 }, { i: '24', j: 6 }, { i: '25', j: 6 }, { i: '26', j: 6 }, { i: '27', j: 6 }, { i: '28', j: 6 }, { i: '29', j: 6 }, { i: '30', j: 6 }, { i: '31', j: 6 }, { i: '32', j: 6 }, { i: '33', j: 6 }, { i: '34', j: 6 }, { i: '35', j: 6 }, { i: '36', j: 6 }, { i: '37', j: 6 }, { i: '38', j: 6 }, { i: '39', j: 6 }, { i: '40', j: 6 }, { i: '41', j: 6 }, { i: '42', j: 6 }, { i: '43', j: 6 }, { i: '44', j: 6 }, { i: '45', j: 6 }, { i: '46', j: 6 }, { i: '47', j: 6 }, { i: '48', j: 6 }, { i: '49', j: 6 }, { i: '50', j: 6 }, { i: '51', j: 6 }, { i: '52', j: 6 }, { i: '53', j: 6 }, { i: '54', j: 6 }, { i: '55', j: 6 }, { i: '56', j: 6 }, { i: '57', j: 6 }, { i: '58', j: 6 }, { i: '59', j: 6 }, { i: '1', j: 7 }, { i: '2', j: 7 }, { i: '3', j: 7 }, { i: '4', j: 7 }, { i: '5', j: 7 }, { i: '6', j: 7 }, { i: '7', j: 7 }, { i: '8', j: 7 }, { i: '9', j: 7 }, { i: '10', j: 7 }, { i: '11', j: 7 }, { i: '12', j: 7 }, { i: '13', j: 7 }, { i: '14', j: 7 }, { i: '15', j: 7 }, { i: '16', j: 7 }, { i: '17', j: 7 }, { i: '18', j: 7 }, { i: '19', j: 7 }, { i: '20', j: 7 }, { i: '21', j: 7 }, { i: '22', j: 7 }, { i: '23', j: 7 }, { i: '24', j: 7 }, { i: '25', j: 7 }, { i: '26', j: 7 }, { i: '27', j: 7 }, { i: '28', j: 7 }, { i: '29', j: 7 }, { i: '30', j: 7 }, { i: '31', j: 7 }, { i: '32', j: 7 }, { i: '33', j: 7 }, { i: '34', j: 7 }, { i: '35', j: 7 }, { i: '36', j: 7 }, { i: '37', j: 7 }, { i: '38', j: 7 }, { i: '39', j: 7 }, { i: '40', j: 7 }, { i: '41', j: 7 }, { i: '42', j: 7 }, { i: '43', j: 7 }, { i: '44', j: 7 }, { i: '45', j: 7 }, { i: '46', j: 7 }, { i: '47', j: 7 }, { i: '48', j: 7 }, { i: '49', j: 7 }, { i: '50', j: 7 }, { i: '51', j: 7 }, { i: '52', j: 7 }, { i: '53', j: 7 }, { i: '54', j: 7 }, { i: '55', j: 7 }, { i: '56', j: 7 }, { i: '57', j: 7 }, { i: '58', j: 7 }, { i: '59', j: 7 } ], css_id: 'tinytable_css_k8rymn1u1z9jp78oibmr',}, 
+          { positions: [ { i: '0', j: 2 }, { i: '0', j: 3 }, { i: '0', j: 4 }, { i: '0', j: 5 }, { i: '0', j: 6 }, { i: '0', j: 7 } ], css_id: 'tinytable_css_amrsf8uq04jaa3kdlx78',}, 
+          { positions: [ { i: '60', j: 1 } ], css_id: 'tinytable_css_cmjiqv5vpsahwjca8lgi',}, 
+          { positions: [ { i: '1', j: 1 }, { i: '2', j: 1 }, { i: '3', j: 1 }, { i: '4', j: 1 }, { i: '5', j: 1 }, { i: '6', j: 1 }, { i: '7', j: 1 }, { i: '8', j: 1 }, { i: '9', j: 1 }, { i: '10', j: 1 }, { i: '11', j: 1 }, { i: '12', j: 1 }, { i: '13', j: 1 }, { i: '14', j: 1 }, { i: '15', j: 1 }, { i: '16', j: 1 }, { i: '17', j: 1 }, { i: '18', j: 1 }, { i: '19', j: 1 }, { i: '20', j: 1 }, { i: '21', j: 1 }, { i: '22', j: 1 }, { i: '23', j: 1 }, { i: '24', j: 1 }, { i: '25', j: 1 }, { i: '26', j: 1 }, { i: '27', j: 1 }, { i: '28', j: 1 }, { i: '29', j: 1 }, { i: '30', j: 1 }, { i: '31', j: 1 }, { i: '32', j: 1 }, { i: '33', j: 1 }, { i: '34', j: 1 }, { i: '35', j: 1 }, { i: '36', j: 1 }, { i: '37', j: 1 }, { i: '38', j: 1 }, { i: '39', j: 1 }, { i: '40', j: 1 }, { i: '41', j: 1 }, { i: '42', j: 1 }, { i: '43', j: 1 }, { i: '44', j: 1 }, { i: '45', j: 1 }, { i: '46', j: 1 }, { i: '47', j: 1 }, { i: '48', j: 1 }, { i: '49', j: 1 }, { i: '50', j: 1 }, { i: '51', j: 1 }, { i: '52', j: 1 }, { i: '53', j: 1 }, { i: '54', j: 1 }, { i: '55', j: 1 }, { i: '56', j: 1 }, { i: '57', j: 1 }, { i: '58', j: 1 }, { i: '59', j: 1 } ], css_id: 'tinytable_css_59f9ly456cc0rc41l0vq',}, 
+          { positions: [ { i: '0', j: 1 } ], css_id: 'tinytable_css_iv18os9snqn8buytc8fw',}, 
           ];
 
           // Loop over the arrays to style the cells
           cellsToStyle.forEach(function (group) {
               group.positions.forEach(function (cell) {
-                  tableFns_gfu2tibjs8aq41j8los0.styleCell(cell.i, cell.j, group.css_id);
+                  tableFns_e67wsoij2a48l2k5uisc.styleCell(cell.i, cell.j, group.css_id);
               });
           });
       });
     </script><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.css">
 <style>
     /* tinytable css entries after */
-    #tinytable_gfu2tibjs8aq41j8los0 td.tinytable_css_v51h74065fhrruwtizjt, #tinytable_gfu2tibjs8aq41j8los0 th.tinytable_css_v51h74065fhrruwtizjt {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
-    #tinytable_gfu2tibjs8aq41j8los0 td.tinytable_css_0ggepexc8njh69wfq9d4, #tinytable_gfu2tibjs8aq41j8los0 th.tinytable_css_0ggepexc8njh69wfq9d4 { text-align: center }
-    #tinytable_gfu2tibjs8aq41j8los0 td.tinytable_css_xoqcjbr7nmpa20lyiyxj, #tinytable_gfu2tibjs8aq41j8los0 th.tinytable_css_xoqcjbr7nmpa20lyiyxj {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
-    #tinytable_gfu2tibjs8aq41j8los0 td.tinytable_css_yegxlxnarp3mll9nj85t, #tinytable_gfu2tibjs8aq41j8los0 th.tinytable_css_yegxlxnarp3mll9nj85t {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
-    #tinytable_gfu2tibjs8aq41j8los0 td.tinytable_css_yzqfevezv0t8vdj1lb0c, #tinytable_gfu2tibjs8aq41j8los0 th.tinytable_css_yzqfevezv0t8vdj1lb0c { text-align: left }
-    #tinytable_gfu2tibjs8aq41j8los0 td.tinytable_css_9r470xq131dxrcutpelb, #tinytable_gfu2tibjs8aq41j8los0 th.tinytable_css_9r470xq131dxrcutpelb {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
+    #tinytable_e67wsoij2a48l2k5uisc td.tinytable_css_g5s1un3kof11d30z3uz7, #tinytable_e67wsoij2a48l2k5uisc th.tinytable_css_g5s1un3kof11d30z3uz7 {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
+    #tinytable_e67wsoij2a48l2k5uisc td.tinytable_css_k8rymn1u1z9jp78oibmr, #tinytable_e67wsoij2a48l2k5uisc th.tinytable_css_k8rymn1u1z9jp78oibmr { text-align: center }
+    #tinytable_e67wsoij2a48l2k5uisc td.tinytable_css_amrsf8uq04jaa3kdlx78, #tinytable_e67wsoij2a48l2k5uisc th.tinytable_css_amrsf8uq04jaa3kdlx78 {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
+    #tinytable_e67wsoij2a48l2k5uisc td.tinytable_css_cmjiqv5vpsahwjca8lgi, #tinytable_e67wsoij2a48l2k5uisc th.tinytable_css_cmjiqv5vpsahwjca8lgi {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
+    #tinytable_e67wsoij2a48l2k5uisc td.tinytable_css_59f9ly456cc0rc41l0vq, #tinytable_e67wsoij2a48l2k5uisc th.tinytable_css_59f9ly456cc0rc41l0vq { text-align: left }
+    #tinytable_e67wsoij2a48l2k5uisc td.tinytable_css_iv18os9snqn8buytc8fw, #tinytable_e67wsoij2a48l2k5uisc th.tinytable_css_iv18os9snqn8buytc8fw {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
     </style>
 <div class="container">
-      <table class="table tinytable" id="tinytable_gfu2tibjs8aq41j8los0" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
+      <table class="table tinytable" id="tinytable_e67wsoij2a48l2k5uisc" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
 <thead><tr>
 <th scope="col" data-row="0" data-col="1"> </th>
                 <th scope="col" data-row="0" data-col="2">etwfe</th>
@@ -1227,333 +1353,333 @@ all return the same raw coefficients.</p>
               </tr></thead>
 <tbody>
 <tr>
-<td data-row="1" data-col="1">lpop</td>
-                  <td data-row="1" data-col="2">1.065</td>
-                  <td data-row="1" data-col="3"></td>
-                  <td data-row="1" data-col="4">1.065</td>
-                  <td data-row="1" data-col="5">1.065</td>
-                  <td data-row="1" data-col="6">1.065</td>
-                  <td data-row="1" data-col="7">1.065</td>
+<td data-row="1" data-col="1">.Dtreat × first.treat = 2004 × year = 2004</td>
+                  <td data-row="1" data-col="2">-0.021</td>
+                  <td data-row="1" data-col="3">-0.021</td>
+                  <td data-row="1" data-col="4">-0.021</td>
+                  <td data-row="1" data-col="5">-0.021</td>
+                  <td data-row="1" data-col="6">-0.021</td>
+                  <td data-row="1" data-col="7">-0.021</td>
                 </tr>
 <tr>
 <td data-row="2" data-col="1"></td>
                   <td data-row="2" data-col="2">(0.022)</td>
-                  <td data-row="2" data-col="3"></td>
+                  <td data-row="2" data-col="3">(0.022)</td>
                   <td data-row="2" data-col="4">(0.022)</td>
                   <td data-row="2" data-col="5">(0.022)</td>
                   <td data-row="2" data-col="6">(0.022)</td>
                   <td data-row="2" data-col="7">(0.022)</td>
                 </tr>
 <tr>
-<td data-row="3" data-col="1">first.treat = 2004 × lpop</td>
-                  <td data-row="3" data-col="2">0.051</td>
-                  <td data-row="3" data-col="3"></td>
-                  <td data-row="3" data-col="4">0.051</td>
-                  <td data-row="3" data-col="5">0.051</td>
-                  <td data-row="3" data-col="6">0.051</td>
-                  <td data-row="3" data-col="7">0.051</td>
+<td data-row="3" data-col="1">.Dtreat × first.treat = 2004 × year = 2005</td>
+                  <td data-row="3" data-col="2">-0.082</td>
+                  <td data-row="3" data-col="3">-0.082</td>
+                  <td data-row="3" data-col="4">-0.082</td>
+                  <td data-row="3" data-col="5">-0.082</td>
+                  <td data-row="3" data-col="6">-0.082</td>
+                  <td data-row="3" data-col="7">-0.082</td>
                 </tr>
 <tr>
 <td data-row="4" data-col="1"></td>
-                  <td data-row="4" data-col="2">(0.038)</td>
-                  <td data-row="4" data-col="3"></td>
-                  <td data-row="4" data-col="4">(0.038)</td>
-                  <td data-row="4" data-col="5">(0.038)</td>
-                  <td data-row="4" data-col="6">(0.038)</td>
-                  <td data-row="4" data-col="7">(0.038)</td>
+                  <td data-row="4" data-col="2">(0.027)</td>
+                  <td data-row="4" data-col="3">(0.027)</td>
+                  <td data-row="4" data-col="4">(0.027)</td>
+                  <td data-row="4" data-col="5">(0.027)</td>
+                  <td data-row="4" data-col="6">(0.027)</td>
+                  <td data-row="4" data-col="7">(0.027)</td>
                 </tr>
 <tr>
-<td data-row="5" data-col="1">first.treat = 2006 × lpop</td>
-                  <td data-row="5" data-col="2">-0.041</td>
-                  <td data-row="5" data-col="3"></td>
-                  <td data-row="5" data-col="4">-0.041</td>
-                  <td data-row="5" data-col="5">-0.041</td>
-                  <td data-row="5" data-col="6">-0.041</td>
-                  <td data-row="5" data-col="7">-0.041</td>
+<td data-row="5" data-col="1">.Dtreat × first.treat = 2004 × year = 2006</td>
+                  <td data-row="5" data-col="2">-0.138</td>
+                  <td data-row="5" data-col="3">-0.138</td>
+                  <td data-row="5" data-col="4">-0.138</td>
+                  <td data-row="5" data-col="5">-0.138</td>
+                  <td data-row="5" data-col="6">-0.138</td>
+                  <td data-row="5" data-col="7">-0.138</td>
                 </tr>
 <tr>
 <td data-row="6" data-col="1"></td>
-                  <td data-row="6" data-col="2">(0.047)</td>
-                  <td data-row="6" data-col="3"></td>
-                  <td data-row="6" data-col="4">(0.047)</td>
-                  <td data-row="6" data-col="5">(0.047)</td>
-                  <td data-row="6" data-col="6">(0.047)</td>
-                  <td data-row="6" data-col="7">(0.047)</td>
+                  <td data-row="6" data-col="2">(0.031)</td>
+                  <td data-row="6" data-col="3">(0.031)</td>
+                  <td data-row="6" data-col="4">(0.031)</td>
+                  <td data-row="6" data-col="5">(0.031)</td>
+                  <td data-row="6" data-col="6">(0.031)</td>
+                  <td data-row="6" data-col="7">(0.031)</td>
                 </tr>
 <tr>
-<td data-row="7" data-col="1">first.treat = 2007 × lpop</td>
-                  <td data-row="7" data-col="2">0.056</td>
-                  <td data-row="7" data-col="3"></td>
-                  <td data-row="7" data-col="4">0.056</td>
-                  <td data-row="7" data-col="5">0.056</td>
-                  <td data-row="7" data-col="6">0.056</td>
-                  <td data-row="7" data-col="7">0.056</td>
+<td data-row="7" data-col="1">.Dtreat × first.treat = 2004 × year = 2007</td>
+                  <td data-row="7" data-col="2">-0.110</td>
+                  <td data-row="7" data-col="3">-0.110</td>
+                  <td data-row="7" data-col="4">-0.110</td>
+                  <td data-row="7" data-col="5">-0.110</td>
+                  <td data-row="7" data-col="6">-0.110</td>
+                  <td data-row="7" data-col="7">-0.110</td>
                 </tr>
 <tr>
 <td data-row="8" data-col="1"></td>
-                  <td data-row="8" data-col="2">(0.039)</td>
-                  <td data-row="8" data-col="3"></td>
-                  <td data-row="8" data-col="4">(0.039)</td>
-                  <td data-row="8" data-col="5">(0.039)</td>
-                  <td data-row="8" data-col="6">(0.039)</td>
-                  <td data-row="8" data-col="7">(0.039)</td>
+                  <td data-row="8" data-col="2">(0.032)</td>
+                  <td data-row="8" data-col="3">(0.032)</td>
+                  <td data-row="8" data-col="4">(0.032)</td>
+                  <td data-row="8" data-col="5">(0.032)</td>
+                  <td data-row="8" data-col="6">(0.032)</td>
+                  <td data-row="8" data-col="7">(0.032)</td>
                 </tr>
 <tr>
-<td data-row="9" data-col="1">year = 2004 × lpop</td>
-                  <td data-row="9" data-col="2">0.011</td>
-                  <td data-row="9" data-col="3"></td>
-                  <td data-row="9" data-col="4">0.011</td>
-                  <td data-row="9" data-col="5">0.011</td>
-                  <td data-row="9" data-col="6">0.011</td>
-                  <td data-row="9" data-col="7">0.011</td>
+<td data-row="9" data-col="1">.Dtreat × first.treat = 2006 × year = 2006</td>
+                  <td data-row="9" data-col="2">0.003</td>
+                  <td data-row="9" data-col="3">0.003</td>
+                  <td data-row="9" data-col="4">0.003</td>
+                  <td data-row="9" data-col="5">0.003</td>
+                  <td data-row="9" data-col="6">0.003</td>
+                  <td data-row="9" data-col="7">0.003</td>
                 </tr>
 <tr>
 <td data-row="10" data-col="1"></td>
-                  <td data-row="10" data-col="2">(0.008)</td>
-                  <td data-row="10" data-col="3"></td>
-                  <td data-row="10" data-col="4">(0.008)</td>
-                  <td data-row="10" data-col="5">(0.008)</td>
-                  <td data-row="10" data-col="6">(0.008)</td>
-                  <td data-row="10" data-col="7">(0.008)</td>
+                  <td data-row="10" data-col="2">(0.019)</td>
+                  <td data-row="10" data-col="3">(0.019)</td>
+                  <td data-row="10" data-col="4">(0.019)</td>
+                  <td data-row="10" data-col="5">(0.019)</td>
+                  <td data-row="10" data-col="6">(0.019)</td>
+                  <td data-row="10" data-col="7">(0.019)</td>
                 </tr>
 <tr>
-<td data-row="11" data-col="1">year = 2005 × lpop</td>
-                  <td data-row="11" data-col="2">0.021</td>
-                  <td data-row="11" data-col="3"></td>
-                  <td data-row="11" data-col="4">0.021</td>
-                  <td data-row="11" data-col="5">0.021</td>
-                  <td data-row="11" data-col="6">0.021</td>
-                  <td data-row="11" data-col="7">0.021</td>
+<td data-row="11" data-col="1">.Dtreat × first.treat = 2006 × year = 2007</td>
+                  <td data-row="11" data-col="2">-0.045</td>
+                  <td data-row="11" data-col="3">-0.045</td>
+                  <td data-row="11" data-col="4">-0.045</td>
+                  <td data-row="11" data-col="5">-0.045</td>
+                  <td data-row="11" data-col="6">-0.045</td>
+                  <td data-row="11" data-col="7">-0.045</td>
                 </tr>
 <tr>
 <td data-row="12" data-col="1"></td>
-                  <td data-row="12" data-col="2">(0.008)</td>
-                  <td data-row="12" data-col="3"></td>
-                  <td data-row="12" data-col="4">(0.008)</td>
-                  <td data-row="12" data-col="5">(0.008)</td>
-                  <td data-row="12" data-col="6">(0.008)</td>
-                  <td data-row="12" data-col="7">(0.008)</td>
+                  <td data-row="12" data-col="2">(0.022)</td>
+                  <td data-row="12" data-col="3">(0.022)</td>
+                  <td data-row="12" data-col="4">(0.022)</td>
+                  <td data-row="12" data-col="5">(0.022)</td>
+                  <td data-row="12" data-col="6">(0.022)</td>
+                  <td data-row="12" data-col="7">(0.022)</td>
                 </tr>
 <tr>
-<td data-row="13" data-col="1">year = 2006 × lpop</td>
-                  <td data-row="13" data-col="2">0.011</td>
-                  <td data-row="13" data-col="3"></td>
-                  <td data-row="13" data-col="4">0.011</td>
-                  <td data-row="13" data-col="5">0.011</td>
-                  <td data-row="13" data-col="6">0.011</td>
-                  <td data-row="13" data-col="7">0.011</td>
+<td data-row="13" data-col="1">.Dtreat × first.treat = 2007 × year = 2007</td>
+                  <td data-row="13" data-col="2">-0.046</td>
+                  <td data-row="13" data-col="3">-0.046</td>
+                  <td data-row="13" data-col="4">-0.046</td>
+                  <td data-row="13" data-col="5">-0.046</td>
+                  <td data-row="13" data-col="6">-0.046</td>
+                  <td data-row="13" data-col="7">-0.046</td>
                 </tr>
 <tr>
 <td data-row="14" data-col="1"></td>
-                  <td data-row="14" data-col="2">(0.011)</td>
-                  <td data-row="14" data-col="3"></td>
-                  <td data-row="14" data-col="4">(0.011)</td>
-                  <td data-row="14" data-col="5">(0.011)</td>
-                  <td data-row="14" data-col="6">(0.011)</td>
-                  <td data-row="14" data-col="7">(0.011)</td>
+                  <td data-row="14" data-col="2">(0.018)</td>
+                  <td data-row="14" data-col="3">(0.018)</td>
+                  <td data-row="14" data-col="4">(0.018)</td>
+                  <td data-row="14" data-col="5">(0.018)</td>
+                  <td data-row="14" data-col="6">(0.018)</td>
+                  <td data-row="14" data-col="7">(0.018)</td>
                 </tr>
 <tr>
-<td data-row="15" data-col="1">year = 2007 × lpop</td>
-                  <td data-row="15" data-col="2">0.021</td>
-                  <td data-row="15" data-col="3"></td>
-                  <td data-row="15" data-col="4">0.021</td>
-                  <td data-row="15" data-col="5">0.021</td>
-                  <td data-row="15" data-col="6">0.021</td>
-                  <td data-row="15" data-col="7">0.021</td>
+<td data-row="15" data-col="1">.Dtreat × first.treat = 2004 × year = 2004 × lpop_dm</td>
+                  <td data-row="15" data-col="2">0.005</td>
+                  <td data-row="15" data-col="3">0.005</td>
+                  <td data-row="15" data-col="4">0.005</td>
+                  <td data-row="15" data-col="5">0.005</td>
+                  <td data-row="15" data-col="6">0.005</td>
+                  <td data-row="15" data-col="7">0.005</td>
                 </tr>
 <tr>
 <td data-row="16" data-col="1"></td>
-                  <td data-row="16" data-col="2">(0.012)</td>
-                  <td data-row="16" data-col="3"></td>
-                  <td data-row="16" data-col="4">(0.012)</td>
-                  <td data-row="16" data-col="5">(0.012)</td>
-                  <td data-row="16" data-col="6">(0.012)</td>
-                  <td data-row="16" data-col="7">(0.012)</td>
+                  <td data-row="16" data-col="2">(0.018)</td>
+                  <td data-row="16" data-col="3">(0.018)</td>
+                  <td data-row="16" data-col="4">(0.018)</td>
+                  <td data-row="16" data-col="5">(0.018)</td>
+                  <td data-row="16" data-col="6">(0.018)</td>
+                  <td data-row="16" data-col="7">(0.018)</td>
                 </tr>
 <tr>
-<td data-row="17" data-col="1">.Dtreat × first.treat = 2004 × year = 2004</td>
-                  <td data-row="17" data-col="2">-0.021</td>
-                  <td data-row="17" data-col="3">-0.021</td>
-                  <td data-row="17" data-col="4">-0.021</td>
-                  <td data-row="17" data-col="5">-0.021</td>
-                  <td data-row="17" data-col="6">-0.021</td>
-                  <td data-row="17" data-col="7">-0.021</td>
+<td data-row="17" data-col="1">.Dtreat × first.treat = 2004 × year = 2005 × lpop_dm</td>
+                  <td data-row="17" data-col="2">0.025</td>
+                  <td data-row="17" data-col="3">0.025</td>
+                  <td data-row="17" data-col="4">0.025</td>
+                  <td data-row="17" data-col="5">0.025</td>
+                  <td data-row="17" data-col="6">0.025</td>
+                  <td data-row="17" data-col="7">0.025</td>
                 </tr>
 <tr>
 <td data-row="18" data-col="1"></td>
-                  <td data-row="18" data-col="2">(0.022)</td>
-                  <td data-row="18" data-col="3">(0.022)</td>
-                  <td data-row="18" data-col="4">(0.022)</td>
-                  <td data-row="18" data-col="5">(0.022)</td>
-                  <td data-row="18" data-col="6">(0.022)</td>
-                  <td data-row="18" data-col="7">(0.022)</td>
+                  <td data-row="18" data-col="2">(0.018)</td>
+                  <td data-row="18" data-col="3">(0.018)</td>
+                  <td data-row="18" data-col="4">(0.018)</td>
+                  <td data-row="18" data-col="5">(0.018)</td>
+                  <td data-row="18" data-col="6">(0.018)</td>
+                  <td data-row="18" data-col="7">(0.018)</td>
                 </tr>
 <tr>
-<td data-row="19" data-col="1">.Dtreat × first.treat = 2004 × year = 2005</td>
-                  <td data-row="19" data-col="2">-0.082</td>
-                  <td data-row="19" data-col="3">-0.082</td>
-                  <td data-row="19" data-col="4">-0.082</td>
-                  <td data-row="19" data-col="5">-0.082</td>
-                  <td data-row="19" data-col="6">-0.082</td>
-                  <td data-row="19" data-col="7">-0.082</td>
+<td data-row="19" data-col="1">.Dtreat × first.treat = 2004 × year = 2006 × lpop_dm</td>
+                  <td data-row="19" data-col="2">0.051</td>
+                  <td data-row="19" data-col="3">0.051</td>
+                  <td data-row="19" data-col="4">0.051</td>
+                  <td data-row="19" data-col="5">0.051</td>
+                  <td data-row="19" data-col="6">0.051</td>
+                  <td data-row="19" data-col="7">0.051</td>
                 </tr>
 <tr>
 <td data-row="20" data-col="1"></td>
-                  <td data-row="20" data-col="2">(0.027)</td>
-                  <td data-row="20" data-col="3">(0.027)</td>
-                  <td data-row="20" data-col="4">(0.027)</td>
-                  <td data-row="20" data-col="5">(0.027)</td>
-                  <td data-row="20" data-col="6">(0.027)</td>
-                  <td data-row="20" data-col="7">(0.027)</td>
+                  <td data-row="20" data-col="2">(0.021)</td>
+                  <td data-row="20" data-col="3">(0.021)</td>
+                  <td data-row="20" data-col="4">(0.021)</td>
+                  <td data-row="20" data-col="5">(0.021)</td>
+                  <td data-row="20" data-col="6">(0.021)</td>
+                  <td data-row="20" data-col="7">(0.021)</td>
                 </tr>
 <tr>
-<td data-row="21" data-col="1">.Dtreat × first.treat = 2004 × year = 2006</td>
-                  <td data-row="21" data-col="2">-0.138</td>
-                  <td data-row="21" data-col="3">-0.138</td>
-                  <td data-row="21" data-col="4">-0.138</td>
-                  <td data-row="21" data-col="5">-0.138</td>
-                  <td data-row="21" data-col="6">-0.138</td>
-                  <td data-row="21" data-col="7">-0.138</td>
+<td data-row="21" data-col="1">.Dtreat × first.treat = 2004 × year = 2007 × lpop_dm</td>
+                  <td data-row="21" data-col="2">0.011</td>
+                  <td data-row="21" data-col="3">0.011</td>
+                  <td data-row="21" data-col="4">0.011</td>
+                  <td data-row="21" data-col="5">0.011</td>
+                  <td data-row="21" data-col="6">0.011</td>
+                  <td data-row="21" data-col="7">0.011</td>
                 </tr>
 <tr>
 <td data-row="22" data-col="1"></td>
-                  <td data-row="22" data-col="2">(0.031)</td>
-                  <td data-row="22" data-col="3">(0.031)</td>
-                  <td data-row="22" data-col="4">(0.031)</td>
-                  <td data-row="22" data-col="5">(0.031)</td>
-                  <td data-row="22" data-col="6">(0.031)</td>
-                  <td data-row="22" data-col="7">(0.031)</td>
+                  <td data-row="22" data-col="2">(0.027)</td>
+                  <td data-row="22" data-col="3">(0.027)</td>
+                  <td data-row="22" data-col="4">(0.027)</td>
+                  <td data-row="22" data-col="5">(0.027)</td>
+                  <td data-row="22" data-col="6">(0.027)</td>
+                  <td data-row="22" data-col="7">(0.027)</td>
                 </tr>
 <tr>
-<td data-row="23" data-col="1">.Dtreat × first.treat = 2004 × year = 2007</td>
-                  <td data-row="23" data-col="2">-0.110</td>
-                  <td data-row="23" data-col="3">-0.110</td>
-                  <td data-row="23" data-col="4">-0.110</td>
-                  <td data-row="23" data-col="5">-0.110</td>
-                  <td data-row="23" data-col="6">-0.110</td>
-                  <td data-row="23" data-col="7">-0.110</td>
+<td data-row="23" data-col="1">.Dtreat × first.treat = 2006 × year = 2006 × lpop_dm</td>
+                  <td data-row="23" data-col="2">0.039</td>
+                  <td data-row="23" data-col="3">0.039</td>
+                  <td data-row="23" data-col="4">0.039</td>
+                  <td data-row="23" data-col="5">0.039</td>
+                  <td data-row="23" data-col="6">0.039</td>
+                  <td data-row="23" data-col="7">0.039</td>
                 </tr>
 <tr>
 <td data-row="24" data-col="1"></td>
-                  <td data-row="24" data-col="2">(0.032)</td>
-                  <td data-row="24" data-col="3">(0.032)</td>
-                  <td data-row="24" data-col="4">(0.032)</td>
-                  <td data-row="24" data-col="5">(0.032)</td>
-                  <td data-row="24" data-col="6">(0.032)</td>
-                  <td data-row="24" data-col="7">(0.032)</td>
+                  <td data-row="24" data-col="2">(0.016)</td>
+                  <td data-row="24" data-col="3">(0.016)</td>
+                  <td data-row="24" data-col="4">(0.016)</td>
+                  <td data-row="24" data-col="5">(0.016)</td>
+                  <td data-row="24" data-col="6">(0.016)</td>
+                  <td data-row="24" data-col="7">(0.016)</td>
                 </tr>
 <tr>
-<td data-row="25" data-col="1">.Dtreat × first.treat = 2006 × year = 2006</td>
-                  <td data-row="25" data-col="2">0.003</td>
-                  <td data-row="25" data-col="3">0.003</td>
-                  <td data-row="25" data-col="4">0.003</td>
-                  <td data-row="25" data-col="5">0.003</td>
-                  <td data-row="25" data-col="6">0.003</td>
-                  <td data-row="25" data-col="7">0.003</td>
+<td data-row="25" data-col="1">.Dtreat × first.treat = 2006 × year = 2007 × lpop_dm</td>
+                  <td data-row="25" data-col="2">0.038</td>
+                  <td data-row="25" data-col="3">0.038</td>
+                  <td data-row="25" data-col="4">0.038</td>
+                  <td data-row="25" data-col="5">0.038</td>
+                  <td data-row="25" data-col="6">0.038</td>
+                  <td data-row="25" data-col="7">0.038</td>
                 </tr>
 <tr>
 <td data-row="26" data-col="1"></td>
-                  <td data-row="26" data-col="2">(0.019)</td>
-                  <td data-row="26" data-col="3">(0.019)</td>
-                  <td data-row="26" data-col="4">(0.019)</td>
-                  <td data-row="26" data-col="5">(0.019)</td>
-                  <td data-row="26" data-col="6">(0.019)</td>
-                  <td data-row="26" data-col="7">(0.019)</td>
+                  <td data-row="26" data-col="2">(0.022)</td>
+                  <td data-row="26" data-col="3">(0.022)</td>
+                  <td data-row="26" data-col="4">(0.022)</td>
+                  <td data-row="26" data-col="5">(0.022)</td>
+                  <td data-row="26" data-col="6">(0.022)</td>
+                  <td data-row="26" data-col="7">(0.022)</td>
                 </tr>
 <tr>
-<td data-row="27" data-col="1">.Dtreat × first.treat = 2006 × year = 2007</td>
-                  <td data-row="27" data-col="2">-0.045</td>
-                  <td data-row="27" data-col="3">-0.045</td>
-                  <td data-row="27" data-col="4">-0.045</td>
-                  <td data-row="27" data-col="5">-0.045</td>
-                  <td data-row="27" data-col="6">-0.045</td>
-                  <td data-row="27" data-col="7">-0.045</td>
+<td data-row="27" data-col="1">.Dtreat × first.treat = 2007 × year = 2007 × lpop_dm</td>
+                  <td data-row="27" data-col="2">-0.020</td>
+                  <td data-row="27" data-col="3">-0.020</td>
+                  <td data-row="27" data-col="4">-0.020</td>
+                  <td data-row="27" data-col="5">-0.020</td>
+                  <td data-row="27" data-col="6">-0.020</td>
+                  <td data-row="27" data-col="7">-0.020</td>
                 </tr>
 <tr>
 <td data-row="28" data-col="1"></td>
-                  <td data-row="28" data-col="2">(0.022)</td>
-                  <td data-row="28" data-col="3">(0.022)</td>
-                  <td data-row="28" data-col="4">(0.022)</td>
-                  <td data-row="28" data-col="5">(0.022)</td>
-                  <td data-row="28" data-col="6">(0.022)</td>
-                  <td data-row="28" data-col="7">(0.022)</td>
+                  <td data-row="28" data-col="2">(0.016)</td>
+                  <td data-row="28" data-col="3">(0.016)</td>
+                  <td data-row="28" data-col="4">(0.016)</td>
+                  <td data-row="28" data-col="5">(0.016)</td>
+                  <td data-row="28" data-col="6">(0.016)</td>
+                  <td data-row="28" data-col="7">(0.016)</td>
                 </tr>
 <tr>
-<td data-row="29" data-col="1">.Dtreat × first.treat = 2007 × year = 2007</td>
-                  <td data-row="29" data-col="2">-0.046</td>
-                  <td data-row="29" data-col="3">-0.046</td>
-                  <td data-row="29" data-col="4">-0.046</td>
-                  <td data-row="29" data-col="5">-0.046</td>
-                  <td data-row="29" data-col="6">-0.046</td>
-                  <td data-row="29" data-col="7">-0.046</td>
+<td data-row="29" data-col="1">lpop</td>
+                  <td data-row="29" data-col="2"></td>
+                  <td data-row="29" data-col="3"></td>
+                  <td data-row="29" data-col="4">1.065</td>
+                  <td data-row="29" data-col="5">1.065</td>
+                  <td data-row="29" data-col="6">1.065</td>
+                  <td data-row="29" data-col="7">1.065</td>
                 </tr>
 <tr>
 <td data-row="30" data-col="1"></td>
-                  <td data-row="30" data-col="2">(0.018)</td>
-                  <td data-row="30" data-col="3">(0.018)</td>
-                  <td data-row="30" data-col="4">(0.018)</td>
-                  <td data-row="30" data-col="5">(0.018)</td>
-                  <td data-row="30" data-col="6">(0.018)</td>
-                  <td data-row="30" data-col="7">(0.018)</td>
+                  <td data-row="30" data-col="2"></td>
+                  <td data-row="30" data-col="3"></td>
+                  <td data-row="30" data-col="4">(0.022)</td>
+                  <td data-row="30" data-col="5">(0.022)</td>
+                  <td data-row="30" data-col="6">(0.022)</td>
+                  <td data-row="30" data-col="7">(0.022)</td>
                 </tr>
 <tr>
-<td data-row="31" data-col="1">.Dtreat × first.treat = 2004 × year = 2004 × lpop_dm</td>
-                  <td data-row="31" data-col="2">0.005</td>
-                  <td data-row="31" data-col="3">0.005</td>
-                  <td data-row="31" data-col="4">0.005</td>
-                  <td data-row="31" data-col="5">0.005</td>
-                  <td data-row="31" data-col="6">0.005</td>
-                  <td data-row="31" data-col="7">0.005</td>
+<td data-row="31" data-col="1">first.treat = 2004 × lpop</td>
+                  <td data-row="31" data-col="2"></td>
+                  <td data-row="31" data-col="3"></td>
+                  <td data-row="31" data-col="4">0.051</td>
+                  <td data-row="31" data-col="5">0.051</td>
+                  <td data-row="31" data-col="6">0.051</td>
+                  <td data-row="31" data-col="7">0.051</td>
                 </tr>
 <tr>
 <td data-row="32" data-col="1"></td>
-                  <td data-row="32" data-col="2">(0.018)</td>
-                  <td data-row="32" data-col="3">(0.018)</td>
-                  <td data-row="32" data-col="4">(0.018)</td>
-                  <td data-row="32" data-col="5">(0.018)</td>
-                  <td data-row="32" data-col="6">(0.018)</td>
-                  <td data-row="32" data-col="7">(0.018)</td>
+                  <td data-row="32" data-col="2"></td>
+                  <td data-row="32" data-col="3"></td>
+                  <td data-row="32" data-col="4">(0.038)</td>
+                  <td data-row="32" data-col="5">(0.038)</td>
+                  <td data-row="32" data-col="6">(0.038)</td>
+                  <td data-row="32" data-col="7">(0.038)</td>
                 </tr>
 <tr>
-<td data-row="33" data-col="1">.Dtreat × first.treat = 2004 × year = 2005 × lpop_dm</td>
-                  <td data-row="33" data-col="2">0.025</td>
-                  <td data-row="33" data-col="3">0.025</td>
-                  <td data-row="33" data-col="4">0.025</td>
-                  <td data-row="33" data-col="5">0.025</td>
-                  <td data-row="33" data-col="6">0.025</td>
-                  <td data-row="33" data-col="7">0.025</td>
+<td data-row="33" data-col="1">first.treat = 2006 × lpop</td>
+                  <td data-row="33" data-col="2"></td>
+                  <td data-row="33" data-col="3"></td>
+                  <td data-row="33" data-col="4">-0.041</td>
+                  <td data-row="33" data-col="5">-0.041</td>
+                  <td data-row="33" data-col="6">-0.041</td>
+                  <td data-row="33" data-col="7">-0.041</td>
                 </tr>
 <tr>
 <td data-row="34" data-col="1"></td>
-                  <td data-row="34" data-col="2">(0.018)</td>
-                  <td data-row="34" data-col="3">(0.018)</td>
-                  <td data-row="34" data-col="4">(0.018)</td>
-                  <td data-row="34" data-col="5">(0.018)</td>
-                  <td data-row="34" data-col="6">(0.018)</td>
-                  <td data-row="34" data-col="7">(0.018)</td>
+                  <td data-row="34" data-col="2"></td>
+                  <td data-row="34" data-col="3"></td>
+                  <td data-row="34" data-col="4">(0.047)</td>
+                  <td data-row="34" data-col="5">(0.047)</td>
+                  <td data-row="34" data-col="6">(0.047)</td>
+                  <td data-row="34" data-col="7">(0.047)</td>
                 </tr>
 <tr>
-<td data-row="35" data-col="1">.Dtreat × first.treat = 2004 × year = 2006 × lpop_dm</td>
-                  <td data-row="35" data-col="2">0.051</td>
-                  <td data-row="35" data-col="3">0.051</td>
-                  <td data-row="35" data-col="4">0.051</td>
-                  <td data-row="35" data-col="5">0.051</td>
-                  <td data-row="35" data-col="6">0.051</td>
-                  <td data-row="35" data-col="7">0.051</td>
+<td data-row="35" data-col="1">first.treat = 2007 × lpop</td>
+                  <td data-row="35" data-col="2"></td>
+                  <td data-row="35" data-col="3"></td>
+                  <td data-row="35" data-col="4">0.056</td>
+                  <td data-row="35" data-col="5">0.056</td>
+                  <td data-row="35" data-col="6">0.056</td>
+                  <td data-row="35" data-col="7">0.056</td>
                 </tr>
 <tr>
 <td data-row="36" data-col="1"></td>
-                  <td data-row="36" data-col="2">(0.021)</td>
-                  <td data-row="36" data-col="3">(0.021)</td>
-                  <td data-row="36" data-col="4">(0.021)</td>
-                  <td data-row="36" data-col="5">(0.021)</td>
-                  <td data-row="36" data-col="6">(0.021)</td>
-                  <td data-row="36" data-col="7">(0.021)</td>
+                  <td data-row="36" data-col="2"></td>
+                  <td data-row="36" data-col="3"></td>
+                  <td data-row="36" data-col="4">(0.039)</td>
+                  <td data-row="36" data-col="5">(0.039)</td>
+                  <td data-row="36" data-col="6">(0.039)</td>
+                  <td data-row="36" data-col="7">(0.039)</td>
                 </tr>
 <tr>
-<td data-row="37" data-col="1">.Dtreat × first.treat = 2004 × year = 2007 × lpop_dm</td>
-                  <td data-row="37" data-col="2">0.011</td>
-                  <td data-row="37" data-col="3">0.011</td>
+<td data-row="37" data-col="1">year = 2004 × lpop</td>
+                  <td data-row="37" data-col="2"></td>
+                  <td data-row="37" data-col="3"></td>
                   <td data-row="37" data-col="4">0.011</td>
                   <td data-row="37" data-col="5">0.011</td>
                   <td data-row="37" data-col="6">0.011</td>
@@ -1561,66 +1687,66 @@ all return the same raw coefficients.</p>
                 </tr>
 <tr>
 <td data-row="38" data-col="1"></td>
-                  <td data-row="38" data-col="2">(0.027)</td>
-                  <td data-row="38" data-col="3">(0.027)</td>
-                  <td data-row="38" data-col="4">(0.027)</td>
-                  <td data-row="38" data-col="5">(0.027)</td>
-                  <td data-row="38" data-col="6">(0.027)</td>
-                  <td data-row="38" data-col="7">(0.027)</td>
+                  <td data-row="38" data-col="2"></td>
+                  <td data-row="38" data-col="3"></td>
+                  <td data-row="38" data-col="4">(0.008)</td>
+                  <td data-row="38" data-col="5">(0.008)</td>
+                  <td data-row="38" data-col="6">(0.008)</td>
+                  <td data-row="38" data-col="7">(0.008)</td>
                 </tr>
 <tr>
-<td data-row="39" data-col="1">.Dtreat × first.treat = 2006 × year = 2006 × lpop_dm</td>
-                  <td data-row="39" data-col="2">0.039</td>
-                  <td data-row="39" data-col="3">0.039</td>
-                  <td data-row="39" data-col="4">0.039</td>
-                  <td data-row="39" data-col="5">0.039</td>
-                  <td data-row="39" data-col="6">0.039</td>
-                  <td data-row="39" data-col="7">0.039</td>
+<td data-row="39" data-col="1">year = 2005 × lpop</td>
+                  <td data-row="39" data-col="2"></td>
+                  <td data-row="39" data-col="3"></td>
+                  <td data-row="39" data-col="4">0.021</td>
+                  <td data-row="39" data-col="5">0.021</td>
+                  <td data-row="39" data-col="6">0.021</td>
+                  <td data-row="39" data-col="7">0.021</td>
                 </tr>
 <tr>
 <td data-row="40" data-col="1"></td>
-                  <td data-row="40" data-col="2">(0.016)</td>
-                  <td data-row="40" data-col="3">(0.016)</td>
-                  <td data-row="40" data-col="4">(0.016)</td>
-                  <td data-row="40" data-col="5">(0.016)</td>
-                  <td data-row="40" data-col="6">(0.016)</td>
-                  <td data-row="40" data-col="7">(0.016)</td>
+                  <td data-row="40" data-col="2"></td>
+                  <td data-row="40" data-col="3"></td>
+                  <td data-row="40" data-col="4">(0.008)</td>
+                  <td data-row="40" data-col="5">(0.008)</td>
+                  <td data-row="40" data-col="6">(0.008)</td>
+                  <td data-row="40" data-col="7">(0.008)</td>
                 </tr>
 <tr>
-<td data-row="41" data-col="1">.Dtreat × first.treat = 2006 × year = 2007 × lpop_dm</td>
-                  <td data-row="41" data-col="2">0.038</td>
-                  <td data-row="41" data-col="3">0.038</td>
-                  <td data-row="41" data-col="4">0.038</td>
-                  <td data-row="41" data-col="5">0.038</td>
-                  <td data-row="41" data-col="6">0.038</td>
-                  <td data-row="41" data-col="7">0.038</td>
+<td data-row="41" data-col="1">year = 2006 × lpop</td>
+                  <td data-row="41" data-col="2"></td>
+                  <td data-row="41" data-col="3"></td>
+                  <td data-row="41" data-col="4">0.011</td>
+                  <td data-row="41" data-col="5">0.011</td>
+                  <td data-row="41" data-col="6">0.011</td>
+                  <td data-row="41" data-col="7">0.011</td>
                 </tr>
 <tr>
 <td data-row="42" data-col="1"></td>
-                  <td data-row="42" data-col="2">(0.022)</td>
-                  <td data-row="42" data-col="3">(0.022)</td>
-                  <td data-row="42" data-col="4">(0.022)</td>
-                  <td data-row="42" data-col="5">(0.022)</td>
-                  <td data-row="42" data-col="6">(0.022)</td>
-                  <td data-row="42" data-col="7">(0.022)</td>
+                  <td data-row="42" data-col="2"></td>
+                  <td data-row="42" data-col="3"></td>
+                  <td data-row="42" data-col="4">(0.011)</td>
+                  <td data-row="42" data-col="5">(0.011)</td>
+                  <td data-row="42" data-col="6">(0.011)</td>
+                  <td data-row="42" data-col="7">(0.011)</td>
                 </tr>
 <tr>
-<td data-row="43" data-col="1">.Dtreat × first.treat = 2007 × year = 2007 × lpop_dm</td>
-                  <td data-row="43" data-col="2">-0.020</td>
-                  <td data-row="43" data-col="3">-0.020</td>
-                  <td data-row="43" data-col="4">-0.020</td>
-                  <td data-row="43" data-col="5">-0.020</td>
-                  <td data-row="43" data-col="6">-0.020</td>
-                  <td data-row="43" data-col="7">-0.020</td>
+<td data-row="43" data-col="1">year = 2007 × lpop</td>
+                  <td data-row="43" data-col="2"></td>
+                  <td data-row="43" data-col="3"></td>
+                  <td data-row="43" data-col="4">0.021</td>
+                  <td data-row="43" data-col="5">0.021</td>
+                  <td data-row="43" data-col="6">0.021</td>
+                  <td data-row="43" data-col="7">0.021</td>
                 </tr>
 <tr>
 <td data-row="44" data-col="1"></td>
-                  <td data-row="44" data-col="2">(0.016)</td>
-                  <td data-row="44" data-col="3">(0.016)</td>
-                  <td data-row="44" data-col="4">(0.016)</td>
-                  <td data-row="44" data-col="5">(0.016)</td>
-                  <td data-row="44" data-col="6">(0.016)</td>
-                  <td data-row="44" data-col="7">(0.016)</td>
+                  <td data-row="44" data-col="2"></td>
+                  <td data-row="44" data-col="3"></td>
+                  <td data-row="44" data-col="4">(0.012)</td>
+                  <td data-row="44" data-col="5">(0.012)</td>
+                  <td data-row="44" data-col="6">(0.012)</td>
+                  <td data-row="44" data-col="7">(0.012)</td>
                 </tr>
 <tr>
 <td data-row="45" data-col="1">(Intercept)</td>
@@ -1784,7 +1910,7 @@ for the linear case through the <code>ivar</code> argument. Again, we
 can easily confirm that this yields the same estimated treatment effects
 as the group-level default (although the standard errors will be
 slightly different).</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mod_es_i</span> <span class="op">=</span> <span class="fu"><a href="../reference/etwfe.html">etwfe</a></span><span class="op">(</span></span>
 <span>  <span class="va">lemp</span> <span class="op">~</span> <span class="va">lpop</span>, tvar <span class="op">=</span> <span class="va">year</span>, gvar <span class="op">=</span> <span class="va">first.treat</span>, data <span class="op">=</span> <span class="va">mpdta</span>,</span>
 <span>  ivar <span class="op">=</span> <span class="va">countyreal</span>  <span class="co"># NEW: Use unit-level (county) FEs</span></span>
@@ -1800,42 +1926,42 @@ slightly different).</p>
 
     <script src="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.js"></script><script>
       // Create table-specific functions using external factory
-      const tableFns_9nj1jtnodmrfq9renw1j = TinyTable.createTableFunctions("tinytable_9nj1jtnodmrfq9renw1j");
+      const tableFns_6wsss2md9ld3youn7kuj = TinyTable.createTableFunctions("tinytable_6wsss2md9ld3youn7kuj");
       // tinytable span after
       window.addEventListener('load', function () {
           var cellsToStyle = [
             // tinytable style arrays after
-          { positions: [ { i: '14', j: 2 }, { i: '14', j: 3 } ], css_id: 'tinytable_css_r15md76pvwvo7nzmfsv6',}, 
-          { positions: [ { i: '8', j: 2 }, { i: '8', j: 3 } ], css_id: 'tinytable_css_868yxom3x6pzp67nkvpv',}, 
-          { positions: [ { i: '1', j: 2 }, { i: '2', j: 2 }, { i: '3', j: 2 }, { i: '4', j: 2 }, { i: '5', j: 2 }, { i: '6', j: 2 }, { i: '7', j: 2 }, { i: '9', j: 2 }, { i: '10', j: 2 }, { i: '11', j: 2 }, { i: '12', j: 2 }, { i: '13', j: 2 }, { i: '1', j: 3 }, { i: '2', j: 3 }, { i: '3', j: 3 }, { i: '4', j: 3 }, { i: '5', j: 3 }, { i: '6', j: 3 }, { i: '7', j: 3 }, { i: '9', j: 3 }, { i: '10', j: 3 }, { i: '11', j: 3 }, { i: '12', j: 3 }, { i: '13', j: 3 } ], css_id: 'tinytable_css_ogecv0ut81abmrf79z4t',}, 
-          { positions: [ { i: '0', j: 2 }, { i: '0', j: 3 } ], css_id: 'tinytable_css_0zqs8amo96n9dqa0tfbu',}, 
-          { positions: [ { i: '14', j: 1 } ], css_id: 'tinytable_css_bnszoqaq4ffmt227ywo4',}, 
-          { positions: [ { i: '8', j: 1 } ], css_id: 'tinytable_css_2gq240bvb2p8ifg9x0dy',}, 
-          { positions: [ { i: '1', j: 1 }, { i: '2', j: 1 }, { i: '3', j: 1 }, { i: '4', j: 1 }, { i: '5', j: 1 }, { i: '6', j: 1 }, { i: '7', j: 1 }, { i: '9', j: 1 }, { i: '10', j: 1 }, { i: '11', j: 1 }, { i: '12', j: 1 }, { i: '13', j: 1 } ], css_id: 'tinytable_css_9css2gm5xlt8vxh8rdr3',}, 
-          { positions: [ { i: '0', j: 1 } ], css_id: 'tinytable_css_fmy51iky05yvr0grceod',}, 
+          { positions: [ { i: '14', j: 2 }, { i: '14', j: 3 } ], css_id: 'tinytable_css_l4ascvrqkbznkbu93bde',}, 
+          { positions: [ { i: '8', j: 2 }, { i: '8', j: 3 } ], css_id: 'tinytable_css_uez34dl6f74wcuhg2q41',}, 
+          { positions: [ { i: '1', j: 2 }, { i: '2', j: 2 }, { i: '3', j: 2 }, { i: '4', j: 2 }, { i: '5', j: 2 }, { i: '6', j: 2 }, { i: '7', j: 2 }, { i: '9', j: 2 }, { i: '10', j: 2 }, { i: '11', j: 2 }, { i: '12', j: 2 }, { i: '13', j: 2 }, { i: '1', j: 3 }, { i: '2', j: 3 }, { i: '3', j: 3 }, { i: '4', j: 3 }, { i: '5', j: 3 }, { i: '6', j: 3 }, { i: '7', j: 3 }, { i: '9', j: 3 }, { i: '10', j: 3 }, { i: '11', j: 3 }, { i: '12', j: 3 }, { i: '13', j: 3 } ], css_id: 'tinytable_css_eev4ovjccojbdczlpfwd',}, 
+          { positions: [ { i: '0', j: 2 }, { i: '0', j: 3 } ], css_id: 'tinytable_css_ktot46fx5ihum03ti8kl',}, 
+          { positions: [ { i: '14', j: 1 } ], css_id: 'tinytable_css_povytv0dmprsm9d5pa0j',}, 
+          { positions: [ { i: '8', j: 1 } ], css_id: 'tinytable_css_l6p6frqdgmu3hkzan1zb',}, 
+          { positions: [ { i: '1', j: 1 }, { i: '2', j: 1 }, { i: '3', j: 1 }, { i: '4', j: 1 }, { i: '5', j: 1 }, { i: '6', j: 1 }, { i: '7', j: 1 }, { i: '9', j: 1 }, { i: '10', j: 1 }, { i: '11', j: 1 }, { i: '12', j: 1 }, { i: '13', j: 1 } ], css_id: 'tinytable_css_kaomfosy1ury3mi3ciqo',}, 
+          { positions: [ { i: '0', j: 1 } ], css_id: 'tinytable_css_fj377gu0jqp2g7vamcb8',}, 
           ];
 
           // Loop over the arrays to style the cells
           cellsToStyle.forEach(function (group) {
               group.positions.forEach(function (cell) {
-                  tableFns_9nj1jtnodmrfq9renw1j.styleCell(cell.i, cell.j, group.css_id);
+                  tableFns_6wsss2md9ld3youn7kuj.styleCell(cell.i, cell.j, group.css_id);
               });
           });
       });
     </script><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.css">
 <style>
     /* tinytable css entries after */
-    #tinytable_9nj1jtnodmrfq9renw1j td.tinytable_css_r15md76pvwvo7nzmfsv6, #tinytable_9nj1jtnodmrfq9renw1j th.tinytable_css_r15md76pvwvo7nzmfsv6 {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
-    #tinytable_9nj1jtnodmrfq9renw1j td.tinytable_css_868yxom3x6pzp67nkvpv, #tinytable_9nj1jtnodmrfq9renw1j th.tinytable_css_868yxom3x6pzp67nkvpv {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
-    #tinytable_9nj1jtnodmrfq9renw1j td.tinytable_css_ogecv0ut81abmrf79z4t, #tinytable_9nj1jtnodmrfq9renw1j th.tinytable_css_ogecv0ut81abmrf79z4t { text-align: center }
-    #tinytable_9nj1jtnodmrfq9renw1j td.tinytable_css_0zqs8amo96n9dqa0tfbu, #tinytable_9nj1jtnodmrfq9renw1j th.tinytable_css_0zqs8amo96n9dqa0tfbu {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
-    #tinytable_9nj1jtnodmrfq9renw1j td.tinytable_css_bnszoqaq4ffmt227ywo4, #tinytable_9nj1jtnodmrfq9renw1j th.tinytable_css_bnszoqaq4ffmt227ywo4 {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
-    #tinytable_9nj1jtnodmrfq9renw1j td.tinytable_css_2gq240bvb2p8ifg9x0dy, #tinytable_9nj1jtnodmrfq9renw1j th.tinytable_css_2gq240bvb2p8ifg9x0dy {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
-    #tinytable_9nj1jtnodmrfq9renw1j td.tinytable_css_9css2gm5xlt8vxh8rdr3, #tinytable_9nj1jtnodmrfq9renw1j th.tinytable_css_9css2gm5xlt8vxh8rdr3 { text-align: left }
-    #tinytable_9nj1jtnodmrfq9renw1j td.tinytable_css_fmy51iky05yvr0grceod, #tinytable_9nj1jtnodmrfq9renw1j th.tinytable_css_fmy51iky05yvr0grceod {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
+    #tinytable_6wsss2md9ld3youn7kuj td.tinytable_css_l4ascvrqkbznkbu93bde, #tinytable_6wsss2md9ld3youn7kuj th.tinytable_css_l4ascvrqkbznkbu93bde {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
+    #tinytable_6wsss2md9ld3youn7kuj td.tinytable_css_uez34dl6f74wcuhg2q41, #tinytable_6wsss2md9ld3youn7kuj th.tinytable_css_uez34dl6f74wcuhg2q41 {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
+    #tinytable_6wsss2md9ld3youn7kuj td.tinytable_css_eev4ovjccojbdczlpfwd, #tinytable_6wsss2md9ld3youn7kuj th.tinytable_css_eev4ovjccojbdczlpfwd { text-align: center }
+    #tinytable_6wsss2md9ld3youn7kuj td.tinytable_css_ktot46fx5ihum03ti8kl, #tinytable_6wsss2md9ld3youn7kuj th.tinytable_css_ktot46fx5ihum03ti8kl {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
+    #tinytable_6wsss2md9ld3youn7kuj td.tinytable_css_povytv0dmprsm9d5pa0j, #tinytable_6wsss2md9ld3youn7kuj th.tinytable_css_povytv0dmprsm9d5pa0j {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
+    #tinytable_6wsss2md9ld3youn7kuj td.tinytable_css_l6p6frqdgmu3hkzan1zb, #tinytable_6wsss2md9ld3youn7kuj th.tinytable_css_l6p6frqdgmu3hkzan1zb {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
+    #tinytable_6wsss2md9ld3youn7kuj td.tinytable_css_kaomfosy1ury3mi3ciqo, #tinytable_6wsss2md9ld3youn7kuj th.tinytable_css_kaomfosy1ury3mi3ciqo { text-align: left }
+    #tinytable_6wsss2md9ld3youn7kuj td.tinytable_css_fj377gu0jqp2g7vamcb8, #tinytable_6wsss2md9ld3youn7kuj th.tinytable_css_fj377gu0jqp2g7vamcb8 {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
     </style>
 <div class="container">
-      <table class="table tinytable" id="tinytable_9nj1jtnodmrfq9renw1j" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
+      <table class="table tinytable" id="tinytable_6wsss2md9ld3youn7kuj" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
 <thead><tr>
 <th scope="col" data-row="0" data-col="1"> </th>
                 <th scope="col" data-row="0" data-col="2">Group-level FEs (default)</th>
@@ -1898,14 +2024,14 @@ slightly different).</p>
                   <td data-row="11" data-col="3">Unconditional</td>
                 </tr>
 <tr>
-<td data-row="12" data-col="1">FE..year</td>
+<td data-row="12" data-col="1">FE..first.treat</td>
                   <td data-row="12" data-col="2">X</td>
                   <td data-row="12" data-col="3">X</td>
                 </tr>
 <tr>
-<td data-row="13" data-col="1">FE..first.treat</td>
+<td data-row="13" data-col="1">FE..year</td>
                   <td data-row="13" data-col="2">X</td>
-                  <td data-row="13" data-col="3"></td>
+                  <td data-row="13" data-col="3">X</td>
                 </tr>
 <tr>
 <td data-row="14" data-col="1">FE..countyreal</td>

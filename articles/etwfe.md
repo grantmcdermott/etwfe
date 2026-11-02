@@ -83,7 +83,10 @@ correctly specify all the possible interactions, demean control
 variables within groups, and then recover the treatment effects of
 interest via an appropriate marginal effect aggregation. The **etwfe**
 package aims to simplify the process by providing convenience functions
-that do all this work for you.
+that do all this work for you. It also supports the extension to
+non-binary treatments (e.g., continuous doses or counts) proposed by
+Wooldridge ([2026](https://doi.org/10.2139/ssrn.7530698)); see
+[Non-binary treatments](#non-binary-treatments) below.
 
 ## Dataset
 
@@ -121,14 +124,14 @@ Let’s load **etwfe** and work through its basic functionality. As we
 shall see, the core workflow of the package involves two consecutive
 function calls:
 
-1.  [`etwfe()`](http://grantmcdermott.com/etwfe/reference/etwfe.md)
-2.  [`emfx()`](http://grantmcdermott.com/etwfe/reference/emfx.md)
+1.  [`etwfe()`](https://grantmcdermott.com/etwfe/reference/etwfe.md)
+2.  [`emfx()`](https://grantmcdermott.com/etwfe/reference/emfx.md)
 
 ### `etwfe`
 
 Given the package name, it won’t surprise you to learn that the key
 estimating function is
-[`etwfe()`](http://grantmcdermott.com/etwfe/reference/etwfe.md). Here’s
+[`etwfe()`](https://grantmcdermott.com/etwfe/reference/etwfe.md). Here’s
 how it would look for our example dataset.
 
 ``` r
@@ -145,12 +148,12 @@ mod = etwfe(
 ```
 
 There are a few things to say about our
-[`etwfe()`](http://grantmcdermott.com/etwfe/reference/etwfe.md) argument
-choices and other function options, but we’ll leave those details aside
-until a bit later. Right now, just know that all of the above arguments
-are required except `vcov` (though I generally recommend it too, since
-we probably want to cluster our standard errors at the individual unit
-level).
+[`etwfe()`](https://grantmcdermott.com/etwfe/reference/etwfe.md)
+argument choices and other function options, but we’ll leave those
+details aside until a bit later. Right now, just know that all of the
+above arguments are required except `vcov` (though I generally recommend
+it too, since we probably want to cluster our standard errors at the
+individual unit level).
 
 Let’s take a look at our model object.
 
@@ -160,33 +163,39 @@ mod
 #> OLS estimation, Dep. Var.: lemp
 #> Observations: 2,500
 #> Fixed-effects: first.treat: 4,  year: 5
+#> Varying slopes: lpop (first.treat): 4,  lpop (year): 5
 #> Standard-errors: Clustered (countyreal) 
-#>                         Estimate Std. Error   t value  Pr(>|t|)    
-#> lpop                    1.065461   0.021824 48.821102 < 2.2e-16 ***
-#> first.treat::2004:lpop  0.050982   0.037756  1.350320  0.177525    
-#> first.treat::2006:lpop -0.041095   0.047390 -0.867183  0.386259    
-#> first.treat::2007:lpop  0.055518   0.039212  1.415838  0.157447    
-#> year::2004:lpop         0.011014   0.007554  1.458043  0.145458    
-#> year::2005:lpop         0.020733   0.008104  2.558268  0.010814 *  
-#> year::2006:lpop         0.010535   0.010816  0.974084  0.330487    
-#> year::2007:lpop         0.020921   0.011808  1.771708  0.077053 .  
-#> ... 14 coefficients remaining (display them with summary() or use argument n)
+#>                                               Estimate Std. Error   t value   Pr(>|t|)    
+#> .Dtreat:first.treat::2004:year::2004         -0.021248   0.021728 -0.977890 3.2860e-01    
+#> .Dtreat:first.treat::2004:year::2005         -0.081850   0.027375 -2.989963 2.9279e-03 ** 
+#> .Dtreat:first.treat::2004:year::2006         -0.137870   0.030795 -4.477097 9.3851e-06 ***
+#> .Dtreat:first.treat::2004:year::2007         -0.109539   0.032322 -3.389024 7.5694e-04 ***
+#> .Dtreat:first.treat::2006:year::2006          0.002537   0.018883  0.134344 8.9318e-01    
+#> .Dtreat:first.treat::2006:year::2007         -0.045093   0.021987 -2.050907 4.0798e-02 *  
+#> .Dtreat:first.treat::2007:year::2007         -0.045955   0.017975 -2.556568 1.0866e-02 *  
+#> .Dtreat:first.treat::2004:year::2004:lpop_dm  0.004628   0.017584  0.263184 7.9252e-01    
+#> .Dtreat:first.treat::2004:year::2005:lpop_dm  0.025113   0.017904  1.402661 1.6134e-01    
+#> .Dtreat:first.treat::2004:year::2006:lpop_dm  0.050735   0.021070  2.407884 1.6407e-02 *  
+#> .Dtreat:first.treat::2004:year::2007:lpop_dm  0.011250   0.026617  0.422648 6.7273e-01    
+#> .Dtreat:first.treat::2006:year::2006:lpop_dm  0.038935   0.016472  2.363731 1.8474e-02 *  
+#> .Dtreat:first.treat::2006:year::2007:lpop_dm  0.038060   0.022477  1.693276 9.1027e-02 .  
+#> .Dtreat:first.treat::2007:year::2007:lpop_dm -0.019835   0.016198 -1.224528 2.2133e-01    
 #> ... 10 variables were removed because of collinearity
 #> (.Dtreat:first.treat::2006:year::2004, .Dtreat:first.treat::2006:year::2005 and 8 others
 #> [full set in $collin.var])
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-#> RMSE: 0.537131     Adj. R2: 0.871722
-#>                  Within R2: 0.869464
+#> RMSE: 0.537131     Adj. R2: 0.87167 
+#>                  Within R2: 8.449e-4
 ```
 
-What [`etwfe()`](http://grantmcdermott.com/etwfe/reference/etwfe.md) has
-done underneath the hood is construct a treatment dummy variable
+What [`etwfe()`](https://grantmcdermott.com/etwfe/reference/etwfe.md)
+has done underneath the hood is construct a treatment dummy variable
 `.Dtreat` and saturated it together with the other variables of interest
 as a set of multiway interaction terms.[^2]
 
 You may have noticed that our
-[`etwfe()`](http://grantmcdermott.com/etwfe/reference/etwfe.md) call
+[`etwfe()`](https://grantmcdermott.com/etwfe/reference/etwfe.md) call
 returns a standard [**fixest**](https://lrberge.github.io/fixest/)
 object, since this is what it uses to perform the underlying estimation.
 All of the associated methods and functions from the **fixest** package
@@ -196,7 +205,7 @@ the raw regression coefficients with
 or print them to a nice regression table with
 [`fixest::etable()`](https://lrberge.github.io/fixest/reference/etable.html).
 However, the raw coefficients from an
-[`etwfe()`](http://grantmcdermott.com/etwfe/reference/etwfe.md)
+[`etwfe()`](https://grantmcdermott.com/etwfe/reference/etwfe.md)
 estimation are not particularly meaningful in of themselves. Recall that
 these are complex, multiway interaction terms that are probably hard to
 to interpret on their own. This insight leads us to our next key
@@ -210,7 +219,7 @@ aggregate them along some dimension of interest (e.g., by groups or
 time, or as an event study). A natural way to perform these aggregations
 is by recovering the appropriate marginal effects. The **etwfe** package
 provides another convenience function for doing so:
-[`emfx()`](http://grantmcdermott.com/etwfe/reference/emfx.md), which is
+[`emfx()`](https://grantmcdermott.com/etwfe/reference/emfx.md), which is
 a thin(ish) wrapper around
 [`marginaleffects::slopes()`](https://marginaleffects.com/man/r/slopes.html).
 
@@ -233,7 +242,7 @@ In other words, our model is telling us that an increase in the minimum
 wage leads to an approximate 5 percent decrease in teen employment.
 
 Beyond simple ATTs,
-[`emfx()`](http://grantmcdermott.com/etwfe/reference/emfx.md) also
+[`emfx()`](https://grantmcdermott.com/etwfe/reference/emfx.md) also
 supports other types of aggregations via the `type` argument. For
 example, we can use `type = "calendar"` to get ATTs by period, or
 `type = "group"` to get ATTs by cohort groups. But the option that will
@@ -403,7 +412,7 @@ modelsummary(
 | \+ p \< 0.1, \* p \< 0.05, \*\* p \< 0.01, \*\*\* p \< 0.001 |  |  |
 | Std. errors are clustered at the county level |  |  |
 
-Event study {#tinytable_p7ft0hllf8psg50bifai .table .tinytable
+Event study {#tinytable_vpdyvmmnk3relei00pcb .table .tinytable
 style="width: auto; margin-left: auto; margin-right: auto;"
 quarto-disable-processing="true"}
 
@@ -434,9 +443,9 @@ mpdta$gls = substr(mpdta$countyreal, 1, 2) %in% gls_fips
 Now imagine that we are interested in estimating separate treatment
 effects for GLS versus non-GLS counties. We do this simply by invoking
 the optional `xvar` argument as part of our
-[`etwfe()`](http://grantmcdermott.com/etwfe/reference/etwfe.md)
+[`etwfe()`](https://grantmcdermott.com/etwfe/reference/etwfe.md)
 call.[^4] Any subsequent
-[`emfx()`](http://grantmcdermott.com/etwfe/reference/emfx.md) call on
+[`emfx()`](https://grantmcdermott.com/etwfe/reference/emfx.md) call on
 this object will automatically recognize that we want to recover
 treatment effects by these two distinct groups.
 
@@ -469,7 +478,7 @@ powerful
 infrastructure of the underlying **marginaleffects** package. Probably
 the easiest way to do this is by using `b[i]`-style positional
 arguments, where “`[i]`” denotes the row of the
-[`emfx()`](http://grantmcdermott.com/etwfe/reference/emfx.md) return
+[`emfx()`](https://grantmcdermott.com/etwfe/reference/emfx.md) return
 object. Thus, by specifying `hypothesis = "b1 = b2"`, we can test
 whether the ATTs from row 1 (non-GLS) and row 2 (GLS) are different from
 one another.
@@ -533,7 +542,7 @@ modelsummary(
 |     | (0.035)    | (0.026) |
 
 Comparing the ATT on GLS and non-GLS counties
-{#tinytable_po986sebcjj3vbfwntmd .table .tinytable
+{#tinytable_s8sn5xe6sc29a4zd1ha3 .table .tinytable
 style="width: auto; margin-left: auto; margin-right: auto;"
 quarto-disable-processing="true"}
 
@@ -573,18 +582,246 @@ etwfe(
 #> Comparison: TRUE - FALSE
 ```
 
+## Non-binary treatments
+
+All of the examples thus far have involved a *binary* treatment: a
+county either received the minimum wage hike or it didn’t. But many
+interventions come in different intensities, or “doses”. For example,
+consider the size of a tax credit, the number of hours of job training,
+or the number of new stores opening in a town. Not only are these
+treatments non-binary, but the doses themselves might be changing over
+time, e.g. more stores opening each year in a town. The good news is
+that the ETWFE framework extends very naturally to these non-binary
+settings. Wooldridge ([2026](https://doi.org/10.2139/ssrn.7530698))
+shows that we need simply interact the treatment level (dose) with the
+full set of cohort × period dummies, so that each cohort-period cell
+gets its own heterogeneous slope. These slopes can then be aggregated in
+all the usual ways.
+
+To demonstrate, we’ll use the `walmart` dataset that ships with
+**etwfe**, which is also the empirical application in Wooldridge (2026).
+It records the staggered rollout of Walmart stores across 1,288 US
+counties between 1977 and 1999, together with county retail employment.
+No county had a Walmart before 1986. The `cohort` variable records the
+year of each county’s first Walmart opening (with 0 denoting counties
+that had none by 1999), while `n_open` records the number of stores open
+in a given year. This latter variable is our non-binary treatment
+variable of interest.
+
+``` r
+
+data("walmart", package = "etwfe")
+head(walmart)
+#>   fips year cohort n_open log_retail_emp
+#> 1 1003 1977   1986      0         7.7811
+#> 2 1003 1978   1986      0         7.9082
+#> 3 1003 1979   1986      0         7.9878
+#> 4 1003 1980   1986      0         7.9693
+#> 5 1003 1981   1986      0         7.9650
+#> 6 1003 1982   1986      0         8.0594
+```
+
+Following Wooldridge’s notation, we specify the non-binary treatment via
+the `wvar` argument. One thing to note is that we also have to supply
+unit-level fixed effects via `ivar`. The reason is that, unlike the
+binary case, we must now allow for the fact that the treatment intensity
+can vary across units *within* a cohort. For example, two counties might
+get their first Walmart stores in the same year, but one of them could
+get additional stores in a later year. A model specification with only
+cohort-level (`gvar`) fixed effects would thus fail to absorb any unit
+heterogeneity that is correlated with the treatment level.[^5]
+
+``` r
+
+wmod = etwfe(
+  log_retail_emp ~ 0, tvar = year, gvar = cohort, data = walmart,
+  ivar = fips,         ## <= required for non-binary treatments
+  vcov = ~fips,
+  wvar = n_open        ## <= non-binary treatment
+)
+```
+
+### Slopes
+
+By default,
+[`emfx()`](https://grantmcdermott.com/etwfe/reference/emfx.md) reports
+the aggregated slopes, i.e., the effect of a one-unit change in the
+treatment level. Here, each additional Walmart store increases county
+retail employment by about 3.9% on average.
+
+``` r
+
+emfx(wmod)
+#> 
+#>  .Dtreat Estimate Std. Error    z Pr(>|z|)    S  2.5 % 97.5 %
+#>     TRUE   0.0386    0.00506 7.63   <0.001 45.3 0.0287 0.0485
+#> 
+#> Term: n_open
+#> Type: response
+#> Comparison: +1
+```
+
+The same logic applies to the other aggregation types. For example, here
+is the event study of the slopes by time since treatment.
+
+``` r
+
+wmod_es = emfx(wmod, "event")
+plot(wmod_es)
+```
+
+![](etwfe_files/figure-html/unnamed-chunk-22-1.png)
+
+### Treatment levels
+
+Slopes are not always the most natural quantity of interest, though. We
+might rather want to know the effect of treatment as actually received,
+or the effect at some representative treatment level. The `wlevels`
+argument of
+[`emfx()`](https://grantmcdermott.com/etwfe/reference/emfx.md) covers
+both cases. First, `wlevels = "observed"` reports the average effect of
+each county’s observed number of stores (relative to no stores), which
+is the closest analogue to a binary ATT.
+
+``` r
+
+emfx(wmod, "event", wlevels = "observed")
+#> 
+#>  event Estimate Std. Error     z Pr(>|z|)    S  2.5 % 97.5 %
+#>      0   0.0309    0.00441  7.01   <0.001 38.6 0.0222 0.0395
+#>      1   0.0521    0.00483 10.78   <0.001 87.6 0.0426 0.0615
+#>      2   0.0452    0.00532  8.51   <0.001 55.6 0.0348 0.0557
+#>      3   0.0407    0.00583  6.99   <0.001 38.4 0.0293 0.0522
+#>      4   0.0401    0.00638  6.28   <0.001 31.5 0.0276 0.0526
+#>      5   0.0451    0.00696  6.48   <0.001 33.4 0.0315 0.0588
+#>      6   0.0500    0.00758  6.60   <0.001 34.5 0.0351 0.0648
+#>      7   0.0603    0.00849  7.10   <0.001 39.6 0.0437 0.0770
+#>      8   0.0665    0.00969  6.86   <0.001 37.1 0.0475 0.0855
+#>      9   0.0710    0.01146  6.19   <0.001 30.7 0.0485 0.0934
+#>     10   0.0892    0.01357  6.57   <0.001 34.2 0.0626 0.1158
+#>     11   0.0987    0.01682  5.87   <0.001 27.8 0.0657 0.1316
+#>     12   0.1006    0.02236  4.50   <0.001 17.1 0.0567 0.1444
+#>     13   0.1375    0.03412  4.03   <0.001 14.1 0.0706 0.2044
+#> 
+#> Term: n_open
+#> Type: response
+#> Comparison: custom
+```
+
+Second, we can evaluate effects at specific treatment levels, e.g., one,
+two, or three stores. These are reported and plotted as separate groups.
+
+``` r
+
+plot(emfx(wmod, "event", wlevels = 1:3))
+```
+
+![](etwfe_files/figure-html/unnamed-chunk-24-1.png)
+
+Similar to
+[`marginaleffects::datagrid()`](https://rdrr.io/pkg/marginaleffects/man/datagrid.html),
+the `wlevels` argument also accepts a function that is applied to the
+treated observations’ treatment levels, e.g. `wlevels = fivenum`. Two
+caveats are worth keeping in mind. First, since the model is linear in
+the treatment level, the effects at fixed levels are simply scaled
+versions of the slopes. Second, levels far from the bulk of the data are
+extrapolations. For example, in our case here, most treated counties
+only have a single Walmart.
+
+### Testing pre-trends
+
+As with binary treatments, we can test for violations of parallel trends
+by switching to the never-treated control group. In this case, the
+pre-treatment periods enter as binary cohort-period indicators—since the
+treatment level is zero before treatment—while the post-treatment
+periods enter as slopes on `wvar`. Because the pre-treatment estimates
+are thus level differences, the event study reports the post-treatment
+effects at the observed treatment level by default, so that both sides
+are on the same scale.
+
+``` r
+
+wmod_never = etwfe(
+  log_retail_emp ~ 0, tvar = year, gvar = cohort, data = walmart,
+  ivar = fips, vcov = ~fips, wvar = n_open,
+  cgroup = "never"     ## <= never-treated control group
+)
+plot(emfx(wmod_never, "event"))
+#> Pre-treatment estimates are level differences, so post-treatment effects are reported at the observed treatment level for comparability. Use `wlevels = "slope"` for per-unit slopes instead.
+```
+
+![](etwfe_files/figure-html/unnamed-chunk-25-1.png)
+
+Oh, dear. Our pre-treatment estimates reveal a clear violation of
+parallel trends: counties that eventually received a Walmart were
+already experiencing faster retail employment growth than the
+never-treated counties. So, we need to do something a little more
+sophisticated…
+
+### Cohort trends
+
+One remedy is to allow each cohort its own linear time trend via
+`trend = TRUE`. This argument works for binary treatments too and is
+compatible with the default not-yet-treated control group. However, it
+is not compatible with `cgroup = "never"`, since the estimation cannot
+separately identify cohort trends and a full set of pre-treatment
+effects.[^6] Compared with our original estimates (`emfx(wmod)` above),
+accounting for these pre-existing trends cuts the estimated employment
+effect of each additional store by more than half to 1.6%.
+
+``` r
+
+wmod_trend = etwfe(
+  log_retail_emp ~ 0, tvar = year, gvar = cohort, data = walmart,
+  ivar = fips, vcov = ~fips, wvar = n_open,
+  trend = TRUE         ## <= cohort-specific linear trends
+)
+emfx(wmod_trend)
+#> 
+#>  .Dtreat Estimate Std. Error    z Pr(>|z|)    S   2.5 % 97.5 %
+#>     TRUE   0.0156    0.00462 3.39   <0.001 10.5 0.00659 0.0247
+#> 
+#> Term: n_open
+#> Type: response
+#> Comparison: +1
+```
+
+The cohort trends enter the model as regular coefficients, so we can
+also test their joint significance directly.
+
+``` r
+
+fixest::wald(wmod_trend, "^cohort::.*:year$")
+#> Wald test, H0: joint nullity of cohort::1986:year, cohort::1987:year, cohort::1988:year, cohort::1989:year, cohort::1990:year, cohort::1991:year and 8 others
+#>  stat = 8.03725, p-value < 2.2e-16, on 14 and 1,287 DoF, VCOV: Clustered (fips).
+```
+
+The test strongly rejects the null that the cohort trends are jointly
+zero (F = 8.0, p \< 0.001). In other words, the treated cohorts’ linear
+trends differ from that of the never-treated counties, which is
+consistent with the pre-trends evidence above and supports including
+them.
+
+Finally, note that the validity of the non-binary ETWFE estimator rests
+on one more assumption beyond no anticipation and parallel trends.
+Namely, the expected gain from treatment may vary by cohort, but must
+not otherwise depend on the level of treatment that a unit receives. See
+[`?etwfe`](https://grantmcdermott.com/etwfe/reference/etwfe.md) for more
+details.
+
 ## Performance
 
 Both stages of the **etwfe** workflow should be fast, even for large
 datasets. The first
-[`etwfe()`](http://grantmcdermott.com/etwfe/reference/etwfe.md) stage
+[`etwfe()`](https://grantmcdermott.com/etwfe/reference/etwfe.md) stage
 leverages the incredible performance of **fixest** (and takes some
 shortcuts to avoid wasting time on nuisance parameters; see [Regarding
 fixed effects](#regarding-fixed-effects) below). As of **etwfe** v0.7.0,
-the second [`emfx()`](http://grantmcdermott.com/etwfe/reference/emfx.md)
-stage should also be very fast—more than an order of magnitude faster
-than before (typically 10-40x)—since it now computes standard errors
-using exact analytic Jacobians.[^5]
+the second
+[`emfx()`](https://grantmcdermott.com/etwfe/reference/emfx.md) stage
+should also be very fast—more than an order of magnitude faster than
+before (typically 10-40x)—since it now computes standard errors using
+exact analytic Jacobians.[^7]
 
 ## Under the hood
 
@@ -604,12 +841,11 @@ of an estimated model to see for yourself.
 
 mod$fml_all
 #> $linear
-#> lemp ~ .Dtreat:i(first.treat, i.year, ref = 0, ref2 = 2003)/lpop_dm + 
-#>     lpop + i(first.treat, lpop, ref = 0) + i(year, lpop, ref = 2003)
-#> <environment: 0x5775e33b44f8>
+#> lemp ~ .Dtreat:i(first.treat, i.year, ref = 0, ref2 = 2003)/lpop_dm
+#> <environment: 0x6338513b1200>
 #> 
 #> $fixef
-#> ~first.treat + year
+#> ~first.treat + first.treat[[lpop]] + year + year[[lpop]]
 ```
 
 At this point, however, you may notice a few things. The first is that
@@ -641,7 +877,7 @@ mod2 = fixest::feols(
 
 We can confirm that the manual approach yields the same output as our
 original etwfe regression. I’ll use **modelsummary** to do that here,
-since I’ve already loaded it above.[^6].
+since I’ve already loaded it above.[^8].
 
 ``` r
 
@@ -653,22 +889,6 @@ modelsummary(
 
 |                                                      | etwfe   | manual  |
 |------------------------------------------------------|---------|---------|
-| lpop                                                 | 1.065   |         |
-|                                                      | (0.022) |         |
-| first.treat = 2004 × lpop                            | 0.051   |         |
-|                                                      | (0.038) |         |
-| first.treat = 2006 × lpop                            | -0.041  |         |
-|                                                      | (0.047) |         |
-| first.treat = 2007 × lpop                            | 0.056   |         |
-|                                                      | (0.039) |         |
-| year = 2004 × lpop                                   | 0.011   |         |
-|                                                      | (0.008) |         |
-| year = 2005 × lpop                                   | 0.021   |         |
-|                                                      | (0.008) |         |
-| year = 2006 × lpop                                   | 0.011   |         |
-|                                                      | (0.011) |         |
-| year = 2007 × lpop                                   | 0.021   |         |
-|                                                      | (0.012) |         |
 | .Dtreat × first.treat = 2004 × year = 2004           | -0.021  | -0.021  |
 |                                                      | (0.022) | (0.022) |
 | .Dtreat × first.treat = 2004 × year = 2005           | -0.082  | -0.082  |
@@ -702,7 +922,7 @@ To transform these raw coefficients into their more meaningful ATT
 counterparts, we just need to perform the appropriate marginal effects
 operation. For example, here’s how we can get both the simple ATTs and
 event-study ATTs from earlier. This is what
-[`emfx()`](http://grantmcdermott.com/etwfe/reference/emfx.md) is doing
+[`emfx()`](https://grantmcdermott.com/etwfe/reference/emfx.md) is doing
 behind the scenes.
 
 ``` r
@@ -753,7 +973,7 @@ syntax in the fixed effect slot (i.e., `first.treat[lpop]` and
 `year[lpop]`). The reason for this is part practical, part
 philosophical. From a practical perspective, `factor_var[numeric_var]`
 is equivalent to base R’s `factor_var/numeric_var` “nesting” syntax but
-is much faster for high-dimensional factors.[^7] From a philosophical
+is much faster for high-dimensional factors.[^9] From a philosophical
 perspective, **etwfe** tries to limit the amount of extraneous
 information that it reports to users. Most of the interaction effects in
 the ETWFE framework are just acting as controls. By relegating them to
@@ -812,22 +1032,6 @@ modelsummary(mods, gof_map = NA)
 
 |  | etwfe | manual | etwfe (feo) | manual (feo) | etwfe (none) | manual (none) |
 |----|----|----|----|----|----|----|
-| lpop | 1.065 |  | 1.065 | 1.065 | 1.065 | 1.065 |
-|  | (0.022) |  | (0.022) | (0.022) | (0.022) | (0.022) |
-| first.treat = 2004 × lpop | 0.051 |  | 0.051 | 0.051 | 0.051 | 0.051 |
-|  | (0.038) |  | (0.038) | (0.038) | (0.038) | (0.038) |
-| first.treat = 2006 × lpop | -0.041 |  | -0.041 | -0.041 | -0.041 | -0.041 |
-|  | (0.047) |  | (0.047) | (0.047) | (0.047) | (0.047) |
-| first.treat = 2007 × lpop | 0.056 |  | 0.056 | 0.056 | 0.056 | 0.056 |
-|  | (0.039) |  | (0.039) | (0.039) | (0.039) | (0.039) |
-| year = 2004 × lpop | 0.011 |  | 0.011 | 0.011 | 0.011 | 0.011 |
-|  | (0.008) |  | (0.008) | (0.008) | (0.008) | (0.008) |
-| year = 2005 × lpop | 0.021 |  | 0.021 | 0.021 | 0.021 | 0.021 |
-|  | (0.008) |  | (0.008) | (0.008) | (0.008) | (0.008) |
-| year = 2006 × lpop | 0.011 |  | 0.011 | 0.011 | 0.011 | 0.011 |
-|  | (0.011) |  | (0.011) | (0.011) | (0.011) | (0.011) |
-| year = 2007 × lpop | 0.021 |  | 0.021 | 0.021 | 0.021 | 0.021 |
-|  | (0.012) |  | (0.012) | (0.012) | (0.012) | (0.012) |
 | .Dtreat × first.treat = 2004 × year = 2004 | -0.021 | -0.021 | -0.021 | -0.021 | -0.021 | -0.021 |
 |  | (0.022) | (0.022) | (0.022) | (0.022) | (0.022) | (0.022) |
 | .Dtreat × first.treat = 2004 × year = 2005 | -0.082 | -0.082 | -0.082 | -0.082 | -0.082 | -0.082 |
@@ -856,6 +1060,22 @@ modelsummary(mods, gof_map = NA)
 |  | (0.022) | (0.022) | (0.022) | (0.022) | (0.022) | (0.022) |
 | .Dtreat × first.treat = 2007 × year = 2007 × lpop_dm | -0.020 | -0.020 | -0.020 | -0.020 | -0.020 | -0.020 |
 |  | (0.016) | (0.016) | (0.016) | (0.016) | (0.016) | (0.016) |
+| lpop |  |  | 1.065 | 1.065 | 1.065 | 1.065 |
+|  |  |  | (0.022) | (0.022) | (0.022) | (0.022) |
+| first.treat = 2004 × lpop |  |  | 0.051 | 0.051 | 0.051 | 0.051 |
+|  |  |  | (0.038) | (0.038) | (0.038) | (0.038) |
+| first.treat = 2006 × lpop |  |  | -0.041 | -0.041 | -0.041 | -0.041 |
+|  |  |  | (0.047) | (0.047) | (0.047) | (0.047) |
+| first.treat = 2007 × lpop |  |  | 0.056 | 0.056 | 0.056 | 0.056 |
+|  |  |  | (0.039) | (0.039) | (0.039) | (0.039) |
+| year = 2004 × lpop |  |  | 0.011 | 0.011 | 0.011 | 0.011 |
+|  |  |  | (0.008) | (0.008) | (0.008) | (0.008) |
+| year = 2005 × lpop |  |  | 0.021 | 0.021 | 0.021 | 0.021 |
+|  |  |  | (0.008) | (0.008) | (0.008) | (0.008) |
+| year = 2006 × lpop |  |  | 0.011 | 0.011 | 0.011 | 0.011 |
+|  |  |  | (0.011) | (0.011) | (0.011) | (0.011) |
+| year = 2007 × lpop |  |  | 0.021 | 0.021 | 0.021 | 0.021 |
+|  |  |  | (0.012) | (0.012) | (0.012) | (0.012) |
 | (Intercept) |  |  |  |  | 2.260 | 2.260 |
 |  |  |  |  |  | (0.088) | (0.088) |
 | first.treat = 2004 |  |  |  |  | 0.038 | 0.038 |
@@ -915,8 +1135,8 @@ modelsummary(
 | Num.Obs. | 2500 | 2500 |
 | R2 | 0.873 | 0.993 |
 | Std.Errors | Unconditional (clustered by countyreal) | Unconditional |
+| FE..first.treat | X | X |
 | FE..year | X | X |
-| FE..first.treat | X |  |
 | FE..countyreal |  | X |
 
 [^1]: Good textbook introductions to DiD are available
@@ -941,14 +1161,24 @@ modelsummary(
     variable (which could obviously be included as part of the `fml`
     RHS.
 
-[^5]: This is thanks to changes in the upstream **marginaleffects**
+[^5]: If the `wvar` argument is present,
+    [`etwfe()`](https://grantmcdermott.com/etwfe/reference/etwfe.md)
+    will actually throw an error if `ivar` is missing.
+
+[^6]: Unfortunately, this tradeoff makes for a slightly awkward
+    workflow: first we visually inspect the pre-trends with
+    `cgroup = "never"`, before reverting back to the default
+    `cgroup = "notyet"` with `trend = TRUE`. But such is the life of the
+    applied researcher.
+
+[^7]: This is thanks to changes in the upstream **marginaleffects**
     package. Earlier versions relied on a numerical delta method, which
     required estimating two prediction models for *each* coefficient in
     the model. For large datasets, this could lead to frustratingly slow
     estimation times.
 
-[^6]: Another option would be to use
+[^8]: Another option would be to use
     [`fixest::etable()`](https://lrberge.github.io/fixest/reference/etable.html)
 
-[^7]: We won’t see a speed-up for this small dataset, but it can make a
+[^9]: We won’t see a speed-up for this small dataset, but it can make a
     significant difference for large datasets.

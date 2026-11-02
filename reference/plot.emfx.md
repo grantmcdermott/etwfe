@@ -1,7 +1,7 @@
 # Plot method for emfx objects
 
 Visualize the results of an
-[`emfx`](http://grantmcdermott.com/etwfe/reference/emfx.md) call.
+[`emfx`](https://grantmcdermott.com/etwfe/reference/emfx.md) call.
 
 ## Usage
 
@@ -212,4 +212,31 @@ emfx(pmod, "event")
 #> Type: response
 #> Comparison: TRUE - FALSE
 #> 
+
+#
+# Non-binary treatments
+#
+
+# Walmart store openings and county retail employment, where the treatment
+# is the number of Walmart stores in a county. Note that `ivar` is required.
+data("walmart", package = "etwfe")
+
+wmod = etwfe(
+  log_retail_emp ~ 0, tvar = year, gvar = cohort, data = walmart,
+  ivar = fips, vcov = ~fips,
+  wvar = n_open        ## <= non-binary treatment
+  )
+emfx(wmod)             ## effect of each additional store
+#> 
+#>  .Dtreat Estimate Std. Error    z Pr(>|z|)    S  2.5 % 97.5 %
+#>     TRUE   0.0386    0.00506 7.63   <0.001 45.3 0.0287 0.0485
+#> 
+#> Term: n_open
+#> Type: response
+#> Comparison: +1
+#> 
+
+# Effects at specific treatment levels (relative to no treatment)
+plot(emfx(wmod, "event", wlevels = 1:3))
+
 ```

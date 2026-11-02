@@ -17,6 +17,7 @@ emfx(
   compress = "auto",
   collapse = compress,
   predict = c("response", "link"),
+  wlevels = NULL,
   post_only = TRUE,
   window = NULL,
   lean = FALSE,
@@ -76,6 +77,46 @@ emfx(
   or [`slopes`](https://rdrr.io/pkg/marginaleffects/man/slopes.html),
   but we rename it here to avoid a clash with the top-level `type`
   argument above.)
+
+- wlevels:
+
+  Only relevant for non-binary treatments, i.e. if the preceding `etwfe`
+  call included a `wvar` argument. Controls the treatment level(s) at
+  which effects are evaluated:
+
+  - NULL (default): Equivalent to `"slope"`, except for event studies
+    with the `"never"` treated control group, where it is equivalent to
+    `"observed"` (since the pre-treatment estimates are level
+    differences).
+
+  - `"slope"`: Average marginal effect of a one-unit change in `wvar`.
+
+  - `"observed"`: Average effect of each unit's observed treatment
+    level, relative to no treatment (`wvar = 0`). This also reflects how
+    treatment levels evolve over time, and is the closest analogue to a
+    binary ATT.
+
+  - Numeric vector: Effects of setting the treatment level to each of
+    the supplied values, relative to no treatment, e.g.
+    `wlevels = c(1, 2, 5)`. Results are reported (and plotted)
+    separately for each treatment level.
+
+  - Function: As above, but with treatment levels computed by applying
+    the function to the treated observations' `wvar` values, e.g.
+    `wlevels = fivenum` or
+    `wlevels = \(x) quantile(x, c(0.25, 0.5, 0.75))`.
+
+  These options mirror the ergonomics of
+  [`datagrid`](https://rdrr.io/pkg/marginaleffects/man/datagrid.html),
+  which similarly accepts values or functions (e.g.,
+  `datagrid(x = fivenum)`). Note that effects at fixed treatment levels
+  are linear in `wvar` by construction, and that levels far from the
+  bulk of the data (e.g., the minimum and maximum in `fivenum`) are
+  extrapolations.
+
+  For event studies with the `"never"` treated control group, the
+  pre-treatment estimates do not depend on `wvar`, and are reported only
+  once (with a missing `wvar` value, and as a "Pre" group in plots).
 
 - post_only:
 
@@ -235,7 +276,7 @@ Compression for Estimating Linear Models. Working paper (version: March
 
 [marginaleffects::slopes](https://rdrr.io/pkg/marginaleffects/man/slopes.html)
 which does the heavily lifting behind the scenes.
-[`etwfe`](http://grantmcdermott.com/etwfe/reference/etwfe.md) is the
+[`etwfe`](https://grantmcdermott.com/etwfe/reference/etwfe.md) is the
 companion estimating function that should be run before `emfx`.
 
 ## Examples
@@ -409,4 +450,31 @@ emfx(pmod, "event")
 #> Type: response
 #> Comparison: TRUE - FALSE
 #> 
+
+#
+# Non-binary treatments
+#
+
+# Walmart store openings and county retail employment, where the treatment
+# is the number of Walmart stores in a county. Note that `ivar` is required.
+data("walmart", package = "etwfe")
+
+wmod = etwfe(
+  log_retail_emp ~ 0, tvar = year, gvar = cohort, data = walmart,
+  ivar = fips, vcov = ~fips,
+  wvar = n_open        ## <= non-binary treatment
+  )
+emfx(wmod)             ## effect of each additional store
+#> 
+#>  .Dtreat Estimate Std. Error    z Pr(>|z|)    S  2.5 % 97.5 %
+#>     TRUE   0.0386    0.00506 7.63   <0.001 45.3 0.0287 0.0485
+#> 
+#> Term: n_open
+#> Type: response
+#> Comparison: +1
+#> 
+
+# Effects at specific treatment levels (relative to no treatment)
+plot(emfx(wmod, "event", wlevels = 1:3))
+
 ```

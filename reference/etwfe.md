@@ -1,8 +1,8 @@
 # Extended two-way fixed effects
 
 Estimates an "extended" two-way fixed effects regression, with fully
-saturated interaction effects *a la* Wooldridge (2023, 2025). At its
-heart, `etwfe` is a convenience function that automates a number of
+saturated interaction effects *a la* Wooldridge (2023, 2025, 2026). At
+its heart, `etwfe` is a convenience function that automates a number of
 tedious and error prone preparation steps involving both the data and
 model formulae. Computation is passed on to the
 [`feols`](https://lrberge.github.io/fixest/reference/feols.html)
@@ -10,7 +10,7 @@ model formulae. Computation is passed on to the
 [`feglm`](https://lrberge.github.io/fixest/reference/feglm.html)
 (nonlinear) functions from the **fixest** package. `etwfe` should be
 paired with its companion
-[`emfx`](http://grantmcdermott.com/etwfe/reference/emfx.md) function.
+[`emfx`](https://grantmcdermott.com/etwfe/reference/emfx.md) function.
 
 ## Usage
 
@@ -21,12 +21,14 @@ etwfe(
   gvar = NULL,
   data = NULL,
   ivar = NULL,
+  wvar = NULL,
   xvar = NULL,
   tref = NULL,
   gref = NULL,
   cgroup = c("notyet", "never"),
   fe = NULL,
   family = NULL,
+  trend = FALSE,
   ...
 )
 ```
@@ -59,9 +61,25 @@ etwfe(
   Optional index variable. Can be a string (e.g., "country") or an
   expression (e.g., country). Leaving as NULL (the default) will result
   in group-level fixed effects being used, which is more efficient and
-  necessary for nonlinear models (see `family` argument below). However,
-  you may still want to cluster your standard errors by your index
-  variable through the `vcov` argument. See Examples below.
+  necessary for nonlinear models (see `family` argument below). For
+  binary treatments in balanced panels, group-level and unit-level fixed
+  effects yield identical treatment effect estimates (Wooldridge, 2025).
+  However, you may still want to cluster your standard errors by your
+  index variable through the `vcov` argument. See Examples below. Note
+  that `ivar` is *required* for non-binary treatments (see `wvar`
+  below), since the equivalence no longer holds.
+
+- wvar:
+
+  Optional non-binary treatment variable, e.g. a treatment intensity or
+  dose. Can be a string (e.g., "n_stores") or an expression (e.g.,
+  n_stores). If specified, `etwfe` estimates heterogeneous slopes on
+  `wvar` for each cohort-period combination, and the downstream
+  [`emfx`](https://grantmcdermott.com/etwfe/reference/emfx.md) function
+  aggregates these slopes (i.e., the marginal effect of a one-unit
+  change in `wvar`) rather than binary ATTs. `gvar` should still denote
+  the first treatment period. Requires a linear model (`family = NULL`)
+  and a non-NULL `ivar`. See the "Non-binary treatments" section below.
 
 - xvar:
 
@@ -97,7 +115,7 @@ etwfe(
   most efficient estimation option and further limits the number of
   "nuisance" parameters in the return model object. However, for
   non-Gaussian families will default to `"none"`, since the downstream
-  [`emfx`](http://grantmcdermott.com/etwfe/reference/emfx.md) function
+  [`emfx`](https://grantmcdermott.com/etwfe/reference/emfx.md) function
   cannot compute standard errors for these models in the presence of
   fixed-effects. (See:
   https://github.com/vincentarelbundock/marginaleffects/issues/1487)
@@ -114,6 +132,17 @@ etwfe(
   so that valid entries include "logit", "poisson", and "negbin". Note
   that if a non-NULL family entry is detected, `ivar` will automatically
   be set to NULL.
+
+- trend:
+
+  Logical. Include cohort-specific linear time trends? Defaults to
+  `FALSE`. Useful when parallel trends is in doubt (Wooldridge, 2025,
+  2026). Requires a numeric `tvar` and is not available with
+  `cgroup = "never"` (since cohort-specific trends and a full set of
+  pre-treatment effects cannot both be identified). The trends enter the
+  model as regular coefficients—rather than absorbed fixed-effect
+  slopes—so that they can be inspected and tested, e.g.
+  `fixest::wald(mod, "^<gvar>::.*:<tvar>$")`.
 
 - ...:
 
@@ -146,7 +175,7 @@ covariate in the formula RHS) is that it allows us to estimate
 heterogeneous treatment effects as part of the larger ETWFE framework.
 Specifically, we can recover heterogeneous treatment effects for each
 level of `<xvar>` by passing the resulting `etwfe` model object on to
-[`emfx()`](http://grantmcdermott.com/etwfe/reference/emfx.md).
+[`emfx()`](https://grantmcdermott.com/etwfe/reference/emfx.md).
 
 For example, imagine that we have a categorical variable called "age" in
 our dataset, with two distinct levels "adult" and "child". Running
@@ -157,6 +186,39 @@ test whether the treatment effect is statistically different across
 these two age groups; see Examples below. Note the same principles carry
 over to categorical variables with multiple levels, or even continuous
 variables (although continuous variables are not as well supported yet).
+
+## Non-binary treatments
+
+Following Wooldridge (2026), we can specify a non-binary treatment
+variable with `etwfe(..., wvar = <wvar>)`. This treatment can be
+continuous (e.g., a dollar amount), a count (e.g., number of stores), or
+discrete, and may vary over time after the initial treatment period.
+
+Each cohort-period cell gets its own slope on `wvar`, and `emfx`
+aggregates these slopes along the usual dimensions (e.g.,
+`type = "event"`). With the `"never"` treated control group, the
+pre-treatment periods enter as binary cohort-period indicators—since
+treatment levels are zero before treatment—while the post-treatment
+periods enter as slopes on `wvar`. The pre-treatment estimates thus test
+for pre-trends in levels, and `emfx(..., type = "event")` reports the
+post-treatment effects at the observed treatment level by default, so
+that both sides of the event study are on the same scale.
+
+Beyond the usual no anticipation and parallel trends assumptions,
+identification requires a "limited selection" assumption: i.e., the
+expected gain from treatment may vary by cohort (and covariates), but
+must not otherwise depend on the level of treatment that a unit
+receives.
+
+**NB.** Compared with the binary case, non-binary `etwfe` estimation
+imposes two additional practical constraints. First, it requires
+unit-level fixed effects, i.e. a non-NULL `ivar` (and `fe != "none"`).
+This is because the treatment intensity (dose) can vary across units
+within a cohort (`gvar`), so cohort-level fixed effects would yield
+inconsistent estimates. In other words, we need `ivar` to absorb unit
+heterogeneity that is potentially correlated with the treatment dose.
+Second, non-binary treatments are currently only supported for linear
+models (i.e., `family = NULL`).
 
 ## Performance
 
@@ -178,12 +240,16 @@ Wooldridge, Jeffrey M. (2023). Simple Approaches to Nonlinear
 Difference-in-Differences with Panel Data. The Econometrics Journal,
 26(3), C31-C66. Available: https://doi.org/10.1093/ectj/utad016
 
+Wooldridge, Jeffrey M. (2026). A Heterogeneous Slopes Approach to
+Difference-in-Differences with Non-Binary Treatments. Working paper.
+Available: https://doi.org/10.2139/ssrn.7530698
+
 ## See also
 
 [`fixest::feols()`](https://lrberge.github.io/fixest/reference/feols.html),
 [`fixest::feglm()`](https://lrberge.github.io/fixest/reference/feglm.html)
 which power the underlying estimation routines.
-[`emfx`](http://grantmcdermott.com/etwfe/reference/emfx.md) is a
+[`emfx`](https://grantmcdermott.com/etwfe/reference/emfx.md) is a
 companion function that handles post-estimation aggregation to extract
 quantities of interest.
 
@@ -340,4 +406,31 @@ emfx(pmod, "event")
 #> Type: response
 #> Comparison: TRUE - FALSE
 #> 
+
+#
+# Non-binary treatments
+#
+
+# Walmart store openings and county retail employment, where the treatment
+# is the number of Walmart stores in a county. Note that `ivar` is required.
+data("walmart", package = "etwfe")
+
+wmod = etwfe(
+  log_retail_emp ~ 0, tvar = year, gvar = cohort, data = walmart,
+  ivar = fips, vcov = ~fips,
+  wvar = n_open        ## <= non-binary treatment
+  )
+emfx(wmod)             ## effect of each additional store
+#> 
+#>  .Dtreat Estimate Std. Error    z Pr(>|z|)    S  2.5 % 97.5 %
+#>     TRUE   0.0386    0.00506 7.63   <0.001 45.3 0.0287 0.0485
+#> 
+#> Term: n_open
+#> Type: response
+#> Comparison: +1
+#> 
+
+# Effects at specific treatment levels (relative to no treatment)
+plot(emfx(wmod, "event", wlevels = 1:3))
+
 ```
