@@ -40,6 +40,34 @@
 #'   `type` when use in \code{\link[stats]{predict}} or
 #'   \code{\link[marginaleffects]{slopes}}, but we rename it here to avoid a
 #'   clash with the top-level `type` argument above.)
+#' @param wlevels Only relevant for non-binary treatments, i.e. if the
+#'   preceding `etwfe` call included a `wvar` argument. Controls the treatment
+#'   level(s) at which effects are evaluated:
+#'
+#'   - NULL (default): Equivalent to `"slope"`, except for event studies with
+#'     the `"never"` treated control group, where it is equivalent to
+#'     `"observed"` (since the pre-treatment estimates are level differences).
+#'   - `"slope"`: Average marginal effect of a one-unit change in `wvar`.
+#'   - `"observed"`: Average effect of each unit's observed treatment level,
+#'     relative to no treatment (`wvar = 0`). This also reflects how treatment
+#'     levels evolve over time, and is the closest analogue to a binary ATT.
+#'   - Numeric vector: Effects of setting the treatment level to each of the
+#'     supplied values, relative to no treatment, e.g. `wlevels = c(1, 2, 5)`.
+#'     Results are reported (and plotted) separately for each treatment level.
+#'   - Function: As above, but with treatment levels computed by applying the
+#'     function to the treated observations' `wvar` values, e.g.
+#'     `wlevels = fivenum` or `wlevels = \(x) quantile(x, c(0.25, 0.5, 0.75))`.
+#'
+#'   These options mirror the ergonomics of
+#'   \code{\link[marginaleffects]{datagrid}}, which similarly accepts values or
+#'   functions (e.g., `datagrid(x = fivenum)`). Note that effects at fixed
+#'   treatment levels are linear in `wvar` by construction, and that levels far
+#'   from the bulk of the data (e.g., the minimum and maximum in `fivenum`) are
+#'   extrapolations.
+#'
+#'   For event studies with the `"never"` treated control group, the
+#'   pre-treatment estimates do not depend on `wvar`, and are reported only once
+#'   (with a missing `wvar` value, and as a "Pre" group in plots).
 #' @param post_only Logical. Drop pre-treatment ATTs? Only evaluated if (a)
 #'   `type = "event"` and (b) the original `etwfe` model object was estimated
 #'   using the default `"notyet"` treated control group. If conditions (a) and
@@ -137,8 +165,8 @@
 #' @inheritSection etwfe Performance
 #' @inheritSection etwfe Heterogeneous treatment effects
 #' @importFrom data.table as.data.table setDT .N .SD
-#' @importFrom marginaleffects slopes vcovUnconditional
-#' @importFrom stats reformulate
+#' @importFrom marginaleffects comparisons slopes vcovUnconditional
+#' @importFrom stats reformulate setNames
 #' @importFrom fixest obs
 #' @importFrom utils modifyList
 #' @export
@@ -149,6 +177,7 @@ emfx = function(
   compress = "auto",
   collapse = compress,
   predict = c("response", "link"),
+  wlevels = NULL,
   post_only = TRUE,
   window = NULL,
   lean = FALSE,
@@ -171,6 +200,7 @@ emfx = function(
   tref = etwfe_attr[["tref"]]
   cgroup = etwfe_attr[["cgroup"]]
   fe = etwfe_attr[["fe"]]
+  wvar = etwfe_attr[["wvar"]]
   if (!by_xvar %in% c("auto", TRUE, FALSE)) {
     stop("\"by_xvar\" has to be \"auto\", TRUE, or FALSE.")
   }
@@ -192,6 +222,35 @@ emfx = function(
 
   if (by_xvar == "auto") {
     by_xvar = !is.null(xvar)
+  }
+
+  if (!is.null(wlevels) && is.null(wvar)) {
+    warning("`wlevels` is only used for non-binary treatments (`etwfe(..., wvar = ...)`). Ignoring.")
+    wlevels = NULL
+  }
+  never_event = !is.null(wvar) && cgroup == "never" && type == "event"
+  if (!is.null(wvar)) {
+    wlevels_default = is.null(wlevels)
+    if (wlevels_default) {
+      wlevels = if (never_event) "observed" else "slope"
+    }
+    if (!(is.numeric(wlevels) || is.function(wlevels) ||
+      (is.character(wlevels) && length(wlevels) == 1 && wlevels %in% c("slope", "observed")))) {
+      stop("`wlevels` must be \"slope\", \"observed\", a numeric vector, or a function.")
+    }
+    if (isTRUE(by_xvar) && (is.numeric(wlevels) || is.function(wlevels))) {
+      stop("Fixed `wlevels` cannot currently be combined with heterogeneous effects by `xvar`. Use `by_xvar = FALSE`.")
+    }
+    if (isTRUE(compress) || isTRUE(collapse)) {
+      stop("`compress = TRUE` is not supported for non-binary treatments (`wvar`).")
+    }
+    if (never_event && !is.null(dots$hypothesis)) {
+      stop(
+        "`hypothesis` is not supported for event studies with non-binary ",
+        "treatments and `cgroup = \"never\"`, since the pre- and ",
+        "post-treatment estimates are computed separately."
+      )
+    }
   }
 
   if (isTRUE(object$lean)) {
@@ -230,14 +289,16 @@ emfx = function(
       env = list(gvar = I(gvar), gref = gref)
     ] # Drop never treated reference group
     if (type != "event") {
-      # For non-event studies, we want to calculated ATTs for post-treatment only
-      dat = dat[dat[[".Dtreat"]], , drop = FALSE]
-      dat = dat[
-        dat[[tvar]] >= dat[[gvar]],
-        ,
-        drop = FALSE,
-        env = list(tvar = I(tvar), gvar = I(gvar))
-      ]
+      # For non-event studies, we want to calculated ATTs for post-treatment
+      # only. Rather than dropping the other rows, we give them zero weight
+      # (below), since subsetting would drop columns from the model matrix and
+      # thus force marginaleffects onto a (much slower) numerical Jacobian
+      post = dat[[".Dtreat"]] & dat[[tvar]] >= dat[[gvar]]
+      if (isTRUE(compress) || !is.null(dots$hypothesis)) {
+        dat = dat[post, , drop = FALSE]
+      } else {
+        dat[[".post"]] = post
+      }
     }
   } else if (type == "event" & isFALSE(post_only)) {
     dat = dat[
@@ -341,6 +402,18 @@ emfx = function(
     by_var = c(by_var, xvar)
   }
 
+  # zero-weight non-post-treatment rows (see above). Groups without any
+  # post-treatment rows (e.g., calendar periods before the first treatment) get
+  # placeholder weights instead, and are dropped after estimation
+  bykey = function(x) do.call(paste, c(lapply(by_var, function(v) x[[v]]), sep = "\r"))
+  empty_keys = NULL
+  if (".post" %in% names(dat)) {
+    dat$N = as.integer(dat[[".post"]])
+    keys = bykey(dat)
+    empty_keys = setdiff(unique(keys), unique(keys[dat$N > 0]))
+    data.table::set(dat, which(keys %in% empty_keys), "N", 1L)
+  }
+
   # unconditional standard errors (default): inherit the model's one-way
   # cluster variable, since marginaleffects::vcovUnconditional() can't
   if (is.null(dots$vcov) && !(compress && is.null(ivar))) {
@@ -390,14 +463,100 @@ emfx = function(
     model = model,
     newdata = dat,
     wts = "N",
-    variables = ".Dtreat",
+    variables = if (is.null(wvar)) ".Dtreat" else wvar,
     by = by_var,
     type = predict
   )
   if (!is.null(dots)) {
     args_list = modifyList(args_list, dots)
   }
-  mfx = do.call("slopes", args = args_list)
+  # never-treated event studies: pre-treatment cells are binary contrasts on
+  # .Dpre, computed separately from the post-treatment effects. Both use all
+  # rows (keeping the full model matrix, and thus the fast analytic Jacobian),
+  # and we keep the relevant (disjoint) event groups afterwards.
+  if (never_event) {
+    pre_args = args_list
+    pre_args[["variables"]] = ".Dpre"
+  }
+
+  # effects at treatment levels: contrast observed (or fixed) wvar against zero.
+  # Fixed levels stack one copy of the data per level, grouped by wvar. Binary
+  # wvar levels coincide with slopes (and marginaleffects needs 0/1 contrasts).
+  mfx_fun = "slopes"
+  if (!is.null(wvar) && !identical(wlevels, "slope") && all(dat[[wvar]] %in% c(0, 1))) {
+    if (!identical(wlevels, "observed")) {
+      warning("`wvar` is binary, so effects at fixed `wlevels` are just slopes. Ignoring `wlevels`.")
+    }
+    wlevels = "slope"
+  }
+  if (never_event && wlevels_default && identical(wlevels, "observed")) {
+    message(
+      "Pre-treatment estimates are level differences, so post-treatment ",
+      "effects are reported at the observed treatment level for comparability. ",
+      "Use `wlevels = \"slope\"` for per-unit slopes instead."
+    )
+  }
+  # slopes: since the model is linear in wvar, a +1 contrast is exactly the
+  # slope, and comparisons() is much faster than slopes() for unconditional SEs
+  if (!is.null(wvar) && identical(wlevels, "slope") && !all(dat[[wvar]] %in% c(0, 1))) {
+    mfx_fun = "comparisons"
+    args_list[["variables"]] = setNames(list(1), wvar)
+  }
+  if (!is.null(wvar) && !identical(wlevels, "slope")) {
+    mfx_fun = "comparisons"
+    args_list[["variables"]] = setNames(
+      list(function(x) data.frame(lo = 0 * x, hi = x)),
+      wvar
+    )
+    if (!identical(wlevels, "observed")) {
+      nd = args_list[["newdata"]]
+      if (is.function(wlevels)) {
+        wlevels = wlevels(nd[[wvar]][nd[[tvar]] >= nd[[gvar]]])
+        if (!is.numeric(wlevels)) {
+          stop("A `wlevels` function must return a numeric vector.")
+        }
+      }
+      wlevels = sort(unique(unname(wlevels)))
+      args_list[["newdata"]] = do.call(
+        rbind,
+        lapply(wlevels, function(w) {
+          d = as.data.frame(nd)
+          d[[wvar]] = w
+          d
+        })
+      )
+      args_list[["by"]] = c(by_var, wvar)
+    }
+  }
+  etwfe_attr[["wlevels"]] = wlevels
+  mfx = do.call(mfx_fun, args = args_list)
+
+  # stack pre- (once, i.e. not per treatment level) and post-treatment estimates,
+  # keeping the post-treatment object's attributes
+  if (never_event) {
+    pre = as.data.frame(do.call("slopes", args = pre_args))
+    pre = pre[pre[["event"]] < 0, , drop = FALSE]
+    if (is.numeric(wlevels)) pre[[wvar]] = NA_real_
+    post = as.data.frame(mfx)
+    post = post[post[["event"]] >= 0, names(pre), drop = FALSE]
+    out = rbind(pre, post)
+    rownames(out) = NULL
+    keep = setdiff(names(attributes(mfx)), c("names", "row.names"))
+    attributes(out)[keep] = attributes(mfx)[keep]
+    mfx = out
+  }
+
+  # drop any placeholder groups that contain no post-treatment rows
+  if (length(empty_keys)) {
+    keep = !bykey(as.data.frame(mfx)) %in% empty_keys
+    if (!all(keep)) {
+      out = as.data.frame(mfx)[keep, , drop = FALSE]
+      rownames(out) = NULL
+      ka = setdiff(names(attributes(mfx)), c("names", "row.names"))
+      attributes(out)[ka] = attributes(mfx)[ka]
+      mfx = out
+    }
+  }
 
   class(mfx) = c("emfx", class(mfx))
   attr(mfx, "etwfe") = etwfe_attr

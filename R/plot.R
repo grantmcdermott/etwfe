@@ -34,12 +34,26 @@ plot.emfx = function(
   dots = list(...)
   etwfe_attr = attr(x, "etwfe")
   type = match.arg(type)
+  # no standard errors (e.g., `emfx(..., vcov = FALSE)`): plot points (or lines)
+  has_ci = !is.null(x$conf.low) && !all(is.na(x$conf.low))
   if (type=="ribbon" && etwfe_attr[["type"]]=="simple") {
     warning('\nRibbon plots are not allowed for `emfx(..., type = "simple")` objects. Reverting to pointrange.\n')
     type = "pointrange"
   }
   byvar = attr(x, "marginaleffects")@by
   xvar = etwfe_attr[["xvar"]]
+  # treat fixed treatment levels (wlevels) like xvar groups
+  # (pre-treatment rows of never-treated event studies have no level: "Pre")
+  pre = NULL
+  if (is.numeric(etwfe_attr[["wlevels"]])) {
+    xvar = etwfe_attr[["wvar"]]
+    wv = x[[xvar]]
+    if (anyNA(wv)) pre = "Pre"
+    x[[xvar]] = factor(
+      ifelse(is.na(wv), "Pre", wv),
+      levels = c(pre, sort(unique(wv[!is.na(wv)])))
+    )
+  }
   if (is.null(xvar)) {
     fml = reformulate(byvar, response = "estimate")
   } else {
@@ -57,7 +71,7 @@ plot.emfx = function(
     dots$xlim = range(c(x$event, ref), na.rm = TRUE)
   }
   # catch for ribbon plots
-  if (byvar=="event" && type=="ribbon") {
+  if (has_ci && byvar=="event" && type=="ribbon") {
     idx = which(x$event == -1)
     x$conf.low[idx] = x$conf.high[idx] = x$estimate[idx]
   }
@@ -78,7 +92,7 @@ plot.emfx = function(
   }
   # dodge CIs if heterogenous groups
   if (!is.null(xvar) && type!="ribbon") {
-    uxvar = unique(x[[xvar]])
+    uxvar = setdiff(unique(x[[xvar]]), pre)
     xbmp = scale(seq_along(uxvar), scale = FALSE)[, 1] / 10 * 1.5
     # edge case
     if (etwfe_attr[["type"]]=="simple") {
@@ -97,16 +111,27 @@ plot.emfx = function(
   }
   if (byvar=="event") xlab = "Time since treatment"
   main = paste("Effect on", etwfe_attr[["yvar"]])
+  ylab = if (is.null(etwfe_attr[["wvar"]])) {
+    "ATT"
+  } else if (identical(etwfe_attr[["wlevels"]], "observed")) {
+    "ATT (at observed treatment level)"
+  } else if (is.numeric(etwfe_attr[["wlevels"]])) {
+    "ATT (at given treatment level)"
+  } else if (etwfe_attr[["cgroup"]] == "never" && byvar == "event") {
+    paste("ATT (pre) | Effect per unit of", etwfe_attr[["wvar"]], "(post)")
+  } else {
+    paste("Effect per unit of", etwfe_attr[["wvar"]])
+  }
   pargs = list(
     x = fml,
     data = x,
     ymin = x$conf.low,
     ymax = x$conf.high,
-    type = type,
+    type = if (has_ci) type else if (type == "ribbon") "l" else "p",
     pch = pch,
     grid = grid,
     xlab = xlab,
-    ylab = "ATT",
+    ylab = ylab,
     main = main
   )
   pargs = modifyList(pargs, dots)

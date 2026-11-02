@@ -139,4 +139,22 @@ pmod = etwfe(
   )
 emfx(pmod, "event")
 
+#
+# Non-binary treatments
+#
+
+# Walmart store openings and county retail employment, where the treatment
+# is the number of Walmart stores in a county. Note that `ivar` is required.
+data("walmart", package = "etwfe")
+
+wmod = etwfe(
+  log_retail_emp ~ 0, tvar = year, gvar = cohort, data = walmart,
+  ivar = fips, vcov = ~fips,
+  wvar = n_open        ## <= non-binary treatment
+  )
+emfx(wmod)             ## effect of each additional store
+
+# Effects at specific treatment levels (relative to no treatment)
+plot(emfx(wmod, "event", wlevels = 1:3))
+
 }

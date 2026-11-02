@@ -1,4 +1,4 @@
-url: http://grantmcdermott.com/etwfe/
+url: https://grantmcdermott.com/etwfe/
 template:
   bootstrap: 5
 reference:
@@ -9,3 +9,6 @@ reference:
 - title: "Methods"
   contents: 
   - plot.emfx
+- title: "Data"
+  contents:
+  - walmart

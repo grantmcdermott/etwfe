@@ -23,6 +23,7 @@ importFrom(graphics,
   plot
 )
 importFrom(marginaleffects,
+  comparisons,
   slopes,
   vcovUnconditional
 )

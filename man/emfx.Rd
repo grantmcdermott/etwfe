@@ -11,6 +11,7 @@ emfx(
   compress = "auto",
   collapse = compress,
   predict = c("response", "link"),
+  wlevels = NULL,
   post_only = TRUE,
   window = NULL,
   lean = FALSE,
@@ -55,6 +56,36 @@ matter for nonlinear models. (Note: This argument is typically called
 \code{type} when use in \code{\link[stats]{predict}} or
 \code{\link[marginaleffects]{slopes}}, but we rename it here to avoid a
 clash with the top-level \code{type} argument above.)}
+
+\item{wlevels}{Only relevant for non-binary treatments, i.e. if the
+preceding \code{etwfe} call included a \code{wvar} argument. Controls the treatment
+level(s) at which effects are evaluated:
+\itemize{
+\item NULL (default): Equivalent to \code{"slope"}, except for event studies with
+the \code{"never"} treated control group, where it is equivalent to
+\code{"observed"} (since the pre-treatment estimates are level differences).
+\item \code{"slope"}: Average marginal effect of a one-unit change in \code{wvar}.
+\item \code{"observed"}: Average effect of each unit's observed treatment level,
+relative to no treatment (\code{wvar = 0}). This also reflects how treatment
+levels evolve over time, and is the closest analogue to a binary ATT.
+\item Numeric vector: Effects of setting the treatment level to each of the
+supplied values, relative to no treatment, e.g. \code{wlevels = c(1, 2, 5)}.
+Results are reported (and plotted) separately for each treatment level.
+\item Function: As above, but with treatment levels computed by applying the
+function to the treated observations' \code{wvar} values, e.g.
+\code{wlevels = fivenum} or \verb{wlevels = \\(x) quantile(x, c(0.25, 0.5, 0.75))}.
+}
+
+These options mirror the ergonomics of
+\code{\link[marginaleffects]{datagrid}}, which similarly accepts values or
+functions (e.g., \code{datagrid(x = fivenum)}). Note that effects at fixed
+treatment levels are linear in \code{wvar} by construction, and that levels far
+from the bulk of the data (e.g., the minimum and maximum in \code{fivenum}) are
+extrapolations.
+
+For event studies with the \code{"never"} treated control group, the
+pre-treatment estimates do not depend on \code{wvar}, and are reported only once
+(with a missing \code{wvar} value, and as a "Pre" group in plots).}
 
 \item{post_only}{Logical. Drop pre-treatment ATTs? Only evaluated if (a)
 \code{type = "event"} and (b) the original \code{etwfe} model object was estimated
@@ -290,6 +321,24 @@ pmod = etwfe(
   family = "poisson"   ## <= family arg for nonlinear options
   )
 emfx(pmod, "event")
+
+#
+# Non-binary treatments
+#
+
+# Walmart store openings and county retail employment, where the treatment
+# is the number of Walmart stores in a county. Note that `ivar` is required.
+data("walmart", package = "etwfe")
+
+wmod = etwfe(
+  log_retail_emp ~ 0, tvar = year, gvar = cohort, data = walmart,
+  ivar = fips, vcov = ~fips,
+  wvar = n_open        ## <= non-binary treatment
+  )
+emfx(wmod)             ## effect of each additional store
+
+# Effects at specific treatment levels (relative to no treatment)
+plot(emfx(wmod, "event", wlevels = 1:3))
 
 }
 \references{

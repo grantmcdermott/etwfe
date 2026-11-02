@@ -101,8 +101,11 @@ The Wooldridge ETWFE solution is intuitive and elegant. But it is also rather
 tedious and error prone to code up manually. You have to correctly specify all
 the possible interactions, demean control variables within groups, and then 
 recover the treatment effects of interest via an appropriate marginal effect
-aggregation. The **etwfe** package aims to simplify the process by providing 
-convenience functions that do all this work for you.
+aggregation. The **etwfe** package aims to simplify the process by providing
+convenience functions that do all this work for you. It also supports the
+extension to non-binary treatments (e.g., continuous doses or counts) proposed
+by Wooldridge ([2026](https://doi.org/10.2139/ssrn.7530698)); see
+[Non-binary treatments](#non-binary-treatments) below.
 
 ## Dataset
 
@@ -436,6 +439,164 @@ etwfe(
   ) |>
   emfx("event")
 ```
+
+## Non-binary treatments
+
+All of the examples thus far have involved a _binary_ treatment: a county either
+received the minimum wage hike or it didn't. But many interventions come in
+different intensities, or "doses". For example, consider the size of a tax
+credit, the number of hours of job training, or the number of new stores
+opening in a town. Not only are these treatments non-binary, but the doses 
+themselves might be changing over time, e.g. more stores opening each year in a
+town. The good news is that the ETWFE framework extends very naturally to these
+non-binary settings. Wooldridge ([2026](https://doi.org/10.2139/ssrn.7530698))
+shows that we need simply interact the treatment level (dose) with the full set
+of cohort × period dummies, so that each cohort-period cell gets its own
+heterogeneous slope. These slopes can then be aggregated in all the usual ways.
+
+To demonstrate, we'll use the `walmart` dataset that ships with **etwfe**,
+which is also the empirical application in Wooldridge (2026). It records the
+staggered rollout of Walmart stores across 1,288 US counties between 1977 and
+1999, together with county retail employment. No county had a Walmart before
+1986. The `cohort` variable records the year of each county's first Walmart
+opening (with 0 denoting counties that had none by 1999), while `n_open`
+records the number of stores open in a given year. This latter variable is our
+non-binary treatment variable of interest.
+
+```{r}
+data("walmart", package = "etwfe")
+head(walmart)
+```
+
+Following Wooldridge's notation, we specify the non-binary treatment via the
+`wvar` argument. One thing to note is that we also have to supply unit-level
+fixed effects via `ivar`. The reason is that, unlike the binary case, we must
+now allow for the fact that the treatment intensity can vary across units
+_within_ a cohort. For example, two counties might get their first Walmart
+stores in the same year, but one of them could get additional stores in a later
+year. A model specification with only cohort-level (`gvar`) fixed effects
+would thus fail to absorb any unit heterogeneity that is correlated with the
+treatment level.^[If the `wvar` argument is present, `etwfe()` will actually
+throw an error if `ivar` is missing.]
+
+```{r}
+wmod = etwfe(
+  log_retail_emp ~ 0, tvar = year, gvar = cohort, data = walmart,
+  ivar = fips,         ## <= required for non-binary treatments
+  vcov = ~fips,
+  wvar = n_open        ## <= non-binary treatment
+)
+```
+
+### Slopes
+
+By default, `emfx()` reports the aggregated slopes, i.e., the effect of a
+one-unit change in the treatment level. Here, each additional Walmart store
+increases county retail employment by about 3.9% on average.
+
+```{r}
+emfx(wmod)
+```
+
+The same logic applies to the other aggregation types. For example, here is the
+event study of the slopes by time since treatment.
+
+```{r}
+wmod_es = emfx(wmod, "event")
+plot(wmod_es)
+```
+
+### Treatment levels
+
+Slopes are not always the most natural quantity of interest, though. We might
+rather want to know the effect of treatment as actually received, or the
+effect at some representative treatment level. The `wlevels` argument of
+`emfx()` covers both cases. First, `wlevels = "observed"` reports the average
+effect of each county's observed number of stores (relative to no stores),
+which is the closest analogue to a binary ATT.
+
+```{r}
+emfx(wmod, "event", wlevels = "observed")
+```
+
+Second, we can evaluate effects at specific treatment levels, e.g., one, two, or
+three stores. These are reported and plotted as separate groups.
+
+```{r}
+plot(emfx(wmod, "event", wlevels = 1:3))
+```
+
+Similar to `marginaleffects::datagrid()`, the `wlevels` argument also accepts a
+function that is applied to the treated observations' treatment levels, e.g.
+`wlevels = fivenum`. Two caveats are worth keeping in mind. First, since the
+model is linear in the treatment level, the effects at fixed levels are simply
+scaled versions of the slopes. Second, levels far from the bulk of the data
+are extrapolations. For example, in our case here, most treated counties only
+have a single Walmart.
+
+### Testing pre-trends
+
+As with binary treatments, we can test for violations of parallel trends by
+switching to the never-treated control group. In this case, the pre-treatment
+periods enter as binary cohort-period indicators---since the treatment level is
+zero before treatment---while the post-treatment periods enter as slopes on
+`wvar`. Because the pre-treatment estimates are thus level differences, the
+event study reports the post-treatment effects at the observed treatment level
+by default, so that both sides are on the same scale.
+
+```{r}
+wmod_never = etwfe(
+  log_retail_emp ~ 0, tvar = year, gvar = cohort, data = walmart,
+  ivar = fips, vcov = ~fips, wvar = n_open,
+  cgroup = "never"     ## <= never-treated control group
+)
+plot(emfx(wmod_never, "event"))
+```
+
+Oh, dear. Our pre-treatment estimates reveal a clear violation of parallel
+trends: counties that eventually received a Walmart were already experiencing
+faster retail employment growth than the never-treated counties. So, we need to
+do something a little more sophisticated...
+
+### Cohort trends
+
+One remedy is to allow each cohort its own linear time trend via
+`trend = TRUE`. This argument works for binary treatments too and is
+compatible with the default not-yet-treated control group. However, it is not
+compatible with `cgroup = "never"`, since the estimation cannot separately
+identify cohort trends and a full set of pre-treatment effects.^[Unfortunately,
+this tradeoff makes for a slightly awkward workflow: first we visually inspect
+the pre-trends with `cgroup = "never"`, before reverting back to the default
+`cgroup = "notyet"` with `trend = TRUE`. But such is the life of the applied
+researcher.] Compared with our original estimates (`emfx(wmod)` above),
+accounting for these pre-existing trends cuts the estimated employment effect
+of each additional store by more than half to 1.6%.
+
+```{r}
+wmod_trend = etwfe(
+  log_retail_emp ~ 0, tvar = year, gvar = cohort, data = walmart,
+  ivar = fips, vcov = ~fips, wvar = n_open,
+  trend = TRUE         ## <= cohort-specific linear trends
+)
+emfx(wmod_trend)
+```
+
+The cohort trends enter the model as regular coefficients, so we can also test
+their joint significance directly.
+
+```{r}
+fixest::wald(wmod_trend, "^cohort::.*:year$")
+```
+
+The test strongly rejects the null that the cohort trends are jointly zero
+(F = 8.0, p < 0.001). In other words, the treated cohorts' linear trends differ
+from that of the never-treated counties, which is consistent with the
+pre-trends evidence above and supports including them.
+
+Finally, note that the validity of the non-binary ETWFE estimator rests on one
+more assumption beyond no anticipation and parallel trends. Namely, the
+expected gain from treatment may vary by cohort, but must not otherwise depend
+on the level of treatment that a unit receives. See `?etwfe` for more details.
 
 ## Performance
 
