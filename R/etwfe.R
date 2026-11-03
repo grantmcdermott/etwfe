@@ -68,9 +68,10 @@
 #'   automatically be set to NULL.
 #' @param trend Logical. Include cohort-specific linear time trends? Defaults to
 #'   `FALSE`. Useful when parallel trends is in doubt (Wooldridge, 2025, 2026).
-#'   Requires a numeric `tvar` and is not available with `cgroup = "never"`
-#'   (since cohort-specific trends and a full set of pre-treatment effects
-#'   cannot both be identified). The trends enter the model as regular
+#'   Requires a numeric `tvar` and at least two pre-treatment periods for each
+#'   treated cohort. Not available with `cgroup = "never"` (since
+#'   cohort-specific trends and a full set of pre-treatment effects cannot both
+#'   be identified). The trends enter the model as regular
 #'   coefficients---rather than absorbed fixed-effect slopes---so that they can
 #'   be inspected and tested, e.g. `fixest::wald(mod, "^<gvar>::.*:<tvar>$")`.
 #' @param ... Additional arguments passed to [`fixest::feols`] (or
@@ -483,6 +484,22 @@ etwfe = function(
         "within-cohort variation and are included in any aggregated ATT (e.g. ",
         "`emfx(type = \"simple\")`) regardless. Consider excluding them from `data` if this is ",
         "not intended.\n"
+      )
+    }
+  }
+  ## A cohort trend needs two pre-treatment periods; otherwise it is collinear
+  ## with (and silently displaces) one of the cohort's treatment effects
+  if (isTRUE(trend) && length(ug_in)) {
+    pre = data[data[[tvar]] < data[[gvar]], , drop = FALSE]
+    n_pre = vapply(ug_in, function(g) length(unique(pre[[tvar]][pre[[gvar]] == g])), 1L)
+    if (any(n_pre < 2)) {
+      stop(
+        "`trend = TRUE` requires at least two pre-treatment periods for each ",
+        "treated cohort, but cohort(s) ",
+        paste(ug_in[n_pre < 2], collapse = ", "),
+        " of `",
+        gvar,
+        "` have fewer. Consider excluding them from `data`.\n"
       )
     }
   }

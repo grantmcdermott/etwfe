@@ -514,3 +514,11 @@ m3p = etwfe(
   family = "poisson"
 )
 expect_equal(fixest::coeftable(m3p), m3p_known)
+
+# Cohort trends need two pre-treatment periods (mpdta's 2004 cohort has one)
+expect_error(
+  etwfe(lemp ~ lpop, tvar = year, gvar = first.treat, data = mpdta, trend = TRUE),
+  "cohort\\(s\\) 2004"
+)
+mtr = etwfe(lemp ~ lpop, tvar = year, gvar = first.treat, data = subset(mpdta, first.treat != 2004), trend = TRUE)
+expect_false(any(grepl("year::2007$", mtr$collin.var)))
