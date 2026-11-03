@@ -156,7 +156,8 @@ Companion function to \code{etwfe}, enabling the recovery of aggregate treatment
 effects along different dimensions of interest (e.g, an event study of
 dynamic average treatment effects). \code{emfx} is a light wrapper around the
 \code{\link[marginaleffects]{slopes}} function from the \strong{marginaleffects}
-package.
+package. If the original \code{etwfe} model was estimated with regression weights
+(e.g., \code{weights = ~pop}), these are also used to weight the aggregation.
 }
 \section{Standard errors}{
 
