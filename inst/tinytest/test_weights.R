@@ -8,7 +8,8 @@ dat$w = exp(rnorm(nrow(dat)))
 mod = etwfe(y ~ x1, tvar = year, gvar = year_treated, data = dat, weights = ~w)
 
 # simple ATT equals the weighted mean of the unit-level effects
-d = as.data.table(eval(mod$call$data, mod$call_env))[(.Dtreat)]
+d = eval(mod$call$data, mod$call_env)
+d = d[d$.Dtreat, ]
 s = marginaleffects::slopes(
   structure(mod, class = setdiff(class(mod), "etwfe")),
   newdata = d,
