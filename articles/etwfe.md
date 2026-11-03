@@ -269,15 +269,10 @@ mod_es
 
 Our event study suggests that the teen disemployment effect of a minimum
 wage hike is fairly modest at first (3%), but increases over the next
-few years (\>10%). In the next section, we’ll look at ways to
-communicate this kind of finding to your audience.
+few years (\>10%).
 
-### Presentation
-
-#### Plots
-
-As of **etwfe** v0.5.0, we provide a native `plot.emfx` method for
-convenient visualization.
+If you prefer a visual depiction, we also support a native `plot.emfx`
+method for convenient graphical display.
 
 ``` r
 
@@ -286,16 +281,45 @@ plot(mod_es)
 
 ![](etwfe_files/figure-html/unnamed-chunk-7-1.png)
 
-Note that `emfx` only reports post-treatment effects here. That’s
-because all pre-treatment effects have been swept out of the estimation
-as a result of the ETWFE setup. Specifically, under the default setting
-where the control group comprises the “not-yet” treated units, all
-pre-treatment effects are mechanistically set to zero.[^3]
-Alternatively, you can specify the “never” treated units as the control
-group by first calling `etwfe(..., cgroup = "never")`. This *does*
-return pre-treatment effects, albeit with the potential trade-off of
-yielding less precise estimates from not using all available
-information.
+Note that our event study only reports post-treatment effects here.
+That’s because all pre-treatment effects have been swept out of the
+estimation as a result of the ETWFE setup. Specifically, under the
+default setting where the control group comprises the `"notyet"` treated
+units, all pre-treatment effects are mechanistically set to zero.
+However, that doesn’t mean that we can’t glean anything about the state
+of these pre-trends…
+
+### Pre-trends
+
+#### Cohort trends
+
+Wooldridge recommends a simple statistical test for evaluating
+pre-trends; namely, including a linear time trend for each cohort.
+Again, **etwfe** offers a convenience method for implementing this on
+your behalf via the `etwfe(..., trend = TRUE)` argument. Since these
+cohort trends enter the model as regular coefficients, we can then test
+their joint significance directly with
+[`fixest::wald()`](https://lrberge.github.io/fixest/reference/wald.html).
+
+It is important to note that identifying a cohort trend requires at
+least two pre-treatment periods for each cohort; otherwise we can’t
+construct a linear trend. Unfortunately, that rules out our minimum wage
+example here, since the 2004 cohort is only observed for a single
+pre-treatment year (2003). Nevertheless, we’ll see cohort trends in
+action in the [non-binary treatments](#non-binary-treatments) section
+below. Plus, we can always switch to a visual inspection as an
+alternative, which segues nicely to our next section.
+
+#### Visual inspection
+
+*Subtitle: Switch to the `"never"` control group*
+
+A natural alternative to specifying `"notyet"` treated units as a
+control group is to use the never-treated units (`cgroup = "never"`)
+instead. This trades off some precision (since we aren’t using all of
+the available information), but it *does* have the virtue of returning
+pre-treatment effects as part of the estimation. In turn, this allows us
+to visually inspect for parallel pre-trends.
 
 ``` r
 
@@ -310,22 +334,30 @@ plot(mod_es2)
 
 ![](etwfe_files/figure-html/unnamed-chunk-8-1.png)
 
-Two final points about visualizing `emfx` objects. First, you can
-customize your plots by overriding default arguments. We use
-[**tinyplot**](https://grantmcdermott.com/tinyplot/) as a backend and
-you should be able to pass through any valid argument that `tinyplot()`
-understands. For example:
+Reassuringly, the pre-treatment estimates are small and statistically
+insignificant, so there is no obvious violation of parallel trends here.
+
+### Presentation
+
+#### Plots
+
+We’ve already seen several plotting examples, so I’ll only use this
+opportunity to make two quick asides about plotting `emfx` objects.
+First, you can customize your plots by overriding default arguments. We
+use [**tinyplot**](https://grantmcdermott.com/tinyplot/) as a backend
+and you should be able to pass through any valid argument that
+`tinyplot()` understands. For example:
 
 ``` r
 
 plot(
   mod_es2,
-  type = "ribbon",
-  col  = "darkcyan",
-  xlab = "Years post treatment",
-  main = "Minimum wage effect on (log) teen employment",
-  sub  = "Note: Using never-treated as control group",
-  # file = "event-study.png", width = 8, height = 5. ## uncomment to save file
+  type  = "ribbon",
+  theme = "clean2",
+  xlab  = "Years post treatment",
+  main  = "Minimum wage effect on (log) teen employment",
+  sub   = "Note: Using never-treated as control group",
+  # file  = "event-study.png", width = 8, height = 5. ## uncomment to save file
 )
 ```
 
@@ -339,9 +371,7 @@ prefer. For example, assuming that you have **ggplot2** installed:
 
 # install.packages("ggplot2")
 library(ggplot2)
-theme_set(
-  theme_linedraw() + theme(panel.grid = element_blank())
-)
+
 ggplot(mod_es2, aes(x = event, y = estimate, ymin = conf.low, ymax = conf.high)) +
   geom_hline(yintercept = 0, lty = 2, col = "grey50") +
   geom_vline(xintercept = -1, lty = 2, col = "grey50") +
@@ -351,7 +381,8 @@ ggplot(mod_es2, aes(x = event, y = estimate, ymin = conf.low, ymax = conf.high))
     y = "ATT",
     title = "Effect on log teen employment",
     caption = "Note: Using never-treated as control group"
-  )
+  ) +
+  theme_minimal()
 ```
 
 ![](etwfe_files/figure-html/unnamed-chunk-10-1.png)
@@ -412,7 +443,7 @@ modelsummary(
 | \+ p \< 0.1, \* p \< 0.05, \*\* p \< 0.01, \*\*\* p \< 0.001 |  |  |
 | Std. errors are clustered at the county level |  |  |
 
-Event study {#tinytable_byt6tgtbqt4fpor858vr .table .tinytable
+Event study {#tinytable_b38mhx2v1brmr4bxcksu .table .tinytable
 style="width: auto; margin-left: auto; margin-right: auto;"
 quarto-disable-processing="true"}
 
@@ -444,7 +475,7 @@ Now imagine that we are interested in estimating separate treatment
 effects for GLS versus non-GLS counties. We do this simply by invoking
 the optional `xvar` argument as part of our
 [`etwfe()`](https://grantmcdermott.com/etwfe/reference/etwfe.md)
-call.[^4] Any subsequent
+call.[^3] Any subsequent
 [`emfx()`](https://grantmcdermott.com/etwfe/reference/emfx.md) call on
 this object will automatically recognize that we want to recover
 treatment effects by these two distinct groups.
@@ -542,7 +573,7 @@ modelsummary(
 |     | (0.035)    | (0.026) |
 
 Comparing the ATT on GLS and non-GLS counties
-{#tinytable_oza45lyzy2cuptvpe0to .table .tinytable
+{#tinytable_dmvkwz26bl9dueghcmxn .table .tinytable
 style="width: auto; margin-left: auto; margin-right: auto;"
 quarto-disable-processing="true"}
 
@@ -596,7 +627,8 @@ settings. Wooldridge ([2026](https://doi.org/10.2139/ssrn.7530698))
 shows that we need simply interact the treatment level (dose) with the
 full set of cohort × period dummies, so that each cohort-period cell
 gets its own heterogeneous slope. These slopes can then be aggregated in
-all the usual ways.
+all the usual ways. (Support for non-binary treatments was added in
+**etwfe** v0.7.0.)
 
 To demonstrate, we’ll use the `walmart` dataset that ships with
 **etwfe**, which is also the empirical application in Wooldridge (2026).
@@ -629,7 +661,7 @@ can vary across units *within* a cohort. For example, two counties might
 get their first Walmart stores in the same year, but one of them could
 get additional stores in a later year. A model specification with only
 cohort-level (`gvar`) fixed effects would thus fail to absorb any unit
-heterogeneity that is correlated with the treatment level.[^5]
+heterogeneity that is correlated with the treatment level.[^4]
 
 ``` r
 
@@ -666,8 +698,9 @@ is the event study of the slopes by time since treatment.
 
 ``` r
 
-wmod_es = emfx(wmod, "event")
-plot(wmod_es)
+wmod |>
+  emfx("event") |>
+  plot()
 ```
 
 ![](etwfe_files/figure-html/unnamed-chunk-22-1.png)
@@ -713,7 +746,9 @@ two, or three stores. These are reported and plotted as separate groups.
 
 ``` r
 
-plot(emfx(wmod, "event", wlevels = 1:3))
+wmod |>
+  emfx("event", wlevels = 1:3) |>
+  plot()
 ```
 
 ![](etwfe_files/figure-html/unnamed-chunk-24-1.png)
@@ -728,44 +763,44 @@ versions of the slopes. Second, levels far from the bulk of the data are
 extrapolations. For example, in our case here, most treated counties
 only have a single Walmart.
 
-### Testing pre-trends
+### Pre-trends
 
-As with binary treatments, we can test for violations of parallel trends
-by switching to the never-treated control group. In this case, the
-pre-treatment periods enter as binary cohort-period indicators—since the
-treatment level is zero before treatment—while the post-treatment
-periods enter as slopes on `wvar`. Because the pre-treatment estimates
-are thus level differences, the event study reports the post-treatment
-effects at the observed treatment level by default, so that both sides
-are on the same scale.
+#### Visual inspection
+
+As with binary treatments, we can inspect pre-trends by switching to the
+never-treated control group. One wrinkle is that the pre-treatment
+periods enter as binary cohort-period indicators—since the treatment
+level is zero before treatment—while the post-treatment periods enter as
+slopes on `wvar`. Because the pre-treatment estimates are thus level
+differences, the event study reports the post-treatment effects at the
+observed treatment level by default, so that both sides are on the same
+scale.
 
 ``` r
 
-wmod_never = etwfe(
+etwfe(
   log_retail_emp ~ 0, tvar = year, gvar = cohort, data = walmart,
   ivar = fips, vcov = ~fips, wvar = n_open,
   cgroup = "never"     ## <= never-treated control group
-)
-plot(emfx(wmod_never, "event"))
+  ) |>
+  emfx("event") |>
+  plot()
 #> Pre-treatment estimates are level differences, so post-treatment effects are reported at the observed treatment level for comparability. Use `wlevels = "slope"` for per-unit slopes instead.
 ```
 
 ![](etwfe_files/figure-html/unnamed-chunk-25-1.png)
 
-Oh, dear. Our pre-treatment estimates reveal a clear violation of
-parallel trends: counties that eventually received a Walmart were
-already experiencing faster retail employment growth than the
-never-treated counties. So, we need to do something a little more
-sophisticated…
+Oh, dear. Unlike our minimum wage example, the pre-treatment estimates
+here reveal a clear violation of parallel trends: counties that
+eventually received a Walmart were already experiencing faster retail
+employment growth than the never-treated counties. So, we need to do
+something a little more sophisticated…
 
-### Cohort trends
+#### Cohort trends
 
-One remedy is to allow each cohort its own linear time trend via
-`trend = TRUE`. This argument works for binary treatments too and is
-compatible with the default not-yet-treated control group. However, it
-is not compatible with `cgroup = "never"`, since the estimation cannot
-separately identify cohort trends and a full set of pre-treatment
-effects.[^6] Compared with our original estimates (`emfx(wmod)` above),
+Let’s add cohort-specific linear trends via `trend = TRUE`. Note that
+this requires reverting to our default `"notyet"`-treated control
+group.[^5] Compared with our original estimates (`emfx(wmod)` above),
 accounting for these pre-existing trends cuts the estimated employment
 effect of each additional store by more than half to 1.6%.
 
@@ -786,8 +821,8 @@ emfx(wmod_trend)
 #> Comparison: +1
 ```
 
-The cohort trends enter the model as regular coefficients, so we can
-also test their joint significance directly.
+We can also test the joint significance of the cohort trends directly
+with a simple Wald test.
 
 ``` r
 
@@ -821,13 +856,13 @@ the second
 [`emfx()`](https://grantmcdermott.com/etwfe/reference/emfx.md) stage
 should also be very fast—more than an order of magnitude faster than
 before (typically 10-40x)—since it now computes standard errors using
-exact analytic Jacobians.[^7]
+exact analytic Jacobians.[^6]
 
-## Under the hood
+## Appendix
 
 Now that you’ve seen **etwfe** in action, let’s circle back to what the
-package is doing under the hood. This section isn’t necessary for you to
-use the package; feel free to skip it. But a review of the internal
+package is doing under the hood. This appendix isn’t necessary for you
+to use the package; feel free to skip it. But a review of the internal
 details should help you to optimize for different scenarios and also
 give you a better understanding of **etwfe’s** default choices.
 
@@ -842,7 +877,7 @@ of an estimated model to see for yourself.
 mod$fml_all
 #> $linear
 #> lemp ~ .Dtreat:i(first.treat, i.year, ref = 0, ref2 = 2003)/lpop_dm
-#> <environment: 0x62be1a135778>
+#> <environment: 0x57297f2e4258>
 #> 
 #> $fixef
 #> ~first.treat + first.treat[[lpop]] + year + year[[lpop]]
@@ -877,7 +912,7 @@ mod2 = fixest::feols(
 
 We can confirm that the manual approach yields the same output as our
 original etwfe regression. I’ll use **modelsummary** to do that here,
-since I’ve already loaded it above.[^8].
+since I’ve already loaded it above.[^7].
 
 ``` r
 
@@ -973,7 +1008,7 @@ syntax in the fixed effect slot (i.e., `first.treat[lpop]` and
 `year[lpop]`). The reason for this is part practical, part
 philosophical. From a practical perspective, `factor_var[numeric_var]`
 is equivalent to base R’s `factor_var/numeric_var` “nesting” syntax but
-is much faster for high-dimensional factors.[^9] From a philosophical
+is much faster for high-dimensional factors.[^8] From a philosophical
 perspective, **etwfe** tries to limit the amount of extraneous
 information that it reports to users. Most of the interaction effects in
 the ETWFE framework are just acting as controls. By relegating them to
@@ -1148,37 +1183,31 @@ modelsummary(
     is something we’ll get back too later. It’s not particularly
     important for interpreting the final results.
 
-[^3]: This obviously means that our ETWFE result here cannot be used for
-    interrogating pre-treatment fit (say, a visual inspection for
-    parallel pre-trends). To force return these “zero” pre-treatment
-    effects, you can invoke the `emfx(..., post_only = TRUE)` argument.
-    But it should be emphasized that doing so is *strictly*
-    performative. Again, pre-treatment effects are zero by estimation
-    design if the not-yet treated units are used as the control group.
-
-[^4]: Note that the “x” prefix in “xvar” represents a covariate that is
+[^3]: Note that the “x” prefix in “xvar” represents a covariate that is
     *interacted* (×) with treatment, as opposed to a regular control
     variable (which could obviously be included as part of the `fml`
     RHS.
 
-[^5]: If the `wvar` argument is present,
+[^4]: If the `wvar` argument is present,
     [`etwfe()`](https://grantmcdermott.com/etwfe/reference/etwfe.md)
     will actually throw an error if `ivar` is missing.
 
-[^6]: Unfortunately, this tradeoff makes for a slightly awkward
+[^5]: The reason lies in simple estimation mechanics: We cannot
+    separately identify cohort trends and a full set of pre-treatment
+    effects. Unfortunately, this tradeoff makes for a slightly awkward
     workflow: first we visually inspect the pre-trends with
-    `cgroup = "never"`, before reverting back to the default
+    `cgroup = "never"`, before reverting to the default
     `cgroup = "notyet"` with `trend = TRUE`. But such is the life of the
     applied researcher.
 
-[^7]: This is thanks to changes in the upstream **marginaleffects**
+[^6]: This is thanks to changes in the upstream **marginaleffects**
     package. Earlier versions relied on a numerical delta method, which
     required estimating two prediction models for *each* coefficient in
     the model. For large datasets, this could lead to frustratingly slow
     estimation times.
 
-[^8]: Another option would be to use
+[^7]: Another option would be to use
     [`fixest::etable()`](https://lrberge.github.io/fixest/reference/etable.html)
 
-[^9]: We won’t see a speed-up for this small dataset, but it can make a
+[^8]: We won’t see a speed-up for this small dataset, but it can make a
     significant difference for large datasets.

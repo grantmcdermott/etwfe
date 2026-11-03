@@ -34,7 +34,8 @@
   linear trends, for both binary and non-binary treatments. This relaxes
   the parallel trends assumption, which can matter when pre-trend tests
   suggest that it is violated. See the vignette for examples. (Not
-  available with `cgroup = "never"`.)
+  available with `cgroup = "never"`, and requires at least two
+  pre-treatment periods for each treated cohort.)
 
 ### Breaking changes
 

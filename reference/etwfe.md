@@ -137,11 +137,12 @@ etwfe(
 
   Logical. Include cohort-specific linear time trends? Defaults to
   `FALSE`. Useful when parallel trends is in doubt (Wooldridge, 2025,
-  2026). Requires a numeric `tvar` and is not available with
-  `cgroup = "never"` (since cohort-specific trends and a full set of
-  pre-treatment effects cannot both be identified). The trends enter the
-  model as regular coefficients—rather than absorbed fixed-effect
-  slopes—so that they can be inspected and tested, e.g.
+  2026). Requires a numeric `tvar` and at least two pre-treatment
+  periods for each treated cohort. Not available with `cgroup = "never"`
+  (since cohort-specific trends and a full set of pre-treatment effects
+  cannot both be identified). The trends enter the model as regular
+  coefficients—rather than absorbed fixed-effect slopes—so that they can
+  be inspected and tested, e.g.
   `fixest::wald(mod, "^<gvar>::.*:<tvar>$")`.
 
 - ...:
