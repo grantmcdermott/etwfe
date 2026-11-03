@@ -92,9 +92,10 @@ automatically be set to NULL.}
 
 \item{trend}{Logical. Include cohort-specific linear time trends? Defaults to
 \code{FALSE}. Useful when parallel trends is in doubt (Wooldridge, 2025, 2026).
-Requires a numeric \code{tvar} and is not available with \code{cgroup = "never"}
-(since cohort-specific trends and a full set of pre-treatment effects
-cannot both be identified). The trends enter the model as regular
+Requires a numeric \code{tvar} and at least two pre-treatment periods for each
+treated cohort. Not available with \code{cgroup = "never"} (since
+cohort-specific trends and a full set of pre-treatment effects cannot both
+be identified). The trends enter the model as regular
 coefficients---rather than absorbed fixed-effect slopes---so that they can
 be inspected and tested, e.g. \code{fixest::wald(mod, "^<gvar>::.*:<tvar>$")}.}
 
