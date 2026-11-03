@@ -5,7 +5,9 @@ treatment effects along different dimensions of interest (e.g, an event
 study of dynamic average treatment effects). `emfx` is a light wrapper
 around the
 [`slopes`](https://rdrr.io/pkg/marginaleffects/man/slopes.html) function
-from the **marginaleffects** package.
+from the **marginaleffects** package. If the original `etwfe` model was
+estimated with regression weights (e.g., `weights = ~pop`), these are
+also used to weight the aggregation.
 
 ## Usage
 

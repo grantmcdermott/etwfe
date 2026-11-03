@@ -53,6 +53,15 @@
   implementation and [@snhansen](https://github.com/snhansen) for
   theoretical guidance.
   ([\#48](https://github.com/grantmcdermott/etwfe/issues/48))
+- [`emfx()`](https://grantmcdermott.com/etwfe/reference/emfx.md) now
+  aggregates using the regression weights of the original
+  [`etwfe()`](https://grantmcdermott.com/etwfe/reference/etwfe.md) model
+  (e.g., `etwfe(..., weights = ~pop)`). Previously, these weights were
+  used for estimation, but ignored when averaging the resulting
+  treatment effects, so that
+  [`emfx()`](https://grantmcdermott.com/etwfe/reference/emfx.md)
+  reported unweighted ATTs. Results for unweighted models are
+  unaffected.
 
 ### Performance
 

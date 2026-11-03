@@ -3,11 +3,13 @@
 effects along different dimensions of interest (e.g, an event study of
 dynamic average treatment effects). emfx is a light wrapper around the
 slopes function from the marginaleffects
-package."><meta property="og:description" content="Companion function to etwfe, enabling the recovery of aggregate treatment
+package. If the original etwfe model was estimated with regression weights
+(e.g., weights = ~pop), these are also used to weight the aggregation."><meta property="og:description" content="Companion function to etwfe, enabling the recovery of aggregate treatment
 effects along different dimensions of interest (e.g, an event study of
 dynamic average treatment effects). emfx is a light wrapper around the
 slopes function from the marginaleffects
-package."></head><body>
+package. If the original etwfe model was estimated with regression weights
+(e.g., weights = ~pop), these are also used to weight the aggregation."></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -47,7 +49,8 @@ package."></head><body>
 effects along different dimensions of interest (e.g, an event study of
 dynamic average treatment effects). <code>emfx</code> is a light wrapper around the
 <code><a href="https://rdrr.io/pkg/marginaleffects/man/slopes.html" class="external-link">slopes</a></code> function from the <strong>marginaleffects</strong>
-package.</p>
+package. If the original <code>etwfe</code> model was estimated with regression weights
+(e.g., <code>weights = ~pop</code>), these are also used to weight the aggregation.</p>
     </div>
 
     <div class="section level2">
