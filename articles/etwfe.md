@@ -324,7 +324,8 @@ to visually inspect for parallel pre-trends.
 ``` r
 
 mod_es2 = etwfe(
-  lemp ~ lpop, tvar = year, gvar = first.treat, data = mpdta, vcov = ~countyreal,
+  lemp ~ lpop, tvar = year, gvar = first.treat,
+  data = mpdta, vcov = ~countyreal,
   cgroup = "never" # <= use never treated as control group
   ) |>
   emfx(type = "event")
@@ -443,7 +444,7 @@ modelsummary(
 | \+ p \< 0.1, \* p \< 0.05, \*\* p \< 0.01, \*\*\* p \< 0.001 |  |  |
 | Std. errors are clustered at the county level |  |  |
 
-Event study {#tinytable_b38mhx2v1brmr4bxcksu .table .tinytable
+Event study {#tinytable_cz2bf2bemqz1pteigpv8 .table .tinytable
 style="width: auto; margin-left: auto; margin-right: auto;"
 quarto-disable-processing="true"}
 
@@ -483,10 +484,11 @@ treatment effects by these two distinct groups.
 ``` r
 
 hmod = etwfe(
-  lemp ~ lpop, tvar = year, gvar = first.treat, data = mpdta,
+  lemp ~ lpop, tvar = year, gvar = first.treat,
+  xvar = gls,           ## <= het. TEs by gls
+  data = mpdta,
   cgroup = "never",
-  vcov = ~countyreal,
-  xvar = gls           ## <= het. TEs by gls
+  vcov = ~countyreal
 )
 
 # Simple heterogeneous ATTs (could also specify `type = "event"`, etc.) 
@@ -573,7 +575,7 @@ modelsummary(
 |     | (0.035)    | (0.026) |
 
 Comparing the ATT on GLS and non-GLS counties
-{#tinytable_dmvkwz26bl9dueghcmxn .table .tinytable
+{#tinytable_if6fh1kkj4v1ulkhu37m .table .tinytable
 style="width: auto; margin-left: auto; margin-right: auto;"
 quarto-disable-processing="true"}
 
@@ -666,10 +668,11 @@ heterogeneity that is correlated with the treatment level.[^4]
 ``` r
 
 wmod = etwfe(
-  log_retail_emp ~ 0, tvar = year, gvar = cohort, data = walmart,
-  ivar = fips,         ## <= required for non-binary treatments
-  vcov = ~fips,
-  wvar = n_open        ## <= non-binary treatment
+  log_retail_emp ~ 0, tvar = year, gvar = cohort,
+  ivar = fips,    ## <= required for non-binary treatments
+  wvar = n_open,  ## <= non-binary treatment
+  data = walmart,
+  vcov = ~fips
 )
 ```
 
@@ -763,6 +766,27 @@ versions of the slopes. Second, levels far from the bulk of the data are
 extrapolations. For example, in our case here, most treated counties
 only have a single Walmart.
 
+Before turning to pre-trends, I do think we could make the previous plot
+look a bit sharper. To belabour a previous point, we can pass all of the
+regular **tinyplot** commands for some extra customization.
+
+``` r
+
+# same plot as previous, just with extra bling
+wmod |>
+  emfx("event", wlevels = 1:3) |>
+  plot(
+    theme = "web",
+    type = "ribbon",
+    main = "Effect on (log) retail employment",
+    sub = "Due to the opening of new Walmart stores",
+    cap = "Note: County-level estimates, 1977-1999. Data based on Emek (2005).",
+    legend = list(title = "Number of\nopen stores")
+  )
+```
+
+![](etwfe_files/figure-html/unnamed-chunk-25-1.png)
+
 ### Pre-trends
 
 #### Visual inspection
@@ -779,16 +803,17 @@ scale.
 ``` r
 
 etwfe(
-  log_retail_emp ~ 0, tvar = year, gvar = cohort, data = walmart,
-  ivar = fips, vcov = ~fips, wvar = n_open,
-  cgroup = "never"     ## <= never-treated control group
+  log_retail_emp ~ 0,
+  tvar = year, gvar = cohort, ivar = fips, wvar = n_open,
+  data = walmart, vcov = ~fips,
+  cgroup = "never"  ## <= never-treated control group
   ) |>
   emfx("event") |>
   plot()
 #> Pre-treatment estimates are level differences, so post-treatment effects are reported at the observed treatment level for comparability. Use `wlevels = "slope"` for per-unit slopes instead.
 ```
 
-![](etwfe_files/figure-html/unnamed-chunk-25-1.png)
+![](etwfe_files/figure-html/unnamed-chunk-26-1.png)
 
 Oh, dear. Unlike our minimum wage example, the pre-treatment estimates
 here reveal a clear violation of parallel trends: counties that
@@ -800,16 +825,17 @@ something a little more sophisticated…
 
 Let’s add cohort-specific linear trends via `trend = TRUE`. Note that
 this requires reverting to our default `"notyet"`-treated control
-group.[^5] Compared with our original estimates (`emfx(wmod)` above),
-accounting for these pre-existing trends cuts the estimated employment
-effect of each additional store by more than half to 1.6%.
+group.[^5] Compared with our original estimates (i.e., 3.9%), accounting
+for these pre-existing trends cuts the estimated employment effect of
+each additional store by more than half to 1.6%.
 
 ``` r
 
 wmod_trend = etwfe(
-  log_retail_emp ~ 0, tvar = year, gvar = cohort, data = walmart,
-  ivar = fips, vcov = ~fips, wvar = n_open,
-  trend = TRUE         ## <= cohort-specific linear trends
+  log_retail_emp ~ 0,
+  tvar = year, gvar = cohort, ivar = fips, wvar = n_open,
+  data = walmart, vcov = ~fips,
+  trend = TRUE  ## <= cohort-specific linear trends
 )
 emfx(wmod_trend)
 #> 
@@ -877,7 +903,7 @@ of an estimated model to see for yourself.
 mod$fml_all
 #> $linear
 #> lemp ~ .Dtreat:i(first.treat, i.year, ref = 0, ref2 = 2003)/lpop_dm
-#> <environment: 0x57297f2e4258>
+#> <environment: 0x5bfc98ebe178>
 #> 
 #> $fixef
 #> ~first.treat + first.treat[[lpop]] + year + year[[lpop]]
@@ -1186,7 +1212,7 @@ modelsummary(
 [^3]: Note that the “x” prefix in “xvar” represents a covariate that is
     *interacted* (×) with treatment, as opposed to a regular control
     variable (which could obviously be included as part of the `fml`
-    RHS.
+    RHS).
 
 [^4]: If the `wvar` argument is present,
     [`etwfe()`](https://grantmcdermott.com/etwfe/reference/etwfe.md)
