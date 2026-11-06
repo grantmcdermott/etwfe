@@ -6,7 +6,7 @@
   new `etwfe(..., wvar = <wvar>)` argument, following [Wooldridge
   (2026)](https://doi.org/10.2139/ssrn.7530698). Each cohort-period cell gets
   its own slope on `wvar`, which `emfx()` then aggregates as usual. Requires
-  unit fixed effects (`ivar`) and a linear model.
+  unit fixed effects (`ivar`) and a linear model. (#94)
   - By default, `emfx()` reports the slope (effect per unit of `wvar`). The new
     `emfx(..., wlevels = ...)` argument instead returns effects at each unit's
     observed treatment level (`"observed"`), or at fixed treatment levels (a
@@ -22,12 +22,22 @@
   originally constructed by Brown and Butts
   ([2025](https://doi.org/10.1016/j.jeconom.2025.106013)), and is included with
   their kind permission.
-- New `etwfe(..., trend = TRUE)` argument for including cohort-specific linear
-  trends, for both binary and non-binary treatments. This relaxes the parallel
-  trends assumption, which can matter when pre-trend tests suggest that it is
-  violated. See the vignette for examples. (Not available with
-  `cgroup = "never"`, and requires at least two pre-treatment periods for each
-  treated cohort.)
+- New functionality for testing and accounting for pre-trends. (#94, #97)
+  - The `pretrends()` function jointly tests for pre-trends in `etwfe` model
+    objects, following Wooldridge
+    ([2025](https://doi.org/10.1007/s00181-025-02807-z), Sec. 7).
+    Specifically, it tests either: 1) the cohort-specific trends for `etwfe`
+    models estimated with `trend = TRUE` (see next bullet) and (the default)
+    `cgroup = "notyet"`, or 2) the pre-treatment effects for `etwfe` models
+    estimated with `cgroup = "never"`. This function is a thin wrapper around
+    `fixest::wald()` that saves users from having to write regular expressions
+    for the relevant coefficient names.
+  - `etwfe(..., trend = TRUE)` argument for including cohort-specific linear
+    trends, for both binary and non-binary treatments. This relaxes the parallel
+    trends assumption, which can matter when pre-trend tests suggest that it is
+    violated. See the vignette for examples. Only available for
+    `cgroup = "notyet"` and requires at least two pre-treatment periods for each
+    treated cohort.
 
 ## Breaking changes
 
@@ -51,7 +61,7 @@
 - Dramatic (10-40x) speed-ups for `emfx()`, thanks to upstream **marginaleffects**
   support for analytic Jacobians (vincentarelbundock/marginaleffects#1769).
   Moreover, standard errors gain improved precision due to their exact
-  analytic derivations.
+  analytic derivations. (#90)
   - As a side-effect of the fast + exact analytic path, the default
     `emfx(..., compress = "auto")` now falls back to `FALSE` (i.e., no data
     compression). Data compression was mainly aimed at reducing computation
