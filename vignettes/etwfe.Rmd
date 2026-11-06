@@ -247,16 +247,26 @@ namely, including a linear time trend for each cohort. Again, **etwfe** offers
 a convenience method for implementing this on your behalf via the
 `etwfe(..., trend = TRUE)` argument. Since these cohort trends enter the model
 as regular coefficients, we can then test their joint significance directly with
-`fixest::wald()`.
+the `pretrends()` function.^[This function is a light wrapper around
+`fixest::wald()` that selects the relevant coefficients on your behalf. It can
+also be used to jointly test the pre-treatment effects for models estimated 
+with `cgroup = "never"`, as we'll see below.]
 
 It is important to note that identifying a cohort trend requires at least two
 pre-treatment periods for each cohort; otherwise we can't construct a linear
-trend. Unfortunately, that rules out our minimum wage example here, since the
-2004 cohort is only observed for a single pre-treatment year (2003).
-Nevertheless, we'll see cohort trends in action in the
-[non-binary treatments](#non-binary-treatments) section below. Plus, we can
-always switch to a visual inspection as an alternative, which segues nicely to
-our next section.
+trend. Unfortunately, that rules out our `mpdta` running example, since the
+2004 cohort is only observed for a single pre-treatment year (2003). But we can
+demonstrate on a data subset that excludes this early cohort.
+
+```{r}
+# same model as above but (a) with cohort trends & (b) dropping "2004" cohort
+etwfe(
+  lemp ~ lpop, tvar = year, gvar = first.treat, vcov = ~countyreal,
+  data = mpdta[mpdta$first.treat!=2004, ],
+  trend = TRUE
+) |>
+  pretrends()
+```
 
 #### Visual inspection
 
@@ -269,18 +279,23 @@ _does_ have the virtue of returning pre-treatment effects as part of the
 estimation. In turn, this allows us to visually inspect for parallel pre-trends.
 
 ```{r}
-mod_es2 = etwfe(
+mod_never = etwfe(
   lemp ~ lpop, tvar = year, gvar = first.treat,
   data = mpdta, vcov = ~countyreal,
   cgroup = "never" # <= use never treated as control group
-  ) |>
-  emfx(type = "event")
+)
 
-plot(mod_es2)
+mod_never_es = emfx(mod_never, type = "event")
+plot(mod_never_es)
 ```
 
 Reassuringly, the pre-treatment estimates are small and statistically
-insignificant, so there is no obvious violation of parallel trends here.
+insignificant, so there is no obvious violation of parallel trends here. A
+formal joint test of the pre-treatment effects via `pretrends()` confirms this.
+
+```{r}
+pretrends(mod_never)
+```
 
 ### Presentation
 
@@ -295,7 +310,7 @@ as a backend and you should be able to pass through any valid argument that
 
 ```{r}
 plot(
-  mod_es2,
+  mod_never_es,
   type  = "ribbon",
   theme = "clean2",
   xlab  = "Years post treatment",
@@ -313,7 +328,10 @@ assuming that you have **ggplot2** installed:
 # install.packages("ggplot2")
 library(ggplot2)
 
-ggplot(mod_es2, aes(x = event, y = estimate, ymin = conf.low, ymax = conf.high)) +
+ggplot(
+  mod_never_eses2,
+  aes(x = event, y = estimate, ymin = conf.low, ymax = conf.high)
+  ) +
   geom_hline(yintercept = 0, lty = 2, col = "grey50") +
   geom_vline(xintercept = -1, lty = 2, col = "grey50") +
   geom_pointrange(col = "darkcyan") +
@@ -345,7 +363,7 @@ rename_fn = function(old_names) {
 }
 
 modelsummary(
-  list(mod_es2, mod_es),
+  list(mod_never_es, mod_es),
   shape       = term:event:statistic ~ model,
   coef_rename = rename_fn,
   gof_omit    = "Adj|Within|IC|RMSE",
@@ -640,11 +658,11 @@ wmod_trend = etwfe(
 emfx(wmod_trend)
 ```
 
-We can also test the joint significance of the cohort trends directly with a
-simple Wald test.
+As with the binary case, we can also test the joint significance of the cohort
+trends directly with a simple Wald test.
 
 ```{r}
-fixest::wald(wmod_trend, "^cohort::.*:year$")
+pretrends(wmod_trend)
 ```
 
 The test strongly rejects the null that the cohort trends are jointly zero
