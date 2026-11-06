@@ -97,7 +97,7 @@ treated cohort. Not available with \code{cgroup = "never"} (since
 cohort-specific trends and a full set of pre-treatment effects cannot both
 be identified). The trends enter the model as regular
 coefficients---rather than absorbed fixed-effect slopes---so that they can
-be inspected and tested, e.g. \code{fixest::wald(mod, "^<gvar>::.*:<tvar>$")}.}
+be inspected and jointly tested with \code{\link[=pretrends]{pretrends()}}.}
 
 \item{...}{Additional arguments passed to \code{\link[fixest:feols]{fixest::feols}} (or
 \code{\link[fixest:feglm]{fixest::feglm}}). The most common example would be a \code{vcov} argument.

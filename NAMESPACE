@@ -3,6 +3,7 @@
 S3method(plot,emfx)
 export(emfx)
 export(etwfe)
+export(pretrends)
 importFrom(Formula,as.Formula)
 importFrom(data.table,
   .SD,
@@ -27,6 +28,7 @@ importFrom(marginaleffects,
   vcovUnconditional
 )
 importFrom(stats,
+  coef,
   complete.cases,
   reformulate,
   setNames,

@@ -73,7 +73,7 @@
 #'   cohort-specific trends and a full set of pre-treatment effects cannot both
 #'   be identified). The trends enter the model as regular
 #'   coefficients---rather than absorbed fixed-effect slopes---so that they can
-#'   be inspected and tested, e.g. `fixest::wald(mod, "^<gvar>::.*:<tvar>$")`.
+#'   be inspected and jointly tested with [pretrends()].
 #' @param ... Additional arguments passed to [`fixest::feols`] (or
 #'   [`fixest::feglm`]). The most common example would be a `vcov` argument.
 #'   Note that incomplete cases are dropped before any controls (or `xvar`)
