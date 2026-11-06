@@ -9,6 +9,7 @@ reference:
 - title: "Methods"
   contents: 
   - plot.emfx
+  - pretrends
 - title: "Data"
   contents:
   - walmart
