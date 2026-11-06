@@ -11,6 +11,8 @@
 
 - [`plot(`*`<emfx>`*`)`](https://grantmcdermott.com/etwfe/reference/plot.emfx.md)
   : Plot method for emfx objects
+- [`pretrends()`](https://grantmcdermott.com/etwfe/reference/pretrends.md)
+  : Test for pre-trends
 
 ## Data
 

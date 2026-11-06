@@ -142,8 +142,8 @@ etwfe(
   (since cohort-specific trends and a full set of pre-treatment effects
   cannot both be identified). The trends enter the model as regular
   coefficients—rather than absorbed fixed-effect slopes—so that they can
-  be inspected and tested, e.g.
-  `fixest::wald(mod, "^<gvar>::.*:<tvar>$")`.
+  be inspected and jointly tested with
+  [`pretrends()`](https://grantmcdermott.com/etwfe/reference/pretrends.md).
 
 - ...:
 

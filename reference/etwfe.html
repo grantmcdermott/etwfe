@@ -180,7 +180,7 @@ treated cohort. Not available with <code>cgroup = "never"</code> (since
 cohort-specific trends and a full set of pre-treatment effects cannot both
 be identified). The trends enter the model as regular
 coefficients—rather than absorbed fixed-effect slopes—so that they can
-be inspected and tested, e.g. <code>fixest::wald(mod, "^&lt;gvar&gt;::.*:&lt;tvar&gt;$")</code>.</p></dd>
+be inspected and jointly tested with <code><a href="pretrends.html">pretrends()</a></code>.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
