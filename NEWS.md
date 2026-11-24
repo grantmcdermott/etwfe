@@ -78,6 +78,20 @@
 
 ## Bug fixes
 
+## Bug fixes
+
+- `etwfe(..., family = "negbin")` now works, as documented. Previously, it
+  errored because `fixest::feglm()` has no `"negbin"` family. Negative
+  binomial models are now estimated with `fixest::fenegbin()`, which estimates
+  the dispersion parameter (theta) jointly with the treatment effects. Since
+  `fenegbin()` cannot drop collinear terms, the treatment cells are built from
+  a helper cohort variable, so that their coefficients are labelled
+  `.Dtreat:.<gvar>::<g>:<tvar>::<t>`. For these models, `emfx()` falls back
+  to the model's (conditional) variance-covariance matrix with a warning, and
+  `weights` are not supported. (#63, #93)
+- `etwfe()` no longer errors when `family` is a family object (e.g.,
+  `poisson()` or `MASS::negative.binomial(theta = 1)`) and `fe` is left at its
+  default. (#93)
 - `plot.emfx()` no longer errors for objects without standard errors (e.g.,
   `emfx(..., vcov = FALSE)`), and plots point estimates only instead.
 - With unit-level fixed effects (`ivar`) and `fe = "vs"`, the control
