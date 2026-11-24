@@ -130,8 +130,11 @@
 #'   error.)
 #' - Multiway or interacted clustering (e.g., `vcov = ~countyreal + year`),
 #'   which `vcovUnconditional` does not support.
+#' - Negative binomial models (`etwfe(..., family = "negbin")`), since
+#'   [fixest::fenegbin()] does not provide the `bread()` method that
+#'   `vcovUnconditional` requires.
 #'
-#' A warning is triggered in both cases.
+#' A warning is triggered in all cases.
 #'
 #' Users can override the default by passing their own `vcov` argument, e.g.
 #' `vcov = TRUE` to recover the model's conditional standard errors (the
@@ -336,11 +339,12 @@ emfx = function(
     }
   }
 
-  # catch for non-linear models
+  # catch for non-linear models (fenegbin() stores `family` as a string)
+  fam = if (is.list(object$family)) object$family$family else object$family
   if (!is.null(dots)) {
     if (
-      !is.null(object$family) &&
-        object$family$family != "gaussian" &&
+      !is.null(fam) &&
+        fam != "gaussian" &&
         fe != "none"
     ) {
       if (is.null(dots$vcov) || !isFALSE(dots$vcov)) {
@@ -418,7 +422,16 @@ emfx = function(
   # unconditional standard errors (default): inherit the model's one-way
   # cluster variable, since marginaleffects::vcovUnconditional() can't
   if (is.null(dots$vcov) && !(compress && is.null(ivar))) {
-    dots$vcov = "unconditional"
+    if (identical(object$method, "fenegbin")) {
+      # vcovUnconditional() needs fixest::bread(), which fenegbin() lacks
+      warning(
+        "Unconditional standard errors are not available for negative binomial ",
+        "models; using the model's variance-covariance matrix instead. ",
+        "Use `vcov = TRUE` to silence this warning."
+      )
+    } else {
+      dots$vcov = "unconditional"
+    }
   }
   if (
     compress &&
