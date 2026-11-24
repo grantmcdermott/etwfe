@@ -82,13 +82,21 @@ will default to \code{"none"}, since the downstream \code{\link{emfx}} function 
 compute standard errors for these models in the presence of fixed-effects.
 (See: https://github.com/vincentarelbundock/marginaleffects/issues/1487)
 Please note that the primary treatment parameters of interest should
-remain unchanged regardless of \code{fe} argument choice.}
+remain unchanged regardless of \code{fe} argument choice. Also note that \code{"vs"}
+is not available for \code{family = "negbin"}.}
 
 \item{family}{Which \code{\link{family}} to use for the estimation. Defaults to NULL,
-in which case \code{\link[fixest:feols]{fixest::feols}} is used. Otherwise passed to
-\code{\link[fixest:feglm]{fixest::feglm}}, so that valid entries include "logit", "poisson", and
-"negbin". Note that if a non-NULL family entry is detected, \code{ivar} will
-automatically be set to NULL.}
+in which case \code{\link[fixest:feols]{fixest::feols}} is used. \code{"negbin"} estimates a negative
+binomial model with \code{\link[fixest:fenegbin]{fixest::fenegbin}}, which estimates the dispersion
+parameter (theta) jointly with the other coefficients. This option does
+not support \code{weights} or \code{fe = "vs"}, and labels the treatment
+coefficients with a helper cohort variable named after \code{gvar} (e.g.,
+\verb{.Dtreat:.first_treated::2004:year::2004}). All other entries are passed
+to \code{\link[fixest:feglm]{fixest::feglm}}, so that valid entries include strings like "logit"
+and "poisson", or family objects like \code{poisson()} and
+\code{MASS::negative.binomial(theta = 1)} (for a known theta). Note that if a
+non-NULL family entry is detected, \code{ivar} will automatically be set to
+NULL.}
 
 \item{trend}{Logical. Include cohort-specific linear time trends? Defaults to
 \code{FALSE}. Useful when parallel trends is in doubt (Wooldridge, 2025, 2026).
@@ -100,7 +108,7 @@ coefficients---rather than absorbed fixed-effect slopes---so that they can
 be inspected and jointly tested with \code{\link[=pretrends]{pretrends()}}.}
 
 \item{...}{Additional arguments passed to \code{\link[fixest:feols]{fixest::feols}} (or
-\code{\link[fixest:feglm]{fixest::feglm}}). The most common example would be a \code{vcov} argument.
+\code{\link[fixest:feglm]{fixest::feglm}} / \code{\link[fixest:fenegbin]{fixest::fenegbin}}). The most common example would be a \code{vcov} argument.
 Note that incomplete cases are dropped before any controls (or \code{xvar})
 are demeaned, but only for variables in \code{fml}, the \code{gvar}, \code{tvar},
 \code{ivar} and \code{xvar} arguments, and one-sided formula \code{weights} (e.g.,
@@ -119,8 +127,9 @@ saturated interaction effects \emph{a la} Wooldridge (2023, 2025, 2026). At its
 heart, \code{etwfe} is a convenience function that automates a number of tedious
 and error prone preparation steps involving both the data and model formulae.
 Computation is passed on to the \code{\link[fixest]{feols}} (linear) /
-\code{\link[fixest]{feglm}} (nonlinear) functions from the \strong{fixest}
-package. \code{etwfe} should be paired with its companion \code{\link{emfx}} function.
+\code{\link[fixest]{feglm}} (nonlinear) / \code{\link[fixest:fenegbin]{fixest::fenegbin()}} (negative
+binomial) functions from the \strong{fixest} package. \code{etwfe} should be paired
+with its companion \code{\link{emfx}} function.
 }
 \section{Heterogeneous treatment effects}{
 
@@ -321,7 +330,7 @@ Difference-in-Differences with Non-Binary Treatments}. Working paper.
 Available: https://doi.org/10.2139/ssrn.7530698
 }
 \seealso{
-\code{\link[fixest:feols]{fixest::feols()}}, \code{\link[fixest:feglm]{fixest::feglm()}} which power the underlying
-estimation routines. \code{\link{emfx}} is a companion function that handles
-post-estimation aggregation to extract quantities of interest.
+\code{\link[fixest:feols]{fixest::feols()}}, \code{\link[fixest:feglm]{fixest::feglm()}}, \code{\link[fixest:fenegbin]{fixest::fenegbin()}} which
+power the underlying estimation routines. \code{\link{emfx}} is a companion function
+that handles post-estimation aggregation to extract quantities of interest.
 }

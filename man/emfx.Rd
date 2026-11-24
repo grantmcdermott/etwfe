@@ -181,9 +181,12 @@ standard errors for compressed data, e.g. \code{vcov = "unconditional"}, is an
 error.)
 \item Multiway or interacted clustering (e.g., \code{vcov = ~countyreal + year}),
 which \code{vcovUnconditional} does not support.
+\item Negative binomial models (\code{etwfe(..., family = "negbin")}), since
+\code{\link[fixest:fenegbin]{fixest::fenegbin()}} does not provide the \code{bread()} method that
+\code{vcovUnconditional} requires.
 }
 
-A warning is triggered in both cases.
+A warning is triggered in all cases.
 
 Users can override the default by passing their own \code{vcov} argument, e.g.
 \code{vcov = TRUE} to recover the model's conditional standard errors (the

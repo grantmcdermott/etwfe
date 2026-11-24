@@ -78,8 +78,6 @@
 
 ## Bug fixes
 
-## Bug fixes
-
 - `etwfe(..., family = "negbin")` now works, as documented. Previously, it
   errored because `fixest::feglm()` has no `"negbin"` family. Negative
   binomial models are now estimated with `fixest::fenegbin()`, which estimates
