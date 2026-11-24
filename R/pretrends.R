@@ -86,7 +86,11 @@ pretrends = function(x, interactions = FALSE, ...) {
     ## Treatment cells: "<lead>:<gvar>::<g>:<tvar>::<t>[:<nested covariate>]".
     ## Leads are the cells with t < g (each cohort's base period, g - 1, is
     ## already omitted from the model).
-    lead = paste0(if (is.null(a$wvar)) ".Dtreat" else ".Dpre", ":", a$gvar, "::")
+    lead = paste0(
+      if (is.null(a$wvar)) ".Dtreat" else ".Dpre", ":",
+      if (identical(x$method, "fenegbin")) ".", # helper cohort column, see etwfe()
+      a$gvar, "::"
+    )    
     cf = cf[startsWith(cf, lead)]
     parts = strsplit(substring(cf, nchar(lead) + 1), paste0(":", a$tvar, "::"), fixed = TRUE)
     g = as.numeric(vapply(parts, `[`, "", 1))
