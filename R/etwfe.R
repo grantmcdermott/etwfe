@@ -7,8 +7,9 @@
 #' heart, `etwfe` is a convenience function that automates a number of tedious
 #' and error prone preparation steps involving both the data and model formulae.
 #' Computation is passed on to the \code{\link[fixest]{feols}} (linear) /
-#' \code{\link[fixest]{feglm}} (nonlinear) functions from the **fixest**
-#' package. `etwfe` should be paired with its companion [`emfx`] function.
+#' \code{\link[fixest]{feglm}} (nonlinear) / [fixest::fenegbin()] (negative
+#' binomial) functions from the **fixest** package. `etwfe` should be paired
+#' with its companion [`emfx`] function.
 #'
 #' @param fml A two-side formula representing the outcome (lhs) and any control
 #'   variables (rhs), e.g. `y ~ x1 + x2`. If no controls are required, the rhs
@@ -60,12 +61,20 @@
 #'   compute standard errors for these models in the presence of fixed-effects.
 #'   (See: https://github.com/vincentarelbundock/marginaleffects/issues/1487)
 #'   Please note that the primary treatment parameters of interest should
-#'   remain unchanged regardless of `fe` argument choice.
+#'   remain unchanged regardless of `fe` argument choice. Also note that `"vs"`
+#'   is not available for `family = "negbin"`.
 #' @param family Which [`family`] to use for the estimation. Defaults to NULL,
-#'   in which case [`fixest::feols`] is used. Otherwise passed to
-#'   [`fixest::feglm`], so that valid entries include "logit", "poisson", and
-#'   "negbin". Note that if a non-NULL family entry is detected, `ivar` will
-#'   automatically be set to NULL.
+#'   in which case [`fixest::feols`] is used. `"negbin"` estimates a negative
+#'   binomial model with [`fixest::fenegbin`], which estimates the dispersion
+#'   parameter (theta) jointly with the other coefficients. This option does
+#'   not support `weights` or `fe = "vs"`, and labels the treatment
+#'   coefficients with a helper cohort variable named after `gvar` (e.g.,
+#'   `.Dtreat:.first_treated::2004:year::2004`). All other entries are passed
+#'   to [`fixest::feglm`], so that valid entries include strings like "logit"
+#'   and "poisson", or family objects like `poisson()` and
+#'   `MASS::negative.binomial(theta = 1)` (for a known theta). Note that if a
+#'   non-NULL family entry is detected, `ivar` will automatically be set to
+#'   NULL.
 #' @param trend Logical. Include cohort-specific linear time trends? Defaults to
 #'   `FALSE`. Useful when parallel trends is in doubt (Wooldridge, 2025, 2026).
 #'   Requires a numeric `tvar` and at least two pre-treatment periods for each
@@ -75,7 +84,7 @@
 #'   coefficients---rather than absorbed fixed-effect slopes---so that they can
 #'   be inspected and jointly tested with [pretrends()].
 #' @param ... Additional arguments passed to [`fixest::feols`] (or
-#'   [`fixest::feglm`]). The most common example would be a `vcov` argument.
+#'   [`fixest::feglm`] / [`fixest::fenegbin`]). The most common example would be a `vcov` argument.
 #'   Note that incomplete cases are dropped before any controls (or `xvar`)
 #'   are demeaned, but only for variables in `fml`, the `gvar`, `tvar`,
 #'   `ivar` and `xvar` arguments, and one-sided formula `weights` (e.g.,
@@ -86,7 +95,7 @@
 #' interaction effects, and a few additional attributes used for
 #' post-estimation in `emfx`.
 #'
-#' @importFrom fixest demean feols feglm i
+#' @importFrom fixest demean feols feglm fenegbin i
 #' @importFrom stats complete.cases reformulate setNames
 #' @importFrom Formula as.Formula
 #'
@@ -165,9 +174,9 @@
 #' Wooldridge, Jeffrey M. (2026). \cite{A Heterogeneous Slopes Approach to
 #' Difference-in-Differences with Non-Binary Treatments}. Working paper.
 #' Available: https://doi.org/10.2139/ssrn.7530698
-#' @seealso [fixest::feols()], [fixest::feglm()] which power the underlying
-#' estimation routines. [`emfx`] is a companion function that handles
-#' post-estimation aggregation to extract quantities of interest.
+#' @seealso [fixest::feols()], [fixest::feglm()], [fixest::fenegbin()] which
+#' power the underlying estimation routines. [`emfx`] is a companion function
+#' that handles post-estimation aggregation to extract quantities of interest.
 #' @examples
 #' # We'll use the base_stagg dataset from the fixest package, which simulates a
 #' # staggered treatment rollout across 100 units over 10 years. Never-treated
@@ -302,9 +311,11 @@ etwfe = function(
 ) {
   cgroup = match.arg(cgroup)
   if (is.null(fe)) {
-    fe = ifelse(is.null(family) || family == "gaussian", "vs", "none")
+    fam = if (is.list(family)) family$family else family
+    fe = if (is.null(fam) || identical(fam, "gaussian")) "vs" else "none"
   }
   fe = match.arg(fe, c("vs", "feo", "none"))
+  negbin = identical(family, "negbin")
   rhs = ctrls = vs = ref_string = xvar_dm_df = ctrls_fml_vars = xvar_fml_vars = NULL
   gref_min_flag = FALSE
 
@@ -370,6 +381,12 @@ etwfe = function(
       "`trend = TRUE` is not supported with `cgroup = \"never\"`, since ",
       "cohort-specific trends and a full set of pre-treatment effects cannot ",
       "both be identified.\n"
+    )
+  }
+  if (negbin && !is.null(list(...)[["weights"]])) {
+    stop(
+      "`weights` are not supported with `family = \"negbin\"`, since ",
+      "`fixest::fenegbin()` ignores them.\n"
     )
   }
   if (!is.null(family)) {
@@ -535,6 +552,14 @@ etwfe = function(
       data[[".Dpost"]] = data[[tvar]] >= data[[gvar]] & data[[gvar]] != gref
     }
   }
+  ## fenegbin() can't drop collinear regressors, so keep untreated rows out of
+  ## the treatment cells by mapping them to the reference cohort in a helper
+  ## column (a single i() term, since several i() terms break predict())
+  gcell = gvar
+  if (negbin) {
+    gcell = paste0(".", gvar)
+    data[[gcell]] = ifelse(data[[".Dtreat"]], data[[gvar]], gref)
+  }
   ## Treatment term, assembled below once we know which (demeaned) covariates
   ## are nested within the treatment cells. Other terms accumulate in rhs.
   tterm = paste0(
@@ -683,6 +708,8 @@ etwfe = function(
   ## Estimate
   if (is.null(family)) {
     est = feols(Fml, data = data, notes = FALSE, ...)
+  } else if (negbin) {
+    est = fenegbin(Fml, data = data, notes = FALSE, ...)
   } else {
     est = feglm(Fml, data = data, notes = FALSE, family = family, ...)
   }
