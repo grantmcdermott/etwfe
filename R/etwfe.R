@@ -565,7 +565,7 @@ etwfe = function(
   tterm = paste0(
     ".Dtreat : ",
     if (!is.null(wvar)) paste0(wvar, " : "),
-    "i(", gvar, ", i.", tvar, ref_string, ")"
+    "i(", gcell, ", i.", tvar, ref_string, ")"
   )
   nest = NULL
   rhs = ""
