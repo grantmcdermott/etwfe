@@ -90,7 +90,7 @@ pretrends = function(x, interactions = FALSE, ...) {
       if (is.null(a$wvar)) ".Dtreat" else ".Dpre", ":",
       if (identical(x$method, "fenegbin")) ".", # helper cohort column, see etwfe()
       a$gvar, "::"
-    )    
+    )
     cf = cf[startsWith(cf, lead)]
     parts = strsplit(substring(cf, nchar(lead) + 1), paste0(":", a$tvar, "::"), fixed = TRUE)
     g = as.numeric(vapply(parts, `[`, "", 1))
