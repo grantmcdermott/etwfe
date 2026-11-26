@@ -433,13 +433,17 @@ emfx = function(
       dots$vcov = "unconditional"
     }
   }
-  if (
-    compress &&
-      is.null(ivar) &&
-      (identical(dots$vcov, "unconditional") ||
-        identical(dots$vcov, marginaleffects::vcovUnconditional) ||
-        inherits(dots$vcov, "marginaleffects_vcov_unconditional"))
-  ) {
+  uncond = identical(dots$vcov, "unconditional") ||
+    identical(dots$vcov, marginaleffects::vcovUnconditional) ||
+    inherits(dots$vcov, "marginaleffects_vcov_unconditional")
+  if (uncond && identical(object$method, "fenegbin")) {
+    stop(
+      "Unconditional standard errors are not available for negative binomial ",
+      "models, since fixest::fenegbin() has no bread() method. ",
+      "Use `vcov = TRUE` for the model's conditional standard errors."
+    )
+  }
+  if (compress && is.null(ivar) && uncond) {
     stop(
       "Unconditional standard errors are not available for compressed data. ",
       "Use `compress = FALSE` (the default), or `vcov = TRUE` for the model's ",
