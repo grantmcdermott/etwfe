@@ -558,6 +558,9 @@ etwfe = function(
   gcell = gvar
   if (negbin) {
     gcell = paste0(".", gvar)
+    if (gcell %in% names(data)) {
+      stop("`", gcell, "` is reserved for negative binomial models; please rename it.\n")
+    }
     data[[gcell]] = ifelse(data[[".Dtreat"]], data[[gvar]], gref)
   }
   ## Treatment term, assembled below once we know which (demeaned) covariates
