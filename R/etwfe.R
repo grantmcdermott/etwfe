@@ -712,6 +712,9 @@ etwfe = function(
   if (is.null(family)) {
     est = feols(Fml, data = data, notes = FALSE, ...)
   } else if (negbin) {
+    if (fe == "vs") {
+      stop("`fe = \"vs\"` is not supported with `family =\"negbin\"`.\n")
+    }
     est = fenegbin(Fml, data = data, notes = FALSE, ...)
   } else {
     est = feglm(Fml, data = data, notes = FALSE, family = family, ...)
