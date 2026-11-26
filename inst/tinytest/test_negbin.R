@@ -39,6 +39,15 @@ e2 = emfx(mnb, vcov = TRUE)
 expect_equal(e1$std.error, e2$std.error)
 expect_true(all(is.finite(e2$std.error)))
 
+# ... but explicit unconditional requests are rejected
+expect_error(emfx(mnb, vcov = "unconditional"), "negative binomial")
+expect_error(emfx(mnb, vcov = marginaleffects::vcovUnconditional), "negative binomial")
+expect_error(
+  emfx(mnb, vcov = marginaleffects::vcovUnconditional(cluster = ~countyreal)),
+  "negative binomial"
+)
+expect_error(emfx(mnb, compress = TRUE, vcov = "unconditional"), "negative binomial")
+
 # Never-treated control group, incl. pretrends() on the renamed lead terms
 mnbn = etwfe(
   emp ~ lpop, tvar = year, gvar = first.treat, data = mpdta,
