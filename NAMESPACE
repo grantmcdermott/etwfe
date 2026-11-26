@@ -13,6 +13,7 @@ importFrom(data.table,
 importFrom(fixest,
   demean,
   feglm,
+  fenegbin,
   feols,
   i,
   obs
